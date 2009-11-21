@@ -424,4 +424,23 @@ dodiscovered()				/* free after Robert Viduya */
     return 0;
 }
 
+/* Returns the number of objects discovered but not prediscovered. The
+   objects must be formally IDed; merely naming doesn't count. Returns
+   actual and maximum possible values. */
+void count_discovered_objects(curp, maxp)
+int *curp;
+int *maxp;
+{
+  int i;
+  *maxp = 0;
+  *curp = 0;
+  for (i = 0; i < NUM_OBJECTS; i++) {
+    if (objects[i].oc_pre_discovered) continue;
+    if (OBJ_DESCR(objects[i]) == (char *)0) continue;
+    (*maxp)++;
+    if (!objects[i].oc_name_known) continue;
+    (*curp)++;
+  }
+}
+
 /*o_init.c*/

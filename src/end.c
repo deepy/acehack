@@ -4,6 +4,7 @@
 
 #define NEED_VARARGS	/* comment line for pre-compiled headers */
 
+#include <math.h>
 #include "hack.h"
 #include "eshk.h"
 #ifndef NO_SIGNAL
@@ -34,10 +35,10 @@ STATIC_PTR void FDECL(done_intr, (int));
 static void FDECL(done_hangup, (int));
 # endif
 #endif
-STATIC_DCL void FDECL(disclose,(int,BOOLEAN_P));
+STATIC_DCL void FDECL(disclose,(int,BOOLEAN_P,long));
 STATIC_DCL void FDECL(get_valuables, (struct obj *));
 STATIC_DCL void FDECL(sort_valuables, (struct valuable_data *,int));
-STATIC_DCL void FDECL(artifact_score, (struct obj *,BOOLEAN_P,winid));
+STATIC_DCL int  FDECL(artifact_score, (struct obj *,BOOLEAN_P,winid));
 STATIC_DCL void FDECL(savelife, (int));
 STATIC_DCL void FDECL(list_vanquished, (CHAR_P,BOOLEAN_P));
 STATIC_DCL void FDECL(list_genocided, (CHAR_P,BOOLEAN_P));
@@ -347,93 +348,6 @@ char *defquery;
     return TRUE;
 }
 
-STATIC_OVL void
-disclose(how,taken)
-int how;
-boolean taken;
-{
-	char	c = 0, defquery;
-	char	qbuf[QBUFSZ];
-	boolean ask;
-
-	if (invent) {
-	    if(taken)
-		Sprintf(qbuf,"Do you want to see what you had when you %s?",
-			(how == QUIT) ? "quit" : "died");
-	    else
-		Strcpy(qbuf,"Do you want your possessions identified?");
-
-	    ask = should_query_disclose_option('i', &defquery);
-	    if (!done_stopprint) {
-		c = ask ? yn_function(qbuf, ynqchars, defquery) : defquery;
-		if (c == 'y') {
-			struct obj *obj;
-
-			for (obj = invent; obj; obj = obj->nobj) {
-			    makeknown(obj->otyp);
-			    obj->known = obj->bknown = obj->dknown = obj->rknown = 1;
-			}
-			(void) display_inventory((char *)0, TRUE);
-			container_contents(invent, TRUE, TRUE);
-		}
-		if (c == 'q')  done_stopprint++;
-	    }
-	}
-
-	ask = should_query_disclose_option('a', &defquery);
-	if (!done_stopprint) {
-	    c = ask ? yn_function("Do you want to see your attributes?",
-				  ynqchars, defquery) : defquery;
-	    if (c == 'y')
-		enlightenment(how >= PANICKED ? 1 : 2); /* final */
-	    if (c == 'q') done_stopprint++;
-	}
-
-	ask = should_query_disclose_option('v', &defquery);
-	if (!done_stopprint)
-	    list_vanquished(defquery, ask);
-
-	ask = should_query_disclose_option('g', &defquery);
-	if (!done_stopprint)
-	    list_genocided(defquery, ask);
-
-	ask = should_query_disclose_option('c', &defquery);
-	if (!done_stopprint) {
-	    c = ask ? yn_function("Do you want to see your conduct?",
-				  ynqchars, defquery) : defquery;
-	    if (c == 'y')
-		show_conduct(how >= PANICKED ? 1 : 2);
-	    if (c == 'q') done_stopprint++;
-	}
-}
-
-/* try to get the player back in a viable state after being killed */
-STATIC_OVL void
-savelife(how)
-int how;
-{
-	u.uswldtim = 0;
-	u.uhp = u.uhpmax;
-	if (u.uhunger < 500) {
-	    u.uhunger = 500;
-	    newuhs(FALSE);
-	}
-	/* cure impending doom of sickness hero won't have time to fix */
-	if ((Sick & TIMEOUT) == 1) {
-	    u.usick_type = 0;
-	    Sick = 0;
-	}
-	if (how == CHOKING) init_uhunger();
-	nomovemsg = "You survived that attempt on your life.";
-	flags.move = 0;
-	if(multi > 0) multi = 0; else multi = -1;
-	if(u.utrap && u.utraptype == TT_LAVA) u.utrap = 0;
-	flags.botl = 1;
-	u.ugrave_arise = NON_PM;
-	HUnchanging = 0L;
-	curs_on_u();
-}
-
 /*
  * Get valuables from the given list.  Revised code: the list always remains
  * intact.
@@ -494,7 +408,7 @@ int size;		/* max value is less than 20 */
 }
 
 /* called twice; first to calculate total, then to list relevant items */
-STATIC_OVL void
+STATIC_OVL int
 artifact_score(list, counting, endwin)
 struct obj *list;
 boolean counting;	/* true => add up points; false => display them */
@@ -502,8 +416,9 @@ winid endwin;
 {
     char pbuf[BUFSZ];
     struct obj *otmp;
-    long value, points;
+    long value, total;
     short dummy;	/* object type returned by artifact_name() */
+    total = 0;
 
     for (otmp = list; otmp; otmp = otmp->nobj) {
 	if (otmp->oartifact ||
@@ -511,24 +426,314 @@ winid endwin;
 			otmp->otyp == SPE_BOOK_OF_THE_DEAD ||
 			otmp->otyp == CANDELABRUM_OF_INVOCATION) {
 	    value = arti_cost(otmp);	/* zorkmid value */
-	    points = value * 5 / 2;	/* score value */
 	    if (counting) {
-		u.urexp += points;
+                total += value;
 	    } else {
 		makeknown(otmp->otyp);
 		otmp->known = otmp->dknown = otmp->bknown = otmp->rknown = 1;
 		/* assumes artifacts don't have quan > 1 */
-		Sprintf(pbuf, "%s%s (worth %ld %s and %ld points)",
+		Sprintf(pbuf, "%s%s (worth %ld %s)",
 			the_unique_obj(otmp) ? "The " : "",
 			otmp->oartifact ? artifact_name(xname(otmp), &dummy) :
 				OBJ_NAME(objects[otmp->otyp]),
-			value, currency(value), points);
+			value, currency(value));
 		putstr(endwin, 0, pbuf);
 	    }
 	}
 	if (Has_contents(otmp))
 	    artifact_score(otmp->cobj, counting, endwin);
     }
+    return total;
+}
+
+
+/* Calculate the player's score, and put it in u.urexp (show = FALSE), or
+   show it to the user (show = TRUE). */
+STATIC_OVL void
+calculate_score(how,show,umoney)
+int how;      /* -1 if the player isn't actually dead */
+boolean show;
+long umoney;  /* total of visible and invisible gold */
+{
+  /* The principle here is that each category is worth up to 30000 points;
+     most categories are calculated via base-2 logarithm, to give massive
+     diminishing returns to farming in any particular category; categories
+     which have an intrinsic maximum anyway (such as the percentages)
+     instead are based on the square root of the percentage progress made. */
+  long total;
+  long category_raw;
+  double category_ratio;
+  long category_points;
+  double elog2;
+  winid swin;
+  char buf[BUFSZ];
+  elog2 = log(2) / 1000.0;
+  /* Initialise the explanation window, if show is true. */
+  if (show) {
+    swin = create_nhwindow(NHW_MENU);
+    putstr(swin, 0, "Score breakdown:");
+    putstr(swin, 0, "");
+  }
+  /* Gold. x gold scores log2(x+1)*1000 points (maxing at 30000 for MAXINT
+     gold; just in case gold can be 64-bit, we cap it at the 32-bit MAXINT
+     first). This counts profit from starting inventory, rather than the
+     amount, to avoid giving bonuses to early-game Healers. */
+  category_raw = umoney;
+#ifndef GOLDOBJ
+  category_raw -= u.ugold0;
+#else
+  category_raw -= u.umoney0;
+#endif
+  if (category_raw < 0) category_raw = 0;
+  category_points = log(category_raw+1) / elog2 + 0.5;
+  if (category_points > 30000) category_points = 30000;
+  total += category_points;
+  if (show) {
+    Sprintf(buf, "Gold:            %10ld                    (%5ld points)",
+            category_raw, category_points);
+    putstr(swin, 0, buf);
+  }
+  /* Exploration. This is based on the ratio of the Sanctum depth to the
+     deepest level reached, and is based on the square root of the ratio. */
+  category_raw = deepest_lev_reached(FALSE);
+  category_ratio = category_raw * 100.0 / depth(&sanctum_level);
+  category_points = sqrt((category_raw - 1) /
+                         (double)(depth(&sanctum_level) - 1)) * 30000.0 + 0.5;
+  total += category_points;
+  if (show) {
+    Sprintf(buf, "Exploration:     %10ld level%s   (%6.2f%%) (%5ld points)",
+            category_raw, category_raw == 1 ? " " : "s",
+            category_ratio, category_points);
+    putstr(swin, 0, buf);
+  }
+  /* Discoveries. Based on the ratio of the number of items discovered,
+     to the maximum possible number of items discovered. */
+  {
+    int curd, maxd;
+    count_discovered_objects(&curd, &maxd);
+    category_raw = curd;
+    category_ratio = curd * 100.0 / maxd;
+    category_points = sqrt(category_ratio) * 3000.0 + 0.5;
+  }
+  total += category_points;
+  if (show) {
+    Sprintf(buf, "Discoveries:     %10ld item%s    (%6.2f%%) (%5ld points)",
+            category_raw, category_raw == 1 ? " " : "s",
+            category_ratio, category_points);
+    putstr(swin, 0, buf);
+  }
+  /* Valuables. Scored the same way as gold, based on their gp values.
+     Scores only on ascension or escape. */
+  category_raw = 0;
+  if (how == ESCAPED || how == ASCENDED)
+  {
+    register struct val_list *val;
+    int i;
+    for (val = valuables; val->list; val++)
+      for (i = 0; i < val->size; i++) {
+        val->list[i].count = 0L;
+      }
+    get_valuables(invent);
+    for (val = valuables; val->list; val++)
+      for (i = 0; i < val->size; i++)
+        if (val->list[i].count != 0L)
+          category_raw += val->list[i].count
+            * (long)objects[val->list[i].typ].oc_cost;
+    category_points = log(category_raw+1) / elog2 + 0.5;
+    total += category_points;
+    if (show) {
+      Sprintf(buf, "Valuables value: %10ld                    (%5ld points)",
+              category_raw, category_points);
+      putstr(swin, 0, buf);
+    }
+  } else if (show) {
+    putstr(swin, 0, "Valuables value: (no points given unless you survive)");
+  }
+  /* Artifacts. Scores double what the same value in gold would score. */
+  category_raw = artifact_score(invent, TRUE, 0);
+  category_points = log(category_raw+1) / elog2 * 2.0 + 0.5;
+  total += category_points;
+  if (show) {
+    Sprintf(buf, "Artifact value:  %10ld                    (%5ld points)",
+            category_raw, category_points);
+    putstr(swin, 0, buf);
+  }
+  /* Variety of monsters vanquished. (All that matters is whether or not a
+     monster was killed, so people can't farm this score up indefinitely; and
+     this counts vanquished not killed so that pacifists aren't penalised for
+     their conduct.) */
+  {
+    register int i;
+    category_raw = 0;
+    for (i = LOW_PM; i < NUMMONS; i++) {
+      if (mvitals[i].died) category_raw++;
+    }
+  }
+  category_ratio = category_raw * 100.0 / (NUMMONS - LOW_PM);
+  category_points = sqrt(category_ratio) * 3000.0 + 0.5;
+  total += category_points;
+  if (show) {
+    Sprintf(buf, "Variety of kills:%10ld monster%s (%6.2f%%) (%5ld points)",
+            category_raw, category_raw == 1 ? " " : "s",
+            category_ratio, category_points);
+    putstr(swin, 0, buf);
+  }
+  /* Pets. Points are awarded according to the levels of the pets in question.
+     (The previous scoring system used current hp, but this means that the
+     best score would be obtained via taming the elementals on the Planes,
+     which isn't exactly balanced; doing it by level means that pets that are
+     merely generated on the altar will be worth less than equivalent pets who
+     came with you all that way.) Level has a hard limit of 49 (except for
+     demon lords, who can't be tamed), and you can ascend with 9 pets, so the
+     maximum in this category is 441 levels.) Be slightly charitable here, and
+     don't deduct points just because the pet is sleeping or paralyzed; but
+     only adjacent pets count for points. Counts only on ascension or
+     escape. */
+  if (how == ESCAPED || how == ASCENDED)
+  {
+    struct monst *mtmp = fmon;
+    category_raw = 0;
+    while (mtmp) {
+      if (DEADMONSTER(mtmp)) continue;
+      if (mtmp->mtame && monnear(mtmp, u.ux, u.uy))
+        category_raw += min(mtmp->data->mlevel, 49);
+      mtmp = mtmp->nmon;
+    }
+    category_points = sqrt((double)category_raw / 441.0) * 30000.0;
+    total += category_points;
+    if (show) {
+      Sprintf(buf, "Pets:            %10ld level%s             (%5ld points)",
+              category_raw, category_raw == 1 ? " " : "s", category_points);
+      putstr(swin, 0, buf);
+    }
+  } else if (show) {
+    putstr(swin, 0, "Pets:            (no points given unless you survive)");
+  }
+  /* Survival. A multiplier. */
+  if (how == ASCENDED) category_raw = 200;
+  else if (how == ESCAPED) category_raw = 100;
+  else category_raw = 90;
+  total *= category_raw; total /= 100;
+  if (show) {
+    Sprintf(buf, "Survival:        %10s  (score multiplied by %3ld%%)",
+            category_raw == 90 ? "died" :
+            category_raw == 200 ? "ascended" : "survived",
+            category_raw);
+    putstr(swin, 0, buf);
+    putstr(swin, 0, "");
+    Sprintf(buf, "Total score:                               %10ld",total);
+    putstr(swin, 0, buf);
+  }
+  /* Finishing off. */
+  if (!show) u.urexp = total;
+  else {
+    display_nhwindow(swin, TRUE);
+    destroy_nhwindow(swin);
+  }
+}
+
+STATIC_OVL void
+disclose(how,taken,umoney)
+int how;
+boolean taken;
+long umoney;
+{
+	char	c = 0, defquery;
+	char	qbuf[QBUFSZ];
+	boolean ask;
+
+	if (invent) {
+	    if(taken)
+		Sprintf(qbuf,"Do you want to see what you had when you %s?",
+			(how == QUIT) ? "quit" : "died");
+	    else
+		Strcpy(qbuf,"Do you want your possessions identified?");
+
+	    ask = should_query_disclose_option('i', &defquery);
+	    if (!done_stopprint) {
+		c = ask ? yn_function(qbuf, ynqchars, defquery) : defquery;
+		if (c == 'y') {
+			struct obj *obj;
+                        boolean oldnameknown[NUM_OBJECTS]; /* to not affect score */
+                        int i;
+                        for (i = 0; i < NUM_OBJECTS; i++)
+                          oldnameknown[i] = objects[i].oc_name_known;
+                        
+			for (obj = invent; obj; obj = obj->nobj) {
+			    makeknown(obj->otyp);
+			    obj->known = obj->bknown = obj->dknown = obj->rknown = 1;
+			}
+			(void) display_inventory((char *)0, TRUE);
+			container_contents(invent, TRUE, TRUE);
+
+                        for (i = 0; i < NUM_OBJECTS; i++)
+                          objects[i].oc_name_known = oldnameknown[i];
+		}
+		if (c == 'q')  done_stopprint++;
+	    }
+	}
+
+	ask = should_query_disclose_option('a', &defquery);
+	if (!done_stopprint) {
+	    c = ask ? yn_function("Do you want to see your attributes?",
+				  ynqchars, defquery) : defquery;
+	    if (c == 'y')
+		enlightenment(how >= PANICKED ? 1 : 2); /* final */
+	    if (c == 'q') done_stopprint++;
+	}
+
+	ask = should_query_disclose_option('v', &defquery);
+	if (!done_stopprint)
+	    list_vanquished(defquery, ask);
+
+	ask = should_query_disclose_option('g', &defquery);
+	if (!done_stopprint)
+	    list_genocided(defquery, ask);
+
+	ask = should_query_disclose_option('c', &defquery);
+	if (!done_stopprint) {
+	    c = ask ? yn_function("Do you want to see your conduct?",
+				  ynqchars, defquery) : defquery;
+	    if (c == 'y')
+		show_conduct(how >= PANICKED ? 1 : 2);
+	    if (c == 'q') done_stopprint++;
+	}
+
+        ask = should_query_disclose_option('s', &defquery);
+        if (!done_stopprint) {
+	    c = ask ? yn_function("Do you want to see a breakdown of your score?",
+				  ynqchars, defquery) : defquery;
+	    if (c == 'y')
+		calculate_score(how, TRUE, umoney);
+	    if (c == 'q') done_stopprint++;
+        }
+}
+
+/* try to get the player back in a viable state after being killed */
+STATIC_OVL void
+savelife(how)
+int how;
+{
+	u.uswldtim = 0;
+	u.uhp = u.uhpmax;
+	if (u.uhunger < 500) {
+	    u.uhunger = 500;
+	    newuhs(FALSE);
+	}
+	/* cure impending doom of sickness hero won't have time to fix */
+	if ((Sick & TIMEOUT) == 1) {
+	    u.usick_type = 0;
+	    Sick = 0;
+	}
+	if (how == CHOKING) init_uhunger();
+	nomovemsg = "You survived that attempt on your life.";
+	flags.move = 0;
+	if(multi > 0) multi = 0; else multi = -1;
+	if(u.utrap && u.utraptype == TT_LAVA) u.utrap = 0;
+	flags.botl = 1;
+	u.ugrave_arise = NON_PM;
+	HUnchanging = 0L;
+	curs_on_u();
 }
 
 /* Be careful not to call panic from here! */
@@ -541,7 +746,7 @@ int how;
 	winid endwin = WIN_ERR;
 	boolean bones_ok, have_windows = iflags.window_inited;
 	struct obj *corpse = (struct obj *)0;
-	long umoney;
+        long umoney;
 
 	if (how == TRICKED) {
 	    if (killer) {
@@ -695,36 +900,19 @@ die:
         if (how < PANICKED)
             check_tutorial_message(QT_T_DEATH);
 
+	/* calculate money quantity */
+#ifndef GOLDOBJ
+        umoney = u.ugold;
+#else
+        umoney = money_cnt(invent);
+#endif
+        umoney += hidden_gold();	/* accumulate gold from containers */
+
+        calculate_score(how, FALSE, umoney);
 	if (strcmp(flags.end_disclose, "none") && how != PANICKED)
-		disclose(how, taken);
+	    disclose(how, taken, umoney);
 	/* finish_paybill should be called after disclosure but before bones */
 	if (bones_ok && taken) finish_paybill();
-
-	/* calculate score, before creating bones [container gold] */
-	{
-	    long tmp;
-	    int deepest = deepest_lev_reached(FALSE);
-
-#ifndef GOLDOBJ
-	    umoney = u.ugold;
-	    tmp = u.ugold0;
-#else
-	    umoney = money_cnt(invent);
-	    tmp = u.umoney0;
-#endif
-	    umoney += hidden_gold();	/* accumulate gold from containers */
-	    tmp = umoney - tmp;		/* net gain */
-
-	    if (tmp < 0L)
-		tmp = 0L;
-	    if (how < PANICKED)
-		tmp -= tmp / 10L;
-	    u.urexp += tmp;
-	    u.urexp += 50L * (long)(deepest - 1);
-	    if (deepest > 20)
-		u.urexp += 1000L * (long)((deepest > 30) ? 10 : deepest - 20);
-	    if (how == ASCENDED) u.urexp *= 2L;
-	}
 
 	if (bones_ok) {
 #ifdef WIZARD
@@ -786,24 +974,8 @@ die:
 	if (how == ESCAPED || how == ASCENDED) {
 	    register struct monst *mtmp;
 	    register struct obj *otmp;
-	    register struct val_list *val;
+            register struct val_list *val;
 	    register int i;
-
-	    for (val = valuables; val->list; val++)
-		for (i = 0; i < val->size; i++) {
-		    val->list[i].count = 0L;
-		}
-	    get_valuables(invent);
-
-	    /* add points for collected valuables */
-	    for (val = valuables; val->list; val++)
-		for (i = 0; i < val->size; i++)
-		    if (val->list[i].count != 0L)
-			u.urexp += val->list[i].count
-				  * (long)objects[val->list[i].typ].oc_cost;
-
-	    /* count the points for artifacts */
-	    artifact_score(invent, TRUE, endwin);
 
 	    keepdogs(TRUE);
 	    viz_array[0][0] |= IN_SIGHT; /* need visibility for naming */
@@ -813,8 +985,6 @@ die:
 		while (mtmp) {
 		    if (!done_stopprint)
 			Sprintf(eos(pbuf), " and %s", mon_nam(mtmp));
-		    if (mtmp->mtame)
-			u.urexp += mtmp->mhp;
 		    mtmp = mtmp->nmon;
 		}
 		if (!done_stopprint) putstr(endwin, 0, pbuf);

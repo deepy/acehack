@@ -262,27 +262,27 @@ WINLIB = $(WINTTYLIB)
 #
 # on HP-UX 8.x, the malloc(3x) routines in libmalloc.a seem to align things
 # better than the malloc(3) ones in libc.a
-# LIBS = -lmalloc
+# LIBS = -lmalloc -lm
 #
 # DPX/2's also use the malloc(3x) routines.  In addition, if you are building
 # for X11, you must include libinet.a.
-# LIBS = -lmalloc -linet
+# LIBS = -lmalloc -linet -lm
 #
 # Linux NetHack uses some bsd style ioctl functions, thus it is necessary to
 # use the bsd libs.  (Only if still compiling as BSD in unixconf.h; recent
 # versions compile fine using SYSV without this.)
-# LIBS = -lbsd
+# LIBS = -lbsd -lm
 #
 # for CYGWIN32 aka cygwin 1.1.1
-# LIBS = -lcygwin
+# LIBS = -lcygwin -lm
 #
 # Solaris 2.x seems to work with the following
-# LIBS = -lsocket -lnsl
+# LIBS = -lsocket -lnsl -lm
 #
 # IRIX 4.0.x needs -lsun if NIS (YP) is being used for passwd file lookup
-# LIBS = -lsun
+# LIBS = -lsun -lm
 #
-LIBS =
+LIBS = -lm
 
 # make NetHack
 GAME     = nethack

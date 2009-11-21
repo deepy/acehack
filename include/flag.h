@@ -101,7 +101,7 @@ struct flag {
 	int	 pickup_burden;		/* maximum burden before prompt */
 	char	 inv_order[MAXOCLASSES];
 	char	 pickup_types[MAXOCLASSES];
-#define NUM_DISCLOSURE_OPTIONS		5
+#define NUM_DISCLOSURE_OPTIONS		6
 #define DISCLOSE_PROMPT_DEFAULT_YES	'y'
 #define DISCLOSE_PROMPT_DEFAULT_NO	'n'
 #define DISCLOSE_YES_WITHOUT_PROMPT	'+'
