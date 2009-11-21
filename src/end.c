@@ -449,7 +449,7 @@ winid endwin;
 
 /* Calculate the player's score, and put it in u.urexp (show = FALSE), or
    show it to the user (show = TRUE). */
-STATIC_OVL void
+void
 calculate_score(how,show,umoney)
 int how;      /* -1 if the player isn't actually dead */
 boolean show;

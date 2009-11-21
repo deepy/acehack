@@ -148,20 +148,13 @@ max_rank_sz()
 long
 botl_score()
 {
-    int deepest = deepest_lev_reached(FALSE);
 #ifndef GOLDOBJ
-    long ugold = u.ugold + hidden_gold();
-
-    if ((ugold -= u.ugold0) < 0L) ugold = 0L;
-    return ugold + u.urexp + (long)(50 * (deepest - 1))
+    long umoney = u.ugold + hidden_gold();
 #else
     long umoney = money_cnt(invent) + hidden_gold();
-
-    if ((umoney -= u.umoney0) < 0L) umoney = 0L;
-    return umoney + u.urexp + (long)(50 * (deepest - 1))
 #endif
-			  + (long)(deepest > 30 ? 10000 :
-				   deepest > 20 ? 1000*(deepest - 20) : 0);
+    calculate_score(-1, 0, umoney);
+    return u.urexp;
 }
 #endif
 
