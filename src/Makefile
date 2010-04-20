@@ -124,7 +124,7 @@ CC = gcc
 
 # flags for Linux
 #   compile normally
-CFLAGS = -O2 -fomit-frame-pointer -I../include
+CFLAGS = -O2 -fomit-frame-pointer -I../include -Wall
 # LFLAGS = -L/usr/X11R6/lib
 #   OR compile backwards compatible a.out format
 # CFLAGS = -O2 -b i486-linuxaout -fomit-frame-pointer -I../include

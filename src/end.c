@@ -460,7 +460,7 @@ long umoney;  /* total of visible and invisible gold */
      diminishing returns to farming in any particular category; categories
      which have an intrinsic maximum anyway (such as the percentages)
      instead are based on the square root of the percentage progress made. */
-  long total;
+  long total = 0;
   long category_raw;
   double category_ratio;
   long category_points;
