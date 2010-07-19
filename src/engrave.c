@@ -756,8 +756,13 @@ doengrave()
 		} else /* end if zappable */
 		    if (!can_reach_floor()) {
 			You_cant("reach the %s!", surface(u.ux,u.uy));
-			return(0);
-		    }
+			/* If it's a wrestable wand, the player wasted a */
+			/* turn trying.					 */
+			if (wrestable(otmp))
+			    return(1);
+			else
+			    return(0);
+		}
 		break;
 
 	    case WEAPON_CLASS:
