@@ -336,6 +336,7 @@ NETHACK_ARG(user-sounds,
   [Allow user-defined mapping from messages to sounds)],
   USER_SOUNDS,no)
 NETHACK_ARG(exp-on-botl,[Show experience on bottom line],EXP_ON_BOTL,yes)
+NETHACK_ARG(sortloot,[Sort pickup lists alphabetically],SORTLOOT,yes)
 NETHACK_ARG(score-on-botl,[Show score on bottom line],SCORE_ON_BOTL,yes)
 #NETHACK_ARG(realtime-on-botl,[Show elapsed time on bottom line],REALTIME_ON_BOTL,no)
 #NETHACK_ARG(borg,[Borg player (only under DOS)],BORG,no)
