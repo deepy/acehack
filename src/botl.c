@@ -3,6 +3,7 @@
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include "wintty.h"
 
 #ifdef OVL0
 extern const char *hu_stat[];	/* defined in eat.c */
@@ -22,11 +23,6 @@ STATIC_DCL void NDECL(bot2);
 
 /* MAXCO must hold longest uncompressed status line, and must be larger
  * than COLNO
- *
- * longest practical second status line at the moment is
- *	Astral Plane $:12345 HP:700(700) Pw:111(111) AC:-127 Xp:30/123456789
- *	T:123456 Satiated Conf FoodPois Ill Blind Stun Hallu Overloaded
- * -- or somewhat over 130 characters
  */
 #if COLNO <= 140
 #define MAXCO 160
@@ -158,58 +154,96 @@ botl_score()
 }
 #endif
 
+/* Draws an HP bar, covering columns 1-20 of the specified row.
+ * Loosely based on the "hpmon" patch by Ralph Churchill. */
+STATIC_OVL void
+hp_pw_bar(current, outof, ishp, y)
+  int current, outof, ishp, y;
+{
+  int hpcolor, hpattr = 0;
+  char buf[16];
+  char bt;
+  int hpsplit;
+  /* Rules: HP     Pw
+     max    white  white
+     >2/3   green  cyan
+     >1/3   yellow blue
+     >1/7   red    magenta
+     <=1/7  br.red br.magenta */
+  if (current < 0) current = 0;
+  hpsplit = (current*14/outof) + 1;
+  if (current == 0) hpsplit = 0;
+  if (current == outof) hpcolor = NO_COLOR;
+  else if (current*3 > outof*2) hpcolor = ishp ? CLR_GREEN : CLR_CYAN;
+  else if (current*3 > outof)   hpcolor = ishp ? CLR_BROWN : CLR_BLUE;
+  else hpcolor = ishp ? CLR_RED : CLR_MAGENTA;
+  if (current*7 <= outof) hpattr = ATR_BOLD;
+  curs(WIN_STATUS, 1, y);
+  if (iflags.use_color && hpcolor != NO_COLOR) term_start_color(hpcolor);
+  term_start_attr(hpattr);
+  if (ishp) putstr(WIN_STATUS, hpattr, "HP:[");
+  else putstr(WIN_STATUS, hpattr, "Pw:[");
+  if (current <= 999999 && outof <= 999999)
+    Sprintf(buf, "%6d / %-6d", current, outof);
+  else if (current <= 999999 && outof <= 99999999)
+    Sprintf(buf, "%6d / %-5dK", current, outof/1000);
+  else if (current <= 999999)
+    Sprintf(buf, "%6d / %-4dM", current, outof/1000000);
+  else if (current <= 99999999 && outof <= 99999999)
+    Sprintf(buf, "%5dK / %-5dK", current/1000, outof/1000);
+  else if (current <= 99999999)
+    Sprintf(buf, "%5dK / %-4dM", current/1000, outof/1000000);
+  else
+    Sprintf(buf, "%4dM / %-4dM", current/1000000, outof/1000000);
+  curs(WIN_STATUS, 5, y);
+  bt = buf[hpsplit]; buf[hpsplit] = 0;
+  term_start_attr(ATR_INVERSE);
+  putstr(WIN_STATUS, ATR_INVERSE, buf);
+  term_end_attr(ATR_INVERSE);
+  if (hpcolor != NO_COLOR) term_end_color();
+  if (iflags.use_color && hpcolor != NO_COLOR) term_start_color(hpcolor);
+  term_start_attr(hpattr);
+  buf[hpsplit] = bt;
+  curs(WIN_STATUS, 5+hpsplit, y);
+  putstr(WIN_STATUS, hpattr, buf+hpsplit);
+  curs(WIN_STATUS, 20, y);
+  putstr(WIN_STATUS, hpattr,"]");
+  curs(WIN_STATUS, 22, y);
+  if (hpcolor != NO_COLOR) term_end_color();
+  term_end_attr(hpattr);
+}
+
 STATIC_OVL void
 bot1()
 {
-	char newbot1[MAXCO];
-	register char *nb;
-	register int i,j;
-
-	Strcpy(newbot1, plname);
-	if('a' <= newbot1[0] && newbot1[0] <= 'z') newbot1[0] += 'A'-'a';
-	newbot1[10] = 0;
-	Sprintf(nb = eos(newbot1)," the ");
-
-	if (Upolyd) {
-		char mbot[BUFSZ];
-		int k = 0;
-
-		Strcpy(mbot, mons[u.umonnum].mname);
-		while(mbot[k] != 0) {
-		    if ((k == 0 || (k > 0 && mbot[k-1] == ' ')) &&
-					'a' <= mbot[k] && mbot[k] <= 'z')
-			mbot[k] += 'A' - 'a';
-		    k++;
-		}
-		Sprintf(nb = eos(nb), mbot);
-	} else
-		Sprintf(nb = eos(nb), rank());
-
-	Sprintf(nb = eos(nb),"  ");
-	i = mrank_sz + 15;
-	j = (nb + 2) - newbot1; /* aka strlen(newbot1) but less computation */
-	if((i - j) > 0)
-		Sprintf(nb = eos(nb),"%*s", i-j, " ");	/* pad with spaces */
-	if (ACURR(A_STR) > 18) {
-		if (ACURR(A_STR) > STR18(100))
-		    Sprintf(nb = eos(nb),"St:%2d ",ACURR(A_STR)-100);
-		else if (ACURR(A_STR) < STR18(100))
-		    Sprintf(nb = eos(nb), "St:18/%02d ",ACURR(A_STR)-18);
-		else
-		    Sprintf(nb = eos(nb),"St:18/** ");
-	} else
-		Sprintf(nb = eos(nb), "St:%-1d ",ACURR(A_STR));
-	Sprintf(nb = eos(nb),
-		"Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d",
-		ACURR(A_DEX), ACURR(A_CON), ACURR(A_INT), ACURR(A_WIS), ACURR(A_CHA));
-	Sprintf(nb = eos(nb), (u.ualign.type == A_CHAOTIC) ? "  Chaotic" :
-			(u.ualign.type == A_NEUTRAL) ? "  Neutral" : "  Lawful");
-#ifdef SCORE_ON_BOTL
-	if (flags.showscore)
-	    Sprintf(nb = eos(nb), " S:%ld", botl_score());
-#endif
-	curs(WIN_STATUS, 1, 0);
-	putstr(WIN_STATUS, 0, newbot1);
+  char buf[MAXCO];
+  hp_pw_bar(Upolyd ? u.mh : u.uhp, Upolyd ? u.mhmax : u.uhpmax, 1, 0);
+  char* nb;
+  Sprintf(buf, "AC:%d X:%d ", u.uac, u.ulevel);
+  if (Upolyd)
+    Sprintf(buf, "AC:%d HD:%d ", u.uac, mons[u.umonnum].mlevel);
+  (void) describe_level(nb = eos(buf));
+  putstr(WIN_STATUS, 0, buf);
+  Strcpy(buf, plname);
+  if('a' <= buf[0] && buf[0] <= 'z') buf[0] += 'A'-'a';
+  buf[12] = 0;
+  Sprintf(nb = eos(buf),", ");
+  
+  if (Upolyd) {
+    char mbot[BUFSZ];
+    int k = 0;
+    
+    Strcpy(mbot, mons[u.umonnum].mname);
+    while(mbot[k] != 0) {
+      if ((k == 0 || (k > 0 && mbot[k-1] == ' ')) &&
+          'a' <= mbot[k] && mbot[k] <= 'z')
+        mbot[k] += 'A' - 'a';
+      k++;
+    }
+    Sprintf(nb = eos(nb), "%s", mbot);
+  } else Sprintf(nb = eos(nb), "%s", rank());
+  curs(WIN_STATUS, 80-strlen(buf), 0);
+  putstr(WIN_STATUS, 0, buf);
 }
 
 /* provide the name of the current level for display by various ports */
@@ -217,76 +251,67 @@ int
 describe_level(buf)
 char *buf;
 {
-	int ret = 1;
+  int ret = 1;
 
-	/* TODO:	Add in dungeon name */
-	if (Is_knox(&u.uz))
-		Sprintf(buf, "%s ", dungeons[u.uz.dnum].dname);
-	else if (In_quest(&u.uz))
-		Sprintf(buf, "Home %d ", dunlev(&u.uz));
-	else if (In_endgame(&u.uz))
-		Sprintf(buf,
-			Is_astralevel(&u.uz) ? "Astral Plane " : "End Game ");
-	else {
-		/* ports with more room may expand this one */
-		Sprintf(buf, "Dlvl:%-2d ", depth(&u.uz));
-		ret = 0;
-	}
-	return ret;
+  if (Is_knox(&u.uz))
+    Sprintf(buf, "%s", dungeons[u.uz.dnum].dname);
+  else if (In_quest(&u.uz))
+    Sprintf(buf, "Home:%d", dunlev(&u.uz));
+  else if (In_endgame(&u.uz))
+    Sprintf(buf, Is_astralevel(&u.uz) ? "Astral Plane" : "End Game");
+  else if (In_mines(&u.uz))
+    Sprintf(buf, "Mines:%d", depth(&u.uz));
+  else if (In_sokoban(&u.uz))
+    Sprintf(buf, "Sokoban:%d", depth(&u.uz));
+  else if (Is_valley(&u.uz))
+    Sprintf(buf, "Valley:%d", depth(&u.uz));
+  else if (In_hell(&u.uz))
+    Sprintf(buf, "Gehennom:%d", depth(&u.uz));
+  else if (In_V_tower(&u.uz))
+    Sprintf(buf, "Tower:%d", depth(&u.uz));
+  else
+    Sprintf(buf, "Dungeons:%d", depth(&u.uz)), (ret=0);
+  return ret;
 }
 
 STATIC_OVL void
 bot2()
 {
-	char  newbot2[MAXCO];
-	register char *nb;
-	int hp, hpmax;
-	int cap = near_capacity();
-
-	hp = Upolyd ? u.mh : u.uhp;
-	hpmax = Upolyd ? u.mhmax : u.uhpmax;
-
-	if(hp < 0) hp = 0;
-	(void) describe_level(newbot2);
-	Sprintf(nb = eos(newbot2),
-		"%c:%-2ld HP:%d(%d) Pw:%d(%d) AC:%-2d", oc_syms[COIN_CLASS],
+  char  buf[MAXCO];
+  register char *nb;
+  int cap = near_capacity();
+  
+  hp_pw_bar(u.uen, u.uenmax, 0, 1);
+  Sprintf(buf, "%c%ld S:%ld T:%ld", oc_syms[COIN_CLASS],
 #ifndef GOLDOBJ
-		u.ugold,
+          u.ugold,
 #else
-		money_cnt(invent),
+          money_cnt(invent),
 #endif
-		hp, hpmax, u.uen, u.uenmax, u.uac);
+          botl_score(), moves);
+  putstr(WIN_STATUS, 0, buf);
 
-	if (Upolyd)
-		Sprintf(nb = eos(nb), " HD:%d", mons[u.umonnum].mlevel);
-#ifdef EXP_ON_BOTL
-	else if(flags.showexp)
-		Sprintf(nb = eos(nb), " Xp:%u/%-1ld", u.ulevel,u.uexp);
-#endif
-	else
-		Sprintf(nb = eos(nb), " Exp:%u", u.ulevel);
-
-	if(flags.time)
-	    Sprintf(nb = eos(nb), " T:%ld", moves);
-	if(strcmp(hu_stat[u.uhs], "        ")) {
-		Sprintf(nb = eos(nb), " ");
-		Strcat(newbot2, hu_stat[u.uhs]);
-	}
-	if(Confusion)	   Sprintf(nb = eos(nb), " Conf");
-	if(Sick) {
-		if (u.usick_type & SICK_VOMITABLE)
-			   Sprintf(nb = eos(nb), " FoodPois");
-		if (u.usick_type & SICK_NONVOMITABLE)
-			   Sprintf(nb = eos(nb), " Ill");
-	}
-	if(Blind)	   Sprintf(nb = eos(nb), " Blind");
-	if(Stunned)	   Sprintf(nb = eos(nb), " Stun");
-	if(Hallucination)  Sprintf(nb = eos(nb), " Hallu");
-	if(Slimed)         Sprintf(nb = eos(nb), " Slime");
-	if(cap > UNENCUMBERED)
-		Sprintf(nb = eos(nb), " %s", enc_stat[cap]);
-	curs(WIN_STATUS, 1, 1);
-	putstr(WIN_STATUS, 0, newbot2);
+  Strcpy(buf, "");
+  nb = eos(buf);
+  if(strcmp(hu_stat[u.uhs], "        ")) {
+    Sprintf(nb = eos(nb), " ");
+    Strcat(buf, hu_stat[u.uhs]);
+  }
+  if(Confusion) Sprintf(nb = eos(nb), " Conf");
+  if(Sick) {
+    if (u.usick_type & SICK_VOMITABLE)
+      Sprintf(nb = eos(nb), " FoodPois");
+    if (u.usick_type & SICK_NONVOMITABLE)
+      Sprintf(nb = eos(nb), " Ill");
+  }
+  if(Blind)	   Sprintf(nb = eos(nb), " Blind");
+  if(Stunned)	   Sprintf(nb = eos(nb), " Stun");
+  if(Hallucination)  Sprintf(nb = eos(nb), " Hallu");
+  if(Slimed)         Sprintf(nb = eos(nb), " Slime");
+  if(cap > UNENCUMBERED)
+    Sprintf(nb = eos(nb), " %s", enc_stat[cap]);
+  curs(WIN_STATUS, 80-strlen(buf), 1);
+  putstr(WIN_STATUS, 0, buf);
 }
 
 void

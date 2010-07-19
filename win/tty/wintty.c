@@ -1853,7 +1853,7 @@ tty_putstr(window, attr, str)
 		}
 		break;
 	    }
-	    if(*ob != *nb)
+/*	    if(*ob != *nb) */
 		tty_putsym(WIN_STATUS, i, cw->cury, *nb);
 	    if(*ob) ob++;
 	}
