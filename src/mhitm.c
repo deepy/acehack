@@ -221,7 +221,8 @@ mattackm(magr, mdef)
     }
 
     /* undetect monsters become un-hidden if they are attacked */
-    if (mdef->mundetected) {
+    if (mdef->mundetected &&
+        dist2(mdef->mx, mdef->my, magr->mx, magr->my) > 2) {
 	mdef->mundetected = 0;
 	newsym(mdef->mx, mdef->my);
 	if(canseemon(mdef) && !sensemon(mdef)) {
@@ -248,12 +249,25 @@ mattackm(magr, mdef)
 
     /* Now perform all attacks for the monster. */
     for (i = 0; i < NATTK; i++) {
+        int tmphp = mdef->mhp;
 	res[i] = MM_MISS;
 	mattk = getmattk(pa, i, res, &alt_attk);
 	otmp = (struct obj *)0;
 	attk = 1;
 	switch (mattk->aatyp) {
-	    case AT_WEAP:		/* "hand to hand" attacks */
+	    case AT_WEAP:		/* weapon attacks */
+#ifdef TAME_RANGED_ATTACKS
+		if (dist2(magr->mx,magr->my,mdef->mx,mdef->my) > 2)
+		{
+		    thrwmm(magr, mdef);
+		    if (tmphp > mdef->mhp) res[i] = MM_HIT;
+		    else res[i] = MM_MISS;
+		    if (mdef->mhp < 1) res[i] = MM_DEF_DIED;
+		    if (magr->mhp < 1) res[i] = MM_AGR_DIED;
+		    break;
+		}
+#endif //TAME_RANGED_ATTACKS
+
 		if (magr->weapon_check == NEED_WEAPON || !MON_WEP(magr)) {
 		    magr->weapon_check = NEED_HTH_WEAPON;
 		    if (mon_wield_item(magr) != 0) return 0;
@@ -274,8 +288,14 @@ mattackm(magr, mdef)
 	    case AT_BUTT:
 	    case AT_TENT:
 		/* Nymph that teleported away on first attack? */
-		if (distmin(magr->mx,magr->my,mdef->mx,mdef->my) > 1)
+		if (dist2(magr->mx,magr->my,mdef->mx,mdef->my) > 2)
+		{
+#ifdef TAME_RANGED_ATTACKS
+                    break; // might have more ranged attacks
+#else
 		    return MM_MISS;
+#endif //TAME_RANGED_ATTACKS
+		}
 		/* Monsters won't attack cockatrices physically if they
 		 * have a weapon instead.  This instinct doesn't work for
 		 * players, or under conflict or confusion. 
@@ -316,12 +336,31 @@ mattackm(magr, mdef)
 
 		break;
 
+#ifdef TAME_RANGED_ATTACKS
+	    case AT_BREA:
+	        breamm(magr, mdef, mattk);
+		if (tmphp > mdef->mhp) res[i] = MM_HIT;
+		else res[i] = MM_MISS;
+		if (mdef->mhp < 1) res[i] = MM_DEF_DIED;
+		if (magr->mhp < 1) res[i] = MM_AGR_DIED;
+		break;
+
+	    case AT_SPIT:
+	        spitmm(magr, mdef, mattk);
+		if (tmphp > mdef->mhp) res[i] = MM_HIT;
+		else res[i] = MM_MISS;
+		if (mdef->mhp < 1) res[i] = MM_DEF_DIED;
+		if (magr->mhp < 1) res[i] = MM_AGR_DIED;
+		break;
+#endif //TAME_RANGED_ATTACKS
+
 	    case AT_GAZE:
 		strike = 0;	/* will not wake up a sleeper */
 		res[i] = gazemm(magr, mdef, mattk);
 		break;
 
 	    case AT_EXPL:
+		if (distmin(magr->mx,magr->my,mdef->mx,mdef->my) > 1) break;
 		res[i] = explmm(magr, mdef, mattk);
 		if (res[i] == MM_MISS) { /* cancelled--no attack */
 		    strike = 0;
@@ -331,6 +370,7 @@ mattackm(magr, mdef)
 		break;
 
 	    case AT_ENGL:
+		if (distmin(magr->mx,magr->my,mdef->mx,mdef->my) > 1) break;
 #ifdef STEED
 		if (u.usteed && (mdef == u.usteed)) {
 		    strike = 0;
@@ -350,13 +390,25 @@ mattackm(magr, mdef)
 		}
 		break;
 
+#ifdef TAME_RANGED_ATTACKS
+            case AT_MAGC:
+		if (dist2(magr->mx,magr->my,mdef->mx,mdef->my) > 2) break;
+
+	        res[i] = castmm(magr, mdef, mattk);
+		if (res[i] & MM_DEF_DIED)
+			return (MM_DEF_DIED |
+				(grow_up(magr,mdef) ? 0 : MM_AGR_DIED));
+		break;
+#endif //TAME_RANGED_ATTACKS
+
 	    default:		/* no attack */
 		strike = 0;
 		attk = 0;
 		break;
 	}
 
-	if (attk && !(res[i] & MM_AGR_DIED))
+	if (attk && !(res[i] & MM_AGR_DIED) &&
+	    dist2(magr->mx, magr->my, mdef->mx, mdef->my) < 3)
 	    res[i] = passivemm(magr, mdef, strike, res[i] & MM_DEF_DIED);
 
 	if (res[i] & MM_DEF_DIED) return res[i];
@@ -1106,6 +1158,64 @@ mdamagem(magr, mdef, mattk)
 		if (tmp >= mdef->mhp && vis)
 		    pline("%s last thought fades away...",
 			          s_suffix(Monnam(mdef)));
+		break;
+	    case AD_DETH:
+	        if (vis)
+		    pline("%s reaches out with its deadly touch.",
+		          Monnam(magr));
+		if (is_undead(mdef->data)) {
+		    /* Still does normal damage */
+	            if (vis)
+		        pline("%s looks no deader than before.", Monnam(mdef));
+		    break;
+		}
+		switch (rn2(20)) {
+		case 19: case 18: case 17:
+		    if (!resist(mdef, 0, 0, 0)) {
+		        monkilled(mdef, "", AD_DETH);
+			tmp = 0;
+			break;
+		    } /* else FALLTHRU */
+		default: /* case 16: ... case 5: */
+		    if (vis)
+		        pline("%s looks weaker!", Monnam(mdef));
+		    mdef->mhpmax -= rn2(tmp / 2 + 1); // mhp will then 
+		                                      // still be less than 
+						      // this value
+		    break;
+		case 4: case 3: case 2: case 1: case 0:
+		    if (Antimagic) shieldeff(mdef->mx, mdef->my);
+	            if (vis)
+		        pline("That didn't work...");
+		    tmp = 0;
+		    break;
+		}
+		break;
+	    case AD_PEST:
+		Strcpy(buf, mon_nam(mdef));
+	        if (vis)
+		    pline("%s reaches out, and %s looks rather ill.",
+		  	    Monnam(magr), buf);
+		if((mdef->mhpmax > 3) && !resist(mdef, 0, 0, NOTELL))
+			mdef->mhpmax /= 2;
+		if((mdef->mhp > 2) && !resist(mdef, 0, 0, NOTELL))
+			mdef->mhp /= 2;
+		if (mdef->mhp > mdef->mhpmax) mdef->mhp = mdef->mhpmax;
+		break;
+	    case AD_FAMN:
+		Strcpy(buf, s_suffix(mon_nam(mdef)));
+	        if (vis)
+		    pline("%s reaches out, and %s body shrivels.",
+			    Monnam(magr), buf);
+		if (mdef->mtame && !mdef->isminion)
+		    EDOG(mdef)->hungrytime -= rn1(120, 120);
+		else
+		{
+		    tmp += rnd(10); /* lacks a food rating */
+		    if (tmp >= mdef->mhp && vis)
+		        pline("%s starves.", Monnam(mdef));
+		}
+		/* plus the normal damage */
 		break;
 	    case AD_SLIM:
 		if (cancelled) break;	/* physical damage only */

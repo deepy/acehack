@@ -6,7 +6,8 @@
 
 STATIC_DCL void FDECL(m_lose_armor, (struct monst *,struct obj *));
 STATIC_DCL void FDECL(m_dowear_type, (struct monst *,long, BOOLEAN_P, BOOLEAN_P));
-STATIC_DCL int FDECL(extra_pref, (struct monst *, struct obj *));
+//STATIC_DCL
+int FDECL(extra_pref, (struct monst *, struct obj *));
 
 const struct worn {
 	long w_mask;
@@ -755,7 +756,8 @@ boolean polyspot;
 /* bias a monster's preferences towards armor that has special benefits. */
 /* currently only does speed boots, but might be expanded if monsters get to
    use more armor abilities */
-static int
+//static
+int
 extra_pref(mon, obj)
 struct monst *mon;
 struct obj *obj;

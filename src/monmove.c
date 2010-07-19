@@ -16,6 +16,8 @@ STATIC_DCL void FDECL(distfleeck,(struct monst *,int *,int *,int *));
 STATIC_DCL int FDECL(m_arrival, (struct monst *));
 STATIC_DCL void FDECL(watch_on_duty,(struct monst *));
 
+long FDECL(mm_aggression, (struct monst *,struct monst *));
+
 #endif /* OVL0 */
 #ifdef OVLB
 
@@ -295,7 +297,7 @@ dochug(mtmp)
 register struct monst *mtmp;
 {
 	register struct permonst *mdat;
-	register int tmp=0;
+	register int tmp=0, i;
 	int inrange, nearby, scared;
 #ifdef GOLDOBJ
         struct obj *ygold = 0, *lepgold = 0;
@@ -472,6 +474,25 @@ toofar:
 	    }
 	}
 
+/*      Look for other monsters to fight (at a distance) */
+        //for (i = 0; i < 2; i++)
+	if (( attacktype(mtmp->data, AT_BREA) ||
+	      attacktype(mtmp->data, AT_GAZE) ||
+	      attacktype(mtmp->data, AT_SPIT) ||
+	     (attacktype(mtmp->data, AT_WEAP) &&
+	      select_rwep(mtmp) != 0)) &&
+	    mtmp->mlstmv != monstermoves)
+	{
+	    register struct monst *mtmp2 = mfind_target(mtmp);
+	    if (mtmp2)
+	    {
+	        if (mattackm(mtmp, mtmp2) & MM_AGR_DIED)
+		    return 1; // Oops.
+
+		return 0; // that was our move for the round
+	    }
+	}
+
 /*	Now the actual movement phase	*/
 
 #ifndef GOLDOBJ
@@ -544,6 +565,8 @@ toofar:
 			return(1);
 		}
 	}
+
+	
 
 /*	Now, attack the player if possible - one attack set per monst	*/
 

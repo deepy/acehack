@@ -10,6 +10,8 @@ STATIC_PTR int NDECL(stealarm);
 STATIC_DCL const char *FDECL(equipname, (struct obj *));
 STATIC_DCL void FDECL(mdrop_obj, (struct monst *,struct obj *,BOOLEAN_P));
 
+extern boolean FDECL(could_use_item,(struct monst *, struct obj *));
+
 STATIC_OVL const char *
 equipname(otmp)
 register struct obj *otmp;
@@ -571,6 +573,8 @@ struct monst *mon;
     }
 }
 
+static struct obj *propellor;
+
 /* release the objects the creature is carrying */
 void
 relobj(mtmp,show,is_pet)
@@ -581,8 +585,16 @@ boolean is_pet;		/* If true, pet should keep wielded/worn items */
 	register struct obj *otmp;
 	register int omx = mtmp->mx, omy = mtmp->my;
 	struct obj *keepobj = 0;
-	struct obj *wep = MON_WEP(mtmp);
+	struct obj *wep = MON_WEP(mtmp),
+	           *hwep = attacktype(mtmp->data, AT_WEAP)
+		           ? select_hwep(mtmp) : (struct obj *)0,
+		   *proj = attacktype(mtmp->data, AT_WEAP)
+		           ? select_rwep(mtmp) : (struct obj *)0,
+		   *rwep;
 	boolean item1 = FALSE, item2 = FALSE;
+
+	rwep = attacktype(mtmp->data, AT_WEAP) ? propellor : &zeroobj;
+	
 
 	if (!is_pet || mindless(mtmp->data) || is_animal(mtmp->data))
 		item1 = item2 = TRUE;
@@ -595,6 +607,14 @@ boolean is_pet;		/* If true, pet should keep wielded/worn items */
 		/* items that we also want pets to keep 1 of */
 		/* (It is a coincidence that these can also be wielded.) */
 		if (otmp->owornmask || otmp == wep ||
+		    otmp == hwep || otmp == rwep || otmp == proj ||
+		    would_prefer_hwep(mtmp, otmp) || //cursed item in hand?
+		    would_prefer_rwep(mtmp, otmp) ||
+		    could_use_item(mtmp, otmp) ||
+		    ((!rwep || rwep == &zeroobj) &&
+		        (is_ammo(otmp) || is_launcher(otmp))) ||
+		    (rwep && rwep != &zeroobj &&
+		     ammo_and_launcher(otmp, rwep)) ||
 		    ((!item1 && otmp->otyp == PICK_AXE) ||
 		     (!item2 && otmp->otyp == UNICORN_HORN && !otmp->cursed))) {
 			if (is_pet) { /* dont drop worn/wielded item */

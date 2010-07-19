@@ -13,7 +13,8 @@
 #include <ctype.h>
 
 STATIC_DCL boolean FDECL(restrap,(struct monst *));
-STATIC_DCL long FDECL(mm_aggression, (struct monst *,struct monst *));
+//STATIC_DCL
+long FDECL(mm_aggression, (struct monst *,struct monst *));
 #ifdef OVL2
 STATIC_DCL int NDECL(pick_animal);
 STATIC_DCL int FDECL(select_newcham_form, (struct monst *));
@@ -1212,7 +1213,8 @@ impossible("A monster looked at a very strange trap of type %d.", ttmp->ttyp);
    in the absence of Conflict.  There is no provision for targetting
    other monsters; just hand to hand fighting when they happen to be
    next to each other. */
-STATIC_OVL long
+//STATIC_OVL
+long
 mm_aggression(magr, mdef)
 struct monst *magr,	/* monster that is currently deciding where to move */
 	     *mdef;	/* another monster which is next to it */
@@ -1222,6 +1224,17 @@ struct monst *magr,	/* monster that is currently deciding where to move */
 	if (magr->data == &mons[PM_PURPLE_WORM] &&
 		mdef->data == &mons[PM_SHRIEKER])
 	    return ALLOW_M|ALLOW_TM;
+
+#ifdef ATTACK_PETS
+        /* pets attack hostile monsters */
+	if (magr->mtame && !mdef->mpeaceful)
+	    return ALLOW_M|ALLOW_TM;
+	
+        /* and vice versa */
+	if (mdef->mtame && !magr->mpeaceful)
+	    return ALLOW_M|ALLOW_TM;
+#endif //ATTACK_PETS
+
 	/* Various other combinations such as dog vs cat, cat vs rat, and
 	   elf vs orc have been suggested.  For the time being we don't
 	   support those. */

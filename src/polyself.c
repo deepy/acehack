@@ -497,6 +497,10 @@ int	mntmp;
 	if (flags.verbose) {
 	    static const char use_thec[] = "Use the command #%s to %s.";
 	    static const char monsterc[] = "monster";
+#ifdef YOUMONST_SPELL
+	    if (attacktype(youmonst.data, AT_MAGC))
+		pline(use_thec,monsterc,"cast monster spells");
+#endif //YOUMONST_SPELL
 	    if (can_breathe(youmonst.data))
 		pline(use_thec,monsterc,"use your breath weapon");
 	    if (attacktype(youmonst.data, AT_SPIT))

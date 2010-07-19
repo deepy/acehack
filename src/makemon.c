@@ -10,7 +10,8 @@
 #include <ctype.h>
 #endif
 
-STATIC_VAR NEARDATA struct monst zeromonst;
+//STATIC_VAR NEARDATA
+struct monst zeromonst;
 
 /* this assumes that a human quest leader or nemesis is an archetype
    of the corresponding role; that isn't so for some roles (tourist
