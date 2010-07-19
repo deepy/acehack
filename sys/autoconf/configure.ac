@@ -336,7 +336,7 @@ NETHACK_ARG(user-sounds,
   [Allow user-defined mapping from messages to sounds)],
   USER_SOUNDS,no)
 NETHACK_ARG(exp-on-botl,[Show experience on bottom line],EXP_ON_BOTL,yes)
-NETHACK_ARG(score-on-botl,[Show score on bottom line],SCORE_ON_BOTL,no)
+NETHACK_ARG(score-on-botl,[Show score on bottom line],SCORE_ON_BOTL,yes)
 #NETHACK_ARG(realtime-on-botl,[Show elapsed time on bottom line],REALTIME_ON_BOTL,no)
 #NETHACK_ARG(borg,[Borg player (only under DOS)],BORG,no)
 # NETHACK_ARG(keep-save,[Keep save files after restore],KEEP_SAVE,no)
@@ -349,7 +349,7 @@ NETHACK_ARG(score-on-botl,[Show score on bottom line],SCORE_ON_BOTL,no)
 # NETHACK_ARG(display-layers,[Support transparent tilesets],DISPLAY_LAYERS,yes)
 NETHACK_ARG(goldobj,[Gold is kept on object chains (experimental)],GOLDOBJ,no)
 NETHACK_ARG(autopickup-exceptions,[Exceptions to autopickup (experimental)],
-  AUTOPICKUP_EXCEPTIONS,no)
+  AUTOPICKUP_EXCEPTIONS,yes)
 #NETHACK_ARG(qwertz,[QWERTZ keyboard layout support],QWERTZ,yes)
 #NETHACK_ARG(simple-mail,[simple mail dgamelaunch support],SIMPLE_MAIL,no)
 

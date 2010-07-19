@@ -1371,11 +1371,12 @@ Optional Features:
   --enable-user-sounds    Allow user-defined mapping from messages to sounds)
                           (default=no)
   --enable-exp-on-botl    Show experience on bottom line (default=yes)
-  --enable-score-on-botl  Show score on bottom line (default=no)
+  --enable-score-on-botl  Show score on bottom line (default=yes)
   --enable-goldobj        Gold is kept on object chains (experimental)
                           (default=no)
   --enable-autopickup-exceptions
-                          Exceptions to autopickup (experimental) (default=no)
+                          Exceptions to autopickup (experimental)
+                          (default=yes)
   --enable-wizmode=USER   enable wizard mode for the specified user
                           (default=wizard)
 
@@ -5692,7 +5693,7 @@ $as_echo_n "checking whether to enable score-on-botl... " >&6; }
 if test "${enable_score_on_botl+set}" = set; then :
   enableval=$enable_score_on_botl;
 else
-  enable_score_on_botl="no"
+  enable_score_on_botl="yes"
 fi
 
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_score_on_botl" >&5
@@ -5740,7 +5741,7 @@ $as_echo_n "checking whether to enable autopickup-exceptions... " >&6; }
 if test "${enable_autopickup_exceptions+set}" = set; then :
   enableval=$enable_autopickup_exceptions;
 else
-  enable_autopickup_exceptions="no"
+  enable_autopickup_exceptions="yes"
 fi
 
    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_autopickup_exceptions" >&5
