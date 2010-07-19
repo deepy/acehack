@@ -14,7 +14,7 @@
 # MAKE = make
 
 # make NetHack
-PREFIX	 = /home/ais523/research/my-nethack/build
+PREFIX	 = /home/ais523/acehack/build
 GAME     = nethack
 # GAME     = nethack.prg
 GAMEUID  = ais523
