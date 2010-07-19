@@ -299,8 +299,8 @@ static struct Comp_Opt
 						PL_CSIZ, SET_IN_FILE },
 	{ "role",     "your starting role (e.g., Barbarian, Valkyrie)",
 						PL_CSIZ, SET_IN_FILE },
-	{ "runmode", "display frequency when `running' or `travelling'", // TODO: should be linked to sparkle
-						sizeof "teleport", SET_IN_GAME },
+	{ "animation", "how to show animations like running and breath weapons",
+						sizeof "nodelay", SET_IN_GAME },
 	{ "scores",   "the parts of the score list you wish to see",
 						32, SET_IN_FILE },
 	{ "scroll_amount", "amount to scroll map when scroll_margin is reached",
@@ -486,6 +486,14 @@ const char *ev;
 }
 
 void
+synch_runmode_options() {
+        if (iflags.runmode == RUN_TPORT) {flags.sparkle = FALSE; flags.nap = FALSE;}
+        if (iflags.runmode == RUN_LEAP) {flags.sparkle = TRUE; flags.nap = FALSE;}
+        if (iflags.runmode == RUN_STEP) {flags.sparkle = TRUE; flags.nap = FALSE;}
+        if (iflags.runmode == RUN_CRAWL) {flags.sparkle = TRUE; flags.nap = TRUE;}
+}
+
+void
 initoptions()
 {
 #ifndef MAC
@@ -506,7 +514,7 @@ initoptions()
 	flags.end_own = FALSE;
 	flags.end_top = 3;
 	flags.end_around = 2;
-	iflags.runmode = RUN_LEAP;
+	iflags.runmode = RUN_CRAWL;
 	iflags.msg_history = 1000;
 #ifdef TTY_GRAPHICS
 	iflags.prevmsg_window = 'r';
@@ -594,7 +602,8 @@ initoptions()
 		}
 	} else
 #endif
-		read_config_file((char *)0);
+	read_config_file((char *)0);
+        synch_runmode_options();
 
 	(void)fruitadd(pl_fruit);
 	/* Remove "slime mold" from list of object names; this will	*/
@@ -1114,18 +1123,18 @@ boolean tinitial, tfrom_file;
 		return;
 	}
 
-	fullname = "runmode";
+	fullname = "animation";
 	if (match_optname(opts, fullname, 4, TRUE)) {
 		if (negated) {
 			iflags.runmode = RUN_TPORT;
 		} else if ((op = string_for_opt(opts, FALSE)) != 0) {
-		    if (!strncmpi(op, "teleport", strlen(op)))
+		    if (!strncmpi(op, "instant", strlen(op)))
 			iflags.runmode = RUN_TPORT;
-		    else if (!strncmpi(op, "run", strlen(op)))
+		    else if (!strncmpi(op, "fast", strlen(op)))
 			iflags.runmode = RUN_LEAP;
-		    else if (!strncmpi(op, "walk", strlen(op)))
+		    else if (!strncmpi(op, "nodelay", strlen(op)))
 			iflags.runmode = RUN_STEP;
-		    else if (!strncmpi(op, "crawl", strlen(op)))
+		    else if (!strncmpi(op, "timed", strlen(op)))
 			iflags.runmode = RUN_CRAWL;
 		    else
 			badoption(opts);
@@ -2259,8 +2268,9 @@ static NEARDATA const char *burdentype[] = {
 	"strained", "overtaxed", "overloaded"
 };
 
+// Now used for all animation (runmode, timed_delay, sparkle).
 static NEARDATA const char *runmodes[] = {
-	"teleport", "run", "walk", "crawl"
+	"instant", "fast", "nodelay", "timed"
 };
 
 /*
@@ -2651,7 +2661,7 @@ boolean setinitial,setfromfile;
 	    }
 	}
 	retval = TRUE;
-    } else if (!strcmp("runmode", optname)) {
+    } else if (!strcmp("animation", optname)) {
 	const char *mode_name;
 	menu_item *mode_pick = (menu_item *)0;
 	tmpwin = create_nhwindow(NHW_MENU);
@@ -2662,9 +2672,10 @@ boolean setinitial,setfromfile;
 		add_menu(tmpwin, NO_GLYPH, &any, *mode_name, 0,
 			 ATR_NONE, mode_name, MENU_UNSELECTED);
 	}
-	end_menu(tmpwin, "Select run/travel display mode:");
+	end_menu(tmpwin, "Select animation style:");
 	if (select_menu(tmpwin, PICK_ONE, &mode_pick) > 0) {
 		iflags.runmode = mode_pick->item.a_int - 1;
+                synch_runmode_options();
 		free((genericptr_t)mode_pick);
 	}
 	destroy_nhwindow(tmpwin);
@@ -3058,7 +3069,7 @@ char *buf;
 		Sprintf(buf, "%s", rolestring(flags.initrace, races, noun));
 	else if (!strcmp(optname, "role"))
 		Sprintf(buf, "%s", rolestring(flags.initrole, roles, name.m));
-	else if (!strcmp(optname, "runmode"))
+	else if (!strcmp(optname, "animation"))
 		Sprintf(buf, "%s", runmodes[iflags.runmode]);
 	else if (!strcmp(optname, "scores")) {
 		Sprintf(buf, "%d top/%d around%s", flags.end_top,

@@ -1418,12 +1418,6 @@ domove()
 		if (flags.time) flags.botl = 1;
 		curs_on_u();
 		delay_output();
-		if (iflags.runmode == RUN_CRAWL) {
-		    delay_output();
-		    delay_output();
-		    delay_output();
-		    delay_output();
-		}
 	    }
 	}
 }
