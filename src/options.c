@@ -507,9 +507,9 @@ initoptions()
 	flags.end_top = 3;
 	flags.end_around = 2;
 	iflags.runmode = RUN_LEAP;
-	iflags.msg_history = 20;
+	iflags.msg_history = 1000;
 #ifdef TTY_GRAPHICS
-	iflags.prevmsg_window = 's';
+	iflags.prevmsg_window = 'r';
 #endif
 	iflags.menu_headings = ATR_INVERSE;
 
