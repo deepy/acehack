@@ -1158,17 +1158,23 @@ minimal_enlightenment()
 	/* Starting and current name, race, role, gender, alignment */
 	Sprintf(buf, fmtstr_noorig, "name", plname);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	Sprintf(buf, fmtstr, "race", urace.noun, Upolyd ? youmonst.data->mname : urace.noun);
+	Sprintf(buf, fmtstr, "race", Upolyd ? youmonst.data->mname : urace.noun, urace.noun);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 	Sprintf(buf, fmtstr_noorig, "role",
 		((Upolyd ? u.mfemale : flags.female) && urole.name.f) ?
                 urole.name.f : urole.name.m);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 	genidx = is_neuter(youmonst.data) ? 2 : flags.female;
-	Sprintf(buf, fmtstr, "gender", genders[flags.initgend].adj, genders[genidx].adj);
+	Sprintf(buf, fmtstr, "gender", genders[genidx].adj, genders[flags.initgend].adj);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	Sprintf(buf, fmtstr, "alignment", align_str(u.ualignbase[A_ORIGINAL]),
-          align_str(u.ualign.type));
+	Sprintf(buf, fmtstr, "alignment", align_str(u.ualign.type),
+                align_str(u.ualignbase[A_ORIGINAL]));
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+        if (u.ulevel < 30)
+          Sprintf(buf, "%-10s: %d (exp: %ld, %d needed)", "level",
+                  u.ulevel, u.uexp, newuexp(u.ulevel));
+        else
+          Sprintf(buf, "%-10s: %d (exp: %ld)", "level", u.ulevel, u.uexp);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 
 	/* Deity list */
