@@ -1449,15 +1449,15 @@ const char *filename;
 
 const char *configfile =
 #ifdef UNIX
-			".nethackrc";
+			".acehackrc";
 #else
 # if defined(MAC) || defined(__BEOS__)
-			"NetHack Defaults";
+			"AceHack Defaults";
 # else
 #  if defined(MSDOS) || defined(WIN32)
-			"defaults.nh";
+			"defaults.ace";
 #  else
-			"NetHack.cnf";
+			"AceHack.cnf";
 #  endif
 # endif
 #endif

@@ -40,9 +40,9 @@ static struct Bool_Opt
 	int optflags;
 } boolopt[] = {
 #ifdef AMIGA
-	{"altmeta", &flags.altmeta, TRUE, DISP_IN_GAME},
+	{"altmeta", &flags.altmeta, TRUE, SET_IN_FILE},
 #else
-	{"altmeta", (boolean *)0, TRUE, DISP_IN_GAME},
+	{"altmeta", (boolean *)0, TRUE, SET_IN_FILE},
 #endif
 	{"ascii_map",     &iflags.wc_ascii_map, !PREFER_TILED, SET_IN_GAME},	/*WC*/
 #ifdef MFLOPPY
@@ -59,12 +59,12 @@ static struct Bool_Opt
 	{"BIOS", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 #ifdef INSURANCE
-	{"checkpoint", &flags.ins_chkpt, TRUE, SET_IN_GAME},
+	{"checkpoint", &flags.ins_chkpt, TRUE, SET_IN_FILE},
 #else
 	{"checkpoint", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 #ifdef MFLOPPY
-	{"checkspace", &iflags.checkspace, TRUE, SET_IN_GAME},
+	{"checkspace", &iflags.checkspace, TRUE, SET_IN_FILE},
 #else
 	{"checkspace", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
@@ -72,49 +72,49 @@ static struct Bool_Opt
 # if defined(MICRO) || defined(WIN32)
 	{"color",         &iflags.wc_color,TRUE, SET_IN_GAME},		/*WC*/
 # else	/* systems that support multiple terminals, many monochrome */
-	{"color",         &iflags.wc_color, FALSE, SET_IN_GAME},	/*WC*/
+	{"color",         &iflags.wc_color, TRUE, SET_IN_GAME},	/*WC*/
 # endif
-	{"confirm",&flags.confirm, TRUE, SET_IN_GAME},
+	{"confirm",&flags.confirm, TRUE, SET_IN_FILE},
 #if defined(TERMLIB) && !defined(MAC_GRAPHICS_ENV)
 	{"DECgraphics", &iflags.DECgraphics, FALSE, SET_IN_GAME},
 #else
 	{"DECgraphics", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-	{"eight_bit_tty", &iflags.wc_eight_bit_input, FALSE, SET_IN_GAME},	/*WC*/
+	{"eight_bit_tty", &iflags.wc_eight_bit_input, FALSE, SET_IN_FILE},	/*WC*/
 #ifdef TTY_GRAPHICS
 	{"extmenu", &iflags.extmenu, FALSE, SET_IN_GAME},
 #else
 	{"extmenu", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 #ifdef OPT_DISPMAP
-	{"fast_map", &flags.fast_map, TRUE, SET_IN_GAME},
+	{"fast_map", &flags.fast_map, TRUE, SET_IN_FILE},
 #else
 	{"fast_map", (boolean *)0, TRUE, SET_IN_FILE},
 #endif
-	{"female", &flags.female, FALSE, DISP_IN_GAME},
-	{"fixinv", &flags.invlet_constant, TRUE, SET_IN_GAME},
+	{"female", &flags.female, FALSE, SET_IN_FILE},
+	{"fixinv", &flags.invlet_constant, TRUE, SET_IN_FILE},
 #ifdef AMIFLUSH
-	{"flush", &flags.amiflush, FALSE, SET_IN_GAME},
+	{"flush", &flags.amiflush, FALSE, SET_IN_FILE},
 #else
 	{"flush", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 	{"fullscreen", &iflags.wc2_fullscreen, FALSE, SET_IN_FILE},
-	{"help", &flags.help, TRUE, SET_IN_GAME},
-	{"hilite_pet",    &iflags.wc_hilite_pet, FALSE, SET_IN_GAME},	/*WC*/
+	{"help", &flags.help, TRUE, SET_IN_FILE},
+	{"hilite_pet",    &iflags.wc_hilite_pet, TRUE, SET_IN_FILE},	/*WC*/
 #ifdef ASCIIGRAPH
 	{"IBMgraphics", &iflags.IBMgraphics, FALSE, SET_IN_GAME},
 #else
 	{"IBMgraphics", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 #ifndef MAC
-	{"ignintr", &flags.ignintr, FALSE, SET_IN_GAME},
+	{"ignintr", &flags.ignintr, FALSE, SET_IN_FILE},
 #else
 	{"ignintr", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 	{"large_font", &iflags.obsolete, FALSE, SET_IN_FILE},	/* OBSOLETE */
-	{"legacy", &flags.legacy, TRUE, DISP_IN_GAME},
-	{"lit_corridor", &flags.lit_corridor, FALSE, SET_IN_GAME},
-	{"lootabc", &iflags.lootabc, FALSE, SET_IN_GAME},
+	{"legacy", &flags.legacy, TRUE, SET_IN_FILE},
+	{"lit_corridor", &flags.lit_corridor, TRUE, SET_IN_GAME}, // TODO: interaction with darkroom
+	{"lootabc", &iflags.lootabc, FALSE, SET_IN_FILE},
 #ifdef MAC_GRAPHICS_ENV
 	{"Macgraphics", &iflags.MACgraphics, TRUE, SET_IN_GAME},
 #else
@@ -131,30 +131,30 @@ static struct Bool_Opt
 #else
 	{"menu_tab_sep", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-	{"mouse_support", &iflags.wc_mouse_support, TRUE, DISP_IN_GAME},	/*WC*/
+	{"mouse_support", &iflags.wc_mouse_support, TRUE, SET_IN_FILE},	/*WC*/
 #ifdef NEWS
-	{"news", &iflags.news, TRUE, DISP_IN_GAME},
+	{"news", &iflags.news, TRUE, SET_IN_FILE},
 #else
 	{"news", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-	{"null", &flags.null, TRUE, SET_IN_GAME},
+	{"null", &flags.null, FALSE, SET_IN_FILE},
 #ifdef MAC
-	{"page_wait", &flags.page_wait, TRUE, SET_IN_GAME},
+	{"page_wait", &flags.page_wait, TRUE, SET_IN_FILE},
 #else
 	{"page_wait", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-	{"perm_invent", &flags.perm_invent, FALSE, SET_IN_GAME},
-	{"popup_dialog",  &iflags.wc_popup_dialog, FALSE, SET_IN_GAME},	/*WC*/
-	{"prayconfirm", &flags.prayconfirm, TRUE, SET_IN_GAME},
-	{"preload_tiles", &iflags.wc_preload_tiles, TRUE, DISP_IN_GAME},	/*WC*/
+	{"perm_invent", &flags.perm_invent, FALSE, SET_IN_FILE},
+	{"popup_dialog",  &iflags.wc_popup_dialog, FALSE, SET_IN_FILE},	/*WC*/
+	{"prayconfirm", &flags.prayconfirm, TRUE, SET_IN_FILE},
+	{"preload_tiles", &iflags.wc_preload_tiles, TRUE, SET_IN_FILE},	/*WC*/
 	{"pushweapon", &flags.pushweapon, FALSE, SET_IN_GAME},
 #if defined(MICRO) && !defined(AMIGA)
-	{"rawio", &iflags.rawio, FALSE, DISP_IN_GAME},
+	{"rawio", &iflags.rawio, FALSE, SET_IN_FILE},
 #else
 	{"rawio", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-	{"rest_on_space", &flags.rest_on_space, FALSE, SET_IN_GAME},
-	{"safe_pet", &flags.safe_dog, TRUE, SET_IN_GAME},
+	{"rest_on_space", &flags.rest_on_space, FALSE, SET_IN_FILE},
+	{"safe_pet", &flags.safe_dog, TRUE, SET_IN_FILE},
 #ifdef WIZARD
 	{"sanity_check", &iflags.sanity_check, FALSE, SET_IN_GAME},
 #else
@@ -165,36 +165,36 @@ static struct Bool_Opt
 #else
 	{"showexp", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-	{"showrace", &iflags.showrace, FALSE, SET_IN_GAME},
+	{"showrace", &iflags.showrace, TRUE, SET_IN_FILE},
 #ifdef SCORE_ON_BOTL
-	{"showscore", &flags.showscore, FALSE, SET_IN_GAME},
+	{"showscore", &flags.showscore, TRUE, SET_IN_FILE},
 #else
 	{"showscore", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 	{"silent", &flags.silent, TRUE, SET_IN_GAME},
 	{"softkeyboard", &iflags.wc2_softkeyboard, FALSE, SET_IN_FILE},
-	{"sortpack", &flags.sortpack, TRUE, SET_IN_GAME},
-	{"sound", &flags.soundok, TRUE, SET_IN_GAME},
+	{"sortpack", &flags.sortpack, TRUE, SET_IN_FILE},
+	{"sound", &flags.soundok, TRUE, SET_IN_FILE},
 	{"sparkle", &flags.sparkle, TRUE, SET_IN_GAME},
-	{"standout", &flags.standout, FALSE, SET_IN_GAME},
-	{"splash_screen",     &iflags.wc_splash_screen, TRUE, DISP_IN_GAME},	/*WC*/
-	{"tiled_map",     &iflags.wc_tiled_map, PREFER_TILED, DISP_IN_GAME},	/*WC*/
-	{"time", &flags.time, FALSE, SET_IN_GAME},
+	{"standout", &flags.standout, TRUE, SET_IN_FILE},
+	{"splash_screen",     &iflags.wc_splash_screen, TRUE, SET_IN_FILE},	/*WC*/
+	{"tiled_map",     &iflags.wc_tiled_map, PREFER_TILED, SET_IN_FILE},	/*WC*/
+	{"time", &flags.time, TRUE, SET_IN_FILE},
 #ifdef TIMED_DELAY
 	{"timed_delay", &flags.nap, TRUE, SET_IN_GAME},
 #else
-	{"timed_delay", (boolean *)0, FALSE, SET_IN_GAME},
+	{"timed_delay", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-	{"tombstone",&flags.tombstone, TRUE, SET_IN_GAME},
-	{"toptenwin",&flags.toptenwin, FALSE, SET_IN_GAME},
-	{"travel", &iflags.travelcmd, TRUE, SET_IN_GAME},
+	{"tombstone",&flags.tombstone, TRUE, SET_IN_FILE},
+	{"toptenwin",&flags.toptenwin, FALSE, SET_IN_FILE},
+	{"travel", &iflags.travelcmd, TRUE, SET_IN_FILE},
 #ifdef WIN32CON
-	{"use_inverse",   &iflags.wc_inverse, TRUE, SET_IN_GAME},		/*WC*/
+	{"use_inverse",   &iflags.wc_inverse, TRUE, SET_IN_FILE},		/*WC*/
 #else
-	{"use_inverse",   &iflags.wc_inverse, FALSE, SET_IN_GAME},		/*WC*/
+	{"use_inverse",   &iflags.wc_inverse, FALSE, SET_IN_FILE},		/*WC*/
 #endif
 	{"verbose", &flags.verbose, TRUE, SET_IN_GAME},
-	{"wraptext", &iflags.wc2_wraptext, FALSE, SET_IN_GAME},
+	{"wraptext", &iflags.wc2_wraptext, FALSE, SET_IN_FILE},
 	{(char *)0, (boolean *)0, FALSE, 0}
 };
 
@@ -211,49 +211,49 @@ static struct Comp_Opt
 	int optflags;
 } compopt[] = {
 	{ "align",    "your starting alignment (lawful, neutral, or chaotic)",
-						8, DISP_IN_GAME },
-	{ "align_message", "message window alignment", 20, DISP_IN_GAME }, 	/*WC*/
-	{ "align_status", "status window alignment", 20, DISP_IN_GAME }, 	/*WC*/
-	{ "altkeyhandler", "alternate key handler", 20, DISP_IN_GAME },
+						8, SET_IN_FILE },
+	{ "align_message", "message window alignment", 20, SET_IN_FILE }, 	/*WC*/
+	{ "align_status", "status window alignment", 20, SET_IN_FILE }, 	/*WC*/
+	{ "altkeyhandler", "alternate key handler", 20, SET_IN_FILE },
 	{ "boulder",  "the symbol to use for displaying boulders",
-						1, SET_IN_GAME },
+						1, SET_IN_FILE },
 	{ "catname",  "the name of your (first) cat (e.g., catname:Tabby)",
-						PL_PSIZ, DISP_IN_GAME },
+						PL_PSIZ, SET_IN_FILE },
 	{ "disclose", "the kinds of information to disclose at end of game",
 						sizeof(flags.end_disclose) * 2,
-						SET_IN_GAME },
+						SET_IN_FILE },
 	{ "dogname",  "the name of your (first) dog (e.g., dogname:Fang)",
-						PL_PSIZ, DISP_IN_GAME },
+						PL_PSIZ, SET_IN_FILE },
 	{ "dungeon",  "the symbols to use in drawing the dungeon map",
 						MAXDCHARS+1, SET_IN_FILE },
 	{ "effects",  "the symbols to use in drawing special effects",
 						MAXECHARS+1, SET_IN_FILE },
-	{ "font_map", "the font to use in the map window", 40, DISP_IN_GAME },	/*WC*/
-	{ "font_menu", "the font to use in menus", 40, DISP_IN_GAME },		/*WC*/
+	{ "font_map", "the font to use in the map window", 40, SET_IN_FILE },	/*WC*/
+	{ "font_menu", "the font to use in menus", 40, SET_IN_FILE },		/*WC*/
 	{ "font_message", "the font to use in the message window",
-						40, DISP_IN_GAME },		/*WC*/
-	{ "font_size_map", "the size of the map font", 20, DISP_IN_GAME },	/*WC*/
-	{ "font_size_menu", "the size of the menu font", 20, DISP_IN_GAME },	/*WC*/
-	{ "font_size_message", "the size of the message font", 20, DISP_IN_GAME },	/*WC*/
-	{ "font_size_status", "the size of the status font", 20, DISP_IN_GAME },	/*WC*/
-	{ "font_size_text", "the size of the text font", 20, DISP_IN_GAME },	/*WC*/
-	{ "font_status", "the font to use in status window", 40, DISP_IN_GAME }, /*WC*/
-	{ "font_text", "the font to use in text windows", 40, DISP_IN_GAME },	/*WC*/
+						40, SET_IN_FILE },		/*WC*/
+	{ "font_size_map", "the size of the map font", 20, SET_IN_FILE },	/*WC*/
+	{ "font_size_menu", "the size of the menu font", 20, SET_IN_FILE },	/*WC*/
+	{ "font_size_message", "the size of the message font", 20, SET_IN_FILE },	/*WC*/
+	{ "font_size_status", "the size of the status font", 20, SET_IN_FILE },	/*WC*/
+	{ "font_size_text", "the size of the text font", 20, SET_IN_FILE },	/*WC*/
+	{ "font_status", "the font to use in status window", 40, SET_IN_FILE }, /*WC*/
+	{ "font_text", "the font to use in text windows", 40, SET_IN_FILE },	/*WC*/
 	{ "fruit",    "the name of a fruit you enjoy eating",
 						PL_FSIZ, SET_IN_GAME },
 	{ "gender",   "your starting gender (male or female)",
-						8, DISP_IN_GAME },
+						8, SET_IN_FILE },
 	{ "horsename", "the name of your (first) horse (e.g., horsename:Silver)",
-						PL_PSIZ, DISP_IN_GAME },
-	{ "map_mode", "map display mode under Windows", 20, DISP_IN_GAME },	/*WC*/
+						PL_PSIZ, SET_IN_FILE },
+	{ "map_mode", "map display mode under Windows", 20, SET_IN_FILE },	/*WC*/
 	{ "menustyle", "user interface for object selection",
-						MENUTYPELEN, SET_IN_GAME },
+						MENUTYPELEN, SET_IN_FILE },
 	{ "menu_deselect_all", "deselect all items in a menu", 4, SET_IN_FILE },
 	{ "menu_deselect_page", "deselect all items on this page of a menu",
 						4, SET_IN_FILE },
 	{ "menu_first_page", "jump to the first page in a menu",
 						4, SET_IN_FILE },
-	{ "menu_headings", "bold, inverse, or underline headings", 9, SET_IN_GAME },
+	{ "menu_headings", "bold, inverse, or underline headings", 9, SET_IN_FILE },
 	{ "menu_invert_all", "invert all items in a menu", 4, SET_IN_FILE },
 	{ "menu_invert_page", "invert all items on this page of a menu",
 						4, SET_IN_FILE },
@@ -267,71 +267,71 @@ static struct Comp_Opt
 	{ "monsters", "the symbols to use for monsters",
 						MAXMCLASSES, SET_IN_FILE },
 	{ "msghistory", "number of top line messages to save",
-						5, DISP_IN_GAME },
+						5, SET_IN_FILE },
 # ifdef TTY_GRAPHICS
-	{"msg_window", "the type of message window required",1, SET_IN_GAME},
+	{"msg_window", "the type of message window required",1, SET_IN_FILE},
 # else
 	{"msg_window", "the type of message window required", 1, SET_IN_FILE},
 # endif
 	{ "name",     "your character's name (e.g., name:Merlin-W)",
-						PL_NSIZ, DISP_IN_GAME },
+						PL_NSIZ, SET_IN_FILE },
 	{ "number_pad", "use the number pad", 1, SET_IN_GAME},
 	{ "objects",  "the symbols to use for objects",
 						MAXOCLASSES, SET_IN_FILE },
 	{ "packorder", "the inventory order of the items in your pack",
-						MAXOCLASSES, SET_IN_GAME },
+						MAXOCLASSES, SET_IN_FILE },
 #ifdef CHANGE_COLOR
 	{ "palette",  "palette (00c/880/-fff is blue/yellow/reverse white)",
-						15 , SET_IN_GAME },
+						15 , SET_IN_FILE },
 # if defined(MAC)
 	{ "hicolor",  "same as palette, only order is reversed",
 						15, SET_IN_FILE },
 # endif
 #endif
-	{ "pettype",  "your preferred initial pet type", 4, DISP_IN_GAME },
+	{ "pettype",  "your preferred initial pet type", 4, SET_IN_FILE },
 	{ "pickup_burden",  "maximum burden picked up before prompt",
-						20, SET_IN_GAME },
+						20, SET_IN_FILE },
 	{ "pickup_types", "types of objects to pick up automatically",
 						MAXOCLASSES, SET_IN_GAME },
 	{ "player_selection", "choose character via dialog or prompts",
-						12, DISP_IN_GAME },
+						12, SET_IN_FILE },
 	{ "race",     "your starting race (e.g., Human, Elf)",
-						PL_CSIZ, DISP_IN_GAME },
+						PL_CSIZ, SET_IN_FILE },
 	{ "role",     "your starting role (e.g., Barbarian, Valkyrie)",
-						PL_CSIZ, DISP_IN_GAME },
-	{ "runmode", "display frequency when `running' or `travelling'",
+						PL_CSIZ, SET_IN_FILE },
+	{ "runmode", "display frequency when `running' or `travelling'", // TODO: should be linked to sparkle
 						sizeof "teleport", SET_IN_GAME },
 	{ "scores",   "the parts of the score list you wish to see",
-						32, SET_IN_GAME },
+						32, SET_IN_FILE },
 	{ "scroll_amount", "amount to scroll map when scroll_margin is reached",
-						20, DISP_IN_GAME }, /*WC*/
-	{ "scroll_margin", "scroll map when this far from the edge", 20, DISP_IN_GAME }, /*WC*/
+						20, SET_IN_FILE }, /*WC*/
+	{ "scroll_margin", "scroll map when this far from the edge", 20, SET_IN_FILE }, /*WC*/
 #ifdef MSDOS
 	{ "soundcard", "type of sound card to use", 20, SET_IN_FILE },
 #endif
 	{ "suppress_alert", "suppress alerts about version-specific features",
-						8, SET_IN_GAME },
-	{ "tile_width", "width of tiles", 20, DISP_IN_GAME},	/*WC*/
-	{ "tile_height", "height of tiles", 20, DISP_IN_GAME},	/*WC*/
-	{ "tile_file", "name of tile file", 70, DISP_IN_GAME},	/*WC*/
+						8, SET_IN_FILE },
+	{ "tile_width", "width of tiles", 20, SET_IN_FILE},	/*WC*/
+	{ "tile_height", "height of tiles", 20, SET_IN_FILE},	/*WC*/
+	{ "tile_file", "name of tile file", 70, SET_IN_FILE},	/*WC*/
 	{ "traps",    "the symbols to use in drawing traps",
 						MAXTCHARS+1, SET_IN_FILE },
-	{ "vary_msgcount", "show more old messages at a time", 20, DISP_IN_GAME }, /*WC*/
+	{ "vary_msgcount", "show more old messages at a time", 20, SET_IN_FILE }, /*WC*/
 #ifdef MSDOS
 	{ "video",    "method of video updating", 20, SET_IN_FILE },
 #endif
 #ifdef VIDEOSHADES
 	{ "videocolors", "color mappings for internal screen routines",
-						40, DISP_IN_GAME },
+						40, SET_IN_FILE },
 	{ "videoshades", "gray shades to map to black/gray/white",
-						32, DISP_IN_GAME },
+						32, SET_IN_FILE },
 #endif
 #ifdef WIN32CON
 	{"subkeyvalue", "override keystroke value", 7, SET_IN_FILE},
 #endif
 	{ "windowcolors",  "the foreground/background colors of windows",	/*WC*/
-						80, DISP_IN_GAME },
-	{ "windowtype", "windowing system to use", WINTYPELEN, DISP_IN_GAME },
+						80, SET_IN_FILE },
+	{ "windowtype", "windowing system to use", WINTYPELEN, SET_IN_FILE },
 	{ (char *)0, (char *)0, 0, 0 }
 };
 
