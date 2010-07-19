@@ -1146,62 +1146,29 @@ minimal_enlightenment()
 	anything any;
 	int genidx, n;
 	char buf[BUFSZ], buf2[BUFSZ];
-	static const char untabbed_fmtstr[] = "%-15s: %-12s";
-	static const char untabbed_deity_fmtstr[] = "%-17s%s";
-	static const char tabbed_fmtstr[] = "%s:\t%-12s";
-	static const char tabbed_deity_fmtstr[] = "%s\t%s";
-	static const char *fmtstr;
-	static const char *deity_fmtstr;
-
-	fmtstr = iflags.menu_tab_sep ? tabbed_fmtstr : untabbed_fmtstr;
-	deity_fmtstr = iflags.menu_tab_sep ?
-			tabbed_deity_fmtstr : untabbed_deity_fmtstr; 
+	static const char fmtstr[] = "%-10s: %-12s (originally %s)";
+	static const char fmtstr_noorig[] = "%-10s: %s";
+	static const char deity_fmtstr[] = "%-17s%s";
 	any.a_void = 0;
 	buf[0] = buf2[0] = '\0';
 	tmpwin = create_nhwindow(NHW_MENU);
 	start_menu(tmpwin);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Starting", FALSE);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Stats", FALSE);
 
-	/* Starting name, race, role, gender */
-	Sprintf(buf, fmtstr, "name", plname);
+	/* Starting and current name, race, role, gender, alignment */
+	Sprintf(buf, fmtstr_noorig, "name", plname);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	Sprintf(buf, fmtstr, "race", urace.noun);
+	Sprintf(buf, fmtstr, "race", urace.noun, Upolyd ? youmonst.data->mname : urace.noun);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	Sprintf(buf, fmtstr, "role",
-		(flags.initgend && urole.name.f) ? urole.name.f : urole.name.m);
+	Sprintf(buf, fmtstr_noorig, "role",
+		((Upolyd ? u.mfemale : flags.female) && urole.name.f) ?
+                urole.name.f : urole.name.m);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	Sprintf(buf, fmtstr, "gender", genders[flags.initgend].adj);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-	/* Starting alignment */
-	Sprintf(buf, fmtstr, "alignment", align_str(u.ualignbase[A_ORIGINAL]));
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-	/* Current name, race, role, gender */
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Current", FALSE);
-	Sprintf(buf, fmtstr, "race", Upolyd ? youmonst.data->mname : urace.noun);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	if (Upolyd) {
-	    Sprintf(buf, fmtstr, "role (base)",
-		(u.mfemale && urole.name.f) ? urole.name.f : urole.name.m);
-	    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	} else {
-	    Sprintf(buf, fmtstr, "role",
-		(flags.female && urole.name.f) ? urole.name.f : urole.name.m);
-	    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	}
-	/* don't want poly_gender() here; it forces `2' for non-humanoids */
 	genidx = is_neuter(youmonst.data) ? 2 : flags.female;
-	Sprintf(buf, fmtstr, "gender", genders[genidx].adj);
+	Sprintf(buf, fmtstr, "gender", genders[flags.initgend].adj, genders[genidx].adj);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	if (Upolyd && (int)u.mfemale != genidx) {
-	    Sprintf(buf, fmtstr, "gender (base)", genders[u.mfemale].adj);
-	    add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	}
-
-	/* Current alignment */
-	Sprintf(buf, fmtstr, "alignment", align_str(u.ualign.type));
+	Sprintf(buf, fmtstr, "alignment", align_str(u.ualignbase[A_ORIGINAL]),
+          align_str(u.ualign.type));
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 
 	/* Deity list */
@@ -1212,7 +1179,7 @@ minimal_enlightenment()
 		&& u.ualign.type == A_CHAOTIC) ? " (s,c)" :
 	    (u.ualignbase[A_ORIGINAL] == A_CHAOTIC)       ? " (s)" :
 	    (u.ualign.type   == A_CHAOTIC)       ? " (c)" : "");
-	Sprintf(buf, fmtstr, "Chaotic", buf2);
+	Sprintf(buf, fmtstr_noorig, "Chaotic", buf2);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 
 	Sprintf(buf2, deity_fmtstr, align_gname(A_NEUTRAL),
@@ -1220,7 +1187,7 @@ minimal_enlightenment()
 		&& u.ualign.type == A_NEUTRAL) ? " (s,c)" :
 	    (u.ualignbase[A_ORIGINAL] == A_NEUTRAL)       ? " (s)" :
 	    (u.ualign.type   == A_NEUTRAL)       ? " (c)" : "");
-	Sprintf(buf, fmtstr, "Neutral", buf2);
+	Sprintf(buf, fmtstr_noorig, "Neutral", buf2);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 
 	Sprintf(buf2, deity_fmtstr, align_gname(A_LAWFUL),
@@ -1228,10 +1195,80 @@ minimal_enlightenment()
 		u.ualign.type == A_LAWFUL)  ? " (s,c)" :
 	    (u.ualignbase[A_ORIGINAL] == A_LAWFUL)        ? " (s)" :
 	    (u.ualign.type   == A_LAWFUL)        ? " (c)" : "");
-	Sprintf(buf, fmtstr, "Lawful", buf2);
+	Sprintf(buf, fmtstr_noorig, "Lawful", buf2);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 
-	end_menu(tmpwin, "Base Attributes");
+        /* Intrinsic list
+           This lists only intrinsics that produce messages when gained
+           and/or lost, to avoid giving away information not in vanilla
+           NetHack. */
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Peculiarities", FALSE);
+        n = 0;
+
+        /* Resistances */
+        if (HFire_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                       "You are fire resistant.", FALSE), n++;
+        if (HCold_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                       "You are cold resistant.", FALSE), n++;
+        if (HSleep_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                        "You are sleep resistant.", FALSE), n++;
+        if (HDisint_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                         "You are disintegration-resistant.", FALSE), n++;
+        if (HShock_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                        "You are shock resistant.", FALSE), n++;
+        if (HPoison_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                         "You are poison resistant.", FALSE), n++;
+        if (HDrain_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                        "You are level-drain resistant.", FALSE), n++;
+        if (HSick_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                       "You are immune to sickness.", FALSE), n++;
+        /* Senses */
+        if (HSee_invisible) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                     "You see invisible.", FALSE), n++;
+        if (HTelepat) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                               "You are telepathic.", FALSE), n++;
+        if (HWarning) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                               "You are warned.", FALSE), n++;
+        if (HSearching) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                 "You have automatic searching.", FALSE), n++;
+        if (HInfravision) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                   "You have infravision.", FALSE), n++;
+        /* Appearance, behaviour */
+        if (HInvis && Invisible) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                          "You are invisible.", FALSE), n++;
+        if (HInvis && !Invisible) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                           "You are invisible to others.", FALSE), n++;
+        if (HStealth) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                               "You are stealthy.", FALSE), n++;
+        if (HAggravate_monster) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                         "You aggravte monsters.", FALSE), n++;
+        if (HConflict) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                "You cause conflict.", FALSE), n++;
+        /* Movement */
+        if (HJumping) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                               "You can jump.", FALSE), n++;
+        if (HTeleportation) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                               "You can teleport.", FALSE), n++;
+        if (HTeleport_control) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                               "You have teleport control.", FALSE), n++;
+        if (HSwimming) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                "You can swim.", FALSE), n++;
+        if (HMagical_breathing) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                         "You can survive without air.", FALSE), n++;
+        if (HProtection) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                  "You are protected.", FALSE), n++;
+        if (HPolymorph) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                 "You are polymorhing.", FALSE), n++;
+        if (HPolymorph_control) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                         "You have polymorph control.", FALSE), n++;
+        if (HFast) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                            "You are fast.", FALSE), n++;
+        if (!n) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                         "You are rather mundane.", FALSE), n++;
+
+
+	end_menu(tmpwin, "Your Intrinsic Statistics");
 	n = select_menu(tmpwin, PICK_NONE, &selected);
 	destroy_nhwindow(tmpwin);
 	return (n != -1);
