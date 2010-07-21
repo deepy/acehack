@@ -318,7 +318,11 @@ d_level *lev;
 	break;
     case LR_DOWNSTAIR:
     case LR_UPSTAIR:
-	mkstairs(x, y, (char)rtype, (struct mkroom *)0);
+      mkstairs(x, y, (char)rtype, (struct mkroom *)0, STAIRS);
+	break;
+    case LR_DOWNLADDER:
+    case LR_UPLADDER:
+      mkstairs(x, y, (char)rtype == LR_UPLADDER, (struct mkroom *)0, LADDER);
 	break;
     case LR_BRANCH:
 	place_branch(Is_branchlev(&u.uz), x, y);
@@ -367,6 +371,8 @@ fixup_special()
 	    }
 	    /* fall into... */
 
+        case LR_UPLADDER:
+        case LR_DOWNLADDER:
 	case LR_UPSTAIR:
 	case LR_DOWNSTAIR:
 	place_it:
@@ -577,10 +583,10 @@ register const char *s;
 	wallification(2, 2, x_maze_max, y_maze_max);
 #endif
 	mazexy(&mm);
-	mkstairs(mm.x, mm.y, 1, (struct mkroom *)0);		/* up */
+	mkstairs(mm.x, mm.y, 1, (struct mkroom *)0, STAIRS);	/* up */
 	if (!Invocation_lev(&u.uz)) {
 	    mazexy(&mm);
-	    mkstairs(mm.x, mm.y, 0, (struct mkroom *)0);	/* down */
+	    mkstairs(mm.x, mm.y, 0, (struct mkroom *)0, STAIRS);/* down */
 	} else {	/* choose "vibrating square" location */
 #define x_maze_min 2
 #define y_maze_min 2

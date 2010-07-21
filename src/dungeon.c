@@ -1147,6 +1147,25 @@ u_on_dnstairs()	/* place you on dnstairs (or special equivalent) */
 		u_on_sstairs();
 }
 
+void
+u_on_upladder()
+{
+	if (xupladder) {
+		u_on_newpos(xupladder, yupladder);
+	} else
+		u_on_upstairs();
+}
+
+void
+u_on_dnladder()
+{
+	if (xdnladder) {
+		u_on_newpos(xdnladder, ydnladder);
+	} else
+		u_on_dnstairs();
+}
+
+
 boolean
 On_stairs(x, y)
 xchar x, y;

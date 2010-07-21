@@ -878,6 +878,15 @@ store_room()
 	}
 	nstair = 0;
 
+	/* The ladders */
+
+	if ((tmproom[nrooms]->nlad = nlad) != 0) {
+		tmproom[nrooms]->lads = NewTab(lad, nlad);
+		for(i=0;i<nlad;i++)
+		    tmproom[nrooms]->lads[i] = tmplad[i];
+	}
+	nlad = 0;
+
 	/* The altars */
 	if ((tmproom[nrooms]->naltar = naltar) != 0) {
 		tmproom[nrooms]->altars = NewTab(altar, naltar);
@@ -1411,6 +1420,11 @@ splev *lev;
 		for(j=0;j<pt->nstair;j++)
 			Write(fd, pt->stairs[j], sizeof(stair));
 
+		/* The ladders */
+		Write(fd, &(pt->nlad), sizeof(pt->nlad));
+		for(j=0;j<pt->nlad;j++)
+			Write(fd, pt->lads[j], sizeof(lad));
+
 		/* The altars */
 		Write(fd, &(pt->naltar), sizeof(pt->naltar));
 		for(j=0;j<pt->naltar;j++)
@@ -1487,6 +1501,11 @@ splev *lev;
 			while(j--)
 				Free(r->stairs[j]);
 			Free(r->stairs);
+		}
+		if ((j = r->nlad) != 0) {
+			while(j--)
+				Free(r->lads[j]);
+			Free(r->lads);
 		}
 		if ((j = r->naltar) != 0) {
 			while (j--)

@@ -42,6 +42,8 @@ typedef struct stairway {	/* basic stairway identifier */
 #define LR_TELE 4
 #define LR_UPTELE 5
 #define LR_DOWNTELE 6
+#define LR_UPLADDER 7
+#define LR_DOWNLADDER 8
 
 typedef struct dest_area {	/* non-stairway level change indentifier */
 	xchar	lx, ly;		/* "lower" left corner (near [0,0]) */

@@ -1129,8 +1129,8 @@ boolean at_stairs, falling, portal;
 	    u_on_newpos(ttrap->tx, ttrap->ty);
 	} else if (at_stairs && !In_endgame(&u.uz)) {
 	    if (up) {
-		if (at_ladder) {
-		    u_on_newpos(xdnladder, ydnladder);
+		if (at_ladder && !newdungeon) {
+                  u_on_dnladder();
 		} else {
 		    if (newdungeon) {
 			if (Is_stronghold(&u.uz)) {
@@ -1152,8 +1152,8 @@ boolean at_stairs, falling, portal;
 		} else if (at_ladder)
 		    You("climb up the ladder.");
 	    } else {	/* down */
-		if (at_ladder) {
-		    u_on_newpos(xupladder, yupladder);
+		if (at_ladder && !newdungeon) {
+                  u_on_upladder();
 		} else {
 		    if (newdungeon) u_on_sstairs();
 		    else u_on_upstairs();

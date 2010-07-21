@@ -562,6 +562,7 @@ room_detail	: room_name
 		| gold_detail
 		| engraving_detail
 		| stair_detail
+                | ladder_detail
 		;
 
 room_name	: NAME_ID ':' string
@@ -797,6 +798,7 @@ map_detail	: monster_detail
 		| drawbridge_detail
 		| region_detail
 		| stair_region
+                | ladder_region
 		| portal_region
 		| teleprt_region
 		| branch_region
@@ -1146,6 +1148,35 @@ stair_region	: STAIR_ID ':' lev_region
 			    tmplreg[nlreg]->rtype = LR_UPSTAIR;
 			else
 			    tmplreg[nlreg]->rtype = LR_DOWNSTAIR;
+			tmplreg[nlreg]->rname.str = 0;
+			nlreg++;
+			if (nlreg >= MAX_OF_TYPE) {
+				yyerror("Too many levregions in mazepart!");
+				nlreg--;
+			}
+		  }
+		;
+
+ladder_region	: LADDER_ID ':' lev_region
+		  {
+			tmplreg[nlreg] = New(lev_region);
+			tmplreg[nlreg]->in_islev = $3;
+			tmplreg[nlreg]->inarea.x1 = current_region.x1;
+			tmplreg[nlreg]->inarea.y1 = current_region.y1;
+			tmplreg[nlreg]->inarea.x2 = current_region.x2;
+			tmplreg[nlreg]->inarea.y2 = current_region.y2;
+		  }
+		 ',' lev_region ',' UP_OR_DOWN
+		  {
+			tmplreg[nlreg]->del_islev = $6;
+			tmplreg[nlreg]->delarea.x1 = current_region.x1;
+			tmplreg[nlreg]->delarea.y1 = current_region.y1;
+			tmplreg[nlreg]->delarea.x2 = current_region.x2;
+			tmplreg[nlreg]->delarea.y2 = current_region.y2;
+			if($8)
+			    tmplreg[nlreg]->rtype = LR_UPLADDER;
+			else
+			    tmplreg[nlreg]->rtype = LR_DOWNLADDER;
 			tmplreg[nlreg]->rname.str = 0;
 			nlreg++;
 			if (nlreg >= MAX_OF_TYPE) {

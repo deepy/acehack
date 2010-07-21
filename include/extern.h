@@ -1010,7 +1010,7 @@ E boolean FDECL(occupied, (XCHAR_P,XCHAR_P));
 E int FDECL(okdoor, (XCHAR_P,XCHAR_P));
 E void FDECL(dodoor, (int,int,struct mkroom *));
 E void FDECL(mktrap, (int,int,struct mkroom *,coord*));
-E void FDECL(mkstairs, (XCHAR_P,XCHAR_P,CHAR_P,struct mkroom *));
+E void FDECL(mkstairs, (XCHAR_P,XCHAR_P,CHAR_P,struct mkroom *,int));
 E void NDECL(mkinvokearea);
 
 /* ### mkmap.c ### */

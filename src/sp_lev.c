@@ -34,6 +34,7 @@ STATIC_DCL void FDECL(create_monster, (monster *, struct mkroom *));
 STATIC_DCL void FDECL(create_object, (object *, struct mkroom *));
 STATIC_DCL void FDECL(create_engraving, (engraving *,struct mkroom *));
 STATIC_DCL void FDECL(create_stairs, (stair *, struct mkroom *));
+STATIC_DCL void FDECL(create_ladders, (lad *, struct mkroom *));
 STATIC_DCL void FDECL(create_altar, (altar *, struct mkroom *));
 STATIC_DCL void FDECL(create_gold, (gold *, struct mkroom *));
 STATIC_DCL void FDECL(create_feature, (int,int,struct mkroom *,int));
@@ -1073,7 +1074,24 @@ struct mkroom	*croom;
 
 	x = s->x; y = s->y;
 	get_free_room_loc(&x, &y, croom);
-	mkstairs(x,y,(char)s->up, croom);
+	mkstairs(x,y,(char)s->up, croom, STAIRS);
+}
+
+/*
+ * Create a ladder in a room.
+ *
+ */
+
+STATIC_OVL void
+create_ladders(s,croom)
+lad	*s;
+struct mkroom	*croom;
+{
+	schar		x,y;
+
+	x = s->x; y = s->y;
+	get_free_room_loc(&x, &y, croom);
+	mkstairs(x,y,(char)s->up, croom, LADDER);
 }
 
 /*
@@ -1541,6 +1559,11 @@ int n;
 			    Free(r->stairs[j]);
 			Free(r->stairs);
 		}
+		if ((j = r->nlad) != 0) {
+			while(j--)
+			    Free(r->lads[j]);
+			Free(r->lads);
+		}
 		if ((j = r->naltar) != 0) {
 			while (j--)
 			    Free(r->altars[j]);
@@ -1621,6 +1644,8 @@ room *r, *pr;
 
 		for(i=0; i <r->nstair; i++)
 		    create_stairs(r->stairs[i], aroom);
+		for(i=0; i <r->nlad; i++)
+		    create_ladders(r->lads[i], aroom);
 
 		/* Then to the various elements (sinks, etc..) */
 		for(i = 0; i<r->nsink; i++)
@@ -1891,6 +1916,16 @@ dlb *fd;
 		while (n--) {
 			r->stairs[(int)n] = New(stair);
 			Fread((genericptr_t) r->stairs[(int)n], 1,
+				sizeof(stair), fd);
+		}
+
+		/* read the ladders */
+		Fread((genericptr_t) &r->nlad, 1, sizeof(r->nlad), fd);
+		if ((n = r->nlad) != 0)
+		    r->lads = NewTab(lad, n);
+		while (n--) {
+			r->lads[(int)n] = New(lad);
+			Fread((genericptr_t) r->lads[(int)n], 1,
 				sizeof(stair), fd);
 		}
 
@@ -2453,7 +2488,7 @@ dlb *fd;
 		} while(prevstair.x && xi++ < 100 &&
 			distmin(x,y,prevstair.x,prevstair.y) <= 8);
 		if ((badtrap = t_at(x,y)) != 0) deltrap(badtrap);
-		mkstairs(x, y, (char)tmpstair.up, (struct mkroom *)0);
+		mkstairs(x, y, (char)tmpstair.up, (struct mkroom *)0, STAIRS);
 		prevstair.x = x;
 		prevstair.y = y;
 	}

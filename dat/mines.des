@@ -13,8 +13,8 @@ MAZE: "minefill" , ' '
 INIT_MAP: '.' , ' ' , true , true , random , true
 NOMAP
 #
-STAIR: random, up
-STAIR: random, down
+LADDER: random, up
+LADDER: random, down
 #
 OBJECT: '*', random, random
 OBJECT: '*', random, random
@@ -109,10 +109,10 @@ SUBROOM: "ordinary", unlit, (25,10), (4,3), "town"
 DOOR: false, closed, north, random
 
 ROOM: "ordinary" , random, random, random, random
-STAIR: random, up
+LADDER: random, up
 
 ROOM: "ordinary" , random, random, random, random
-STAIR: random, down
+LADDER: random, down
 TRAP: random, random
 MONSTER: 'G', "gnome", random
 MONSTER: 'G', "gnome", random
@@ -205,10 +205,10 @@ DOOR: false, locked, west, random
 MONSTER: 'G', "gnome lord", random
 
 ROOM: "ordinary" , random, random, random, random
-STAIR: random, up
+LADDER: random, up
 
 ROOM: "ordinary" , random, random, random, random
-STAIR: random, down
+LADDER: random, down
 TRAP: random, random
 MONSTER: 'G', "gnome", random
 MONSTER: 'G', "gnome", random
@@ -296,10 +296,10 @@ SUBROOM: "candle shop",lit,(25,2),(3,3),"town"
 DOOR:false,closed,south,random
 
 ROOM: "ordinary", random, random, random, random
-STAIR: random, up
+LADDER: random, up
 
 ROOM: "ordinary" , random, random, random, random
-STAIR: random, down
+LADDER: random, down
 TRAP: random, random
 MONSTER: 'G', "gnome", random
 MONSTER: 'G', "gnome", random
@@ -378,10 +378,10 @@ CHANCE:90
 DOOR:false,closed,north,random
 
 ROOM: "ordinary" , random, random, random, random
-STAIR: random, up
+LADDER: random, up
 
 ROOM: "ordinary" , random, random, random, random
-STAIR: random, down
+LADDER: random, down
 TRAP: random, random
 MONSTER: 'G', "gnome", random
 MONSTER: 'G', "gnome", random
@@ -424,8 +424,8 @@ MAP
 -----                   ------                     -------  ---------------
 ENDMAP
 
-STAIR:(01,01),up
-STAIR:(46,03),down
+LADDER:(01,01),up
+LADDER:(46,03),down
 FOUNTAIN:(50,09)
 FOUNTAIN:(10,15)
 FOUNTAIN:(66,18)
@@ -525,8 +525,8 @@ MAP
 ENDMAP
 
 REGION:(00,00,38,15),lit,"ordinary"
-STAIR:levregion(01,03,20,19),(0,0,39,15),up
-STAIR:levregion(61,03,75,19),(0,0,39,15),down
+LADDER:levregion(01,03,20,19),(0,0,39,15),up
+LADDER:levregion(61,03,75,19),(0,0,39,15),down
 FOUNTAIN:(22,07)
 FOUNTAIN:(09,13)
 REGION:(13,5,14,6),unlit,"ordinary"
@@ -667,10 +667,10 @@ MONSTER: 'G', "gnomish wizard", random
 MONSTER: 'G', "gnomish wizard", random
 
 ROOM: "ordinary" , random, random, random, random
-STAIR: random, up
+LADDER: random, up
 
 ROOM: "ordinary" , random, random, random, random
-STAIR: random, down
+LADDER: random, down
 TRAP: random, random
 MONSTER: 'G', "gnome", random
 MONSTER: 'G', "gnome", random
@@ -726,7 +726,7 @@ DOOR:locked,(50,03)
 DOOR:locked,(51,16)
 DOOR:locked,(66,02)
 # Stairs
-STAIR:(36,04),up
+LADDER:(36,04),up
 # Non diggable walls
 NON_DIGGABLE:(00,00,74,17)
 # Niches
@@ -835,7 +835,7 @@ REGION:(15,08,16,08),unlit,"ordinary"
 DOOR:locked,(12,02)
 DOOR:locked,(11,06)
 # Stairs
-STAIR:(36,04),up
+LADDER:(36,04),up
 # Non diggable walls
 NON_DIGGABLE:(00,00,52,17)
 NON_DIGGABLE:(53,00,74,00)
@@ -956,7 +956,7 @@ DOOR:closed,(47,8)
 DOOR:closed,(73,5)
 DOOR:closed,(2,15)
 MAZEWALK:(36,8),west
-STAIR:(42,8),up
+LADDER:(42,8),up
 
 # Objects
 OBJECT:'*',"diamond",random

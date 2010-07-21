@@ -666,7 +666,7 @@ makelevel()
 	/* construct stairs (up and down in different rooms if possible) */
 	croom = &rooms[rn2(nroom)];
 	if (!Is_botlevel(&u.uz))
-	     mkstairs(somex(croom), somey(croom), 0, croom);	/* down */
+          mkstairs(somex(croom), somey(croom), 0, croom, STAIRS);/* down */
 	if (nroom > 1) {
 	    troom = croom;
 	    croom = &rooms[rn2(nroom-1)];
@@ -679,7 +679,7 @@ makelevel()
 		sx = somex(croom);
 		sy = somey(croom);
 	    } while(occupied(sx, sy));
-	    mkstairs(sx, sy, 1, croom);	/* up */
+	    mkstairs(sx, sy, 1, croom, STAIRS);	/* up */
 	}
 
 	branchp = Is_branchlev(&u.uz);	/* possible dungeon branch */
@@ -1103,7 +1103,7 @@ xchar x, y;	/* location */
 	    sstairs_room = br_room;
 
 	    levl[x][y].ladder = sstairs.up ? LA_UP : LA_DOWN;
-	    levl[x][y].typ = STAIRS;
+	    levl[x][y].typ = LADDER;
 	}
 	/*
 	 * Set made_branch to TRUE even if we didn't make a stairwell (i.e.
@@ -1268,9 +1268,10 @@ coord *tm;
 }
 
 void
-mkstairs(x, y, up, croom)
+mkstairs(x, y, up, croom, typ)
 xchar x, y;
 char  up;
+int typ;
 struct mkroom *croom;
 {
 	if (!x) {
@@ -1297,7 +1298,7 @@ struct mkroom *croom;
 		dnstairs_room = croom;
 	}
 
-	levl[x][y].typ = STAIRS;
+	levl[x][y].typ = typ;
 	levl[x][y].ladder = up ? LA_UP : LA_DOWN;
 }
 
@@ -1459,7 +1460,7 @@ mkinvokearea()
     }
 
     You("are standing at the top of a stairwell leading down!");
-    mkstairs(u.ux, u.uy, 0, (struct mkroom *)0); /* down */
+    mkstairs(u.ux, u.uy, 0, (struct mkroom *)0, STAIRS); /* down */
     newsym(u.ux, u.uy);
     vision_full_recalc = 1;	/* everything changed */
 }

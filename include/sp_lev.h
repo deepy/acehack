@@ -205,6 +205,8 @@ typedef struct _room {
 	altar **altars;
 	char nstair;
 	stair **stairs;
+	char nlad;
+	lad **lads;
 	char ngold;
 	gold **golds;
 	char nengraving;
