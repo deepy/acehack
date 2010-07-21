@@ -131,6 +131,10 @@ unsigned *ospecial;
 	    else
 #endif
 	    cmap_color(offset);
+        /* The vibrating square has color rules of its own... */
+        if (iflags.use_color && glyph == cmap_to_glyph(S_room) &&
+            x == inv_pos.x && y == inv_pos.y && Invocation_lev(&u.uz))
+          color = CLR_BRIGHT_GREEN;
     } else if ((offset = (glyph - GLYPH_OBJ_OFF)) >= 0) {	/* object */
 	if (offset == BOULDER && iflags.bouldersym) ch = iflags.bouldersym;
 	else ch = oc_syms[(int)objects[offset].oc_class];

@@ -624,6 +624,7 @@ register const char *s;
 		     !SPACE_POS(levl[x][y].typ) || occupied(x, y));
 	    inv_pos.x = x;
 	    inv_pos.y = y;
+            levl[x][y].lit = 1;
 #undef INVPOS_X_MARGIN
 #undef INVPOS_Y_MARGIN
 #undef INVPOS_DISTANCE
