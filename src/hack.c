@@ -1442,6 +1442,8 @@ invocation_message()
 	    if (otmp && otmp->spe == 7 && otmp->lamplit)
 		pline("%s %s!", The(xname(otmp)),
 		    Blind ? "throbs palpably" : "glows with a strange light");
+            else if (!Blind && levl[u.ux][u.uy].lit)
+              pline("The air around you seems to be glowing strangely, too...");
 	}
 }
 
