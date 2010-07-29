@@ -1542,7 +1542,7 @@ struct ext_func_tab extcmdlist[] = {
   {"countgold", "show gold, debt, credit, and unpaid items", doprgold, TRUE,
    10, '$', 0, 0, 0},
   {"describeitem", "show partial inventory or describe an item",
-   dotypeinv, TRUE, 10, 'I', 0, 0, 0},
+   dotypeinv, TRUE, 10, 'I', M('0'), 0, 0},
   {"discoveries", "show your knowledge about items", dodiscovered, TRUE, 11,
    '\\', 0, 0, 0},
   {"dip", "dip an object into something", dodip, FALSE, 1, M('d'), 0, 0, 0},
@@ -1562,9 +1562,9 @@ struct ext_func_tab extcmdlist[] = {
   {"farlook", "say what is on a distant square", doquickwhatis, TRUE, 10,
    ';', 0, 0, 0},
   {"farmove", "move repeatedly, stopping for anything interesting", 0, TRUE, 20,
-   'g', 0, 0, 'g'},
+   'g', '5', M('5'), 'g'},
   {"fight", "attack even if no hostile monster is visible", 0, TRUE, 21,
-   'F', 0, 0, 'F'},
+   'F', '-', 0, 'F'},
   {"fire", "throw your quivered item", dofire, FALSE, 11, 'f', 0, 0, 0},
   {"force", "force a lock", doforce, FALSE, 1, M('f'), 0, 0, 0},
   {"goup", "move up stairs or a ladder", doup, FALSE, 10, '<', 0, 0, 0},
@@ -1986,6 +1986,33 @@ register char *cmd;
 		flags.nopick = 0;
 		cmd = parse();
 	}
+        if (0) {
+reparse_direction:
+                /* The user gave a prefix command like F or m, but
+                   we don't yet know which direction they want to
+                   move in. Ask for that now. Note that cmd[0]
+                   holds the NetHack 3.4.3 key at this point, not
+                   the key the user pressed. */
+                cmd[1] = getdir(cmd[0] == 'F' ? "Attack in which direction?" :
+                                cmd[0] == 'm' ? "Move in which direction?" :
+                                cmd[0] == 'g' ? "Farmove in which direction?" : 0);
+                if (cmd[1] == 0) cmd[0] = '\033';
+                /* Translate the pressed direction into standard
+                   vikeys, no matter what control system is being used. */
+                else if (u.dz > 0) cmd[1] = '>';
+                else if (u.dz < 0) cmd[1] = '<';
+                else if (u.dx > 0 && u.dy > 0) cmd[1] = 'n';
+                else if (u.dx > 0 && u.dy < 0) cmd[1] = 'u';
+                else if (u.dx < 0 && u.dy > 0) cmd[1] = 'b';
+                else if (u.dx < 0 && u.dy < 0) cmd[1] = 'y';
+                else if (u.dx < 0) cmd[1] = 'h';
+                else if (u.dx > 0) cmd[1] = 'l';
+                else if (u.dy < 0) cmd[1] = 'k';
+                else if (u.dy > 0) cmd[1] = 'j';
+                else cmd[0] = '\033';
+                u.dx = u.dy = u.dz = 0;
+                cmd[2] = 0;
+        }
 reparse:
 	if (*cmd == '\033') {
 		flags.move = FALSE;
@@ -2009,48 +2036,39 @@ reparse:
 		flags.move = FALSE;
 		return;		/* probably we just had an interrupt */
 	}
-	if (inreparse && iflags.num_pad && iflags.num_pad_mode == 1) {
-		/* This handles very old inconsistent DOS/Windows behaviour
-		 * in a new way: earlier, the keyboard handler mapped these,
-		 * which caused counts to be strange when entered from the
-		 * number pad. Now do not map them until here. 
-		 */
-		switch (*cmd) {
-		    case '5':       *cmd = 'g'; break;
-		    case M('5'):    *cmd = 'G'; break;
-		    case M('0'):    *cmd = 'I'; break;
-        	}
-        }
+
 	/* handle most movement commands */
 	do_walk = do_rush = prefix_seen = FALSE;
 	flags.travel = iflags.travel1 = 0;
 	switch (inreparse ? *cmd : 0) {
-	 case 'g':  if (movecmd(cmd[1])) {
+	 case 'g':  if (!cmd[1]) goto reparse_direction;
+                    if (movecmd(cmd[1])) {
 			flags.run = 2;
 			do_rush = TRUE;
 		    } else
 			prefix_seen = TRUE;
 		    break;
-	 case '5':  if (!iflags.num_pad) break;	/* else FALLTHRU */
-	 case 'G':  if (movecmd(lowc(cmd[1]))) {
+	 case 'G':  if (!cmd[1]) goto reparse_direction;
+                    if (movecmd(lowc(cmd[1]))) {
 			flags.run = 3;
 			do_rush = TRUE;
 		    } else
 			prefix_seen = TRUE;
 		    break;
-	 case '-':  if (!iflags.num_pad) break;	/* else FALLTHRU */
 	/* Effects of movement commands and invisible monsters:
 	 * m: always move onto space (even if 'I' remembered)
 	 * F: always attack space (even if 'I' not remembered)
 	 * normal movement: attack if 'I', move otherwise
 	 */
-	 case 'F':  if (movecmd(cmd[1])) {
+	 case 'F':  if (!cmd[1]) goto reparse_direction;
+                    if (movecmd(cmd[1])) {
 			flags.forcefight = 1;
 			do_walk = TRUE;
 		    } else
 			prefix_seen = TRUE;
 		    break;
-	 case 'm':  if (movecmd(cmd[1]) || u.dz) {
+	 case 'm':  if (!cmd[1]) goto reparse_direction;
+                    if (movecmd(cmd[1]) || u.dz) {
 			flags.run = 0;
 			flags.nopick = 1;
 			if (!u.dz) do_walk = TRUE;
@@ -2058,18 +2076,14 @@ reparse:
 		    } else
 			prefix_seen = TRUE;
 		    break;
-	 case 'M':  if (movecmd(lowc(cmd[1]))) {
+	 case 'M':  if (!cmd[1]) goto reparse_direction;
+                    if (movecmd(lowc(cmd[1]))) {
 			flags.run = 1;
 			flags.nopick = 1;
 			do_rush = TRUE;
 		    } else
 			prefix_seen = TRUE;
 		    break;
-	 case '0':  if (!iflags.num_pad) break;
-		    (void)ddoinv(); /* a convenience borrowed from the PC */
-		    flags.move = FALSE;
-		    multi = 0;
-		    return;
 	 case CMD_TRAVEL:
 		    if (iflags.travelcmd) {
 			    flags.travel = 1;
@@ -2084,8 +2098,7 @@ reparse:
                     if (movecmd(*cmd)) {	/* ordinary movement */
 			flags.run = 0;	/* only matters here if it was 8 */
 			do_walk = TRUE;
-		    } else if (movecmd(iflags.num_pad ?
-				       unmeta(*cmd) : lowc(*cmd))) {
+		    } else if (movecmd(lowc(*cmd))) {
 			flags.run = 1;
 			do_rush = TRUE;
 		    } else if (movecmd(unctrl(*cmd))) {
@@ -2120,9 +2133,10 @@ reparse:
 	} else if (prefix_seen && cmd[1] == '\033') {	/* <prefix><escape> */
 	    /* don't report "unknown command" for change of heart... */
 	    bad_command = FALSE;
-	} else if (*cmd == ' ' && !flags.rest_on_space) {
-	    bad_command = TRUE;		/* skip cmdlist[] loop */
-
+        } else if (inreparse) {
+            impossible("Direction is not a direction?");
+            flags.move = FALSE;
+            return;
 	/* handle all other commands */
 	} else {
 	    register const struct ext_func_tab *tlist;
@@ -2217,13 +2231,17 @@ register int dd;
 	return;
 }
 
+/* Translate a traditional-vikeys direction into a movement direction.
+   This function should only be used internally and not by anything that
+   faces the UI, because the user's controls might not be traditional
+   vikeys. */
 int
 movecmd(sym)	/* also sets u.dz, but returns false for <> */
 char sym;
 {
 	register const char *dp;
 	register const char *sdp;
-	if(iflags.num_pad) sdp = ndir; else sdp = sdir;	/* DICE workaround */
+	sdp = sdir;
 
 	u.dz = 0;
 	if(!(dp = index(sdp, sym))) return 0;
@@ -2235,6 +2253,25 @@ char sym;
 		return 0;
 	}
 	return !u.dz;
+}
+
+/* Like movecmd, but using user-defined keys. */
+int
+movecmdui(sym)
+char sym;
+{
+        register const struct ext_func_tab *tlist;
+
+        /* We use replacewithkey to translate the pressed key into
+           traditional vikeys, and then use the internal movecmd. */
+        for (tlist = extcmdlist; tlist->ef_txt; tlist++) {
+          if ((sym & 0xff) != (tlist->binding1 & 0xff) &&
+              (sym & 0xff) != (tlist->binding2 & 0xff) &&
+              (sym & 0xff) != (tlist->binding3 & 0xff)) continue;
+            if (!tlist->replacewithkey) return 0;
+            return movecmd(tlist->replacewithkey);
+        }
+        return 0;
 }
 
 /*
@@ -2287,7 +2324,7 @@ const char *s;
 #endif
 	if(dirsym == '.' || dirsym == 's')
 		u.dx = u.dy = u.dz = 0;
-	else if(!movecmd(dirsym) && !u.dz) {
+	else if(!movecmdui(dirsym) && !u.dz) {
 		boolean did_help = FALSE;
 		if(!index(quitchars, dirsym)) {
 		    if (iflags.cmdassist) {
@@ -2563,15 +2600,7 @@ parse()
 	}
 	in_line[0] = foo;
 	in_line[1] = '\0';
-	if (foo == 'g' || foo == 'G' || foo == 'm' || foo == 'M' ||
-	    foo == 'F' || (iflags.num_pad && (foo == '5' || foo == '-'))) {
-	    foo = readchar();
-#ifdef REDO
-	    savech((char)foo);
-#endif
-	    in_line[1] = foo;
-	    in_line[2] = 0;
-	}
+
 	clear_nhwindow(WIN_MESSAGE);
 	if (prezero) in_line[0] = '\033';
 	return(in_line);
