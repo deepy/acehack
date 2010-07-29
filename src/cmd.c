@@ -16,6 +16,8 @@
 
 #define CMD_TRAVEL (char)0x90
 
+#define REPARSE_AS_KEY 14490 /* an arbitrary large positive number */
+
 #ifdef DEBUG
 /*
  * only one "wiz_debug_cmd" routine should be available (in whatever
@@ -295,6 +297,8 @@ doextcmd()	/* here after # - now read a full-word command */
 	    idx = get_ext_cmd();
 	    if (idx < 0) return 0;	/* quit */
 
+            if (extcmdlist[idx].ef_funct == 0)
+              return -REPARSE_AS_KEY - extcmdlist[idx].replacewithkey;
 	    retval = (*extcmdlist[idx].ef_funct)();
 	} while (extcmdlist[idx].ef_funct == doextlist);
 
@@ -1527,59 +1531,177 @@ static const struct func_tab cmdlist[] = {
 };
 
 struct ext_func_tab extcmdlist[] = {
-	{"adjust", "adjust inventory letters", doorganize, TRUE},
-	{"chat", "talk to someone", dotalk, TRUE},	/* converse? */
-	{"conduct", "list which challenges you have adhered to", doconduct, TRUE},
-	{"dip", "dip an object into something", dodip, FALSE},
-	{"enhance", "advance or check weapons skills", enhance_weapon_skill,
-							TRUE},
-	{"force", "force a lock", doforce, FALSE},
-	{"invoke", "invoke an object's powers", doinvoke, TRUE},
-	{"jump", "jump to a location", dojump, FALSE},
-	{"loot", "loot a box on the floor", doloot, FALSE},
-	{"monster", "use a monster's special ability", domonability, TRUE},
-	{"name", "name an item or type of object", ddocall, TRUE},
-	{"offer", "offer a sacrifice to the gods", dosacrifice, FALSE},
-	{"pray", "pray to the gods for help", dopray, TRUE},
-	{"quit", "exit without saving current game", done2, TRUE},
+  {"adjust", "adjust inventory letters", doorganize, TRUE, 1, C('i'), M('a'), 0, 0},
+  {"apply", "use a tool or ignite a potion", doapply, FALSE, 11, 'a', 0, 0, 0},
+  {"autopickup", "toggle the autopickup option", dotogglepickup, TRUE, 10,
+   '@', 0, 0, 0},
+  {"cast", "cast a spell from memory", docast, TRUE, 11, 'Z', 0, 0, 0},
+  {"chat", "talk to someone or ride a monster", dotalk, TRUE, 1, 'c', 'p', M('c'), 0},
+  {"conduct", "list which challenges you have adhered to", doconduct,
+   TRUE, 2, 0, 0, 0, 0},
+  {"countgold", "show gold, debt, credit, and unpaid items", doprgold, TRUE,
+   10, '$', 0, 0, 0},
+  {"describeitem", "show partial inventory or describe an item",
+   dotypeinv, TRUE, 10, 'I', 0, 0, 0},
+  {"discoveries", "show your knowledge about items", dodiscovered, TRUE, 11,
+   '\\', 0, 0, 0},
+  {"dip", "dip an object into something", dodip, FALSE, 1, M('d'), 0, 0, 0},
+  {"drop", "drop many items", doddrop, FALSE, 12, 'D', 0, 0, 0},
+  {"dropone", "drop one item", dodrop, FALSE, 13, 'd', 0, 0, 0},
+  {"east", "move, attack, or interact east", 0, FALSE, 21, 'l', '6', 0, 'l'},
+  {"eastfar", "move east as far as possible", 0, FALSE, 22, 'L', 0, 0, 'L'},
+  {"easthfarcareful", "move east until something interesting happens",
+   0, FALSE, 23, C('l'), 0, 0, C('l')},
+  {"eat", "eat an item", doeat, FALSE, 10, 'e', 0, 0, 0},
+  {"engrave", "write on the floor", doengrave, FALSE, 11, 'E', 0, 0, 0},
+  {"enhance", "advance or check weapons skills", enhance_weapon_skill,
+   TRUE, 1, C('e'), M('e'), 0, 0},
+  {"equip", "wear or put on equipment", dowear, FALSE, 10, 'W', 'P', 0, 0},
+  {"equipment", "show equipped items, and remove them or equip new ones",
+   doddoremarm, FALSE, 10, 'A', 0, 0, 0},
+  {"farlook", "say what is on a distant square", doquickwhatis, TRUE, 10,
+   ';', 0, 0, 0},
+  {"farmove", "move repeatedly, stopping for anything interesting", 0, TRUE, 20,
+   'g', 0, 0, 'g'},
+  {"fight", "attack even if no hostile monster is visible", 0, TRUE, 21,
+   'F', 0, 0, 'F'},
+  {"fire", "throw your quivered item", dofire, FALSE, 11, 'f', 0, 0, 0},
+  {"force", "force a lock", doforce, FALSE, 1, M('f'), 0, 0, 0},
+  {"goup", "move up stairs or a ladder", doup, FALSE, 10, '<', 0, 0, 0},
+  {"help", "open the in-game help", dohelp, TRUE, 10, '?', 0, 0, 0},
+  {"inventory", "list, describe or use items", ddoinv, TRUE, 10, 'i', 0, 0, 0},
+  {"invoke", "invoke an object's powers", doinvoke, TRUE, 1, 'V', 0, 0, 0},
+  {"jump", "walk, jump or teleport to a location", dojump, FALSE, 1, 'G', M('j'), 0, 0},
+  {"kick", "kick an adjacent object or monster", dokick, FALSE, 10, C('d'), 0, 0, 0},
+  {"lookhere", "describe the current square", dolook, TRUE, 10, ':', 0, 0, 0},
+  {"loot", "loot a box on the floor", doloot, FALSE, 1, 0, 0, 0, 0},
+  {"messages", "show message history", doprev_message, TRUE, 10, C('p'), 0, 0, 0},
+  {"monster", "use a monster's special ability", domonability, TRUE, 1,
+   'M', M('m'), 0, 0},
+  {"move", "move even if something's in the way", 0, TRUE, 20, 'm', 0, 0, 'm'},
+  {"name", "name a monster, item or type of object", ddocall, TRUE, 1,
+   'C', M('n'), M('N'), 0},
+  {"north", "move, attack, or interact south", 0, FALSE, 21, 'k', '8', 0, 'k'},
+  {"northfar", "move south as far as possible", 0, FALSE, 22, 'K', 0, 0, 'K'},
+  {"northfarcareful", "move south until something interesting happens",
+   0, FALSE, 23, C('k'), 0, 0, C('k')},
+  {"northeast", "move, attack, or interact northeast", 0, FALSE, 21, 'u', '9', 0, 'u'},
+  {"northeastfar", "move northeast as far as possible", 0, FALSE, 22, 'U', 0, 0, 'U'},
+  {"northeastfarcareful", "move northeast until something interesting happens",
+   0, FALSE, 23, C('u'), 0, 0, C('u')},
+  {"northwest", "move, attack, or interact northwest", 0, FALSE, 21, 'y', '7', 0, 'y'},
+  {"northwestfar", "move northwest as far as possible", 0, FALSE, 22, 'Y', 0, 0, 'Y'},
+  {"northwestfarcareful", "move northwest until something interesting happens",
+   0, FALSE, 23, C('y'), 0, 0, C('y')},
+  {"offer", "offer a sacrifice to the gods", dosacrifice, FALSE, 1, M('o'), 0, 0, 0},
+  {"open", "open or close a door or container on the ground", doopen,
+   FALSE, 11, 'o', M('l'), 0, 0},
+  {"options", "change game options", doset, TRUE, 10, 'O', 0, 0, 0},
+  {"pickup", "pick up one or more items", dopickup, FALSE, 10, ',', 0, 0, 0},
+  {"pray", "pray to the gods for help", dopray, TRUE, 1, M('p'), 0, 0, 0},
+  {"quaff", "drink a potion or other liquid", dodrink, FALSE, 11, 'q', 0, 0, 0},
+  {"quit", "exit without saving current game", done2, TRUE, 1, M('q'), 0, 0, 0},
+  {"quiver", "ready an item for firing", dowieldquiver, FALSE, 10, 'Q', 0, 0, 0},
+  {"read", "read text written on an item", doread, FALSE, 11, 'r', 0, 0, 0},
+  {"redo", "repeat the previous command", 0, TRUE, 20, C('a'), 0, 0, DOAGAIN},
+  {"redraw", "redraw the screen", doredraw, TRUE, 10, C('r'), 0, 0, 0},
+  {"repeat", "do a command more than once or run a command by name", doextcmd,
+   TRUE, 11, '#', 0, 0, 0},
 #ifdef STEED
-	{"ride", "ride (or stop riding) a monster", doride, FALSE},
+  {"ride", "ride (or stop riding) a monster", doride, FALSE, 2, 0, 0, 0, 0},
 #endif
-	{"rub", "rub a lamp or a stone", dorub, FALSE},
-	{"sit", "sit down", dosit, FALSE},
-	{"turn", "turn undead", doturn, TRUE},
-	{"twoweapon", "toggle two-weapon combat", dotwoweapon, FALSE},
-	{"untrap", "untrap something", dountrap, FALSE},
-	{"version", "list compile time options for this version of NetHack",
-		doextversion, TRUE},
-	{"wipe", "wipe off your face", dowipe, FALSE},
-	{"?", "get this list of extended commands", doextlist, TRUE},
+  {"rub", "rub a lamp or a stone", dorub, FALSE, 1, M('r'), 0, 0, 0},
+  {"save", "quicksave or abandon the game", dosave, TRUE, 10, 'S', 0, 0, 0},
+  {"search", "wait 1 turn, searching around you", dosearch, TRUE, 13, 's', '.', 0, 0},
+  {"sit", "sit down", dosit, FALSE, 1, M('s'), 0, 0, 0},
+  {"south", "move, attack, or interact south", 0, FALSE, 21, 'j', '2', 0, 'j'},
+  {"southfar", "move south as far as possible", 0, FALSE, 22, 'J', 0, 0, 'J'},
+  {"southfarcareful", "move south until something interesting happens",
+   0, FALSE, 23, C('j'), 0, 0, C('j')},
+  {"southeast", "move, attack, or interact southeast", 0, FALSE, 21, 'n', '3', 0, 'n'},
+  {"southeastfar", "move southeast as far as possible", 0, FALSE, 22, 'N', 0, 0,
+   'N'},
+  {"southeastfarcareful", "move southeast until something interesting happens",
+   0, FALSE, 23, C('n'), 0, 0, C('n')},
+  {"southwest", "move, attack, or interact southwest", 0, FALSE, 21, 'b', '1', 0, 'b'},
+  {"southwestfar", "move southwest as far as possible", 0, FALSE, 22, 'B', 0, 0,
+   'B'},
+  {"southwestfarcareful", "move southwest until something interesting happens",
+   0, FALSE, 23, C('b'), 0, 0, C('b')},
+  {"spellbook", "display and change letters of spells", dovspell, TRUE,
+   11, '+', 0, 0, 0},
+  {"stats", "show your statistics and intrinsics", doattributes, TRUE,
+   8, C('x'), 0, 0, 0},
+#ifdef SUSPEND
+  {"suspend", "pause and background NetHack so you can use other programs",
+   dosuspend, TRUE, 5, C('z'), 0, 0, 0},
+#endif
+  {"swapweapons", "exchange wielded and alternate weapon", 0, FALSE, 12,
+   'x', 0, 0, 0},
+  {"teleport", "use intrinsic or magical teleportation ability", dotele, TRUE, 11,
+   C('t'), 0, 0, 0},
+  {"terrain", "use stairs or a ladder, or otherwise interact with terrain",
+   dodown, FALSE, 13, '>', 0, 0, 0},
+  {"throw", "throw an item", dothrow, FALSE, 14, 't', 0, 0, 0},
+  {"travel", "walk until a given square is reached", dotravel, TRUE,
+   12, '_', 0, 0, 0},
+  {"turn", "turn undead", doturn, TRUE, 2, M('t'), 0, 0, 0},
+#ifdef WIZARD
+  /* Key clash on ^V. wiz_level_tele does the right thing. */
+  {"tutorial", "redisplay tutorial slides", wiz_level_tele, FALSE, 10,
+   C('v'), 0, 0, 0},
+#else
+  {"tutorial", "redisplay tutorial slides", tutorial_redisplay, FALSE, 10,
+   C('v'), 0, 0, 0},
+#endif
+  {"twoweapon", "toggle two-weapon combat", dotwoweapon, FALSE, 1, 'X', M('2'), 0, 0},
+  {"unequip", "take off or remove equipment", dotakeoff, FALSE, 10, 'T', 'R', 0, 0},
+  {"untrap", "describe or defuse a remembered trap", dountrap, FALSE, 1,
+   '^', M('u'), 0, 0},
+  {"versionshort", "list the version number of NetHack",
+   doversion, TRUE, 10, 0, 0, 0, 0},
+  {"versionhistory", "list the history of NetHack",
+   dohistory, TRUE, 11, M('v'), 0, 0, 0},
+  {"versionoptions", "list compile time options for this version of NetHack",
+   doextversion, TRUE, 1, M('v'), 0, 0, 0},
+  {"west", "move, attack, or interact west", 0, FALSE, 21, 'h', '4', 0, 'h'},
+  {"westfar", "move west as far as possible", 0, FALSE, 22, 'H', 0, 0, 'H'},
+  {"westfarcareful", "move west until something interesting happens",
+   0, FALSE, 23, C('h'), 0, 0, C('h')},
+  {"whatis", "describe what a symbol means", dowhatis, TRUE, 10, '/', 0, 0, 0},
+  {"whatdoes", "describe what a key does", dowhatdoes, TRUE, 10, '&', 0, 0, 0},
+  {"wield", "hold an item in your hands", dowield, FALSE, 11, 'w', 0, 0, 0},
+  {"wipe", "wipe off your face", dowipe, FALSE, 1, M('w'), 0, 0, 0},
+  {"worship", "communicate with the gods", dopray, TRUE, 10, C('w'), 0, 0, 0},
+  {"xplore", "enter discovery mode", enter_explore_mode, TRUE, 10, 0, 0, 0, 0},
+  {"zap", "zap a wand to use its magic", dozap, FALSE, 10, 'z', 0, 0, 0},
+  {"?", "get this list of extended commands", doextlist, TRUE, 0, 0, 0, 0, 0},
 #if defined(WIZARD)
 	/*
 	 * There must be a blank entry here for every entry in the table
 	 * below.
 	 */
-	{(char *)0, (char *)0, donull, TRUE},
-	{(char *)0, (char *)0, donull, TRUE},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #ifdef DEBUG_MIGRATING_MONS
-	{(char *)0, (char *)0, donull, TRUE},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #endif
-	{(char *)0, (char *)0, donull, TRUE},
-	{(char *)0, (char *)0, donull, TRUE},
-	{(char *)0, (char *)0, donull, TRUE},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #ifdef PORT_DEBUG
-	{(char *)0, (char *)0, donull, TRUE},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #endif
-	{(char *)0, (char *)0, donull, TRUE},
-        {(char *)0, (char *)0, donull, TRUE},
-	{(char *)0, (char *)0, donull, TRUE},
-	{(char *)0, (char *)0, donull, TRUE},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #ifdef DEBUG
-	{(char *)0, (char *)0, donull, TRUE},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #endif
-	{(char *)0, (char *)0, donull, TRUE},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #endif
-	{(char *)0, (char *)0, donull, TRUE}	/* sentinel */
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0}	/* sentinel */
 };
 
 #if defined(WIZARD)
@@ -1857,19 +1979,20 @@ rhack(cmd)
 register char *cmd;
 {
 	boolean do_walk, do_rush, prefix_seen, bad_command,
-		firsttime = (cmd == 0);
+          firsttime = (cmd == 0), inreparse = FALSE;
 
 	iflags.menu_requested = FALSE;
 	if (firsttime) {
 		flags.nopick = 0;
 		cmd = parse();
 	}
+reparse:
 	if (*cmd == '\033') {
 		flags.move = FALSE;
 		return;
 	}
 #ifdef REDO
-	if (*cmd == DOAGAIN && !in_doagain && saveq[0]) {
+	if (*cmd == DOAGAIN && inreparse && !in_doagain && saveq[0]) {
 		in_doagain = TRUE;
 		stail = 0;
 		rhack((char *)0);	/* read and execute command */
@@ -1886,7 +2009,7 @@ register char *cmd;
 		flags.move = FALSE;
 		return;		/* probably we just had an interrupt */
 	}
-	if (iflags.num_pad && iflags.num_pad_mode == 1) {
+	if (inreparse && iflags.num_pad && iflags.num_pad_mode == 1) {
 		/* This handles very old inconsistent DOS/Windows behaviour
 		 * in a new way: earlier, the keyboard handler mapped these,
 		 * which caused counts to be strange when entered from the
@@ -1901,7 +2024,7 @@ register char *cmd;
 	/* handle most movement commands */
 	do_walk = do_rush = prefix_seen = FALSE;
 	flags.travel = iflags.travel1 = 0;
-	switch (*cmd) {
+	switch (inreparse ? *cmd : 0) {
 	 case 'g':  if (movecmd(cmd[1])) {
 			flags.run = 2;
 			do_rush = TRUE;
@@ -1957,7 +2080,8 @@ register char *cmd;
 			    break;
 		    }
 		    /*FALLTHRU*/
-	 default:   if (movecmd(*cmd)) {	/* ordinary movement */
+         default:   if (!inreparse) break;
+                    if (movecmd(*cmd)) {	/* ordinary movement */
 			flags.run = 0;	/* only matters here if it was 8 */
 			do_walk = TRUE;
 		    } else if (movecmd(iflags.num_pad ?
@@ -1973,7 +2097,7 @@ register char *cmd;
 
 	/* some special prefix handling */
 	/* overload 'm' prefix for ',' to mean "request a menu" */
-	if (prefix_seen && cmd[1] == ',') {
+	if (prefix_seen && inreparse && cmd[1] == ',') {
 		iflags.menu_requested = TRUE;
 		++cmd;
 	}
@@ -2001,11 +2125,13 @@ register char *cmd;
 
 	/* handle all other commands */
 	} else {
-	    register const struct func_tab *tlist;
+	    register const struct ext_func_tab *tlist;
 	    int res, NDECL((*func));
 
-	    for (tlist = cmdlist; tlist->f_char; tlist++) {
-		if ((*cmd & 0xff) != (tlist->f_char & 0xff)) continue;
+	    for (tlist = extcmdlist; tlist->ef_txt; tlist++) {
+		if ((*cmd & 0xff) != (tlist->binding1 & 0xff) &&
+                    (*cmd & 0xff) != (tlist->binding2 & 0xff) &&
+                    (*cmd & 0xff) != (tlist->binding3 & 0xff)) continue;
 		check_tutorial_command(*cmd & 0xff);
 
 		if (u.uburied && !tlist->can_if_buried) {
@@ -2014,10 +2140,23 @@ register char *cmd;
 		} else {
 		    /* we discard 'const' because some compilers seem to have
 		       trouble with the pointer passed to set_occupation() */
-		    func = ((struct func_tab *)tlist)->f_funct;
-		    if (tlist->f_text && !occupation && multi)
-			set_occupation(func, tlist->f_text, multi);
+                    func = ((struct ext_func_tab *)tlist)->ef_funct;
+                    /* The only action that sets an occupation is searching.
+                       So we may as well special-case it here. */
+		    if (func == dosearch && !occupation && multi)
+			set_occupation(func, "searching", multi);
+                    if (!func) {
+                        *cmd = tlist->replacewithkey;
+                        inreparse = TRUE;
+                        goto reparse;
+                    }
 		    res = (*func)();		/* perform the command */
+                    if (func == doextcmd && res < -REPARSE_AS_KEY &&
+                        res > -REPARSE_AS_KEY-256) { /* bouncing a key onto us */
+                        *cmd = (int)(-REPARSE_AS_KEY - res);
+                        inreparse = TRUE;
+                        goto reparse;
+                    }
 		}
 		if (!res) {
 		    flags.move = FALSE;
