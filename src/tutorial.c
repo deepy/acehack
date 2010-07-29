@@ -185,9 +185,9 @@ char c;
     r++;
     if (r > check_tutorial_command_count) break;
     if (moves > 125 && r > 5 && farmove) {
-      if (iflags.num_pad)
+/*      if (iflags.num_pad)
         check_tutorial_command_message = QT_T_FARMOVE_NUMPAD;
-      else
+        else */
         check_tutorial_command_message = QT_T_FARMOVE_VIKEYS;
       break;
     }
@@ -196,16 +196,16 @@ char c;
       break;
     }
     if (moves > 80 && r > 20 && c == 'b') {
-      if (iflags.num_pad)
+/*      if (iflags.num_pad)
         check_tutorial_command_message = QT_T_DIAGONALS_NUM;
-      else
+        else */
         check_tutorial_command_message = QT_T_DIAGONALS_VI;        
       break;
     }
     if (repeat && r > 5 && c == 's') {
-      if (iflags.num_pad)
+/*      if (iflags.num_pad)
         check_tutorial_command_message = QT_T_REPEAT_NUMPAD;
-      else
+        else */
         check_tutorial_command_message = QT_T_REPEAT_VIKEYS;
       break;
     }

@@ -21,10 +21,11 @@ const char *goal;
     boolean doing_what_is;
     winid tmpwin = create_nhwindow(NHW_MENU);
 
-    Sprintf(sbuf, "Use [%s] to move the cursor to %s.",
-	    iflags.num_pad ? "2468" : "hjkl", goal);
+    /* TODO: Reflect actual movement commands */
+    Sprintf(sbuf, "Use movement keys to move the cursor to %s.", goal);
     putstr(tmpwin, 0, sbuf);
-    putstr(tmpwin, 0, "Use [HJKL] to move the cursor 8 units at a time.");
+    putstr(tmpwin, 0,
+           "Use shifted movement keys to move the cursor 8 units at a time.");
     putstr(tmpwin, 0, "Or enter a background symbol (ex. <).");
     /* disgusting hack; the alternate selection characters work for any
        getpos call, but they only matter for dowhatis (and doquickwhatis) */
@@ -51,8 +52,6 @@ const char *goal;
     boolean msg_given = TRUE;	/* clear message window by default */
     static const char pick_chars[] = ".,;:";
     const char *cp;
-    const char *sdp;
-    if(iflags.num_pad) sdp = ndir; else sdp = sdir;	/* DICE workaround */
 
     if (flags.verbose) {
 	pline("(For instructions type a ?)");
@@ -88,19 +87,18 @@ const char *goal;
 	    result = cp - pick_chars;
 	    break;
 	}
-	for (i = 0; i < 8; i++) {
-	    int dx, dy;
-
-	    if (sdp[i] == c) {
-		/* a normal movement letter or digit */
-		dx = xdir[i];
-		dy = ydir[i];
-	    } else if (sdir[i] == lowc((char)c)) {
-		/* a shifted movement letter */
-		dx = 8 * xdir[i];
-		dy = 8 * ydir[i];
-	    } else
-		continue;
+        do {
+            int odx = u.dx, ody = u.dy, odz = u.dz;
+            int dx = 0, dy = 0;
+            if (movecmdui(c)) {
+                dx = u.dx;
+                dy = u.dy;
+            } else if (movecmdui(lowc((char)c))) {
+                dx = u.dx*8;
+                dy = u.dy*8;
+            }
+            u.dx = odx; u.dy = ody; u.dz = odz;
+            if (!dx && !dy) break;
 
 	    /* truncate at map edge; diagonal moves complicate this... */
 	    if (cx + dx < 1) {
@@ -120,7 +118,7 @@ const char *goal;
 	    cx += dx;
 	    cy += dy;
 	    goto nxtc;
-	}
+	} while(0);
 
 	if(c == '?'){
 	    getpos_help(force, goal);
@@ -162,7 +160,7 @@ const char *goal;
 		    pline("Unknown direction: '%s' (%s).",
 			  visctrl((char)c),
 			  !force ? "aborted" :
-			  iflags.num_pad ? "use 2468 or ." : "use hjkl or .");
+			  "use movement keys or .");
 		    msg_given = TRUE;
 		} /* k => matching */
 	    } /* !quitchars */

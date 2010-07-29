@@ -275,7 +275,7 @@ static struct Comp_Opt
 # endif
 	{ "name",     "your character's name (e.g., name:Merlin-W)",
 						PL_NSIZ, SET_IN_FILE },
-	{ "number_pad", "use the number pad", 1, SET_IN_GAME},
+	{ "number_pad", "use the number pad", 1, SET_IN_FILE},
 	{ "objects",  "the symbols to use for objects",
 						MAXOCLASSES, SET_IN_FILE },
 	{ "packorder", "the inventory order of the items in your pack",
@@ -1098,35 +1098,6 @@ boolean tinitial, tfrom_file;
 		if (negated) bad_negation(fullname, FALSE);
 		else if ((op = string_for_env_opt(fullname, opts, FALSE)) != 0)
 			nmcpy(horsename, op, PL_PSIZ);
-		return;
-	}
-
-	fullname = "number_pad";
-	if (match_optname(opts, fullname, 10, TRUE)) {
-		boolean compat = (strlen(opts) <= 10);
-		number_pad(iflags.num_pad ? 1 : 0);
-		op = string_for_opt(opts, (compat || !initial));
-		if (!op) {
-		    if (compat || negated || initial) {
-			/* for backwards compatibility, "number_pad" without a
-			   value is a synonym for number_pad:1 */
-			iflags.num_pad = !negated;
-			if (iflags.num_pad) iflags.num_pad_mode = 0;
-		    }
-		    return;
-		}
-		if (negated) {
-		    bad_negation("number_pad", TRUE);
-		    return;
-		}
-		if (*op == '1' || *op == '2') {
-			iflags.num_pad = 1;
-			if (*op == '2') iflags.num_pad_mode = 1;
-			else iflags.num_pad_mode = 0;
-		} else if (*op == '0') {
-			iflags.num_pad = 0;
-			iflags.num_pad_mode = 0;
-		} else badoption(opts);
 		return;
 	}
 
@@ -2581,7 +2552,7 @@ boolean setinitial,setfromfile;
     boolean retval = FALSE;
     
     /* Special handling of menustyle, pickup_burden, pickup_types,
-     * disclose, runmode, msg_window, menu_headings, number_pad and sortloot
+     * disclose, runmode, msg_window, menu_headings and sortloot
 #ifdef AUTOPICKUP_EXCEPTIONS
      * Also takes care of interactive autopickup_exception_handling changes.
 #endif
@@ -2787,40 +2758,6 @@ boolean setinitial,setfromfile;
 		else iflags.wc_align_status = window_pick->item.a_int;
 		free((genericptr_t)window_pick);
 	}
-	destroy_nhwindow(tmpwin);
-        retval = TRUE;
-    } else if (!strcmp("number_pad", optname)) {
-	static const char *npchoices[3] =
-		{"0 (off)", "1 (on)", "2 (on, DOS compatible)"};
-	const char *npletters = "abc";
-	menu_item *mode_pick = (menu_item *)0;
-
-	tmpwin = create_nhwindow(NHW_MENU);
-	start_menu(tmpwin);
-	for (i = 0; i < SIZE(npchoices); i++) {
-		any.a_int = i + 1;
-		add_menu(tmpwin, NO_GLYPH, &any, npletters[i], 0,
-			 ATR_NONE, npchoices[i], MENU_UNSELECTED);
-        }
-	end_menu(tmpwin, "Select number_pad mode:");
-	if (select_menu(tmpwin, PICK_ONE, &mode_pick) > 0) {
-		int mode = mode_pick->item.a_int - 1;
-		switch(mode) {
-			case 2:
-				iflags.num_pad = 1;
-				iflags.num_pad_mode = 1;
-				break;
-			case 1:
-				iflags.num_pad = 1;
-				iflags.num_pad_mode = 0;
-				break;
-			case 0:
-			default:
-				iflags.num_pad = 0;
-				iflags.num_pad_mode = 0;
-		}
-		free((genericptr_t)mode_pick);
-        }
 	destroy_nhwindow(tmpwin);
         retval = TRUE;
     } else if (!strcmp("menu_headings", optname)) {
@@ -3092,10 +3029,6 @@ char *buf;
 #endif
 	else if (!strcmp(optname, "name"))
 		Sprintf(buf, "%s", plname);
-	else if (!strcmp(optname, "number_pad"))
-		Sprintf(buf, "%s",
-			(!iflags.num_pad) ? "0=off" :
-			(iflags.num_pad_mode) ? "2=on, DOS compatible" : "1=on");
 	else if (!strcmp(optname, "objects"))
 		Sprintf(buf, "%s", to_be_done);
 	else if (!strcmp(optname, "packorder")) {

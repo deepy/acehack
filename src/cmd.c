@@ -2380,27 +2380,13 @@ const char *msg;
 		putstr(win, 0, "");
 	    }
 	}
-	if (iflags.num_pad && u.umonnum == PM_GRID_BUG) {
-	    putstr(win, 0, "Valid direction keys in your current form (with number_pad on) are:");
-	    putstr(win, 0, "             8   ");
-	    putstr(win, 0, "             |   ");
-	    putstr(win, 0, "          4- . -6");
-	    putstr(win, 0, "             |   ");
-	    putstr(win, 0, "             2   ");
-	} else if (u.umonnum == PM_GRID_BUG) {
+	if (u.umonnum == PM_GRID_BUG) {
 	    putstr(win, 0, "Valid direction keys in your current form are:");
 	    putstr(win, 0, "             k   ");
 	    putstr(win, 0, "             |   ");
 	    putstr(win, 0, "          h- . -l");
 	    putstr(win, 0, "             |   ");
 	    putstr(win, 0, "             j   ");
-	} else if (iflags.num_pad) {
-	    putstr(win, 0, "Valid direction keys (with number_pad on) are:");
-	    putstr(win, 0, "          7  8  9");
-	    putstr(win, 0, "           \\ | / ");
-	    putstr(win, 0, "          4- . -6");
-	    putstr(win, 0, "           / | \\ ");
-	    putstr(win, 0, "          1  2  3");
 	} else {
 	    putstr(win, 0, "Valid direction keys are:");
 	    putstr(win, 0, "          y  k  u");
@@ -2498,7 +2484,7 @@ click_to_cmd(x, y, mod)
         dir = xytod(x, y);
 
 	if (!m_at(u.ux+x, u.uy+y) && !test_move(u.ux, u.uy, x, y, TEST_MOVE)) {
-            cmd[1] = (iflags.num_pad ? ndir[dir] : sdir[dir]);
+            cmd[1] = (sdir[dir]);
             cmd[2] = 0;
             if (IS_DOOR(levl[u.ux+x][u.uy+y].typ)) {
                 /* slight assistance to the player: choose kick/open for them */
@@ -2539,10 +2525,9 @@ click_to_cmd(x, y, mod)
     /* move, attack, etc. */
     cmd[1] = 0;
     if(mod == CLICK_1) {
-	cmd[0] = (iflags.num_pad ? ndir[dir] : sdir[dir]);
+	cmd[0] = (sdir[dir]);
     } else {
-	cmd[0] = (iflags.num_pad ? M(ndir[dir]) :
-		(sdir[dir] - 'a' + 'A')); /* run command */
+	cmd[0] = (sdir[dir] - 'a' + 'A'); /* run command */
     }
 
     return cmd;

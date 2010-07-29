@@ -812,14 +812,10 @@ use_pick_axe(obj)
 struct obj *obj;
 {
 	boolean ispick;
-	char dirsyms[12];
 	char qbuf[QBUFSZ];
-	register char *dsp = dirsyms;
-	register int rx, ry;
 	int res = 0;
-	register const char *sdp, *verb;
+	register const char *verb;
 
-	if(iflags.num_pad) sdp = ndir; else sdp = sdir;	/* DICE workaround */
 
 	/* Check tool */
 	if (obj != uwep) {
@@ -837,19 +833,7 @@ struct obj *obj;
 	    return res;
 	}
 
-	while(*sdp) {
-		(void) movecmd(*sdp);	/* sets u.dx and u.dy and u.dz */
-		rx = u.ux + u.dx;
-		ry = u.uy + u.dy;
-		/* Include down even with axe, so we have at least one direction */
-		if (u.dz > 0 ||
-		    (u.dz == 0 && isok(rx, ry) &&
-		     dig_typ(obj, rx, ry) != DIGTYP_UNDIGGABLE))
-			*dsp++ = *sdp;
-		sdp++;
-	}
-	*dsp = 0;
-	Sprintf(qbuf, "In what direction do you want to %s? [%s]", verb, dirsyms);
+	Sprintf(qbuf, "In what direction do you want to %s?", verb);
 	if(!getdir(qbuf))
 		return(res);
 

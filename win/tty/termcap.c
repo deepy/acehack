@@ -476,7 +476,7 @@ tty_start_screen()
 	/* set up callback in case option is not set yet but toggled later */
 	decgraphics_mode_callback = tty_decgraphics_termcap_fixup;
 #endif
-	if (iflags.num_pad) tty_number_pad(1);	/* make keypad send digits */
+	tty_number_pad(1);	/* make keypad send digits */
 }
 
 void
