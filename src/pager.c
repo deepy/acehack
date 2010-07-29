@@ -867,13 +867,13 @@ dowhatdoes()
 static const char *help_menu_items[] = {
 /* 0*/	"Long description of the game and commands.",
 /* 1*/	"List of game commands.",
-/* 2*/	"Concise history of NetHack.",
+/* 2*/	"Concise history of NetHack and AceHack.",
 /* 3*/	"Info on a character in the game display.",
 /* 4*/	"Info on what a given key does.",
 /* 5*/	"List of game options.",
 /* 6*/	"Longer explanation of game options.",
 /* 7*/	"List of extended commands.",
-/* 8*/	"The NetHack license.",
+/* 8*/	"The NetHack license (used by AceHack).",
 /* 9*/  "Redisplay tutorial messages.",
 #define TUTHLP_SLOT 9
 #ifdef PORT_HELP

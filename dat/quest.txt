@@ -2,7 +2,7 @@
 #	Copyright (c) 1991 by M. Stephenson
 # NetHack may be freely redistributed.  See license for details.
 #
-#	The quest text file for NetHack 3.4
+#	The quest text file for AceHack 3.6
 #
 #	These are the "standard" message numbers from qtext.h.  All class
 #	dialogue must have at least these entries.
@@ -3523,7 +3523,7 @@ Go now!  You are banished from this place.
 %Cm - 00201
 Tutorial: WELCOME
 
-Welcome to NetHack! These tutorial messages will help to teach you how
+Welcome to AceHack! These tutorial messages will help to teach you how
 to play the game. (Use ? for more in-depth help on the game.)
 
 The screen generally contains (non-tutorial) messages at the top (if
@@ -3550,7 +3550,7 @@ Tutorial: CURSOR MOVEMENT (with the number pad)
 
 In order to specify what you want to look at, you have to be able to
 move the cursor. You may be used to thinking of four directions in
-which an object can move; but NetHack has eleven:
+which an object can move; but AceHack has eleven:
 
 north-west north north-east          upwards
        7     8     9                    <
@@ -3573,7 +3573,7 @@ Tutorial: CURSOR MOVEMENT (with vi-style controls)
 
 In order to specify what you want to look at, you have to be able to
 move the cursor. You may be used to thinking of four directions in
-which an object can move; but NetHack has eleven:
+which an object can move; but AceHack has eleven:
 
 north-west north north-east      upwards     Note: for orthogonal
        y     k     u                <        movement, hjkl are in a
@@ -3786,7 +3786,7 @@ water and lava apart, or (if playing in colour) by looking at the
 colour difference. You need to be even more careful around lava than
 you are around water; few adventurers have the levels of magical
 protection needed to be able to swim through lava safely, so a typo
-near lava could be instantly fatal. Because NetHack is a turn-based
+near lava could be instantly fatal. Because AceHack is a turn-based
 game, there's no need to react to anything quickly in real-time; so
 take your time over your moves!
 %E
@@ -3870,7 +3870,7 @@ be cursed, so be careful with things that you loot from the dead.
 %Cm - 00240
 Tutorial: ALTARS
 
-Religion is an important feature of NetHack; although the gods take
+Religion is an important feature of AceHack; although the gods take
 note of your actions all the time, an altar (_) is a good place to go
 to contact them more directly. It's important to know who an altar is
 dedicated to; to do this, stand on the altar and press the : key.
@@ -4248,7 +4248,7 @@ extent.
 %Cm - 00280
 Tutorial: GETTING HELP
 
-It can be hard to remember everything that goes on in NetHack;
+It can be hard to remember everything that goes on in AceHack;
 luckily, there are several commands that you can use in order to get
 help on how to play.
 
@@ -4266,7 +4266,7 @@ via the help menu, ?.
 Note that the tutorial menu can get rather long; if it (or any other
 menu) doesn't fit on your screen, you can use the < and > keys to page
 up and down, or the space key to page through the menu. All menus in
-NetHack use these controls, by the way.
+AceHack use these controls, by the way.
 %E
 %Cm - 00281
 Tutorial: ITEMS
@@ -4317,11 +4317,11 @@ aim lower for the time being.
 %Cm - 00283
 Tutorial: SAVING AND QUITTING
 
-Unlike many other games, in NetHack, death is final; you have to start
+Unlike many other games, in AceHack, death is final; you have to start
 a new game from the start (there's no way to save a game and load the
 save file more than once). However, if you need to take a break, you
 can save the game by pressing S; that will save and end the game. To
-reload a save file, just run NetHack again (and if applicable, specify
+reload a save file, just run AceHack again (and if applicable, specify
 the same name that you specified last time); the game will load, but
 your save file will be deleted.
 
@@ -4432,7 +4432,7 @@ which they need practice to use ('unskilled'), and which they can
 never learn to use effectively (unlisted).
 %E
 # Yes, this /is/ in the Guidebook. And it should be mentioned in any
-# self-respecting NetHack tutorial.
+# self-respecting AceHack tutorial.
 %Cm - 00293
 Tutorial: ENGRAVING "ELBERETH"
 
@@ -5041,7 +5041,7 @@ Tutorial: EXPERIENCE
 
 You just gained some experience! By far, killing monsters is the most
 common way to gain experience, although there are a few weirder
-methods (some experienced NetHack players have completed the game
+methods (some experienced AceHack players have completed the game
 without a single kill, although this is incredibly difficult to
 achieve).
 
@@ -5260,7 +5260,7 @@ reading the scroll will allow you to check what the message was. The
 form of the message will depend on where and how you're playing; if
 you're on your own computer, then the scroll will normally be a
 response to the receipt of email, in which case you can read the
-scroll to read the email; but when playing on a public NetHack server,
+scroll to read the email; but when playing on a public AceHack server,
 the mail will probably be related to your game, sent by someone
 watching. In this case, you can effectively send a reply by pressing
 #, then space, then typing in your message and leaving it on the
@@ -5345,7 +5345,7 @@ retrieve the Amulet.
 When you die, your score is calculated, based mostly on the treasure
 you had and the monsters you killed. You're also told what items you
 had, and what your character was like; the information you're shown
-this way can help you to figure out what went wrong. Death in NetHack
+this way can help you to figure out what went wrong. Death in AceHack
 is fatal; you'll need to start again with a new character. Learn from
 your death, and try to do better next time!
 
@@ -5436,7 +5436,7 @@ You're now in Sokoban, a rather unusual area of the dungeon full of
 boulder puzzles. The aim here is to push the boulders into the pits or
 holes; that way, you can complete a path leading to the next level.
 It's possible to complete all the puzzles here according to the
-traditional Sokoban rules; however, by taking NetHack physics, and the
+traditional Sokoban rules; however, by taking AceHack physics, and the
 possibility to use magic, into account, you may find certain rather
 more ingenious ways to solve the puzzle. However, players who cheat
 too badly at the puzzles may find themselves having a run of bad luck.
@@ -5452,7 +5452,7 @@ before moving any of the boulders!
 %Cm - 00364
 Tutorial: THE ORACLE
 
-Welcome to the Oracle! Although most of the levels in NetHack are
+Welcome to the Oracle! Although most of the levels in AceHack are
 generated at random, some will have predetermined areas, or be unusual
 in various other ways; for instance, the Oracle of Delphi has a
 specially designed room all to herself, from which she makes

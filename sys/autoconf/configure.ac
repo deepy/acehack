@@ -1,5 +1,5 @@
-dnl	NETHACK autoconf template
-AC_INIT(NETHACK, 3.4.3, bhaak@gmx.net)
+dnl	ACEHACK autoconf template
+AC_INIT(ACEHACK, 3.6.0, ais523@bham.ac.uk)
 dnl Avoid AC_REVISION() because we check configure into CVS
 dnl and it will cause confusing revision numbers to be included
 dnl in configure if developers forget to check in configure.ac

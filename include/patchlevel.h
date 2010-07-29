@@ -2,13 +2,13 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /* NetHack may be freely redistributed.  See license for details. */
 
-/* NetHack 3.4.3 */
+/* AceHack 3.6.0 */
 #define VERSION_MAJOR	3
-#define VERSION_MINOR	4
+#define VERSION_MINOR	6
 /*
  * PATCHLEVEL is updated for each release.
  */
-#define PATCHLEVEL	3
+#define PATCHLEVEL	0
 /*
  * Incrementing EDITLEVEL can be used to force invalidation of old bones
  * and save files.
@@ -16,13 +16,13 @@
 #define EDITLEVEL	0
 
 #define COPYRIGHT_BANNER_A \
-"NetHack, Copyright 1985-2003"
+"AceHack, Copyright 2010; based on NetHack, Copyright 1985-2003"
 
 #define COPYRIGHT_BANNER_B \
-"         By Stichting Mathematisch Centrum and M. Stephenson."
+"  AceHack by Alex Smith, with many contributions from other people."
 
 #define COPYRIGHT_BANNER_C \
-"         See license for details."
+"  NetHack by Stichting Mathematisch Centrum and M. Stephenson. See dat/licence."
 
 /*
  * If two or more successive releases have compatible data files, define
@@ -33,10 +33,18 @@
  * PP = patch level, ee = edit level, L = literal suffix "L",
  * with all four numbers specified as two hexadecimal digits.
  */
-#define VERSION_COMPATIBILITY 0x03040000L	/* 3.4.0-0 */
+#define VERSION_COMPATIBILITY 0x03060000L	/* 3.4.0-0 */
 
 
 /*****************************************************************************/
+/* Version 3.6.x */
+
+/* Patch 0, as yet unreleased
+ * Forked NetHack to create AceHack (skipping a version number to avoid
+ * clashes with official releases). See the README or fixes36.0 for
+ * details.
+ */
+
 /* Version 3.4.x */
 
 /*  Patch 3, December 7, 2003

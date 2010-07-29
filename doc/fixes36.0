@@ -1,0 +1,95 @@
+Changes in AceHack 3.6.0. Emacs, this is a -*- text -*- file.
+
+This is a list of changes between NetHack 3.4.3 and AceHack 3.6.0.
+These are in no particular order, and every change is listed, even
+though some are likely much bigger than others.
+
+General Fixes
+-------------
+
+Reading a cursed scroll of destroy armor no longer gives permanent
+increases to abilities while wearing cursed gauntlets of dexterity or
+a cursed helm of brilliance.
+
+It's no longer possible to wrest a wand in one turn via levitation.
+(Patch credits: bcd@pvv.org)
+
+Item lists are now sorted into alphabetical order; this avoids an
+exploit whereby the player could determine the identity of an item
+from the order it appeared in a bones file.  (Patch credits: Jeroen
+Demeyer and Jukka Lahtinen, via Debian.)
+
+The "Itemized billing?" prompt now supports 'q' as an option.
+
+Modified Features
+-----------------
+
+Scoring has been completely redone; players are now scored in a number
+of categories, with huge diminishing returns in each category.  Thus,
+it's better to do well in a range of things than very well in one;
+hopefully, this will put a stop to score being meaningless (or worse,
+a low score being considered more impressive than a high one).
+
+The AI for pets has been improved, meaning that intelligent pets are
+now capable of actually using many of their attacks.  (Patch credits:
+?)
+
+Most of the options in the game have been removed or hidden; they
+still exist if anyone really wants to change them, but most of them
+have been set to sane defaults and then made undocumented.
+
+runmode, timed_delay, and sparkle are now one combined option,
+"animation".  If you have a fast computer, it's likely that the only
+setting for it that actually shows visible animation is "full"; the
+other settings are provided for slower machines.
+
+The control-X feature now shows a lot more information, including
+things like the player's intrinsics; none of the information there is
+anything that a spoilt player couldn't work out from their own message
+history, but actually doing so was often a pain.
+
+It's now possible to read spellbooks of spells you know quite well
+already; doing so refreshes your knowledge, but wears out the
+spellbook just as much as rememorising a spell or refreshing an almost
+forgotten spell.
+
+The entrances to all branches and the dlvl 1 upstairs are now ladders,
+rather than stairs; additionally, stairs in the Mines have become
+ladders.  This is both for flavour, and to help the player distinguish
+normal stairs from branch entrances.
+
+The Vibrating Square is now visible from a distance; it will always be
+marked if it's ever been in the player's LOS and is not covered by a
+monster or object, due to it now giving off a visible glow.
+
+The game's command system has been rewritten, making commands
+customizable.  The major breaking changes are: "repeat command" is now
+on # rather than n or digits (extended commands are /still/ on #, but
+no clash is possible); and by default, digits have their numpad
+meaning, and letters have their vikeys meaning (so even if you use the
+numpad to move, you'll need to use ^D or #kick to kick).  All commands
+are now available as extended commands; and likewise, all
+(non-wizmode) commands are now available as non-extended commands,
+either by adding new commands or generalising old ones.
+
+Platform- and/or Interface-Specific Fixes
+-----------------------------------------
+
+(tty interface)
+The botl has been cleaned up significantly, leaving a lot more room to
+show things like statuses.  It also now shows semi-graphical Hp and Pw
+bars that change colour according to how wounded or exhausted you are.
+
+
+General New Features
+--------------------
+
+A new tutorial mode provides hints on the game and its controls as
+it's played.
+
+Platform- and/or Interface-Specific New Features
+------------------------------------------------
+
+(autoconf system)
+The standard build system is now autoconf-based.  (Patch credits:
+initially from Slash'EM; ported from UnNetHack)
