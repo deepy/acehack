@@ -144,11 +144,13 @@ getlin_hook_proc hook;
 			bufp++;
 			if (hook && (*hook)(obufp)) {
 			    putsyms(bufp);
+                            putsyms("        ");
 #ifndef NEWAUTOCOMP
 			    bufp = eos(bufp);
 #else /* NEWAUTOCOMP */
 			    /* pointer and cursor left where they were */
 			    for (i = bufp; *i; ++i) putsyms("\b");
+                            putsyms("\b\b\b\b\b\b\b\b");
 			} else if (i > bufp) {
 			    char *s = i;
 
@@ -204,7 +206,7 @@ register const char *s;	/* chars allowed besides return */
  * Implement extended command completion by using this hook into
  * tty_getlin.  Check the characters already typed, if they uniquely
  * identify an extended command, expand the string to the whole
- * command.
+ * command. Otherwise, base it on priority.
  *
  * Return TRUE if we've extended the string at base.  Otherwise return FALSE.
  * Assumptions:
@@ -216,15 +218,15 @@ STATIC_OVL boolean
 ext_cmd_getlin_hook(base)
 	char *base;
 {
-	int oindex, com_index;
+        int oindex, com_index, com_prio;
 
-	com_index = -1;
+	com_index = -1; com_prio = 99;
 	for (oindex = 0; extcmdlist[oindex].ef_txt != (char *)0; oindex++) {
 		if (!strncmpi(base, extcmdlist[oindex].ef_txt, strlen(base))) {
-			if (com_index == -1)	/* no matches yet */
+			if (com_prio > extcmdlist[oindex].prio) {
 			    com_index = oindex;
-			else			/* more than 1 match */
-			    return FALSE;
+                            com_prio = extcmdlist[oindex].prio;
+                        }
 		}
 	}
 	if (com_index >= 0) {
@@ -244,15 +246,16 @@ tty_get_ext_cmd()
 {
 	int i;
 	char buf[BUFSZ];
+        char prompt[BUFSZ];
 
-	if (iflags.extmenu) return extcmd_via_menu();
-	/* maybe a runtime option? */
-	/* hooked_tty_getlin("#", buf, flags.cmd_comp ? ext_cmd_getlin_hook : (getlin_hook_proc) 0); */
+        if (multi) Sprintf(prompt, "%d #", multi+1);
+        else strcpy(prompt,"#");
+
 #ifdef REDO
-	hooked_tty_getlin("#", buf, in_doagain ? (getlin_hook_proc)0
+	hooked_tty_getlin(prompt, buf, in_doagain ? (getlin_hook_proc)0
 		: ext_cmd_getlin_hook);
 #else
-	hooked_tty_getlin("#", buf, ext_cmd_getlin_hook);
+	hooked_tty_getlin(prompt, buf, ext_cmd_getlin_hook);
 #endif
 	(void) mungspaces(buf);
 	if (buf[0] == 0 || buf[0] == '\033') return -1;

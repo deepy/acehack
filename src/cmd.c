@@ -2557,27 +2557,44 @@ parse()
 #endif
 	register int foo;
 	boolean prezero = FALSE;
+        struct ext_func_tab* ecl_extcmd = extcmdlist;
+        struct ext_func_tab* tlist;
+
+        while (ecl_extcmd->ef_funct != doextcmd) ecl_extcmd++;
 
 	multi = 0;
 	flags.move = 1;
 	flush_screen(1); /* Flush screen buffer. Put the cursor on the hero. */
-
-	if (!iflags.num_pad || (foo = readchar()) == 'n')
+        
+	if ((foo = readchar()) == ecl_extcmd->binding1 || 
+            foo == ecl_extcmd->binding2 ||
+            foo == ecl_extcmd->binding3) {
+            clear_nhwindow(WIN_MESSAGE);
+            pline("# ");
+            mark_synch();
 	    for (;;) {
 		foo = readchar();
 		if (foo >= '0' && foo <= '9') {
 		    multi = 10 * multi + foo - '0';
 		    if (multi < 0 || multi >= LARGEST_INT) multi = LARGEST_INT;
-		    if (multi > 9) {
-			clear_nhwindow(WIN_MESSAGE);
-			Sprintf(in_line, "Count: %d", multi);
-			pline(in_line);
-			mark_synch();
-		    }
+                    clear_nhwindow(WIN_MESSAGE);
+                    Sprintf(in_line, "Count: %d", multi);
+                    pline(in_line);
+                    mark_synch();
 		    last_multi = multi;
 		    if (!multi && foo == '0') prezero = TRUE;
-		} else break;	/* not a digit */
+		} else {	/* not a digit */
+                    if (multi == 0 && !prezero) {
+                        /* TODO: This almost certainly breaks on tiles. */
+                        ungetc(foo, stdin);
+                        foo = ecl_extcmd->binding1;
+                    }
+                    /* otherwise we need another # to mark an extended
+                       command, so no ungetc is useful or necessary */
+                    break;
+                }
 	    }
+        }
 
 	if (foo == '\033') {   /* esc cancels count (TH) */
 	    clear_nhwindow(WIN_MESSAGE);
