@@ -2336,6 +2336,7 @@ const char *s;
 		return 0;
 	}
 	if(!u.dz && (Stunned || (Confusion && !rn2(5)))) confdir();
+        clear_nhwindow(WIN_MESSAGE);
 	return 1;
 }
 
