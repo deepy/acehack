@@ -113,7 +113,7 @@ int sig_unused;
 int
 done2()
 {
-	if(yn("Really quit?") == 'n') {
+	if(yn("Really abandon this game and delete its save file?") != 'y') {
 #ifndef NO_SIGNAL
 		(void) signal(SIGINT, (SIG_RET_TYPE) done1);
 #endif

@@ -54,11 +54,34 @@ static unsigned ustuck_id = 0, usteed_id = 0;
 int
 dosave()
 {
+	winid win;
+        int n, ch = 'n';
+        anything any;
+        menu_item *selected = 0;
+
 	clear_nhwindow(WIN_MESSAGE);
-	if(yn("Really save?") == 'n') {
+
+        win = create_nhwindow(NHW_MENU);
+        start_menu(win);
+        any.a_int = 'y';
+        add_menu(win, NO_GLYPH, &any, 'y', 0, ATR_NONE,
+                 "Quicksave and exit the game", MENU_UNSELECTED);
+        any.a_int = '!';
+        add_menu(win, NO_GLYPH, &any, '!', 0, ATR_NONE,
+                 "Abandon this game and delete its save file", MENU_UNSELECTED);
+        any.a_int = 'n';
+        add_menu(win, NO_GLYPH, &any, 'n', 0, ATR_NONE,
+                 "Continue playing", MENU_UNSELECTED);
+        end_menu(win, "Do you want to stop playing?");
+        n = select_menu(win, PICK_ONE, &selected);
+        destroy_nhwindow(win);
+        if (n == 1) ch = selected[0].item.a_int;
+        if (n == 1) free((genericptr_t) selected);
+        
+	if (ch != 'y' && ch != '!') {
 		clear_nhwindow(WIN_MESSAGE);
 		if(multi > 0) nomul(0);
-	} else {
+	} else if (ch == 'y') {
 		clear_nhwindow(WIN_MESSAGE);
 		pline("Saving...");
 #if defined(UNIX) || defined(VMS) || defined(__EMX__)
@@ -72,7 +95,12 @@ dosave()
 			exit_nhwindows("Be seeing you...");
 			terminate(EXIT_SUCCESS);
 		} else (void)doredraw();
-	}
+	} else {
+          /* ch == '!', prompt the user again about whether they want to abandon
+             because S!y is almost impossible to hit by mistake, even with an
+             errant paste or cat on the keyboard */
+            return done2();
+        }
 	return 0;
 }
 

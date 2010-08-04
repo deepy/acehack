@@ -447,7 +447,7 @@ ddocall()
         winid win;
         int n;
         anything any;
-        menu_item *selected;
+        menu_item *selected = 0;
         win = create_nhwindow(NHW_MENU);
         start_menu(win);
         any.a_int = 'y';
