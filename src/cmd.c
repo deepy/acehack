@@ -1409,127 +1409,6 @@ int final;
 #define C(c)		(0x1f & (c))
 #endif
 
-static const struct func_tab cmdlist[] = {
-	{C('d'), FALSE, dokick}, /* "D" is for door!...?  Msg is in dokick.c */
-#ifdef WIZARD
-	{C('e'), TRUE, wiz_detect},
-	{C('f'), TRUE, wiz_map},
-	{C('g'), TRUE, wiz_genesis},
-	{C('i'), TRUE, wiz_identify},
-#endif
-	{C('l'), TRUE, doredraw}, /* if number_pad is set */
-#ifdef WIZARD
-	{C('o'), TRUE, wiz_where},
-#endif
-	{C('p'), TRUE, doprev_message},
-	{C('r'), TRUE, doredraw},
-	{C('t'), TRUE, dotele},
-#ifdef WIZARD
-	{C('v'), TRUE, wiz_level_tele},
-	{C('w'), TRUE, wiz_wish},
-#else
-        {C('v'), TRUE, tutorial_redisplay},
-#endif
-	{C('x'), TRUE, doattributes},
-#ifdef SUSPEND
-	{C('z'), TRUE, dosuspend},
-#endif
-	{'a', FALSE, doapply},
-	{'A', FALSE, doddoremarm},
-	{M('a'), TRUE, doorganize},
-/*	'b', 'B' : go sw */
-	{'c', FALSE, doclose},
-	{'C', TRUE, do_mname},
-	{M('c'), TRUE, dotalk},
-	{'d', FALSE, dodrop},
-	{'D', FALSE, doddrop},
-	{M('d'), FALSE, dodip},
-	{'e', FALSE, doeat},
-	{'E', FALSE, doengrave},
-	{M('e'), TRUE, enhance_weapon_skill},
-	{'f', FALSE, dofire},
-/*	'F' : fight (one time) */
-	{M('f'), FALSE, doforce},
-/*	'g', 'G' : multiple go */
-/*	'h', 'H' : go west */
-	{'h', TRUE, dohelp}, /* if number_pad is set */
-	{'i', TRUE, ddoinv},
-	{'I', TRUE, dotypeinv},		/* Robert Viduya */
-	{M('i'), TRUE, doinvoke},
-/*	'j', 'J', 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N' : move commands */
-	{'j', FALSE, dojump}, /* if number_pad is on */
-	{M('j'), FALSE, dojump},
-	{'k', FALSE, dokick}, /* if number_pad is on */
-	{'l', FALSE, doloot}, /* if number_pad is on */
-	{M('l'), FALSE, doloot},
-/*	'n' prefixes a count if number_pad is on */
-	{M('m'), TRUE, domonability},
-	{'N', TRUE, ddocall}, /* if number_pad is on */
-	{M('n'), TRUE, ddocall},
-	{M('N'), TRUE, ddocall},
-	{'o', FALSE, doopen},
-	{'O', TRUE, doset},
-	{M('o'), FALSE, dosacrifice},
-	{'p', FALSE, dopay},
-	{'P', FALSE, doputon},
-	{M('p'), TRUE, dopray},
-	{'q', FALSE, dodrink},
-	{'Q', FALSE, dowieldquiver},
-	{M('q'), TRUE, done2},
-	{'r', FALSE, doread},
-	{'R', FALSE, doremring},
-	{M('r'), FALSE, dorub},
-	{'s', TRUE, dosearch, "searching"},
-	{'S', TRUE, dosave},
-	{M('s'), FALSE, dosit},
-	{'t', FALSE, dothrow},
-	{'T', FALSE, dotakeoff},
-	{M('t'), TRUE, doturn},
-/*	'u', 'U' : go ne */
-	{'u', FALSE, dountrap}, /* if number_pad is on */
-	{M('u'), FALSE, dountrap},
-	{'v', TRUE, doversion},
-	{'V', TRUE, dohistory},
-	{M('v'), TRUE, doextversion},
-	{'w', FALSE, dowield},
-	{'W', FALSE, dowear},
-	{M('w'), FALSE, dowipe},
-	{'x', FALSE, doswapweapon},
-	{'X', TRUE, enter_explore_mode},
-/*	'y', 'Y' : go nw */
-	{'z', FALSE, dozap},
-	{'Z', TRUE, docast},
-	{'<', FALSE, doup},
-	{'>', FALSE, dodown},
-	{'/', TRUE, dowhatis},
-	{'&', TRUE, dowhatdoes},
-	{'?', TRUE, dohelp},
-	{M('?'), TRUE, doextlist},
-#ifdef SHELL
-	{'!', TRUE, dosh},
-#endif
-	{'.', TRUE, donull, "waiting"},
-	{' ', TRUE, donull, "waiting"},
-	{',', FALSE, dopickup},
-	{':', TRUE, dolook},
-	{';', TRUE, doquickwhatis},
-	{'^', TRUE, doidtrap},
-	{'\\', TRUE, dodiscovered},		/* Robert Viduya */
-	{'@', TRUE, dotogglepickup},
-	{M('2'), FALSE, dotwoweapon},
-	{WEAPON_SYM,  TRUE, doprwep},
-	{ARMOR_SYM,  TRUE, doprarm},
-	{RING_SYM,  TRUE, doprring},
-	{AMULET_SYM, TRUE, dopramulet},
-	{TOOL_SYM, TRUE, doprtool},
-	{'*', TRUE, doprinuse},	/* inventory of all equipment in use */
-	{GOLD_SYM, TRUE, doprgold},
-	{SPBOOK_SYM, TRUE, dovspell},			/* Mike Stephenson */
-	{'#', TRUE, doextcmd},
-	{'_', TRUE, dotravel},
-	{0,0,0,0}
-};
-
 struct ext_func_tab extcmdlist[] = {
   {"adjust", "adjust inventory letters", doorganize, TRUE, 1, C('i'), M('a'), 0, 0},
   {"apply", "use a tool or ignite a potion", doapply, FALSE, 11, 'a', 0, 0, 0},
@@ -1672,6 +1551,8 @@ struct ext_func_tab extcmdlist[] = {
   {"whatdoes", "describe what a key does", dowhatdoes, TRUE, 10, '&', 0, 0, 0},
   {"wield", "hold an item in your hands", dowield, FALSE, 11, 'w', 0, 0, 0},
   {"wipe", "wipe off your face", dowipe, FALSE, 1, M('w'), 0, 0, 0},
+#if defined(WIZARD)
+#endif
   {"worship", "communicate with the gods", dopray, TRUE, 10, C('w'), 0, 0, 0},
   {"xplore", "enter discovery mode", enter_explore_mode, TRUE, 10, 0, 0, 0, 0},
   {"zap", "zap a wand to use its magic", dozap, FALSE, 10, 'z', 0, 0, 0},
@@ -1696,6 +1577,12 @@ struct ext_func_tab extcmdlist[] = {
    {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
    {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
    {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #ifdef DEBUG
    {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #endif
@@ -1706,25 +1593,32 @@ struct ext_func_tab extcmdlist[] = {
 
 #if defined(WIZARD)
 static const struct ext_func_tab debug_extcmdlist[] = {
-	{"levelchange", "change experience level", wiz_level_change, TRUE},
-	{"lightsources", "show mobile light sources", wiz_light_sources, TRUE},
+	{"levelchange", "(debug mode) change experience level", wiz_level_change, TRUE},
+	{"lightsources", "(debug mode) show mobile light sources", wiz_light_sources, TRUE},
 #ifdef DEBUG_MIGRATING_MONS
-	{"migratemons", "migrate n random monsters", wiz_migrate_mons, TRUE},
+	{"migratemons", "(debug mode) migrate n random monsters", wiz_migrate_mons, TRUE},
 #endif
-	{"monpolycontrol", "control monster polymorphs", wiz_mon_polycontrol, TRUE},
-	{"panic", "test panic routine (fatal to game)", wiz_panic, TRUE},
-	{"polyself", "polymorph self", wiz_polyself, TRUE},
+	{"monpolycontrol", "(debug mode) control monster polymorphs", wiz_mon_polycontrol, TRUE},
+	{"panic", "(debug mode) test panic routine (fatal to game)", wiz_panic, TRUE},
+	{"polyself", "(debug mode) polymorph self", wiz_polyself, TRUE},
 #ifdef PORT_DEBUG
-	{"portdebug", "wizard port debug command", wiz_port_debug, TRUE},
+	{"portdebug", "(debug mode) wizard port debug command", wiz_port_debug, TRUE},
 #endif
-	{"seenv", "show seen vectors", wiz_show_seenv, TRUE},
-	{"stats", "show memory statistics", wiz_show_stats, TRUE},
-	{"timeout", "look at timeout queue", wiz_timeout_queue, TRUE},
-	{"vision", "show vision array", wiz_show_vision, TRUE},
+	{"seenv", "(debug mode) show seen vectors", wiz_show_seenv, TRUE},
+	{"stats", "(debug mode) show memory statistics", wiz_show_stats, TRUE},
+	{"timeout", "(debug mode) look at timeout queue", wiz_timeout_queue, TRUE},
+	{"vision", "(debug mode) show vision array", wiz_show_vision, TRUE},
 #ifdef DEBUG
-	{"wizdebug", "wizard debug command", wiz_debug_cmd, TRUE},
+	{"wizdebug", "(debug mode) wizard debug command", wiz_debug_cmd, TRUE},
 #endif
-	{"wmode", "show wall modes", wiz_show_wmodes, TRUE},
+	{"wmode", "(debug mode) show wall modes", wiz_show_wmodes, TRUE},
+        {"detect", "(debug mode) (debug mode) detect secret doors/traps",
+         wiz_detect, TRUE},
+        {"map", "(debug mode) map this level", wiz_map, TRUE},
+        {"genesis", "(debug mode) create a monster", wiz_genesis, TRUE},
+        {"identify", "(debug mode) identify inventory", wiz_identify, TRUE},
+        {"where", "(debug mode) show dungeon layout", wiz_where, TRUE},
+        {"wish", "(debug mode) create an item", wiz_wish, TRUE},
 	{(char *)0, (char *)0, donull, TRUE}
 };
 
