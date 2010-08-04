@@ -442,18 +442,32 @@ int
 ddocall()
 {
 	register struct obj *obj;
-#ifdef REDO
-	char	ch;
-#endif
+	char ch = 'q';
 	char allowall[2];
-
-	switch(
-#ifdef REDO
-		ch =
-#endif
-		ynq("Name an individual object?")) {
-	case 'q':
-		break;
+        winid win;
+        int n;
+        anything any;
+        menu_item *selected;
+        win = create_nhwindow(NHW_MENU);
+        start_menu(win);
+        any.a_int = 'y';
+        add_menu(win, NO_GLYPH, &any, 'y', 0, ATR_NONE,
+                 "Write a name on one specific item", MENU_UNSELECTED);
+        any.a_int = 'n';
+        add_menu(win, NO_GLYPH, &any, 'n', 0, ATR_NONE,
+                 "Call all items of the same type by a name", MENU_UNSELECTED);
+        any.a_int = 'C';
+        add_menu(win, NO_GLYPH, &any, 'C', 0, ATR_NONE,
+                 "Change the name you call a monster by", MENU_UNSELECTED);
+        any.a_int = 'q';
+        add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
+                 "Cancel", MENU_UNSELECTED);
+        end_menu(win, "Name an individual object?");
+        n = select_menu(win, PICK_ONE, &selected);
+        destroy_nhwindow(win);
+        if (n == 1) ch = selected[0].item.a_int;
+        if (n == 1) free((genericptr_t) selected);
+	switch(ch) {
 	case 'y':
 #ifdef REDO
 		savech(ch);
@@ -462,7 +476,7 @@ ddocall()
 		obj = getobj(allowall, "name");
 		if(obj) do_oname(obj);
 		break;
-	default :
+	case 'n' :
 #ifdef REDO
 		savech(ch);
 #endif
@@ -480,6 +494,8 @@ ddocall()
 			docall(obj);
 		}
 		break;
+        case 'C': return do_mname();
+        default: break;
 	}
 	return 0;
 }
