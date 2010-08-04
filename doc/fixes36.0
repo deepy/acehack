@@ -117,6 +117,7 @@ is mine.)
 ^I: Now a synonym for #adjust.
 M: Now a synonym for #monster.
 ^V: New command, to review tutorial slides.
+Q: No longer prints a message about #quit.
 X: Now a synonym for #twoweapon. (Credits: Another nethack.alt.org
 idea.) The old meaning of X, "enter explore mode", was moved to
 #xplore.
