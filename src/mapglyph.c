@@ -48,6 +48,8 @@ int explcolors[] = {
 #define explode_color(n)
 #endif
 
+#define check_uline() color & MG_ULINE ? color &= ~MG_ULINE, special |= MG_ULINE : 0
+
 #ifdef ROGUE_COLOR
 # if defined(USE_TILES) && defined(MSDOS)
 #define HAS_ROGUE_IBM_GRAPHICS (iflags.IBMgraphics && !iflags.grmode && \
@@ -94,6 +96,7 @@ unsigned *ospecial;
 	else
 #endif
 	    mon_color(offset >> 3);
+        check_uline();
     } else if ((offset = (glyph - GLYPH_ZAP_OFF)) >= 0) {	/* zap beam */
 	/* see zapdir_to_glyph() in display.c */
 	ch = showsyms[S_vbeam + (offset & 0x3)];
@@ -158,8 +161,9 @@ unsigned *ospecial;
 	    color = NO_COLOR;	/* no need to check iflags.use_color */
 	else
 #endif
-	    mon_color(offset);
-	    special |= MG_RIDDEN;
+            mon_color(offset);
+        check_uline();
+        special |= MG_RIDDEN;
     } else if ((offset = (glyph - GLYPH_BODY_OFF)) >= 0) {	/* a corpse */
 	ch = oc_syms[(int)objects[CORPSE].oc_class];
 #ifdef ROGUE_COLOR
@@ -168,7 +172,8 @@ unsigned *ospecial;
 	else
 #endif
 	    mon_color(offset);
-	    special |= MG_CORPSE;
+        check_uline();
+        special |= MG_CORPSE;
     } else if ((offset = (glyph - GLYPH_DETECT_OFF)) >= 0) {	/* mon detect */
 	ch = monsyms[(int)mons[offset].mlet];
 #ifdef ROGUE_COLOR
@@ -177,9 +182,10 @@ unsigned *ospecial;
 	else
 #endif
 	    mon_color(offset);
+        check_uline();
 	/* Disabled for now; anyone want to get reverse video to work? */
 	/* is_reverse = TRUE; */
-	    special |= MG_DETECT;
+        special |= MG_DETECT;
     } else if ((offset = (glyph - GLYPH_INVIS_OFF)) >= 0) {	/* invisible */
 	ch = DEF_INVISIBLE;
 #ifdef ROGUE_COLOR
@@ -197,7 +203,8 @@ unsigned *ospecial;
 	else
 #endif
 	    pet_color(offset);
-	    special |= MG_PET;
+        check_uline();
+        special |= MG_PET;
     } else {							/* a monster */
 	ch = monsyms[(int)mons[glyph].mlet];
 #ifdef ROGUE_COLOR
@@ -211,6 +218,7 @@ unsigned *ospecial;
 #endif
 	{
 	    mon_color(glyph);
+            check_uline();
 	    /* special case the hero for `showrace' option */
 #ifdef TEXTCOLOR
 	    if (iflags.use_color && x == u.ux && y == u.uy &&

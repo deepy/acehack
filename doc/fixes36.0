@@ -21,6 +21,11 @@ Demeyer and Jukka Lahtinen, via Debian.)
 
 The "Itemized billing?" prompt now supports 'q' as an option.
 
+Many monsters have changed colour (ghosts and shades have even changed
+sym, to W) in order to make it easier for the player to tell them
+apart; underlining is used as well as colour for this purpose. (See
+the "Change Detail" section at the end for details.)
+
 Modified Features
 -----------------
 
@@ -93,3 +98,62 @@ Platform- and/or Interface-Specific New Features
 (autoconf system)
 The standard build system is now autoconf-based.  (Patch credits:
 initially from Slash'EM; ported from UnNetHack)
+
+Change Detail
+-------------
+
+Color changes:
+a: giant beetle -> green
+d: coyote -> blue; werejackal -> brown, underlined; little dog -> gray,
+   large dog -> white, underlined; wolf -> green; werewolf -> green,
+   underlined; warg -> br.green; winter wolf -> cyan, underlined; hell
+   hound pup -> orange; hell hound -> orange, underlined
+f: kitten -> gray; large cat -> white, underlined
+h: mind flayer -> br.magenta; master mind flayer -> br.magenta,
+   underlined
+i: imp -> orange
+o: Mordor orc -> green
+q: titanothere -> white; baluchitherium -> white, underlined
+r: wererat -> brown, underlined; woodchuck -> br.green
+s: Scorpius -> br.magenta
+u: horse -> red; warhorse -> red, underlined
+w: long worm -> brown, underlined; purple worm -> magenta, underlined
+A: Aleax -> orange
+B: vampire bat -> magenta
+D: baby blue dragon -> br.blue; adult dragons -> underlined versions of
+   their babies; Chromatic Dragon -> br.magenta; Ixoth -> br.magenta
+F: shrieker -> blue
+H: ettin -> br.blue; Lord Surtur -> br.magenta; Cyclops -> br.magenta
+K: Kop Sergeant -> br.blue; Kop Lieutenant -> br.cyan; Kop Kaptain ->
+   br.magenta
+L: arch-lich -> br.magenta
+M: gnome mummy -> brown, underlined; human mummy -> white
+N: adult nagas -> underlined versions of hatchlings
+S: cobra -> br.blue
+V: Vlad the Impaler -> br.magenta
+W: ghost -> white W; shade -> br.blue W
+Y: ape -> red; sasquatch -> cyan
+Z: gnome zombie -> brown, underlined; ghoul -> orange; skeleton ->
+   yellow
+': straw golem -> orange; rope golem -> blue; wood golem -> brown,
+   underlined; clay golem -> red, underlined
+@: werejackal -> brown, underlined; werewolf -> green, underlined;
+   elf -> green; doppelganger -> cyan, underlined; shopkeeper ->
+   br.cyan; Oracle -> br.blue, underlined; aligned priest -> yellow;
+   high priest -> yellow, underlined; soldier -> red; sergeant -> red,
+   underlined; lieutenant -> orange; captain -> orange, underlined;
+   watchman -> cyan; watch captain -> cyan, underlined; Medusa ->
+   br.green, underlined; Wizard of Yendor -> br.magenta, underlined;
+   Croesus -> blue, underlined; all quest leaders -> br.magenta,
+   except Neferet the Green -> br.green; all quest nemeses ->
+   br.magenta; all quest friendlies -> gray, underlined; all
+   player-monsters -> white, underlined
+&: erinys -> br.green; marilith -> cyan; vrock -> green; hezrou ->
+   orange; bone devil -> gray, underlined; nalfeshnee -> br.cyan; pit
+   fiend -> magenta; balrog -> magenta, underlined; sandestin ->
+   orange, underlined; Minion of Huhetotl -> br.magenta; Nalzok ->
+   br.magenta; all demon princes -> br.magenta; Riders -> br.magenta,
+   underlined
+;: kraken -> magenta
+:: gecko -> br.green; iguana -> red; chameleon -> gray; crocodile ->
+   brown, underlined

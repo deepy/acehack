@@ -2466,6 +2466,7 @@ tty_print_glyph(window, x, y, glyph)
 {
     int ch;
     boolean reverse_on = FALSE;
+    boolean uline_on = FALSE;
     int	    color;
     unsigned special;
     
@@ -2504,6 +2505,10 @@ tty_print_glyph(window, x, y, glyph)
 	term_start_attr(ATR_INVERSE);
 	reverse_on = TRUE;
     }
+    if ((special & MG_ULINE)) {
+        term_start_attr(ATR_ULINE);
+        uline_on = TRUE;
+    }
 
 #if defined(USE_TILES) && defined(MSDOS)
     if (iflags.grmode && iflags.tile_view)
@@ -2512,7 +2517,7 @@ tty_print_glyph(window, x, y, glyph)
 #endif
 	g_putch(ch);		/* print the character */
 
-    if (reverse_on) {
+    if (reverse_on || uline_on) {
 	term_end_attr(ATR_INVERSE);
 #ifdef TEXTCOLOR
 	/* turn off color as well, ATR_INVERSE may have done this already */

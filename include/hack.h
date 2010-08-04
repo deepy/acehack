@@ -53,6 +53,8 @@
 #define MG_DETECT	0x04
 #define MG_PET		0x08
 #define MG_RIDDEN	0x10
+/* Must be at least 0x20 because this is ORed with colour codes */
+#define MG_ULINE        0x20
 
 /* sellobj_state() states */
 #define SELL_NORMAL	(0)
