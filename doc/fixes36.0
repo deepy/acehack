@@ -21,11 +21,6 @@ Demeyer and Jukka Lahtinen, via Debian.)
 
 The "Itemized billing?" prompt now supports 'q' as an option.
 
-Many monsters have changed colour (ghosts and shades have even changed
-sym, to W) in order to make it easier for the player to tell them
-apart; underlining is used as well as colour for this purpose. (See
-the "Change Detail" section at the end for details.)
-
 Modified Features
 -----------------
 
@@ -74,8 +69,15 @@ no clash is possible); and by default, digits have their numpad
 meaning, and letters have their vikeys meaning (so even if you use the
 numpad to move, you'll need to use ^D or #kick to kick).  All commands
 are now available as extended commands; and likewise, all
-(non-wizmode) commands are now available as non-extended commands,
-either by adding new commands or generalising old ones.
+(non-wizmode) commands but "enter explore mode" are now available as
+non-extended commands, either by adding new commands or generalising
+old ones.  (A specific list of what has changed command-wise is given
+in the "Change Detail" section at the end.)
+
+Many monsters have changed colour (ghosts and shades have even changed
+sym, to W) in order to make it easier for the player to tell them
+apart; underlining is used as well as colour for this purpose. (See
+the "Change Detail" section at the end for details.)
 
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
@@ -102,7 +104,32 @@ initially from Slash'EM; ported from UnNetHack)
 Change Detail
 -------------
 
+Command changes:
+
+1,2,3,4,6,7,8,9,y,u,h,j,k,l,b,n: Numbers now have numpad meanings by
+default, letters now have vikeys meanings by default. So either the
+numbpad or the letter keys can be used to move.
+
+C, #name: These commands have been merged, and display a menu to ask
+what to do. (Credits: nethack.alt.org for the idea, although the code
+is mine.)
+^E: Now a synonym for #enhance.
+^I: Now a synonym for #adjust.
+M: Now a synonym for #monster.
+^V: New command, to review tutorial slides.
+X: Now a synonym for #twoweapon. (Credits: Another nethack.alt.org
+idea.) The old meaning of X, "enter explore mode", was moved to
+#xplore.
+#: Now used to repeat commands (like the old numpad n), in addition to
+its use for entering extended commands.
+
+The following commands still have their old meanings, or are mapped to
+a new command that encompasses their old meanings, but are now
+deprecated in favour of other alternatives:
+p (use c), P (use W), R (use T), * (use A).
+
 Color changes:
+
 a: giant beetle -> green
 d: coyote -> blue; werejackal -> brown, underlined; little dog -> gray,
    large dog -> white, underlined; wolf -> green; werewolf -> green,
