@@ -1175,7 +1175,7 @@ doinvoke()
 {
     register struct obj *obj;
 
-    obj = getobj(invoke_types, "invoke");
+    obj = getobj(invoke_types, "invoke, break or rub");
     if (!obj) return 0;
     if (obj->oartifact && !touch_artifact(obj, &youmonst)) return 1;
     return arti_invoke(obj);
@@ -1188,7 +1188,11 @@ arti_invoke(obj)
     register const struct artifact *oart = get_artifact(obj);
 
     if(!oart || !oart->inv_prop) {
-	if(obj->otyp == CRYSTAL_BALL)
+        if(obj->oclass == WAND_CLASS)
+            return do_break_wand(obj);
+        else if(obj->oclass == GEM_CLASS || obj->oclass == TOOL_CLASS)
+            return dorub_inner(obj);
+	else if(obj->otyp == CRYSTAL_BALL)
 	    use_crystal_ball(obj);
 	else
 	    pline(nothing_happens);

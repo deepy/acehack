@@ -890,10 +890,16 @@ register const char *let,*word;
 		     (otmp->oclass == FOOD_CLASS &&
 		      otyp != CREAM_PIE && otyp != EUCALYPTUS_LEAF) ||
 		     (otmp->oclass == GEM_CLASS && !is_graystone(otmp))))
-		|| (!strcmp(word, "invoke") &&
+		|| (!strncmp(word, "invoke", 6) &&
 		    (!otmp->oartifact && !objects[otyp].oc_unique &&
+                     otmp->oclass != WAND_CLASS && /* V synonym for a */
+                     ((otmp->oclass == TOOL_CLASS && /* V synonym for #rub */
+                        otyp != OIL_LAMP && otyp != MAGIC_LAMP &&
+                        otyp != BRASS_LANTERN) ||
+                       (otmp->oclass == GEM_CLASS && !is_graystone(otmp)) ||
+                       (otmp->oclass != TOOL_CLASS && otmp->oclass != GEM_CLASS)) &&
 		     (otyp != FAKE_AMULET_OF_YENDOR || otmp->known) &&
-		     otyp != CRYSTAL_BALL &&	/* #invoke synonym for apply */
+		     otyp != CRYSTAL_BALL &&	/* V synonym for apply */
 		   /* note: presenting the possibility of invoking non-artifact
 		      mirrors and/or lamps is a simply a cruel deception... */
 		     otyp != MIRROR && otyp != MAGIC_LAMP &&

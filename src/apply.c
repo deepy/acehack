@@ -36,7 +36,6 @@ STATIC_DCL int FDECL(use_whip, (struct obj *));
 STATIC_DCL int FDECL(use_pole, (struct obj *));
 STATIC_DCL int FDECL(use_cream_pie, (struct obj *));
 STATIC_DCL int FDECL(use_grapple, (struct obj *));
-STATIC_DCL int FDECL(do_break_wand, (struct obj *));
 STATIC_DCL boolean FDECL(figurine_location_checks,
 				(struct obj *, coord *, BOOLEAN_P));
 STATIC_DCL boolean NDECL(uhave_graystone);
@@ -1167,6 +1166,13 @@ dorub()
 {
 	struct obj *obj = getobj(cuddly, "rub");
 
+        return dorub_inner(obj);
+}
+
+int
+dorub_inner(obj)
+struct obj *obj;
+{
 	if (obj && obj->oclass == GEM_CLASS) {
 	    if (is_graystone(obj)) {
 		use_stone(obj);
@@ -1177,10 +1183,9 @@ dorub()
 	    }
 	}
 
-	if (!obj || !wield_tool(obj, "rub")) return 0;
-
 	/* now uwep is obj */
 	if (uwep->otyp == MAGIC_LAMP) {
+            if (!obj || !wield_tool(obj, "rub")) return 0;
 	    if (uwep->spe > 0 && !rn2(3)) {
 		check_unpaid_usage(uwep, TRUE);		/* unusual item use */
 		djinni_from_bottle(uwep);
@@ -1194,9 +1199,13 @@ dorub()
 		You("see a puff of smoke.");
 	    else pline(nothing_happens);
 	} else if (obj->otyp == BRASS_LANTERN) {
+            if (!obj || !wield_tool(obj, "rub")) return 0;
 	    /* message from Adventure */
 	    pline("Rubbing the electric lamp is not particularly rewarding.");
 	    pline("Anyway, nothing exciting happens.");
+        } else if (obj->otyp == OIL_LAMP) {
+            if (!obj || !wield_tool(obj, "rub")) return 0;
+            pline(nothing_happens);
 	} else pline(nothing_happens);
 	return 1;
 }
@@ -2596,7 +2605,7 @@ use_grapple (obj)
 #define BY_OBJECT	((struct monst *)0)
 
 /* return 1 if the wand is broken, hence some time elapsed */
-STATIC_OVL int
+int
 do_break_wand(obj)
     struct obj *obj;
 {

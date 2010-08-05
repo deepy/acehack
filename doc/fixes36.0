@@ -135,6 +135,8 @@ press by mistake, in order to hopefully prevent accidents; I had
 trouble typing it in order to write this changelog!)
 T, R: These commands have been merged; either will allow armor or
 accessories to be removed, with R now being deprecated.
+V: A new command that merges #rub, #invoke, and wand-breaking. (The
+old V was moved to #versionhistory.)
 W, P: These commands have been merged; either will allow armor or
 accessories to be worn, with P now being deprecated.
 X: Now a synonym for #twoweapon. (Credits: Another nethack.alt.org
