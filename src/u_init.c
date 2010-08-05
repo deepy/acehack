@@ -1011,9 +1011,10 @@ register struct trobj *trop;
 
 		/* Make the type known if necessary */
 		if (OBJ_DESCR(objects[otyp]) && obj->known)
-			discover_object(otyp, TRUE, FALSE);
-		if (otyp == OIL_LAMP)
-			discover_object(POT_OIL, TRUE, FALSE);
+			knows_object(otyp);
+
+                /* pre-ID oil as it's easy to check anyway */
+                knows_object(POT_OIL);
 
 		if(obj->oclass == ARMOR_CLASS){
 			if (is_shield(obj) && !uarms) {
