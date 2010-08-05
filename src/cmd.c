@@ -2028,7 +2028,10 @@ reparse:
 	    /* don't report "unknown command" for change of heart... */
 	    bad_command = FALSE;
         } else if (inreparse) {
-            impossible("Direction is not a direction?");
+            /* It's possible to get here if a grid-bug-form player attempts
+               to indirectly use a command that is normally a movement
+               command, but meaningless for a grid bug. */
+            pline("That's not a direction!");
             flags.move = FALSE;
             return;
 	/* handle all other commands */
