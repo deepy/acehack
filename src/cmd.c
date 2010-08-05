@@ -1437,7 +1437,7 @@ struct ext_func_tab extcmdlist[] = {
    TRUE, 1, C('e'), M('e'), 0, 0},
   {"equip", "wear or put on equipment", dowear, FALSE, 10, 'W', 'P', 0, 0},
   {"equipment", "show equipped items, and remove them or equip new ones",
-   doddoremarm, FALSE, 10, 'A', 0, 0, 0},
+   doddoremarm, FALSE, 10, 'A', '*', 0, 0},
   {"farlook", "say what is on a distant square", doquickwhatis, TRUE, 10,
    ';', 0, 0, 0},
   {"farmove", "move repeatedly, stopping for anything interesting", 0, TRUE, 20,

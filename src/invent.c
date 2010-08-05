@@ -729,7 +729,9 @@ STATIC_OVL boolean
 taking_off(action)
 const char *action;
 {
-    return !strcmp(action, "take off") || !strcmp(action, "remove");
+    return !strcmp(action, "take off") ||
+           !strcmp(action, "remove") ||
+           !strcmp(action, "unequip");
 }
 
 /* match the prompt for either 'W' or 'P' command */
@@ -737,7 +739,9 @@ STATIC_OVL boolean
 putting_on(action)
 const char *action;
 {
-    return !strcmp(action, "wear") || !strcmp(action, "put on");
+    return !strcmp(action, "wear") ||
+           !strcmp(action, "put on") ||
+           !strcmp(action, "equip");
 }
 
 /*
@@ -840,10 +844,6 @@ register const char *let,*word;
 		|| (putting_on(word) &&
 		     (otmp->owornmask & (W_ARMOR | W_RING | W_AMUL | W_TOOL)))
 							/* already worn */
-#if 0	/* 3.4.1 -- include currently wielded weapon among the choices */
-		|| (!strcmp(word, "wield") &&
-		    (otmp->owornmask & W_WEP))
-#endif
 		|| (!strcmp(word, "ready") &&
 		    (otmp == uwep || (otmp == uswapwep && u.twoweap)))
 		    ) {
@@ -905,7 +905,7 @@ register const char *let,*word;
 		    )
 			foo--;
 		/* ugly check for unworn armor that can't be worn */
-		else if (putting_on(word) && *let == ARMOR_CLASS &&
+		else if (putting_on(word) && otmp->oclass == ARMOR_CLASS &&
 			 !canwearobj(otmp, &dummymask, FALSE)) {
 			foo--;
 			allowall = TRUE;
@@ -1092,40 +1092,14 @@ register const char *let,*word;
 	return(otmp);
 }
 
+/* Rather simplified now W/P and R/T have been merged. */
 void
 silly_thing(word, otmp)
 const char *word;
 struct obj *otmp;
 {
-	const char *s1, *s2, *s3, *what;
-	int ocls = otmp->oclass, otyp = otmp->otyp;
-
-	s1 = s2 = s3 = 0;
-	/* check for attempted use of accessory commands ('P','R') on armor
-	   and for corresponding armor commands ('W','T') on accessories */
-	if (ocls == ARMOR_CLASS) {
-	    if (!strcmp(word, "put on"))
-		s1 = "W", s2 = "wear", s3 = "";
-	    else if (!strcmp(word, "remove"))
-		s1 = "T", s2 = "take", s3 = " off";
-	} else if ((ocls == RING_CLASS || otyp == MEAT_RING) ||
-		ocls == AMULET_CLASS ||
-		(otyp == BLINDFOLD || otyp == TOWEL || otyp == LENSES)) {
-	    if (!strcmp(word, "wear"))
-		s1 = "P", s2 = "put", s3 = " on";
-	    else if (!strcmp(word, "take off"))
-		s1 = "R", s2 = "remove", s3 = "";
-	}
-	if (s1) {
-	    what = "that";
-	    /* quantity for armor and accessory objects is always 1,
-	       but some things should be referred to as plural */
-	    if (otyp == LENSES || is_gloves(otmp) || is_boots(otmp))
-		what = "those";
-	    pline("Use the '%s' command to %s %s%s.", s1, s2, what, s3);
-	} else {
-	    pline(silly_thing_to, word);
-	}
+  (void) otmp;
+  pline(silly_thing_to, word);
 }
 
 #endif /* OVL1 */

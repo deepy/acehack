@@ -11,10 +11,13 @@ STATIC_DCL long takeoff_mask, taking_off;
 #else /* OVLB */
 
 STATIC_OVL NEARDATA long takeoff_mask = 0L;
+STATIC_OVL NEARDATA long puton_mask = 0L;
 static NEARDATA long taking_off = 0L;
 
 static NEARDATA int todelay;
 static boolean cancelled_don = FALSE;
+
+static struct obj* forced_object = NULL;
 
 static NEARDATA const char see_yourself[] = "see yourself";
 static NEARDATA const char unknown_type[] = "Unknown type of %s (%d)";
@@ -1049,6 +1052,7 @@ cancel_don()
 
 static NEARDATA const char clothes[] = {ARMOR_CLASS, 0};
 static NEARDATA const char accessories[] = {RING_CLASS, AMULET_CLASS, TOOL_CLASS, FOOD_CLASS, 0};
+static NEARDATA const char wearables[] = {ARMOR_CLASS, RING_CLASS, AMULET_CLASS, TOOL_CLASS, FOOD_CLASS, 0};
 
 /* the 'T' command */
 int
@@ -1058,6 +1062,10 @@ dotakeoff()
 	int armorpieces = 0;
 
 #define MOREARM(x) if (x) { armorpieces++; otmp = x; }
+	MOREARM(uleft);
+	MOREARM(uright);
+	MOREARM(uamul);
+	MOREARM(ublindf);
 	MOREARM(uarmh);
 	MOREARM(uarms);
 	MOREARM(uarmg);
@@ -1074,21 +1082,27 @@ dotakeoff()
 		otmp = uarmu;
 #endif
 	}
-	if (!armorpieces) {
+	if (!armorpieces && !forced_object) {
 	     /* assert( GRAY_DRAGON_SCALES > YELLOW_DRAGON_SCALE_MAIL ); */
 		if (uskin)
 		    pline_The("%s merged with your skin!",
 			      uskin->otyp >= GRAY_DRAGON_SCALES ?
 				"dragon scales are" : "dragon scale mail is");
 		else
-		    pline("Not wearing any armor.%s", (iflags.cmdassist && 
-				(uleft || uright || uamul || ublindf)) ?
-			  "  Use 'R' command to remove accessories." : "");
+		    pline("Not wearing any armor or accessories.");
 		return 0;
 	}
-	if (armorpieces > 1)
-		otmp = getobj(clothes, "take off");
+	if (armorpieces > 1 && !forced_object)
+		otmp = getobj(wearables, "unequip");
+        else if (forced_object) {otmp = forced_object; forced_object = NULL;}
 	if (otmp == 0) return(0);
+
+        /* If it's not actually armor, see if it's jewellery we can take off. */
+        if (otmp->oclass != ARMOR_CLASS) {
+                forced_object = otmp;
+                return doremring();
+        }
+
 	if (!(otmp->owornmask & W_ARMOR)) {
 		You("are not wearing that.");
 		return(0);
@@ -1126,17 +1140,14 @@ doremring()
 	MOREACC(uamul);
 	MOREACC(ublindf);
 
-	if(!Accessories) {
-		pline("Not wearing any accessories.%s", (iflags.cmdassist &&
-			    (uarm || uarmc ||
-#ifdef TOURIST
-			     uarmu ||
-#endif
-			     uarms || uarmh || uarmg || uarmf)) ?
-		      "  Use 'T' command to take off armor." : "");
+	if(!Accessories && !forced_object) {
+        	/* Kind of unclear how this code can be reached, but if there's
+                   a way, this is the appropriate message... */
+		pline("Not wearing any accessories.");
 		return(0);
 	}
-	if (Accessories != 1) otmp = getobj(accessories, "remove");
+        if (forced_object) {otmp = forced_object; forced_object = NULL;}
+	else if (Accessories != 1) otmp = getobj(accessories, "remove");
 	if(!otmp) return(0);
 	if(!(otmp->owornmask & (W_RING | W_AMUL | W_TOOL))) {
 		You("are not wearing that.");
@@ -1415,12 +1426,21 @@ dowear()
 	/* cantweararm checks for suits of armor */
 	/* verysmall or nohands checks for shields, gloves, etc... */
 	if ((verysmall(youmonst.data) || nohands(youmonst.data))) {
-		pline("Don't even bother.");
-		return(0);
+            return doputon();
 	}
 
-	otmp = getobj(clothes, "wear");
+        if (!forced_object)
+          otmp = getobj(wearables, "equip");
+        else {otmp = forced_object; forced_object = NULL;}
 	if(!otmp) return(0);
+
+        /* Trying to equip a ring, etc? */
+        if (otmp->oclass != ARMOR_CLASS) {
+            /* All wearable nonarmor that can be returned from getobj
+               is acceptable for doputon to use. */
+            forced_object = otmp;
+            return doputon();
+        }
 
 	if (!canwearobj(otmp,&mask,TRUE)) return(0);
 
@@ -1480,8 +1500,28 @@ doputon()
 			ublindf->otyp==LENSES ? "some lenses" : "a blindfold");
 		return(0);
 	}
-	otmp = getobj(accessories, "put on");
+        if (!forced_object)
+          otmp = getobj(accessories, "put on");
+        else {otmp = forced_object; forced_object = NULL;}
 	if(!otmp) return(0);
+
+        if(otmp->oclass == ARMOR_CLASS) {
+          /* This can happen when trying to use ddooremarm() to equip armor in
+             a polyself form that's intrinsically incapable of wearing armor. */
+        	if(verysmall(youmonst.data))
+                	pline("The armor is too big for you to put on.");
+                else if(nohands(youmonst.data))
+                	/* Note: literal "hands", as we're pointing out that
+                           the player /doesn't/ have them */
+                	You("have no hands to put than on with.");
+                else
+                	impossible("trying to equip armor in a jewellery slot");
+                return(0);
+        }
+
+        /* This code appears to be safe for impluasible object choices, even
+           via forced_object. */
+        
 	if(otmp->owornmask & (W_RING | W_AMUL | W_TOOL)) {
 		already_wearing(c_that_);
 		return(0);
@@ -1950,6 +1990,7 @@ take_off()
 		if ((otmp = do_takeoff())) off_msg(otmp);
 	    }
 	    takeoff_mask &= ~taking_off;
+            puton_mask &= ~taking_off;
 	    taking_off = 0L;
 	}
 
@@ -1958,6 +1999,13 @@ take_off()
 		taking_off = takeoff_order[i];
 		break;
 	    }
+        if (taking_off == 0L) {
+          for(i--; i; i--)
+	    if(puton_mask & takeoff_order[i]) {
+              taking_off = takeoff_order[i];
+              break;
+	    }
+        }
 
 	otmp = (struct obj *) 0;
 	todelay = 0;
@@ -1966,11 +2014,14 @@ take_off()
 	  You("finish %s.", disrobing);
 	  return 0;
 	} else if (taking_off == W_WEP) {
+          otmp = uwep;
 	  todelay = 1;
 	} else if (taking_off == W_SWAPWEP) {
-	  todelay = 1;
+          otmp = uswapwep;
+	  todelay = 1; /* because you can wield from there in 0 turns */
 	} else if (taking_off == W_QUIVER) {
-	  todelay = 1;
+          otmp = uquiver;
+	  todelay = 0;
 	} else if (taking_off == WORN_ARMOR) {
 	  otmp = uarm;
 	  /* If a cloak is being worn, add the time to take it off and put
@@ -1996,19 +2047,35 @@ take_off()
 	  if (uarmc) todelay += 2 * objects[uarmc->otyp].oc_delay + 1;
 #endif
 	} else if (taking_off == WORN_AMUL) {
+          otmp = uamul;
 	  todelay = 1;
 	} else if (taking_off == LEFT_RING) {
+          otmp = uleft;
 	  todelay = 1;
 	} else if (taking_off == RIGHT_RING) {
+          otmp = uright;
 	  todelay = 1;
 	} else if (taking_off == WORN_BLINDF) {
+          otmp = ublindf;
 	  todelay = 2;
 	} else {
 	  impossible("take_off: taking off %lx", taking_off);
 	  return 0;	/* force done */
 	}
 
+        if (!otmp && ((puton_mask & taking_off))) {
+          /* //tk */
+          pline("Putting on an item, todo");
+          puton_mask &= ~taking_off;
+          taking_off = 0;
+          todelay = 0;
+          return take_off();
+        }
+
 	if (otmp) todelay += objects[otmp->otyp].oc_delay;
+
+        /* If we can do something in zero time, do it right now. */
+        if (!todelay) return take_off();
 
 	/* Since setting the occupation now starts the counter next move, that
 	 * would always produce a delay 1 too big per item unless we subtract
@@ -2024,11 +2091,11 @@ take_off()
 void
 reset_remarm()
 {
-	taking_off = takeoff_mask = 0L;
+	taking_off = takeoff_mask = puton_mask = 0L;
 	disrobing = nul;
 }
 
-/* the 'A' command -- remove multiple worn items */
+/* the 'A' command -- show inventory slots, allow equip/unequip */
 int
 doddoremarm()
 {
@@ -2038,24 +2105,20 @@ doddoremarm()
 	You("continue %s.", disrobing);
 	set_occupation(take_off, disrobing, 0);
 	return 0;
-    } else if (!uwep && !uswapwep && !uquiver && !uamul && !ublindf &&
-		!uleft && !uright && !wearing_armor()) {
-	You("are not wearing anything.");
-	return 0;
     }
 
     add_valid_menu_class(0); /* reset */
-    if (flags.menu_style != MENU_TRADITIONAL ||
-	    (result = ggetobj("take off", select_off, 0, FALSE, (unsigned *)0)) < -1)
-	result = menu_remarm(result);
+    result = menu_remarm(result);
 
-    if (takeoff_mask) {
+    if (takeoff_mask || puton_mask) {
 	/* default activity for armor and/or accessories,
 	   possibly combined with weapons */
 	disrobing = "disrobing";
 	/* specific activity when handling weapons only */
 	if (!(takeoff_mask & ~(W_WEP|W_SWAPWEP|W_QUIVER)))
 	    disrobing = "disarming";
+        if (puton_mask != 0L)
+            disrobing = "equpping yourself";
 	(void) take_off();
     }
     /* The time to perform the command is already completely accounted for
@@ -2069,41 +2132,142 @@ STATIC_OVL int
 menu_remarm(retry)
 int retry;
 {
-    int n, i = 0;
-    menu_item *pick_list;
-    boolean all_worn_categories = TRUE;
+    winid win;
+    anything any;
+    menu_item *selected = 0;
+    int n, i;
+    char mname[BUFSZ];
 
-    if (retry) {
-	all_worn_categories = (retry == -2);
-    } else if (flags.menu_style == MENU_FULL) {
-	all_worn_categories = FALSE;
-	n = query_category("What type of things do you want to take off?",
-			   invent, WORN_TYPES|ALL_TYPES, &pick_list, PICK_ANY);
-	if (!n) return 0;
-	for (i = 0; i < n; i++) {
-	    if (pick_list[i].item.a_int == ALL_TYPES_SELECTED)
-		all_worn_categories = TRUE;
-	    else
-		add_valid_menu_class(pick_list[i].item.a_int);
-	}
-	free((genericptr_t) pick_list);
-    } else if (flags.menu_style == MENU_COMBINATION) {
-	all_worn_categories = FALSE;
-	if (ggetobj("take off", select_off, 0, TRUE, (unsigned *)0) == -2)
-	    all_worn_categories = TRUE;
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win);
+
+    any.a_void = 0;
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_INVERSE, "Armour", MENU_UNSELECTED);
+    any.a_int = 'c';
+    if (uarmc) Sprintf(mname, "Cloak            - %s", doname(uarmc));
+    else        strcpy(mname, "Cloak            - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+    any.a_int = 'm';
+    if (uarm)  Sprintf(mname, "Body armor       - %s", doname(uarm));
+    else        strcpy(mname, "Body armor       - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+#ifdef TOURIST
+    any.a_int = 'u';
+    if (uarmu) Sprintf(mname, "Shirt            - %s", doname(uarmu));
+    else        strcpy(mname, "Shirt            - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+#endif
+    any.a_int = 'h';
+    if (uarmh) Sprintf(mname, "Helmet           - %s", doname(uarmh));
+    else        strcpy(mname, "Helmet           - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+    any.a_int = 'g';
+    if (uarmg) Sprintf(mname, "Gloves           - %s", doname(uarmg));
+    else        strcpy(mname, "Gloves           - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+    any.a_int = 'f';
+    if (uarmf) Sprintf(mname, "Boots            - %s", doname(uarmf));
+    else        strcpy(mname, "Boots            - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+    any.a_int = 's';
+    if (uarms) Sprintf(mname, "Shield           - %s", doname(uarms));
+    else        strcpy(mname, "Shield           - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+
+    any.a_void = 0;
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_INVERSE, "Weapons", MENU_UNSELECTED);
+    any.a_int = 'w';
+    if (uwep)     Sprintf(mname, "Wielded in hands - %s", doname(uwep));
+    else           strcpy(mname, "Wielded in hands - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+    any.a_int = 'x';
+    if (uswapwep) Sprintf(mname, "Secondary weapon - %s", doname(uswapwep));
+    else           strcpy(mname, "Secondary weapon - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+    any.a_int = 'q';
+    if (uquiver)  Sprintf(mname, "Quiver           - %s", doname(uquiver));
+    else           strcpy(mname, "Quiver           - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+
+    any.a_void = 0;
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_INVERSE, "Amulets", MENU_UNSELECTED);
+    any.a_int = 'a';
+    if (uamul) Sprintf(mname, "Amulet           - %s", doname(uamul));
+    else        strcpy(mname, "Amulet           - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+
+    any.a_void = 0;
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_INVERSE, "Rings", MENU_UNSELECTED);
+    any.a_int = 'l';
+    if (uleft)  Sprintf(mname, "Left ring        - %s", doname(uleft));
+    else         strcpy(mname, "Left ring        - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+    any.a_int = 'r';
+    if (uright) Sprintf(mname, "Right ring       - %s", doname(uright));
+    else         strcpy(mname, "Right ring       - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+
+    any.a_void = 0;
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_INVERSE, "Tools", MENU_UNSELECTED);
+    any.a_int = 'b';
+    if (ublindf) Sprintf(mname, "Eyewear          - %s", doname(ublindf));
+    else          strcpy(mname, "Eyewear          - (none)");
+    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
+
+    end_menu(win, "Equip to or unequip from which equipment slots?");
+    n = select_menu(win, PICK_ANY, &selected);
+
+    for(i = 0; i < n; i++) switch(selected[i].item.a_int) {
+        case 'c':
+          if (uarmc) select_off(uarmc); else puton_mask |= WORN_CLOAK;
+          break;
+        case 'm':
+          if (uarm) select_off(uarm); else puton_mask |= WORN_ARMOR;
+          break;
+#ifdef TOURIST
+        case 'u':
+          if (uarmu) select_off(uarmu); else puton_mask |= WORN_SHIRT;
+          break;
+#endif
+        case 'h':
+          if (uarmh) select_off(uarmh); else puton_mask |= WORN_HELMET;
+          break;
+        case 'g':
+          if (uarmg) select_off(uarmg); else puton_mask |= WORN_GLOVES;
+          break;
+        case 'f':
+          if (uarmf) select_off(uarmf); else puton_mask |= WORN_BOOTS;
+          break;
+        case 's':
+          if (uarms) select_off(uarms); else puton_mask |= WORN_SHIELD;
+          break;
+        case 'w':
+          if (uwep) select_off(uwep); else puton_mask |= W_WEP;
+          break;
+        case 'x':
+          if (uswapwep) select_off(uswapwep); else puton_mask |= W_SWAPWEP;
+          break;
+        case 'q':
+          if (uquiver) select_off(uquiver); else puton_mask |= W_QUIVER;
+          break;
+        case 'a':
+          if (uamul) select_off(uamul); else puton_mask |= WORN_AMUL;
+          break;
+        case 'l':
+          if (uleft) select_off(uleft); else puton_mask |= LEFT_RING;
+          break;
+        case 'r':
+          if (uright) select_off(uright); else puton_mask |= RIGHT_RING;
+          break;
+        case 'b':
+          if (ublindf) select_off(ublindf); else puton_mask |= WORN_BLINDF;
+          break;          
     }
 
-    n = query_objlist("What do you want to take off?", invent,
-			SIGNAL_NOMENU|USE_INVLET|INVORDER_SORT,
-			&pick_list, PICK_ANY,
-			all_worn_categories ? is_worn : is_worn_by_type);
-    if (n > 0) {
-	for (i = 0; i < n; i++)
-	    (void) select_off(pick_list[i].item.a_obj);
-	free((genericptr_t) pick_list);
-    } else if (n < 0 && flags.menu_style != MENU_COMBINATION) {
-	There("is nothing else you can remove or unwield.");
-    }
+    destroy_nhwindow(win);
+    if (n >= 1) free((genericptr_t) selected);
+
+//	    (void) select_off(pick_list[i].item.a_obj);
     return 0;
 }
 
