@@ -132,6 +132,7 @@ The following commands still have their old meanings, or are mapped to
 a new command that encompasses their old meanings, but are now
 deprecated in favour of other alternatives:
 p (use c), P (use W), R (use T), * (use A).
+(Credits for the idea of merging W/P and R/T go to dtsund.)
 
 Color changes:
 
