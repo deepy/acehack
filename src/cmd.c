@@ -1515,7 +1515,7 @@ struct ext_func_tab extcmdlist[] = {
   {"suspend", "pause and background NetHack so you can use other programs",
    dosuspend, TRUE, 5, C('z'), 0, 0, 0},
 #endif
-  {"swapweapons", "exchange wielded and alternate weapon", 0, FALSE, 12,
+  {"swapweapons", "exchange wielded and alternate weapon", doswapweapon, FALSE, 12,
    'x', 0, 0, 0},
   {"teleport", "use intrinsic or magical teleportation ability", dotele, TRUE, 11,
    C('t'), 0, 0, 0},

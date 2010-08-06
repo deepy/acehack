@@ -1513,7 +1513,7 @@ doputon()
                 else if(nohands(youmonst.data))
                 	/* Note: literal "hands", as we're pointing out that
                            the player /doesn't/ have them */
-                	You("have no hands to put than on with.");
+                	You("have no hands to put that on with.");
                 else
                 	impossible("trying to equip armor in a jewellery slot");
                 return(0);
