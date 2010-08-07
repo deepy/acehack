@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)read.c	3.4	2003/10/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 27 Feb 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -427,21 +427,31 @@ int curse_bless;
 	}
 }
 
-
 /* Forget known information about this object class. */
 static void
 forget_single_object(obj_id)
 	int obj_id;
 {
+	char* knownname;
+        char* new_uname;
+	if (!objects[obj_id].oc_name_known) return; /* nothing to do */
+        knownname = simple_typename(obj_id);
 	objects[obj_id].oc_name_known = 0;
-	objects[obj_id].oc_pre_discovered = 0;	/* a discovery when relearned */
 	if (objects[obj_id].oc_uname) {
 	    free((genericptr_t)objects[obj_id].oc_uname);
 	    objects[obj_id].oc_uname = 0;
 	}
 	undiscover_object(obj_id);	/* after clearing oc_name_known */
 
-	/* clear & free object names from matching inventory items too? */
+        /* AceHack: The object is now named with what it appeared to be
+           beforehand. So "wand of cold" becomes "wand called wand of cold".
+           This means that the player gains no advantage from, say, keeping
+           the contents of \ in a text file (because they're still there);
+           but it still screws up things like scroll writing. */
+        new_uname = strcpy((char *) alloc((unsigned)strlen(knownname)+1),
+                           knownname);
+        objects[obj_id].oc_uname = new_uname;
+        discover_object(obj_id, FALSE, TRUE); /* re-add to \ info */
 }
 
 
@@ -493,7 +503,7 @@ forget_objects(percent)
 
 	for (count = 0, i = 1; i < NUM_OBJECTS; i++)
 	    if (OBJ_DESCR(objects[i]) &&
-		    (objects[i].oc_name_known || objects[i].oc_uname))
+		    (objects[i].oc_name_known))
 		indices[count++] = i;
 
 	randomize(indices, count);
@@ -510,31 +520,15 @@ void
 forget_map(howmuch)
 	int howmuch;
 {
-	register int zx, zy;
-
-	if (In_sokoban(&u.uz))
-	    return;
-
-	known = TRUE;
-	for(zx = 0; zx < COLNO; zx++) for(zy = 0; zy < ROWNO; zy++)
-	    if (howmuch & ALL_MAP || rn2(7)) {
-		/* Zonk all memory of this location. */
-		levl[zx][zy].seenv = 0;
-		levl[zx][zy].waslit = 0;
-		levl[zx][zy].glyph = cmap_to_glyph(S_stone);
-	    }
+        /* AceHack: map amnesia no longer exists */
+        (void) howmuch;
 }
 
 /* Forget all traps on the level. */
 void
 forget_traps()
 {
-	register struct trap *trap;
-
-	/* forget all traps (except the one the hero is in :-) */
-	for (trap = ftrap; trap; trap = trap->ntrap)
-	    if ((trap->tx != u.ux || trap->ty != u.uy) && (trap->ttyp != HOLE))
-		trap->tseen = 0;
+	/* AceHack: map amnesia no longer exists */
 }
 
 /*
@@ -545,44 +539,8 @@ void
 forget_levels(percent)
 	int percent;
 {
-	int i, count;
-	xchar  maxl, this_lev;
-	int indices[MAXLINFO];
-
-	if (percent == 0) return;
-
-	if (percent <= 0 || percent > 100) {
-	    impossible("forget_levels: bad percent %d", percent);
-	    return;
-	}
-
-	this_lev = ledger_no(&u.uz);
-	maxl = maxledgerno();
-
-	/* count & save indices of non-forgotten visited levels */
-	/* Sokoban levels are pre-mapped for the player, and should stay
-	 * so, or they become nearly impossible to solve.  But try to
-	 * shift the forgetting elsewhere by fiddling with percent
-	 * instead of forgetting fewer levels.
-	 */
-	for (count = 0, i = 0; i <= maxl; i++)
-	    if ((level_info[i].flags & VISITED) &&
-			!(level_info[i].flags & FORGOTTEN) && i != this_lev) {
-		if (ledger_to_dnum(i) == sokoban_dnum)
-		    percent += 2;
-		else
-		    indices[count++] = i;
-	    }
-	
-	if (percent > 100) percent = 100;
-
-	randomize(indices, count);
-
-	/* forget first % of randomized indices */
-	count = ((count * percent) + 50) / 100;
-	for (i = 0; i < count; i++) {
-	    level_info[indices[i]].flags |= FORGOTTEN;
-	}
+        (void) percent;
+        /* AceHack: map amnesia no longer exists */
 }
 
 /*
@@ -590,13 +548,11 @@ forget_levels(percent)
  * the following are always forgotten:
  *
  *	- felt ball & chain
- *	- traps
- *	- part (6 out of 7) of the map
  *
  * Other things are subject to flags:
  *
- *	howmuch & ALL_MAP	= forget whole map
  *	howmuch & ALL_SPELLS	= forget all spells
+ *      howmuch & ALL_MAP       = forget all objects (no more map amnesia)
  */
 static void
 forget(howmuch)
@@ -605,14 +561,10 @@ int howmuch;
 
 	if (Punished) u.bc_felt = 0;	/* forget felt ball&chain */
 
-	forget_map(howmuch);
-	forget_traps();
-
-	/* 1 in 3 chance of forgetting some levels */
-	if (!rn2(3)) forget_levels(rn2(25));
-
-	/* 1 in 3 chance of forgeting some objects */
-	if (!rn2(3)) forget_objects(rn2(25));
+	/* forget a lot more objects, to compensate for the map no longer
+           being forgotten in AceHack, and for object forgetfulness being
+           nowhere near as bad */
+	forget_objects(howmuch & ALL_MAP ? 100 : rn2(25)+25);
 
 	if (howmuch & ALL_SPELLS) losespells();
 	/*

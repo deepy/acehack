@@ -101,6 +101,13 @@ Instead of automatically confirming attacks on peaceful monsters,
 Stormbringer now acts as a ring of aggravate monster while wielded (in
 addition to its other effects).
 
+Amnesia's effect has been changed. It now no longer causes the player
+to forget the map or seen traps; instead, it affects a much larger
+proportion of objects. Forgotten objects are now /called/ by their
+actual name; so forgetting what a potion of blindness does, for
+instance, would lead to "potion called potion of blindness" rather
+than "potion of blindness" in the inventory.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
