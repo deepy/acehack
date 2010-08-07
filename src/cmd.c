@@ -1430,7 +1430,7 @@ struct ext_func_tab extcmdlist[] = {
   {"dropone", "drop one item", dodrop, FALSE, 13, 'd', 0, 0, 0},
   {"east", "move, attack, or interact east", 0, FALSE, 21, 'l', '6', 0, 'l'},
   {"eastfar", "move east as far as possible", 0, FALSE, 22, 'L', 0, 0, 'L'},
-  {"easthfarcareful", "move east until something interesting happens",
+  {"eastfarcareful", "move east until something interesting happens",
    0, FALSE, 23, C('l'), 0, 0, C('l')},
   {"eat", "eat an item", doeat, FALSE, 10, 'e', 0, 0, 0},
   {"engrave", "write on the floor", doengrave, FALSE, 11, 'E', 0, 0, 0},
