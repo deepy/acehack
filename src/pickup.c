@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)pickup.c	3.4	2003/07/27	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*

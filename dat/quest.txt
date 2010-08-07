@@ -1,5 +1,6 @@
 #	SCCS Id: @(#)quest.txt	3.4	2002/01/30
 #	Copyright (c) 1991 by M. Stephenson
+#       Modified 12 September 2009 by Alex Smith
 # NetHack may be freely redistributed.  See license for details.
 #
 #	The quest text file for AceHack 3.6

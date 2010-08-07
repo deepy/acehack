@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)dungeon.h	3.4	1999/07/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 21 Jul 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef DUNGEON_H

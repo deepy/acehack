@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)objects.c	3.4	2002/07/31	*/
 /* Copyright (c) Mike Threepoint, 1989.				  */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef OBJECTS_PASS_2_

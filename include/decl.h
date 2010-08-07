@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)decl.h	3.4	2001/12/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 5 Sep 2009 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef DECL_H

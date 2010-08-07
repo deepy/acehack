@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)spell.c	3.4	2003/01/17	*/
 /*	Copyright (c) M. Stephenson 1988			  */
+/* Modified 19 Jul 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"

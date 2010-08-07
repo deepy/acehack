@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)objclass.h 3.4	1996/06/16	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef OBJCLASS_H

@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)lev_main.c	3.4	2002/03/27	*/
 /*	Copyright (c) 1989 by Jean-Christophe Collet */
+/* Modified 21 Jul 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*

@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)qtext.h	3.4	1997/02/02	*/
 /* Copyright (c) Mike Stephenson 1991.				  */
+/* Modified 12 Sep 2009 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef QTEXT_H

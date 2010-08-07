@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)pcconf.h	3.4	1995/10/11	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 19 Jul 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef PCCONF_H

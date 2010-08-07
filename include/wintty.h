@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)wintty.h	3.4	1996/02/18	*/
 /* Copyright (c) David Cohrs, 1991,1992				  */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef WINTTY_H

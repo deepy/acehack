@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)questpgr.c	3.4	2000/05/05	*/
 /*	Copyright 1991, M. Stephenson		  */
+/* Modified 5 Sep 2009 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"

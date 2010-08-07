@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)func_tab.h 3.4	1992/04/03	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 29 Jul 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef FUNC_TAB_H

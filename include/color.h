@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)color.h	3.4	1992/02/02	*/
 /* Copyright (c) Steve Linhart, Eric Raymond, 1989. */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef COLOR_H

@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)winprocs.h 3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1992				  */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef WINPROCS_H

@@ -1,4 +1,5 @@
 /* Copyright (C) 2001 by Alex Kompel <shurikk@pacbell.net> */
+/* Modified 19 Jul 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 // winhack.cpp : Defines the entry point for the application.
