@@ -7,6 +7,10 @@
 #define NOINVSYM	'#'
 #define CONTAINED_SYM	'>'	/* designator for inside a container */
 
+#ifdef MENU_COLOR
+extern struct menucoloring *menu_colorings;
+#endif
+
 #ifdef OVL1
 STATIC_DCL void NDECL(reorder_invent);
 STATIC_DCL boolean FDECL(mergable,(struct obj *,struct obj *));
@@ -1962,7 +1966,7 @@ find_unpaid(list, last_found)
  * Returns the default color to color an item in a menu of items, based on its
  * menu class.
  */
-static int default_item_color(obj)
+int default_item_color(obj)
 struct obj *obj;
 {
 	/* If the item's known-cursed, that overrides other colouring rules. */
@@ -2534,6 +2538,32 @@ char *buf;
 	return dfeature;
 }
 
+#ifdef MENU_COLOR
+boolean
+get_menu_coloring(str, color, attr)
+char *str;
+int *color, *attr;
+{
+    struct menucoloring *tmpmc;
+    if (iflags.use_menu_color)
+	for (tmpmc = menu_colorings; tmpmc; tmpmc = tmpmc->next)
+# ifdef MENU_COLOR_REGEX
+#  ifdef MENU_COLOR_REGEX_POSIX
+	    if (regexec(&tmpmc->match, str, 0, NULL, 0) == 0) {
+#  else
+	    if (re_search(&tmpmc->match, str, strlen(str), 0, 9999, 0) >= 0) {
+#  endif
+# else
+	    if (pmatch(tmpmc->match, str)) {
+# endif
+		*color = tmpmc->color;
+		*attr = tmpmc->attr;
+		return TRUE;
+	    }
+    return FALSE;
+}
+#endif /* MENU_COLOR */
+
 /* look at what is here; if there are many objects (5 or more),
    don't show them unless obj_cnt is 0 */
 int
@@ -2634,15 +2664,21 @@ boolean picked_some;
 	    putstr(tmpwin, 0, Blind ? "Things that you feel here:" :
 				      "Things that are here:");
 	    for ( ; otmp; otmp = otmp->nexthere) {
+                int attr = ATR_NONE;
+                int color = default_item_color(otmp);
+                char* s = doname(otmp);
 		if (otmp->otyp == CORPSE && will_feel_cockatrice(otmp, FALSE)) {
 			char buf[BUFSZ];
 			felt_cockatrice = TRUE;
-			Strcpy(buf, doname(otmp));
+			Strcpy(buf, s);
 			Strcat(buf, "...");
 			putstr(tmpwin, 0, buf);
 			break;
 		}
-		putstr(tmpwin, 0, doname(otmp));
+                if (iflags.use_menu_color) {
+                  get_menu_coloring(s, &color, &attr);
+                }
+		putstr_colored(tmpwin, attr, color, s);
 	    }
 	    display_nhwindow(tmpwin, TRUE);
 	    destroy_nhwindow(tmpwin);

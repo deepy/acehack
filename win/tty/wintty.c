@@ -64,6 +64,7 @@ struct window_procs tty_procs = {
     tty_destroy_nhwindow,
     tty_curs,
     tty_putstr,
+    tty_putstr_colored,
     tty_display_file,
     tty_start_menu,
     tty_add_menu,
@@ -125,10 +126,6 @@ static char obuf[BUFSIZ];	/* BUFSIZ is defined in stdio.h */
 
 static char winpanicstr[] = "Bad window id %d";
 char defmorestr[] = "--More--";
-
-#ifdef MENU_COLOR
-extern struct menucoloring *menu_colorings;
-#endif
 
 #ifdef CLIPPING
 # if defined(USE_TILES) && defined(MSDOS)
@@ -1188,32 +1185,6 @@ invert_all(window, page_start, page_end, acc)
     }
 }
 
-#ifdef MENU_COLOR
-STATIC_OVL boolean
-get_menu_coloring(str, color, attr)
-char *str;
-int *color, *attr;
-{
-    struct menucoloring *tmpmc;
-    if (iflags.use_menu_color)
-	for (tmpmc = menu_colorings; tmpmc; tmpmc = tmpmc->next)
-# ifdef MENU_COLOR_REGEX
-#  ifdef MENU_COLOR_REGEX_POSIX
-	    if (regexec(&tmpmc->match, str, 0, NULL, 0) == 0) {
-#  else
-	    if (re_search(&tmpmc->match, str, strlen(str), 0, 9999, 0) >= 0) {
-#  endif
-# else
-	    if (pmatch(tmpmc->match, str)) {
-# endif
-		*color = tmpmc->color;
-		*attr = tmpmc->attr;
-		return TRUE;
-	    }
-    return FALSE;
-}
-#endif /* MENU_COLOR */
-
 STATIC_OVL void
 process_menu_window(window, cw)
 winid window;
@@ -1533,7 +1504,7 @@ process_text_window(window, cw)
 winid window;
 struct WinDesc *cw;
 {
-    int i, n, attr;
+    int i, n, attr, color;
     register char *cp;
 
     for (n = 0, i = 0; i < cw->maxrow; i++) {
@@ -1555,12 +1526,14 @@ struct WinDesc *cw;
 	tty_curs(window, 1, n++);
 	if (cw->offx) cl_end();
 	if (cw->data[i]) {
-	    attr = cw->data[i][0] - 1;
+	    color = cw->data[i][0] - 1;
+	    attr = cw->data[i][1] - 1;
 	    if (cw->offx) {
 		(void) putchar(' '); ++ttyDisplay->curx;
 	    }
 	    term_start_attr(attr);
-	    for (cp = &cw->data[i][1];
+            if (iflags.wc_color && color != NO_COLOR) term_start_color(color);
+	    for (cp = &cw->data[i][2];
 #ifndef WIN32CON
 		    *cp && (int) ++ttyDisplay->curx < (int) ttyDisplay->cols;
 		    cp++)
@@ -1569,6 +1542,7 @@ struct WinDesc *cw;
 		    cp++, ttyDisplay->curx++)
 #endif
 		(void) putchar(*cp);
+            if (iflags.wc_color && color != NO_COLOR) term_end_color();
 	    term_end_attr(attr);
 	}
     }
@@ -1849,6 +1823,16 @@ tty_putstr(window, attr, str)
     int attr;
     const char *str;
 {
+    tty_putstr_colored(window, attr, NO_COLOR, str);
+}
+
+void
+tty_putstr_colored(window, attr, color, str)
+    winid window;
+    int attr;
+    int color;
+    const char *str;
+{
     register struct WinDesc *cw = 0;
     register char *ob;
     register const char *nb;
@@ -1967,8 +1951,9 @@ tty_putstr(window, attr, str)
 	}
 	if(cw->data[cw->cury])
 	    free((genericptr_t)cw->data[cw->cury]);
-	n0 = strlen(str) + 1;
+	n0 = strlen(str) + 2;
 	ob = cw->data[cw->cury] = (char *)alloc((unsigned)n0 + 1);
+	*ob++ = (char)(color + 1);	/* avoid nuls, for convenience */
 	*ob++ = (char)(attr + 1);	/* avoid nuls, for convenience */
 	Strcpy(ob, str);
 

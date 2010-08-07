@@ -180,6 +180,7 @@ E void FDECL(tty_dismiss_nhwindow, (winid));
 E void FDECL(tty_destroy_nhwindow, (winid));
 E void FDECL(tty_curs, (winid,int,int));
 E void FDECL(tty_putstr, (winid, int, const char *));
+E void FDECL(tty_putstr_colored, (winid, int, int, const char *));
 E void FDECL(tty_display_file, (const char *, BOOLEAN_P));
 E void FDECL(tty_start_menu, (winid));
 E void FDECL(tty_add_menu, (winid,int,const ANY_P *,

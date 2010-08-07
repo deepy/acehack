@@ -22,6 +22,7 @@ struct window_procs {
     void FDECL((*win_destroy_nhwindow), (winid));
     void FDECL((*win_curs), (winid,int,int));
     void FDECL((*win_putstr), (winid, int, const char *));
+    void FDECL((*win_putstr_colored), (winid, int, int, const char *));
     void FDECL((*win_display_file), (const char *, BOOLEAN_P));
     void FDECL((*win_start_menu), (winid));
     void FDECL((*win_add_menu), (winid,int,const ANY_P *,
@@ -89,6 +90,7 @@ extern NEARDATA struct window_procs windowprocs;
 #define destroy_nhwindow (*windowprocs.win_destroy_nhwindow)
 #define curs (*windowprocs.win_curs)
 #define putstr (*windowprocs.win_putstr)
+#define putstr_colored (*windowprocs.win_putstr_colored)
 #define display_file (*windowprocs.win_display_file)
 #define start_menu (*windowprocs.win_start_menu)
 #define add_menu (*windowprocs.win_add_menu)

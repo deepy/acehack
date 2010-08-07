@@ -787,10 +787,11 @@ boolean FDECL((*allow), (OBJ_P));/* allow function */
 		    }
 
 		    any.a_obj = curr;
-		    add_menu(win, obj_to_glyph(curr), &any,
+		    add_menu_colored(win, obj_to_glyph(curr), &any,
 			    qflags & USE_INVLET ? curr->invlet : 0,
 			    def_oc_syms[(int)objects[curr->otyp].oc_class],
-			    ATR_NONE, doname(curr), MENU_UNSELECTED);
+                            ATR_NONE, default_item_color(curr), doname(curr),
+                            MENU_UNSELECTED);
 		}
 	    }
 	    pack++;

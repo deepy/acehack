@@ -105,8 +105,10 @@ A new tutorial mode provides hints on the game and its controls as
 it's played.
 
 The menucolors patch has been added, allowing customisable colouring
-of menus based on regular expressions.  (Patch credits: Pasi
-Kallinnen via UnNethack.)
+of menus based on regular expressions.  (Patch credits: Pasi Kallinnen
+via UnNethack.)  AceHack-specific additions include a default set of
+colours for items depending on the item's behavior: see "Change
+Detail" for more information.
 
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
@@ -117,6 +119,22 @@ initially from Slash'EM; ported from UnNetHack)
 
 Change Detail
 -------------
+
+Default menucolors for items (with some examples):
+known cursed: orange
+unidentified: cyan
+enchantment+erosion negative: red
+attack (e.g. weapons/attack wands/books of attack spells): green
+item/dungeon-affecting (e.g. digging, enchanting, polymorph): brown
+creation (e.g. create monster, bag of tricks, wishing): cyan
+intrinsics/extrinsics (e.g. invisibility, gain strength): light blue
+debuffing enemies (e.g. sleep, taming, conflict): blue
+divination (e.g. lamp, identify, crystal ball): white
+healing (e.g. unihorn, potion of gain energy): yellow
+movement (e.g. teleport, levitation, jumping): light green
+harmful items (e.g. sickness, blindness, fumbling): magenta
+mundane items (e.g. food ration, blank paper, fruit juice): gray
+unique items (e.g. bell of opening, amulet of yendor): light magenta
 
 Command changes:
 
