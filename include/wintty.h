@@ -17,6 +17,7 @@ typedef struct tty_mi {
     long count;			/* user count */
     char *str;			/* description string (including accelerator) */
     int attr;			/* string attribute */
+    int color;                  /* default menu item color */
     boolean selected;		/* TRUE if selected by user */
     char selector;		/* keyboard accelerator */
     char gselector;		/* group accelerator */
@@ -183,6 +184,8 @@ E void FDECL(tty_display_file, (const char *, BOOLEAN_P));
 E void FDECL(tty_start_menu, (winid));
 E void FDECL(tty_add_menu, (winid,int,const ANY_P *,
 			CHAR_P,CHAR_P,int,const char *, BOOLEAN_P));
+E void FDECL(tty_add_menu_colored, (winid,int,const ANY_P *,
+			CHAR_P,CHAR_P,int,int,const char *, BOOLEAN_P));
 E void FDECL(tty_end_menu, (winid, const char *));
 E int FDECL(tty_select_menu, (winid, int, MENU_ITEM_P **));
 E char FDECL(tty_message_menu, (CHAR_P,int,const char *));

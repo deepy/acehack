@@ -126,13 +126,9 @@ static struct Bool_Opt
 	{"mail", (boolean *)0, TRUE, SET_IN_FILE},
 #endif
 #ifdef MENU_COLOR
-# ifdef MICRO
-	{"menucolors", &iflags.use_menu_color, TRUE,  SET_IN_GAME},
-# else
-	{"menucolors", &iflags.use_menu_color, FALSE, SET_IN_GAME},
-# endif
+	{"menucolors", &iflags.use_menu_color, TRUE, SET_IN_FILE},
 #else
-	{"menucolors", (boolean *)0, FALSE, SET_IN_GAME},
+	{"menucolors", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 #ifdef WIZARD
 	/* for menu debugging only*/

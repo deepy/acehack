@@ -1959,6 +1959,53 @@ find_unpaid(list, last_found)
 }
 
 /*
+ * Returns the default color to color an item in a menu of items, based on its
+ * menu class.
+ */
+static int default_item_color(obj)
+struct obj *obj;
+{
+	/* If the item's known-cursed, that overrides other colouring rules. */
+	if (obj->bknown && obj->cursed) return CLR_ORANGE;
+	/* If the item's un-IDed, always return an unIDed colour. */
+	if (!objects[obj->otyp].oc_name_known || !obj->dknown) return CLR_CYAN;
+        /* Items known to have a negative enchantment+erosion are red. */
+        int totalspe = obj->known ? obj->spe : 0;
+        totalspe += greatest_erosion(obj);
+        if (totalspe < 0)
+          if (obj->oclass == WEAPON_CLASS || obj->oclass == ARMOR_CLASS)
+            return CLR_RED;
+        /* Negatively enchanted rings are detrimental; zero-enchanted rings are
+           mundane. */
+        if (obj->oclass == RING_CLASS && obj->known &&
+            objects[obj->otyp].oc_charged) {
+            if (obj->spe < 0) return CLR_MAGENTA;
+            if (obj->spe == 0) return NO_COLOR;
+        }
+        /* tins are unIDed if you don't know what's inside */
+        if (obj->otyp == TIN && !obj->known) return CLR_CYAN;
+        /* and give permanent strength if they contain spinach */
+        if (obj->otyp == TIN && obj->spe) return CLR_BRIGHT_BLUE;
+        /* potential TODO: colors for various corpses */
+        /* 'twould be a mess due to aging, zombies, etc */
+	switch(objects[obj->otyp].oc_menuclass) {
+        case MCLASS_ATTACK:      return CLR_GREEN;
+        case MCLASS_INANIMATE:   return CLR_BROWN;
+        case MCLASS_CREATION:    return CLR_BRIGHT_CYAN;
+        case MCLASS_ENCHANTMENT: return CLR_BRIGHT_BLUE;
+        case MCLASS_ATTENCH:     return CLR_BLUE;
+        case MCLASS_DIVINATION:  return CLR_WHITE;
+        case MCLASS_HEALING:     return CLR_YELLOW;
+        case MCLASS_MOVEMENT:    return CLR_BRIGHT_GREEN;
+        case MCLASS_DETRIMENTAL: return CLR_MAGENTA;
+        case MCLASS_UNIQUE:      return CLR_BRIGHT_MAGENTA;
+        case MCLASS_MUNDANE:     return NO_COLOR;
+        default: impossible("item has an invalid menu class");
+        }
+        return NO_COLOR;
+}
+
+/*
  * Internal function used by display_inventory and getobj that can display
  * inventory and return a count as well as a letter. If out_cnt is not null,
  * any count returned from the menu selection is placed here.
@@ -2078,9 +2125,9 @@ nextclass:
 	      classcount++;
 	    }
 	    any.a_char = ilet;
-	    add_menu(win, obj_to_glyph(otmp),
-		     &any, ilet, 0, ATR_NONE, doname(otmp),
-		     MENU_UNSELECTED);
+	    add_menu_colored(win, obj_to_glyph(otmp), &any, ilet,
+                             0, ATR_NONE, default_item_color(otmp),
+                             doname(otmp), MENU_UNSELECTED);
 #ifdef DUMP_LOG
 	    if (want_dump) {
 	      char letbuf[7];
@@ -2102,9 +2149,10 @@ nextclass:
 				classcount++;
 			    }
 			    any.a_char = ilet;
-			    add_menu(win, obj_to_glyph(otmp),
-					&any, ilet, 0, ATR_NONE, doname(otmp),
-					MENU_UNSELECTED);
+			    add_menu_colored(win, obj_to_glyph(otmp),
+                                             &any, ilet, 0, ATR_NONE,
+                                             default_item_color(otmp),
+                                             doname(otmp), MENU_UNSELECTED);
 			}
 		}
 	}

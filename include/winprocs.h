@@ -26,6 +26,8 @@ struct window_procs {
     void FDECL((*win_start_menu), (winid));
     void FDECL((*win_add_menu), (winid,int,const ANY_P *,
 		CHAR_P,CHAR_P,int,const char *, BOOLEAN_P));
+    void FDECL((*win_add_menu_colored), (winid,int,const ANY_P *,
+		CHAR_P,CHAR_P,int,int,const char *, BOOLEAN_P));
     void FDECL((*win_end_menu), (winid, const char *));
     int FDECL((*win_select_menu), (winid, int, MENU_ITEM_P **));
     char FDECL((*win_message_menu), (CHAR_P,int,const char *));
@@ -90,6 +92,7 @@ extern NEARDATA struct window_procs windowprocs;
 #define display_file (*windowprocs.win_display_file)
 #define start_menu (*windowprocs.win_start_menu)
 #define add_menu (*windowprocs.win_add_menu)
+#define add_menu_colored (*windowprocs.win_add_menu_colored)
 #define end_menu (*windowprocs.win_end_menu)
 #define select_menu (*windowprocs.win_select_menu)
 #define message_menu (*windowprocs.win_message_menu)

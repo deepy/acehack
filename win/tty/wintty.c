@@ -67,6 +67,7 @@ struct window_procs tty_procs = {
     tty_display_file,
     tty_start_menu,
     tty_add_menu,
+    tty_add_menu_colored,
     tty_end_menu,
     tty_select_menu,
     tty_message_menu,
@@ -1095,8 +1096,10 @@ set_item_state(window, lineno, item)
     char ch = item->selected ? (item->count == -1L ? '+' : '#') : '-';
     tty_curs(window, 4, lineno);
     term_start_attr(item->attr);
+    if(item->color != NO_COLOR) term_start_color(item->color);
     (void) putchar(ch);
     ttyDisplay->curx++;
+    if(item->color != NO_COLOR) term_end_color();
     term_end_attr(item->attr);
 }
 
@@ -1287,10 +1290,6 @@ struct WinDesc *cw;
 		for (page_lines = 0, curr = page_start;
 			curr != page_end;
 			page_lines++, curr = curr->next) {
-#ifdef MENU_COLOR
-		    int color = NO_COLOR, attr = ATR_NONE;
-		    boolean menucolr = FALSE;
-#endif
 		    if (curr->selector)
 			*rp++ = curr->selector;
 
@@ -1307,13 +1306,14 @@ struct WinDesc *cw;
 		     * this.
 		     */
 #ifdef MENU_COLOR
-		   if (iflags.use_menu_color &&
-		       (menucolr = get_menu_coloring(curr->str, &color,&attr))) {
-		       term_start_attr(attr);
-		       if (color != NO_COLOR) term_start_color(color);
-		   } else
+                    if (iflags.use_menu_color) {
+                        get_menu_coloring(curr->str, &curr->color, &curr->attr);
+		        term_start_attr(curr->attr);
+		        if (curr->color != NO_COLOR && iflags.wc_color)
+                            term_start_color(curr->color);
+                    } else
 #endif
-		    term_start_attr(curr->attr);
+                        term_start_attr(curr->attr);
 		    for (n = 0, cp = curr->str;
 #ifndef WIN32CON
 			  *cp && (int) ++ttyDisplay->curx < (int) ttyDisplay->cols;
@@ -1331,12 +1331,10 @@ struct WinDesc *cw;
 			} else
 			    (void) putchar(*cp);
 #ifdef MENU_COLOR
-		   if (iflags.use_menu_color && menucolr) {
-		       if (color != NO_COLOR) term_end_color();
-		       term_end_attr(attr);
-		   } else
+		   if (iflags.use_menu_color)
+                       if (curr->color != NO_COLOR && iflags.wc_color) term_end_color();
 #endif
-		    term_end_attr(curr->attr);
+                   term_end_attr(curr->attr);
 		}
 	    } else {
 		page_start = 0;
@@ -2084,13 +2082,14 @@ tty_start_menu(window)
  * later.
  */
 void
-tty_add_menu(window, glyph, identifier, ch, gch, attr, str, preselected)
+tty_add_menu_colored(window, glyph, identifier, ch, gch, attr, color, str, preselected)
     winid window;	/* window to use, must be of type NHW_MENU */
     int glyph;		/* glyph to display with item (unused) */
     const anything *identifier;	/* what to return if selected */
     char ch;		/* keyboard accelerator (0 = pick our own) */
     char gch;		/* group accelerator (0 = no group) */
     int attr;		/* attribute for string (like tty_putstr()) */
+    int color;          /* default color if menucolors doesn't override it */
     const char *str;	/* menu string */
     boolean preselected; /* item is marked as selected */
 {
@@ -2128,10 +2127,26 @@ tty_add_menu(window, glyph, identifier, ch, gch, attr, str, preselected)
     item->selector = ch;
     item->gselector = gch;
     item->attr = attr;
+    item->color = color;
     item->str = copy_of(newstr);
 
     item->next = cw->mlist;
     cw->mlist = item;
+}
+
+void
+tty_add_menu(window, glyph, identifier, ch, gch, attr, str, preselected)
+    winid window;	/* window to use, must be of type NHW_MENU */
+    int glyph;		/* glyph to display with item (unused) */
+    const anything *identifier;	/* what to return if selected */
+    char ch;		/* keyboard accelerator (0 = pick our own) */
+    char gch;		/* group accelerator (0 = no group) */
+    int attr;		/* attribute for string (like tty_putstr()) */
+    const char *str;	/* menu string */
+    boolean preselected; /* item is marked as selected */
+{
+  tty_add_menu_colored(window, glyph, identifier, ch, gch, attr, NO_COLOR, str,
+                       preselected);
 }
 
 /* Invert the given list, can handle NULL as an input. */
