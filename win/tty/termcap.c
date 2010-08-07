@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)termcap.c	3.4	2000/07/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Jul 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -369,6 +369,33 @@ int state;
 	}
 }
 
+
+extern void NDECL((*ibmgraphics_mode_callback));    /* defined in drawing.c */
+#ifdef ASCIIGRAPH
+static void NDECL(tty_ibmgraphics_termcap_fixup);
+/*
+   We call this routine whenever IBMgraphics mode is enabled, even if it
+   has been previously set, in order to set the terminal into IBMgraphics
+   mode.
+ */
+static void
+tty_ibmgraphics_termcap_fixup()
+{
+	/*
+	 * Select the IBM (actually, direct-ROM) character set as the primary
+         * character set, and turn Unicode mode off.
+	 */
+	if (iflags.IBMgraphics) xputs("\033%@\033(U");
+        /*
+         * Select the default primary character set.
+         */
+        else xputs("\033(B");
+#ifdef PC9800
+	init_hilite();
+#endif
+}
+#endif	/* ASCIIGRAPH */
+
 #ifdef TERMLIB
 extern void NDECL((*decgraphics_mode_callback));    /* defined in drawing.c */
 static void NDECL(tty_decgraphics_termcap_fixup);
@@ -430,9 +457,6 @@ tty_decgraphics_termcap_fixup()
 }
 #endif	/* TERMLIB */
 
-#if defined(ASCIIGRAPH) && defined(PC9800)
-extern void NDECL((*ibmgraphics_mode_callback));    /* defined in drawing.c */
-#endif
 
 #ifdef PC9800
 extern void NDECL((*ascgraphics_mode_callback));    /* defined in drawing.c */
@@ -465,12 +489,13 @@ tty_start_screen()
 	    tty_ascgraphics_hilite_fixup();
     /* set up callback in case option is not set yet but toggled later */
     ascgraphics_mode_callback = tty_ascgraphics_hilite_fixup;
-# ifdef ASCIIGRAPH
-    if (iflags.IBMgraphics) init_hilite();
-    /* set up callback in case option is not set yet but toggled later */
-    ibmgraphics_mode_callback = init_hilite;
-# endif
 #endif /* PC9800 */
+
+#ifdef ASCIIGRAPH
+    if (iflags.IBMgraphics) tty_ibmgraphics_termcap_fixup();
+    /* set up callback in case option is not set yet but toggled later */
+    ibmgraphics_mode_callback = tty_ibmgraphics_termcap_fixup;
+#endif
 
 #ifdef TERMLIB
 	if (iflags.DECgraphics) tty_decgraphics_termcap_fixup();

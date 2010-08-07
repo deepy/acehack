@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)monst.c	3.4	2000/07/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Aug 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "config.h"
@@ -10,7 +10,6 @@
 #include "eshk.h"
 #include "vault.h"
 #include "epri.h"
-#include "hack.h"       /* for MG_ULINE */
 
 #define NO_ATTK {0,0,0,0}
 

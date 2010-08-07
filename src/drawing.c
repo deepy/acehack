@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)drawing.c	3.4	1999/12/02	*/
 /* Copyright (c) NetHack Development Team 1992.			  */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -310,9 +311,7 @@ const struct symdef defsyms[MAXPCHARS] = {
 
 #ifdef ASCIIGRAPH
 
-#ifdef PC9800
 void NDECL((*ibmgraphics_mode_callback)) = 0;	/* set in tty_start_screen() */
-#endif /* PC9800 */
 
 static uchar ibm_graphics[MAXPCHARS] = {
 /* 0*/	g_FILLER(S_stone),
@@ -662,6 +661,10 @@ int gr_set_flag;
 #ifdef PC9800
 	    if (ascgraphics_mode_callback) (*ascgraphics_mode_callback)();
 #endif
+#ifdef ASCIIGRAPH
+            /* IBMgraphics needs a callback when turned /off/, too */
+	    if (ibmgraphics_mode_callback) (*ibmgraphics_mode_callback)();
+#endif
 	    break;
 #ifdef ASCIIGRAPH
 	case IBM_GRAPHICS:
@@ -675,9 +678,7 @@ int gr_set_flag;
 	    iflags.IBMgraphics = TRUE;
 	    iflags.DECgraphics = FALSE;
 	    assign_graphics(ibm_graphics, SIZE(ibm_graphics), MAXPCHARS, 0);
-#ifdef PC9800
 	    if (ibmgraphics_mode_callback) (*ibmgraphics_mode_callback)();
-#endif
 	    break;
 #endif /* ASCIIGRAPH */
 #ifdef TERMLIB
@@ -689,6 +690,10 @@ int gr_set_flag;
 	    iflags.IBMgraphics = FALSE;
 	    assign_graphics(dec_graphics, SIZE(dec_graphics), MAXPCHARS, 0);
 	    if (decgraphics_mode_callback) (*decgraphics_mode_callback)();
+#ifdef ASCIIGRAPH
+            /* IBMgraphics needs a callback when turned /off/, too */
+	    if (ibmgraphics_mode_callback) (*ibmgraphics_mode_callback)();
+#endif
 	    break;
 #endif /* TERMLIB */
 #ifdef MAC_GRAPHICS_ENV
@@ -800,7 +805,11 @@ boolean is_rlevel;
 		&& !iflags.grmode
 #  endif
 		)
+#  if defined(MSDOS) || defined(OS2) || ( defined(WIN32) && !defined(MSWIN_GRAPHICS) )
 	    monsyms[S_HUMAN] = 0x01; /* smiley face */
+#  else
+            monsyms[S_HUMAN] = '@';  /* 0x01 is a control character on other platforms */
+#  endif
 # endif
 	for (i = 0; i < MAXPCHARS; i++)
 	    showsyms[i] = defsyms[i].sym;

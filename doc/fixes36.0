@@ -102,6 +102,14 @@ The botl has been cleaned up significantly, leaving a lot more room to
 show things like statuses.  It also now shows semi-graphical Hp and Pw
 bars that change colour according to how wounded or exhausted you are.
 
+(tty interface on all platforms but DOS, OS/2, WIN32)
+IBMgraphics now sends signals to the terminal telling it to select a
+suitable character set for drawing that graphics; hopefully, this will
+make IBMgraphics "just work" rather than requiring crazy character set
+fixes. The control code \001 is no longer used on the Rogue level on
+these platforms either, preventing many terminals breaking upon
+encountering it.
+
 General New Features
 --------------------
 

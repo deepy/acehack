@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.h	3.4	2001/04/12	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Aug 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef HACK_H
@@ -47,15 +47,6 @@
 #define DISMOUNT_BONES		5
 #define DISMOUNT_BYCHOICE	6
 #endif
-
-/* Special returns from mapglyph() */
-#define MG_CORPSE	0x01
-#define MG_INVIS	0x02
-#define MG_DETECT	0x04
-#define MG_PET		0x08
-#define MG_RIDDEN	0x10
-/* Must be at least 0x20 because this is ORed with colour codes */
-#define MG_ULINE        0x20
 
 /* sellobj_state() states */
 #define SELL_NORMAL	(0)

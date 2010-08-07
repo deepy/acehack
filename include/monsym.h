@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)monsym.h	3.4	1992/10/18	*/
 /*	Monster symbols and creation information rev 1.0	  */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef MONSYM_H
@@ -77,6 +78,16 @@
 extern const char def_monsyms[MAXMCLASSES];	/* default class symbols */
 extern uchar monsyms[MAXMCLASSES];		/* current class symbols */
 #endif
+
+/* Special returns from mapglyph() */
+/* Moved here to avoid a complicated dependency loop in makedefs() */
+#define MG_CORPSE	0x01
+#define MG_INVIS	0x02
+#define MG_DETECT	0x04
+#define MG_PET		0x08
+#define MG_RIDDEN	0x10
+/* Must be at least 0x20 because this is ORed with colour codes */
+#define MG_ULINE        0x20
 
 /*
  * Default characters for monsters.  These correspond to the monster classes
