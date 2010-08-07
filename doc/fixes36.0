@@ -90,6 +90,10 @@ a turn), which causes them to self-ID.  Likewise, all characters
 recognise potions of oil for the same reason. (Credits: suggestion for
 auto-IDing jumping boots by casmith789.)
 
+The gaze of a floating eye now forces players to miss, rather than
+paralyzing them. (Floating eyes still have their paralysis defence in
+all other contexts.)
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

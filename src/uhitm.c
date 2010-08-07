@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)uhitm.c	3.4	2003/02/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -423,7 +423,16 @@ struct attack *uattk;
 	    if (flags.verbose) Your("bloodthirsty blade attacks!");
 	}
 
-	if(!*mhit) {
+        /* AceHack patch: trying to hit a floating eye screws up if
+           it can see, you can see it, and you don't have free
+           action; this is considerably less evil to the player than
+           the vanilla alternative. */
+        if (mon->data == &mons[PM_FLOATING_EYE] && canseemon(mon) &&
+            !Free_action && !Reflecting && mon->mcansee) {
+            *mhit = 0;
+            pline("%s glares at you, and you cannot finish your attack!",
+                  Monnam(mon));
+        } else if(!*mhit) {
 	    missum(mon, uattk);
 	} else {
 	    int oldhp = mon->mhp,
@@ -436,7 +445,7 @@ struct attack *uattk;
 	    /* we hit the monster; be careful: it might die or
 	       be knocked into a different location */
 	    notonhead = (mon->mx != x || mon->my != y);
-	    malive = hmon(mon, uwep, 0);
+            malive = hmon(mon, uwep, 0);
 	    /* this assumes that Stormbringer was uwep not uswapwep */ 
 	    if (malive && u.twoweap && !override_confirmation &&
 		    m_at(x, y) == mon)
@@ -2273,9 +2282,9 @@ uchar aatyp;
 			    You("momentarily stiffen under %s gaze!",
 				    s_suffix(mon_nam(mon)));
 			else {
-			    You("are frozen by %s gaze!",
-				  s_suffix(mon_nam(mon)));
-			    nomul((ACURR(A_WIS) > 12 || rn2(4)) ? -tmp : -127);
+                            /* In AceHack, this is now a forced miss rather than
+                               causing paralysis; thus no further passive
+                               effects are desired here */
 			}
 		    } else {
 			pline("%s cannot defend itself.",
