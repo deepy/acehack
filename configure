@@ -711,6 +711,7 @@ enable_steed
 enable_tourist
 enable_redo
 enable_clipping
+enable_menu_color
 enable_elbereth
 enable_user_sounds
 enable_exp_on_botl
@@ -1368,6 +1369,7 @@ Optional Features:
   --enable-tourist        Tourist class (default=yes)
   --enable-redo           Redo last command (default=yes)
   --enable-clipping       Allow smaller screens (default=yes)
+  --enable-menu-color     TTY graphics menu color (default=yes)
   --enable-elbereth       Engraving the E-word repels monsters (default=yes)
   --enable-user-sounds    Allow user-defined mapping from messages to sounds)
                           (default=no)
@@ -5628,7 +5630,25 @@ _ACEOF
 
    fi
 
-#NETHACK_ARG(menu-color,[TTY graphics menu color],MENU_COLOR,yes)
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable menu-color" >&5
+$as_echo_n "checking whether to enable menu-color... " >&6; }
+   # Check whether --enable-menu-color was given.
+if test "${enable_menu_color+set}" = set; then :
+  enableval=$enable_menu_color;
+else
+  enable_menu_color="yes"
+fi
+
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_menu_color" >&5
+$as_echo "$enable_menu_color" >&6; }
+   if test "$enable_menu_color" != "no" ; then
+
+cat >>confdefs.h <<_ACEOF
+#define MENU_COLOR /**/
+_ACEOF
+
+   fi
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable elbereth" >&5
 $as_echo_n "checking whether to enable elbereth... " >&6; }
    # Check whether --enable-elbereth was given.

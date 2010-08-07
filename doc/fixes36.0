@@ -98,12 +98,15 @@ The botl has been cleaned up significantly, leaving a lot more room to
 show things like statuses.  It also now shows semi-graphical Hp and Pw
 bars that change colour according to how wounded or exhausted you are.
 
-
 General New Features
 --------------------
 
 A new tutorial mode provides hints on the game and its controls as
 it's played.
+
+The menucolors patch has been added, allowing customisable colouring
+of menus based on regular expressions.  (Patch credits: Pasi
+Kallinnen via UnNethack.)
 
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
