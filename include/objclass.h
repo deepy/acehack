@@ -93,6 +93,20 @@ struct objclass {
 	schar	oc_delay;		/* delay when using such an object */
 	uchar	oc_color;		/* color of the object */
 
+        uchar   oc_menuclass;           /* which color the object should be in menus */
+/* Menu classes are based loosely on spell schools: */
+#define MCLASS_ATTACK      1            /* deals damage directly */
+#define MCLASS_INANIMATE   2            /* affects terrain/boulders or items */
+#define MCLASS_CREATION    3            /* creates items or monsters (not terrain)*/
+#define MCLASS_ENCHANTMENT 4            /* provides extrinsics or intrinsics */
+#define MCLASS_ATTENCH     5            /* deals non-HP status to enemies */
+#define MCLASS_DIVINATION  6            /* gives information or enhances senses */
+#define MCLASS_HEALING     7            /* restores hp/pw/stats/status... */
+#define MCLASS_MOVEMENT    8            /* allows faster or other forms of movement */
+#define MCLASS_DETRIMENTAL 9            /* is mostly unwise to use */
+#define MCLASS_UNIQUE      10           /* oh look! A MacGuffin! */
+#define MCLASS_MUNDANE     0            /* food, AC-only armor, blank items, and junk */
+
 	short	oc_prob;		/* probability, used in mkobj() */
 	unsigned short	oc_weight;	/* encumbrance (1 cn = 0.1 lb.) */
 	short	oc_cost;		/* base cost in shops */
