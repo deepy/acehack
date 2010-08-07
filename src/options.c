@@ -114,7 +114,7 @@ static struct Bool_Opt
 #endif
 	{"large_font", &iflags.obsolete, FALSE, SET_IN_FILE},	/* OBSOLETE */
 	{"legacy", &flags.legacy, TRUE, SET_IN_FILE},
-	{"lit_corridor", &flags.lit_corridor, TRUE, SET_IN_GAME}, // TODO: interaction with darkroom
+	{"lit_corridor", &flags.lit_corridor, TRUE, SET_IN_FILE}, // TODO: interaction with darkroom
 	{"lootabc", &iflags.lootabc, FALSE, SET_IN_FILE},
 #ifdef MAC_GRAPHICS_ENV
 	{"Macgraphics", &iflags.MACgraphics, TRUE, SET_IN_GAME},
@@ -626,6 +626,11 @@ initoptions()
 	/* result in the player's preferred fruit [better than "\033"].	*/
 	obj_descr[SLIME_MOLD].oc_name = "fruit";
 
+	if (flags.lit_corridor && iflags.use_color) {
+		showsyms[S_darkroom]=showsyms[S_room];
+	} else {
+		showsyms[S_darkroom]=showsyms[S_stone];
+	}
 	return;
 }
 
@@ -2371,6 +2376,7 @@ goodfruit:
 			     */
 			    vision_recalc(2);		/* shut down vision */
 			    vision_full_recalc = 1;	/* delayed recalc */
+			    if (iflags.use_color) need_redraw = TRUE;  /* darkroom refresh */
 			}
 			else if ((boolopt[i].addr) == &iflags.use_inverse ||
 					(boolopt[i].addr) == &iflags.showrace ||
@@ -2681,8 +2687,14 @@ doset()
 	}
 
 	destroy_nhwindow(tmpwin);
-	if (need_redraw)
+	if (need_redraw) {
+	    if (flags.lit_corridor && iflags.use_color) {
+		showsyms[S_darkroom]=showsyms[S_room];
+	    } else {
+		showsyms[S_darkroom]=showsyms[S_stone];
+	    }
 	    (void) doredraw();
+	}
 	return 0;
 }
 

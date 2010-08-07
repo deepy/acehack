@@ -1,6 +1,7 @@
 /*	SCCS Id: @(#)display.c	3.4	2003/02/19	*/
 /* Copyright (c) Dean Luick, with acknowledgements to Kevin Darcy */
 /* and Dave Cohrs, 1990.					  */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -179,7 +180,7 @@ magic_map_background(x, y, show)
     if (!cansee(x,y) && !lev->waslit) {
 	/* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
 	if (lev->typ == ROOM && glyph == cmap_to_glyph(S_room))
-	    glyph = cmap_to_glyph(S_stone);
+	    glyph = cmap_to_glyph(S_darkroom);
 	else if (lev->typ == CORR && glyph == cmap_to_glyph(S_litcorr))
 	    glyph = cmap_to_glyph(S_corr);
     }
@@ -306,7 +307,7 @@ unmap_object(x, y)
 	/* turn remembered dark room squares dark */
 	if (!lev->waslit && lev->glyph == cmap_to_glyph(S_room) &&
 							    lev->typ == ROOM)
-	    lev->glyph = cmap_to_glyph(S_stone);
+	    lev->glyph = cmap_to_glyph(S_darkroom);
     } else
 	levl[x][y].glyph = cmap_to_glyph(S_stone);	/* default val */
 }
@@ -560,15 +561,14 @@ feel_location(x, y)
 		if (lev->typ != ROOM && lev->seenv) {
 		    map_background(x, y, 1);
 		} else {
-		    lev->glyph = lev->waslit ? cmap_to_glyph(S_room) :
-					       cmap_to_glyph(S_stone);
+		    lev->glyph = (!lev->waslit) ? cmap_to_glyph(S_darkroom) : cmap_to_glyph(S_room);
 		    show_glyph(x,y,lev->glyph);
 		}
 	    } else if ((lev->glyph >= cmap_to_glyph(S_stone) &&
-			lev->glyph < cmap_to_glyph(S_room)) ||
+			lev->glyph < cmap_to_glyph(S_darkroom)) ||
 		       glyph_is_invisible(levl[x][y].glyph)) {
-		lev->glyph = lev->waslit ? cmap_to_glyph(S_room) :
-					   cmap_to_glyph(S_stone);
+		lev->glyph = (!cansee(x,y) && !lev->waslit) ? cmap_to_glyph(S_darkroom) :
+					   cmap_to_glyph(S_room);
 		show_glyph(x,y,lev->glyph);
 	    }
 	} else {
@@ -608,7 +608,7 @@ feel_location(x, y)
 	/* Floor spaces are dark if unlit.  Corridors are dark if unlit. */
 	if (lev->typ == ROOM &&
 		    lev->glyph == cmap_to_glyph(S_room) && !lev->waslit)
-	    show_glyph(x,y, lev->glyph = cmap_to_glyph(S_stone));
+	    show_glyph(x,y, lev->glyph = cmap_to_glyph(S_darkroom));
 	else if (lev->typ == CORR &&
 		    lev->glyph == cmap_to_glyph(S_litcorr) && !lev->waslit)
 	    show_glyph(x,y, lev->glyph = cmap_to_glyph(S_corr));
@@ -756,7 +756,7 @@ newsym(x,y)
 	    if (lev->glyph == cmap_to_glyph(S_litcorr) && lev->typ == CORR)
 		show_glyph(x, y, lev->glyph = cmap_to_glyph(S_corr));
 	    else if (lev->glyph == cmap_to_glyph(S_room) && lev->typ == ROOM)
-		show_glyph(x, y, lev->glyph = cmap_to_glyph(S_stone));
+		show_glyph(x, y, lev->glyph = cmap_to_glyph(S_darkroom));
 	    else
 		goto show_mem;
 	} else {
@@ -1397,7 +1397,9 @@ back_to_glyph(x,y)
 	case STONE:
 	    idx = level.flags.arboreal ? S_tree : S_stone;
 	    break;
-	case ROOM:		idx = S_room;	  break;
+	case ROOM:
+	    idx = (!cansee(x,y) && !ptr->waslit) ? S_darkroom : S_room;
+	    break;
 	case CORR:
 	    idx = (ptr->waslit || flags.lit_corridor) ? S_litcorr : S_corr;
 	    break;
@@ -1454,11 +1456,11 @@ back_to_glyph(x,y)
 	    case DB_MOAT:  idx = S_pool; break;
 	    case DB_LAVA:  idx = S_lava; break;
 	    case DB_ICE:   idx = S_ice;  break;
-	    case DB_FLOOR: idx = S_room; break;
+	    case DB_FLOOR: idx = (!cansee(x,y) && !ptr->waslit) ? S_darkroom : S_room; break;
 	    default:
 		impossible("Strange db-under: %d",
 			   ptr->drawbridgemask & DB_UNDER);
-		idx = S_room; /* something is better than nothing */
+		idx = (!cansee(x,y) && !ptr->waslit) ? S_darkroom : S_room; /* something is better than nothing */
 		break;
 	    }
 	    break;
@@ -1467,7 +1469,7 @@ back_to_glyph(x,y)
 	    break;
 	default:
 	    impossible("back_to_glyph:  unknown level type [ = %d ]",ptr->typ);
-	    idx = S_room;
+	    idx = (!cansee(x,y) && !ptr->waslit) ? S_darkroom : S_room;
 	    break;
     }
 

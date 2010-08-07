@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 4 Aug 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -120,7 +120,7 @@ unsigned *ospecial;
 		color = CLR_MAGENTA;
 	    else if (offset == S_corr || offset == S_litcorr)
 		color = CLR_GRAY;
-	    else if (offset >= S_room && offset <= S_water)
+	    else if (offset >= S_room && offset <= S_water && offset != S_darkroom)
 		color = CLR_GREEN;
 	    else
 		color = NO_COLOR;

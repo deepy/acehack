@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pager.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Jul 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file contains the command routines dowhatis() and dohelp() and */
@@ -262,7 +262,7 @@ lookat(x, y, buf, monbuf)
 	int tnum = what_trap(glyph_to_trap(glyph));
 	Strcpy(buf, defsyms[trap_to_defsym(tnum)].explanation);
     } else if(!glyph_is_cmap(glyph)) {
-	Strcpy(buf,"dark part of a room");
+	Strcpy(buf,"unexplored area");
     } else switch(glyph_to_cmap(glyph)) {
     case S_altar:
 	if(!In_endgame(&u.uz))
@@ -632,8 +632,8 @@ do_look(quick)
 	for (hit_trap = FALSE, i = 0; i < MAXPCHARS; i++) {
 	    x_str = defsyms[i].explanation;
 	    if (sym == (from_screen ? showsyms[i] : defsyms[i].sym) && *x_str) {
-		/* avoid "an air", "a water", or "a floor of a room" */
-		int article = (i == S_room) ? 2 :		/* 2=>"the" */
+		/* avoid "an air", "a water", "a floor of a room", "a dark part of a room" */
+		int article = ((i == S_room)||(i == S_darkroom)) ? 2 :		/* 2=>"the" */
 			      !(strcmp(x_str, "air") == 0 ||	/* 1=>"an"  */
 				strcmp(x_str, "water") == 0);	/* 0=>(none)*/
 
