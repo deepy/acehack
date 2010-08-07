@@ -108,6 +108,12 @@ actual name; so forgetting what a potion of blindness does, for
 instance, would lead to "potion called potion of blindness" rather
 than "potion of blindness" in the inventory.
 
+Travel now handles traps more sensibly: it will go slightly out of its
+way to avoid walking through a trap, but if it's necessary to go
+through a trap, it will travel to just before the trap and then stop,
+allowing the player to choose to walk through it or continue.
+(Credits: Suggestion for the change by nht.)
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
