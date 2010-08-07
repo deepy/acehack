@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do_name.c	3.4	2003/01/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Aug 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -274,9 +274,11 @@ do_mname()
 	/* strip leading and trailing spaces; unnames monster if all spaces */
 	(void)mungspaces(buf);
 
-	if (mtmp->data->geno & G_UNIQ)
-	    pline("%s doesn't like being called names!", Monnam(mtmp));
-	else
+	if (mtmp->data->geno & G_UNIQ) {
+            (void) distant_monnam(mtmp, ARTICLE_THE, buf);
+            *buf = highc(*buf);
+	    pline("%s doesn't like being called names!", buf);
+	} else
 	    (void) christen_monst(mtmp, buf);
 	return(0);
 }
