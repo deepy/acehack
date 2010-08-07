@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)artifact.c 3.4	2003/08/11	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 5 Aug 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -423,6 +423,10 @@ long wp_mask;
 	     */
 	    (void) make_hallucinated((long)!on, restoring ? FALSE : TRUE, wp_mask);
 	}
+        if (spfx & SPFX_AGGR) {
+            if(on) EAggravate_monster |= wp_mask;
+            else EAggravate_monster &= ~wp_mask;
+        }
 	if (spfx & SPFX_ESP) {
 	    if(on) ETelepat |= wp_mask;
 	    else ETelepat &= ~wp_mask;

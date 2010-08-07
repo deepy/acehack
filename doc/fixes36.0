@@ -94,6 +94,10 @@ The gaze of a floating eye now forces players to miss, rather than
 paralyzing them. (Floating eyes still have their paralysis defence in
 all other contexts.)
 
+Instead of automatically confirming attacks on peaceful monsters,
+Stormbringer now acts as a ring of aggravate monster while wielded (in
+addition to its other effects).
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

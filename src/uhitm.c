@@ -194,11 +194,6 @@ struct obj *wep;	/* uwep for attack(), null for kick_monster() */
 
 	if (flags.confirm && mtmp->mpeaceful
 	    && !Confusion && !Hallucination && !Stunned) {
-		/* Intelligent chaotic weapons (Stormbringer) want blood */
-		if (wep && wep->oartifact == ART_STORMBRINGER) {
-			override_confirmation = TRUE;
-			return(FALSE);
-		}
 		if (canspotmon(mtmp)) {
 			Sprintf(qbuf, "Really attack %s?", mon_nam(mtmp));
 			if (yn(qbuf) != 'y') {

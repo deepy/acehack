@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)artilist.h 3.4	2003/02/12	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifdef MAKEDEFS_C
@@ -48,7 +49,7 @@ A("Excalibur",			LONG_SWORD,
  *	providing 8 more.
  */
 A("Stormbringer",		RUNESWORD,
-	(SPFX_RESTR|SPFX_ATTK|SPFX_DEFN|SPFX_INTEL|SPFX_DRLI), 0, 0,
+	(SPFX_RESTR|SPFX_ATTK|SPFX_DEFN|SPFX_INTEL|SPFX_DRLI|SPFX_AGGR), 0, 0,
 	DRLI(5,2),	DRLI(0,0),	NO_CARY,	0, A_CHAOTIC, NON_PM, NON_PM, 8000L ),
 /*
  *	Mjollnir will return to the hand of the wielder when thrown
