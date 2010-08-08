@@ -225,9 +225,9 @@ const struct symdef defsyms[MAXPCHARS] = {
 	{'#', "iron bars",	C(HI_METAL)},	/* bars */
 	{'#', "tree",		C(CLR_GREEN)},	/* tree */
 	{'.', "floor of a room",C(CLR_GRAY)},	/* room */
-	{'.', "dark part of a room",C(CLR_BLACK)},	/* dark room */
-/*20*/	{'#', "corridor",	C(CLR_GRAY)},	/* dark corr */
-	{'#', "lit corridor",	C(CLR_GRAY)},	/* lit corr (see mapglyph.c) */
+	{'.', "dark part of a room",C(CLR_BLUE)},	/* dark room */
+/*20*/	{'#', "corridor",	C(CLR_BLUE)},	/* dark corr */
+	{'#', "lit corridor",	C(CLR_GRAY)},	/* lit corr */
 	{'<', "staircase up",	C(CLR_GRAY)},	/* upstair */
 	{'>', "staircase down",	C(CLR_GRAY)},	/* dnstair */
 	{'<', "ladder up",	C(CLR_BROWN)},	/* upladder */
@@ -336,7 +336,7 @@ static uchar ibm_graphics[MAXPCHARS] = {
 	241,	/* S_tree:	plus or minus symbol */
 	0xfa,	/* S_room:	meta-z, centered dot */
 	g_FILLER(S_stone),	/* S_darkroom:	meta-z, centered dot */
-/*20*/	0xb0,	/* S_corr:	meta-0, light shading */
+/*20*/	0xb1,	/* S_corr:	meta-1, medium shading */
 	0xb1,	/* S_litcorr:	meta-1, medium shading */
 	g_FILLER(S_upstair),
 	g_FILLER(S_dnstair),

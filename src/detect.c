@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)detect.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -917,6 +918,13 @@ register int x, y;
     lev = &levl[x][y];
 
     lev->seenv = SVALL;
+
+    /* Magic mapping now finds lit status
+       Exception: the vibrating square stays as however the player remembers it
+       so that you can't magic-map the vibrating square */
+    if (x != inv_pos.x || y != inv_pos.y || !Invocation_lev(&u.uz)) {
+        lev->waslit = lev->lit;
+    }
 
     /* Secret corridors are found, but not secret doors. */
     if (lev->typ == SCORR) {

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -59,6 +59,53 @@ int explcolors[] = {
 #define HAS_ROGUE_IBM_GRAPHICS (iflags.IBMgraphics && Is_rogue_level(&u.uz))
 # endif
 #endif
+
+STATIC_DCL int
+dungeon_specific_color(glyph, disturbed, defcolor, x, y)
+int glyph, defcolor, x, y;
+boolean disturbed;
+{
+  /* The only glyphs that we color per-dungeon are walls, and
+     room/darkroom/corr/litcoor. */
+  register int glyphtype = 0;
+  switch(glyph_to_cmap(glyph)) {
+  case S_room: case S_litcorr: glyphtype = 1; break;
+  case S_corr: case S_darkroom: glyphtype = 2; break;
+  case S_tlcorn: case S_trcorn: case S_blcorn: case S_brcorn:
+  case S_tuwall: case S_tdwall: case S_tlwall: case S_trwall:
+  case S_vwall: case S_hwall: case S_crwall: glyphtype = 3; break;
+  }
+  if (glyphtype == 0) return defcolor;
+  /* There are five custom colors per branch:
+     lit undisturbed, dark undisturbed, lit disturbed, dark disturbed, wall */
+#define CLR_NONE NO_COLOR
+#define COLORSET(l1,u1,l2,u2,w)                                         \
+  return disturbed ?                                                    \
+    (glyphtype == 1 ? CLR_##l2 : glyphtype == 2 ? CLR_##u2 : CLR_##w) : \
+    (glyphtype == 1 ? CLR_##l1 : glyphtype == 2 ? CLR_##u1 : CLR_##w)
+  if (Is_knox(&u.uz)) /* Ludios */
+    COLORSET(YELLOW,BROWN,BRIGHT_GREEN,RED,YELLOW);
+  else if (In_quest(&u.uz)) /* Quest */
+    COLORSET(GREEN,BLUE,BROWN,CYAN,NONE);
+  else if (In_endgame(&u.uz)) /* Planes; the only walls are on Astral */
+    COLORSET(WHITE,RED,YELLOW,BROWN,WHITE);
+  else if (In_mines(&u.uz)) /* Mines */
+    COLORSET(NONE,BROWN,MAGENTA,RED,BROWN);
+  else if (In_sokoban(&u.uz)) /* Sokoban */
+    COLORSET(CYAN,BLUE,GREEN,MAGENTA,BRIGHT_BLUE);
+  else if (Is_valley(&u.uz)) /* Valley: a minimalist look */
+    COLORSET(WHITE,NONE,WHITE,NONE,NONE);
+  else if (In_W_tower(x, y, &u.uz)) /* Rodney's */
+    COLORSET(BRIGHT_BLUE,BLUE,BRIGHT_CYAN,CYAN,BRIGHT_MAGENTA);
+  else if (In_hell(&u.uz)) /* Gehennom */
+    COLORSET(ORANGE,RED,BRIGHT_MAGENTA,MAGENTA,ORANGE);
+  else /* Vlad's or Dungeons */
+    COLORSET(NONE,BLUE,BROWN,CYAN,NONE);
+#undef COLOR_NONE
+#undef COLORSET
+  /* unreachable */
+}
+
 
 /*ARGSUSED*/
 void
@@ -126,19 +173,17 @@ unsigned *ospecial;
 		color = NO_COLOR;
 	} else
 #endif
-#ifdef TEXTCOLOR
-	    /* provide a visible difference if normal and lit corridor
-	     * use the same symbol */
-	    if (iflags.use_color &&
-		offset == S_litcorr && ch == showsyms[S_corr])
-		color = CLR_WHITE;
-	    else
-#endif
-	    cmap_color(offset);
-        /* The vibrating square has color rules of its own... */
-        if (iflags.use_color && glyph == cmap_to_glyph(S_room) &&
-            x == inv_pos.x && y == inv_pos.y && Invocation_lev(&u.uz))
-          color = CLR_BRIGHT_GREEN;
+        {
+            cmap_color(offset);
+            /* The vibrating square has color rules of its own... */
+            if (iflags.use_color && glyph == cmap_to_glyph(S_room) &&
+                x == inv_pos.x && y == inv_pos.y && Invocation_lev(&u.uz))
+                color = CLR_BRIGHT_GREEN;
+            /* Otherwise, customise colors for the location based on the branch
+               and exact location */
+            else color = dungeon_specific_color(
+              glyph, levl[x][y].stepped_on, color, x, y);
+        }
     } else if ((offset = (glyph - GLYPH_OBJ_OFF)) >= 0) {	/* object */
 	if (offset == BOULDER && iflags.bouldersym) ch = iflags.bouldersym;
 	else ch = oc_syms[(int)objects[offset].oc_class];

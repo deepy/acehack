@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)rm.h	3.4	1999/12/12	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef RM_H
@@ -336,12 +336,15 @@ struct rm {
 	int glyph;		/* what the hero thinks is there */
 	schar typ;		/* what is really there */
 	uchar seenv;		/* seen vector */
+
 	Bitfield(flags,5);	/* extra information for typ */
 	Bitfield(horizontal,1); /* wall/door/etc is horiz. (more typ info) */
 	Bitfield(lit,1);	/* speed hack for lit rooms */
 	Bitfield(waslit,1);	/* remember if a location was lit */
+
 	Bitfield(roomno,6);	/* room # for special rooms */
-	Bitfield(edge,1);	/* marks boundaries for special rooms*/
+	Bitfield(edge,1);	/* marks boundaries for special rooms */
+	Bitfield(stepped_on,1); /* player has stepped on this square */
 };
 
 /*

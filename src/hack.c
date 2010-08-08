@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.c	3.4	2003/04/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1430,6 +1430,8 @@ domove()
 void
 invocation_message()
 {
+	/* mark the square as stepped on, whether it's the VS or not */
+	levl[u.ux][u.uy].stepped_on = 1;
 	/* a special clue-msg when on the Invocation position */
 	if(invocation_pos(u.ux, u.uy) && !On_stairs(u.ux, u.uy)) {
 	    char buf[BUFSZ];

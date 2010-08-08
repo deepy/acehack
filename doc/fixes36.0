@@ -142,6 +142,13 @@ via UnNethack.)  AceHack-specific additions include a default set of
 colours for items depending on the item's behavior: see "Change
 Detail" for more information.
 
+Every area of the game now has coloured walls and floor. The exact
+colours depend on which branch you're in, whether you've stepped on
+the square before, and whether it's lit; dark areas of a room are now
+shown coloured rather than as blank space (unless color is turned
+off).  (Patch credits: based on the darkroom patch by Clive Crous, via
+UnNetHack.)
+
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
 
