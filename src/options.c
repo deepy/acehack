@@ -69,7 +69,7 @@ static struct Bool_Opt
 #else
 	{"checkspace", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-	{"cmdassist", &iflags.cmdassist, TRUE, SET_IN_GAME},
+	{"cmdassist", &iflags.cmdassist, TRUE, SET_IN_FILE},
 # if defined(MICRO) || defined(WIN32)
 	{"color",         &iflags.wc_color,TRUE, SET_IN_GAME},		/*WC*/
 # else	/* systems that support multiple terminals, many monochrome */
@@ -83,7 +83,7 @@ static struct Bool_Opt
 #endif
 	{"eight_bit_tty", &iflags.wc_eight_bit_input, FALSE, SET_IN_FILE},	/*WC*/
 #ifdef TTY_GRAPHICS
-	{"extmenu", &iflags.extmenu, FALSE, SET_IN_GAME},
+	{"extmenu", &iflags.extmenu, FALSE, SET_IN_FILE},
 #else
 	{"extmenu", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
@@ -153,7 +153,7 @@ static struct Bool_Opt
 	{"popup_dialog",  &iflags.wc_popup_dialog, FALSE, SET_IN_FILE},	/*WC*/
 	{"prayconfirm", &flags.prayconfirm, TRUE, SET_IN_FILE},
 	{"preload_tiles", &iflags.wc_preload_tiles, TRUE, SET_IN_FILE},	/*WC*/
-	{"pushweapon", &flags.pushweapon, FALSE, SET_IN_GAME},
+	{"pushweapon", &flags.pushweapon, FALSE, SET_IN_FILE},
 #if defined(MICRO) && !defined(AMIGA)
 	{"rawio", &iflags.rawio, FALSE, SET_IN_FILE},
 #else
@@ -167,7 +167,7 @@ static struct Bool_Opt
 	{"sanity_check", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 #ifdef EXP_ON_BOTL
-	{"showexp", &flags.showexp, FALSE, SET_IN_GAME},
+	{"showexp", &flags.showexp, FALSE, SET_IN_FILE},
 #else
 	{"showexp", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
@@ -177,17 +177,17 @@ static struct Bool_Opt
 #else
 	{"showscore", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
-	{"silent", &flags.silent, TRUE, SET_IN_GAME},
+	{"silent", &flags.silent, TRUE, SET_IN_FILE},
 	{"softkeyboard", &iflags.wc2_softkeyboard, FALSE, SET_IN_FILE},
 	{"sortpack", &flags.sortpack, TRUE, SET_IN_FILE},
 	{"sound", &flags.soundok, TRUE, SET_IN_FILE},
-	{"sparkle", &flags.sparkle, TRUE, SET_IN_GAME},
+	{"sparkle", &flags.sparkle, TRUE, SET_IN_FILE},
 	{"standout", &flags.standout, TRUE, SET_IN_FILE},
 	{"splash_screen",     &iflags.wc_splash_screen, TRUE, SET_IN_FILE},	/*WC*/
 	{"tiled_map",     &iflags.wc_tiled_map, PREFER_TILED, SET_IN_FILE},	/*WC*/
 	{"time", &flags.time, TRUE, SET_IN_FILE},
 #ifdef TIMED_DELAY
-	{"timed_delay", &flags.nap, TRUE, SET_IN_GAME},
+	{"timed_delay", &flags.nap, TRUE, SET_IN_FILE},
 #else
 	{"timed_delay", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
@@ -199,7 +199,7 @@ static struct Bool_Opt
 #else
 	{"use_inverse",   &iflags.wc_inverse, FALSE, SET_IN_FILE},		/*WC*/
 #endif
-	{"verbose", &flags.verbose, TRUE, SET_IN_GAME},
+	{"verbose", &flags.verbose, TRUE, SET_IN_FILE},
 	{"wraptext", &iflags.wc2_wraptext, FALSE, SET_IN_FILE},
 	{(char *)0, (boolean *)0, FALSE, 0}
 };
@@ -2613,25 +2613,14 @@ doset()
 	if (!iflags.menu_tab_sep)
 		Sprintf(fmtstr_doset_add_menu, "%%s%%-%ds [%%s]", biggest_name);
 	
-	/* deliberately put `name', `role', `race', `gender' first */
-	doset_add_menu(tmpwin, "name", 0);
-	doset_add_menu(tmpwin, "role", 0);
-	doset_add_menu(tmpwin, "race", 0);
-	doset_add_menu(tmpwin, "gender", 0);
-
 	for (pass = startpass; pass <= endpass; pass++) 
 	    for (i = 0; compopt[i].name; i++)
 		if (compopt[i].optflags == pass) {
- 		    	if (!strcmp(compopt[i].name, "name") ||
-		    	    !strcmp(compopt[i].name, "role") ||
-		    	    !strcmp(compopt[i].name, "race") ||
-		    	    !strcmp(compopt[i].name, "gender"))
-		    	    	continue;
-		    	else if (is_wc_option(compopt[i].name) &&
-					!wc_supported(compopt[i].name))
+		    	if (is_wc_option(compopt[i].name) &&
+                            !wc_supported(compopt[i].name))
 		    		continue;
 		    	else if (is_wc2_option(compopt[i].name) &&
-					!wc2_supported(compopt[i].name))
+                                 !wc2_supported(compopt[i].name))
 		    		continue;
 		    	else
 				doset_add_menu(tmpwin, compopt[i].name,
