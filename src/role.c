@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)role.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985-1999. */
-/* Modified 13 Sep 2009 by Alex Smith */
+/* Modified 8 Aug 2009 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1327,7 +1327,7 @@ plnamesuffix()
 
 
 /*
- *	Special setup modifications here:
+ *	Special setup modifications here and in the next function:
  *
  *	Unfortunately, this is going to have to be done
  *	on each newgame or restore, because you lose the permonst mods
@@ -1345,8 +1345,6 @@ plnamesuffix()
 void
 role_init()
 {
-	int alignmnt;
-
 	/* Strip the role letter out of the player name.
 	 * This is included for backwards compatibility.
 	 */
@@ -1383,12 +1381,21 @@ role_init()
 	if (!validalign(flags.initrole, flags.initrace, flags.initalign))
 	    /* Pick a random alignment */
 	    flags.initalign = randalign(flags.initrole, flags.initrace);
-	alignmnt = aligns[flags.initalign].value;
+
 
 	/* Initialize urole and urace */
 	urole = roles[flags.initrole];
 	urace = races[flags.initrace];
 
+	/* Artifacts are fixed in hack_artifacts() */
+
+	/* Success! */
+	return;
+}
+void
+role_specific_modifications()
+{
+	int alignmnt = aligns[flags.initalign].value;
 	/* Fix up the quest leader */
 	if (urole.ldrnum != NON_PM) {
 	    mons[urole.ldrnum].msound = MS_LEADER;
@@ -1438,11 +1445,6 @@ role_init()
 	    if (urole.femalenum != NON_PM)
 	    	mons[urole.femalenum].mflags3 |= M3_INFRAVISION;
 	}
-
-	/* Artifacts are fixed in hack_artifacts() */
-
-	/* Success! */
-	return;
 }
 
 const char *

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)u_init.c	3.4	2002/10/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 5 Aug 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -514,13 +514,22 @@ register char sym;
 			knows_object(ct);
 }
 
+/* Set the character up sufficiently to know their inventory and stats.
+   This function is quasi-idempotent: running it repeatedly does not
+   necessarily return the same results, but only due to randomness; each
+   result it returns is one it could have run the first time, given the
+   same globals as input. */
 void
-u_init()
+u_init_idempotent()
 {
 	register int i;
 
 	flags.female = flags.initgend;
 	flags.beginner = 1;
+
+        /* Get rid of any objects that may have been lying around from
+           last time. */
+        while (invent) freeinv(invent);
 
 	/* zero u, including pointer values --
 	 * necessary when aborting from a failed restore */
@@ -574,7 +583,6 @@ u_init()
 	    u.uenmax += rnd(urace.enadv.inrnd);
 	u.uen = u.uenmax;
 	u.uspellprot = 0;
-	adjabil(0,1);
 	u.ulevel = u.ulevelmax = 1;
 
 	init_uhunger();
@@ -597,8 +605,7 @@ u_init()
 	u.nv_range   =  1;
 	u.xray_range = -1;
 
-
-	/*** Role-specific initializations ***/
+	/*** Role-specific initializations: quasi-idempotent ***/
 	switch (Role_switch) {
 	/* rn2(100) > 50 necessary for some choices because some
 	 * random number generators are bad enough to seriously
@@ -609,9 +616,6 @@ u_init()
 		if(!rn2(10)) ini_inv(Tinopener);
 		else if(!rn2(4)) ini_inv(Lamp);
 		else if(!rn2(10)) ini_inv(Magicmarker);
-		knows_object(SACK);
-		knows_object(TOUCHSTONE);
-		skill_init(Skill_A);
 		break;
 	case PM_BARBARIAN:
 		if (rn2(100) >= 50) {	/* see above comment */
@@ -620,14 +624,10 @@ u_init()
 		}
 		ini_inv(Barbarian);
 		if(!rn2(6)) ini_inv(Lamp);
-		knows_class(WEAPON_CLASS);
-		knows_class(ARMOR_CLASS);
-		skill_init(Skill_B);
 		break;
 	case PM_CAVEMAN:
 		Cave_man[C_AMMO].trquan = rn1(11, 10);	/* 10..20 */
 		ini_inv(Cave_man);
-		skill_init(Skill_C);
 		break;
 	case PM_HEALER:
 #ifndef GOLDOBJ
@@ -637,17 +637,9 @@ u_init()
 #endif
 		ini_inv(Healer);
 		if(!rn2(25)) ini_inv(Lamp);
-		knows_object(POT_FULL_HEALING);
-		skill_init(Skill_H);
 		break;
 	case PM_KNIGHT:
 		ini_inv(Knight);
-		knows_class(WEAPON_CLASS);
-		knows_class(ARMOR_CLASS);
-		/* give knights chess-like mobility
-		 * -- idea from wooledge@skybridge.scl.cwru.edu */
-		HJumping |= FROMOUTSIDE;
-		skill_init(Skill_K);
 		break;
 	case PM_MONK:
 		switch (rn2(90) / 30) {
@@ -658,15 +650,11 @@ u_init()
 		ini_inv(Monk);
 		if(!rn2(5)) ini_inv(Magicmarker);
 		else if(!rn2(10)) ini_inv(Lamp);
-		knows_class(ARMOR_CLASS);
-		skill_init(Skill_Mon);
 		break;
 	case PM_PRIEST:
 		ini_inv(Priest);
 		if(!rn2(10)) ini_inv(Magicmarker);
 		else if(!rn2(10)) ini_inv(Lamp);
-		knows_object(POT_WATER);
-		skill_init(Skill_P);
 		/* KMH, conduct --
 		 * Some may claim that this isn't agnostic, since they
 		 * are literally "priests" and they have holy water.
@@ -690,16 +678,11 @@ u_init()
 #endif
 		ini_inv(Rogue);
 		if(!rn2(5)) ini_inv(Blindfold);
-		knows_object(SACK);
-		skill_init(Skill_R);
 		break;
 	case PM_SAMURAI:
 		Samurai[S_ARROWS].trquan = rn1(20, 26);
 		ini_inv(Samurai);
 		if(!rn2(5)) ini_inv(Blindfold);
-		knows_class(WEAPON_CLASS);
-		knows_class(ARMOR_CLASS);
-		skill_init(Skill_S);
 		break;
 #ifdef TOURIST
 	case PM_TOURIST:
@@ -714,21 +697,16 @@ u_init()
 		else if(!rn2(25)) ini_inv(Leash);
 		else if(!rn2(25)) ini_inv(Towel);
 		else if(!rn2(25)) ini_inv(Magicmarker);
-		skill_init(Skill_T);
 		break;
 #endif
 	case PM_VALKYRIE:
 		ini_inv(Valkyrie);
 		if(!rn2(6)) ini_inv(Lamp);
-		knows_class(WEAPON_CLASS);
-		knows_class(ARMOR_CLASS);
-		skill_init(Skill_V);
 		break;
 	case PM_WIZARD:
 		ini_inv(Wizard);
 		if(!rn2(5)) ini_inv(Magicmarker);
 		if(!rn2(5)) ini_inv(Blindfold);
-		skill_init(Skill_W);
 		break;
 
 	default:	/* impossible */
@@ -756,30 +734,9 @@ u_init()
 		Instrument[0].trotyp = trotyp[rn2(SIZE(trotyp))];
 		ini_inv(Instrument);
 	    }
-
-	    /* Elves can recognize all elvish objects */
-	    knows_object(ELVEN_SHORT_SWORD);
-	    knows_object(ELVEN_ARROW);
-	    knows_object(ELVEN_BOW);
-	    knows_object(ELVEN_SPEAR);
-	    knows_object(ELVEN_DAGGER);
-	    knows_object(ELVEN_BROADSWORD);
-	    knows_object(ELVEN_MITHRIL_COAT);
-	    knows_object(ELVEN_LEATHER_HELM);
-	    knows_object(ELVEN_SHIELD);
-	    knows_object(ELVEN_BOOTS);
-	    knows_object(ELVEN_CLOAK);
 	    break;
 
 	case PM_DWARF:
-	    /* Dwarves can recognize all dwarvish objects */
-	    knows_object(DWARVISH_SPEAR);
-	    knows_object(DWARVISH_SHORT_SWORD);
-	    knows_object(DWARVISH_MATTOCK);
-	    knows_object(DWARVISH_IRON_HELM);
-	    knows_object(DWARVISH_MITHRIL_COAT);
-	    knows_object(DWARVISH_CLOAK);
-	    knows_object(DWARVISH_ROUNDSHIELD);
 	    break;
 
 	case PM_GNOME:
@@ -789,18 +746,6 @@ u_init()
 	    /* compensate for generally inferior equipment */
 	    if (!Role_if(PM_WIZARD))
 		ini_inv(Xtra_food);
-	    /* Orcs can recognize all orcish objects */
-	    knows_object(ORCISH_SHORT_SWORD);
-	    knows_object(ORCISH_ARROW);
-	    knows_object(ORCISH_BOW);
-	    knows_object(ORCISH_SPEAR);
-	    knows_object(ORCISH_DAGGER);
-	    knows_object(ORCISH_CHAIN_MAIL);
-	    knows_object(ORCISH_RING_MAIL);
-	    knows_object(ORCISH_HELM);
-	    knows_object(ORCISH_SHIELD);
-	    knows_object(URUK_HAI_SHIELD);
-	    knows_object(ORCISH_CLOAK);
 	    break;
 
 	default:	/* impossible */
@@ -846,6 +791,151 @@ u_init()
 	return;
 }
 
+void
+u_init_nonidempotent()
+{
+	struct obj *otmp;
+
+	adjabil(0,1);
+	switch (Role_switch) {
+	case PM_ARCHEOLOGIST:
+		knows_object(SACK);
+		knows_object(TOUCHSTONE);
+		skill_init(Skill_A);
+		break;
+	case PM_BARBARIAN:
+		knows_class(WEAPON_CLASS);
+		knows_class(ARMOR_CLASS);
+		skill_init(Skill_B);
+		break;
+	case PM_CAVEMAN:
+		skill_init(Skill_C);
+		break;
+	case PM_HEALER:
+		knows_object(POT_FULL_HEALING);
+		skill_init(Skill_H);
+		break;
+	case PM_KNIGHT:
+		knows_class(WEAPON_CLASS);
+		knows_class(ARMOR_CLASS);
+		/* give knights chess-like mobility
+		 * -- idea from wooledge@skybridge.scl.cwru.edu */
+		HJumping |= FROMOUTSIDE;
+		skill_init(Skill_K);
+		break;
+	case PM_MONK:
+		knows_class(ARMOR_CLASS);
+		skill_init(Skill_Mon);
+		break;
+	case PM_PRIEST:
+		knows_object(POT_WATER);
+		skill_init(Skill_P);
+		/* KMH, conduct --
+		 * Some may claim that this isn't agnostic, since they
+		 * are literally "priests" and they have holy water.
+		 * But we don't count it as such.  Purists can always
+		 * avoid playing priests and/or confirm another player's
+		 * role in their YAAP.
+		 */
+		break;
+	case PM_RANGER:
+		skill_init(Skill_Ran);
+		break;
+	case PM_ROGUE:
+		knows_object(SACK);
+		skill_init(Skill_R);
+		break;
+	case PM_SAMURAI:
+		knows_class(WEAPON_CLASS);
+		knows_class(ARMOR_CLASS);
+		skill_init(Skill_S);
+		break;
+#ifdef TOURIST
+	case PM_TOURIST:
+		skill_init(Skill_T);
+		break;
+#endif
+	case PM_VALKYRIE:
+		knows_class(WEAPON_CLASS);
+		knows_class(ARMOR_CLASS);
+		skill_init(Skill_V);
+		break;
+	case PM_WIZARD:
+		skill_init(Skill_W);
+		break;
+
+	default:	/* impossible */
+		break;
+	}
+
+
+	/*** Race-specific initializations ***/
+	switch (Race_switch) {
+	case PM_HUMAN:
+	    /* Nothing special */
+	    break;
+
+	case PM_ELF:
+	    /* Elves can recognize all elvish objects */
+	    knows_object(ELVEN_SHORT_SWORD);
+	    knows_object(ELVEN_ARROW);
+	    knows_object(ELVEN_BOW);
+	    knows_object(ELVEN_SPEAR);
+	    knows_object(ELVEN_DAGGER);
+	    knows_object(ELVEN_BROADSWORD);
+	    knows_object(ELVEN_MITHRIL_COAT);
+	    knows_object(ELVEN_LEATHER_HELM);
+	    knows_object(ELVEN_SHIELD);
+	    knows_object(ELVEN_BOOTS);
+	    knows_object(ELVEN_CLOAK);
+	    break;
+
+	case PM_DWARF:
+	    /* Dwarves can recognize all dwarvish objects */
+	    knows_object(DWARVISH_SPEAR);
+	    knows_object(DWARVISH_SHORT_SWORD);
+	    knows_object(DWARVISH_MATTOCK);
+	    knows_object(DWARVISH_IRON_HELM);
+	    knows_object(DWARVISH_MITHRIL_COAT);
+	    knows_object(DWARVISH_CLOAK);
+	    knows_object(DWARVISH_ROUNDSHIELD);
+	    break;
+
+	case PM_GNOME:
+	    break;
+
+	case PM_ORC:
+	    /* Orcs can recognize all orcish objects */
+	    knows_object(ORCISH_SHORT_SWORD);
+	    knows_object(ORCISH_ARROW);
+	    knows_object(ORCISH_BOW);
+	    knows_object(ORCISH_SPEAR);
+	    knows_object(ORCISH_DAGGER);
+	    knows_object(ORCISH_CHAIN_MAIL);
+	    knows_object(ORCISH_RING_MAIL);
+	    knows_object(ORCISH_HELM);
+	    knows_object(ORCISH_SHIELD);
+	    knows_object(URUK_HAI_SHIELD);
+	    knows_object(ORCISH_CLOAK);
+	    break;
+
+	default:	/* impossible */
+		break;
+	}
+
+	for (otmp = invent; otmp; otmp = otmp->nobj) {
+		/* Make the type known if necessary */
+		if (OBJ_DESCR(objects[otmp->otyp]) && otmp->known)
+			knows_object(otmp->otyp);
+		if (otmp->oclass == SPBOOK_CLASS &&
+				otmp->otyp != SPE_BLANK_PAPER)
+		    initialspell(otmp);
+        }
+
+        /* pre-ID oil as it's easy to check anyway */
+        knows_object(POT_OIL);
+}
+
 /* skills aren't initialized, so we use the role-specific skill lists */
 STATIC_OVL boolean
 restricted_spell_discipline(otyp)
@@ -885,8 +975,9 @@ ini_inv(trop)
 register struct trobj *trop;
 {
 	struct obj *obj;
-	int otyp, i;
+	int otyp, i, oldquan;
 
+        oldquan = trop->trquan;
 	while (trop->trclass) {
 		if (trop->trotyp != UNDEF_TYP) {
 			otyp = (int)trop->trotyp;
@@ -1010,13 +1101,6 @@ register struct trobj *trop;
 		obj->owt = weight(obj);
 		obj = addinv(obj);
 
-		/* Make the type known if necessary */
-		if (OBJ_DESCR(objects[otyp]) && obj->known)
-			knows_object(otyp);
-
-                /* pre-ID oil as it's easy to check anyway */
-                knows_object(POT_OIL);
-
 		if(obj->oclass == ARMOR_CLASS){
 			if (is_shield(obj) && !uarms) {
 				setworn(obj, W_ARMS);
@@ -1044,9 +1128,6 @@ register struct trobj *trop;
 		    } else if (!uwep) setuwep(obj);
 		    else if (!uswapwep) setuswapwep(obj);
 		}
-		if (obj->oclass == SPBOOK_CLASS &&
-				obj->otyp != SPE_BLANK_PAPER)
-		    initialspell(obj);
 
 #if !defined(PYRAMID_BUG) && !defined(MAC)
 		if(--trop->trquan) continue;	/* make a similar object */
@@ -1057,7 +1138,9 @@ register struct trobj *trop;
 				continue;	/* make a similar object */
 		}
 #endif
+                trop->trquan = oldquan;
 		trop++;
+                oldquan = trop->trquan;
 	}
 }
 

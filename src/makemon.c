@@ -34,6 +34,7 @@ STATIC_DCL void FDECL(m_initinv,(struct monst *));
 #endif /* OVL1 */
 
 extern const int monstr[];
+extern boolean rndmonst_safe_in_newgame;
 
 #define m_initsgrp(mtmp, x, y)	m_initgrp(mtmp, x, y, 3)
 #define m_initlgrp(mtmp, x, y)	m_initgrp(mtmp, x, y, 10)
@@ -1153,7 +1154,7 @@ int mndx;
 {
 	if (mons[mndx].geno & (G_NOGEN | G_UNIQ)) return TRUE;
 	if (mvitals[mndx].mvflags & G_GONE) return TRUE;
-	if (Inhell)
+	if (!rndmonst_safe_in_newgame && Inhell)
 		return(mons[mndx].maligntyp > A_NEUTRAL);
 	else
 		return((mons[mndx].geno & G_HELL) != 0);
@@ -1202,7 +1203,8 @@ rndmonst()
 	register struct permonst *ptr;
 	register int mndx, ct;
 
-	if (u.uz.dnum == quest_dnum && rn2(7) && (ptr = qt_montype()) != 0)
+        if (!rndmonst_safe_in_newgame)
+          if (u.uz.dnum == quest_dnum && rn2(7) && (ptr = qt_montype()) != 0)
 	    return ptr;
 
 	if (rndmonst_state.choice_count < 0) {	/* need to recalculate */
@@ -1225,15 +1227,16 @@ rndmonst()
 #endif
 		return (struct permonst *)0;
 	    } /* else `mndx' now ready for use below */
-	    zlevel = level_difficulty();
+	    zlevel = rndmonst_safe_in_newgame ? 1 : level_difficulty();
 	    /* determine the level of the weakest monster to make. */
 	    minmlev = zlevel / 6;
 	    /* determine the level of the strongest monster to make. */
-	    maxmlev = (zlevel + u.ulevel) / 2;
+	    maxmlev = rndmonst_safe_in_newgame ? 4 : (zlevel + u.ulevel) / 2;
 #ifdef REINCARNATION
-	    upper = Is_rogue_level(&u.uz);
+	    upper = rndmonst_safe_in_newgame ? 0 : Is_rogue_level(&u.uz);
 #endif
-	    elemlevel = In_endgame(&u.uz) && !Is_astralevel(&u.uz);
+	    elemlevel = rndmonst_safe_in_newgame ? 0 :
+              In_endgame(&u.uz) && !Is_astralevel(&u.uz);
 
 /*
  *	Find out how many monsters exist in the range we have selected.
@@ -1249,7 +1252,8 @@ rndmonst()
 #endif
 		if (elemlevel && wrong_elem_type(ptr)) continue;
 		if (uncommon(mndx)) continue;
-		if (Inhell && (ptr->geno & G_NOHELL)) continue;
+		if (!rndmonst_safe_in_newgame &&
+                    Inhell && (ptr->geno & G_NOHELL)) continue;
 		ct = (int)(ptr->geno & G_FREQ) + align_shift(ptr);
 		if (ct < 0 || ct > 127)
 		    panic("rndmonst: bad count [#%d: %d]", mndx, ct);

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Jul 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -478,32 +478,58 @@ display_gamewindows()
     display_nhwindow(WIN_MAP, FALSE);
 }
 
+/* Use a version of rndmonst() that's safe to use in the newgame sequence? */
+boolean rndmonst_safe_in_newgame = FALSE;
+
+static int newgame_progress = 0;
+
 void
-newgame()
+newgame_part_1()
 {
 	int i;
 
+        if (newgame_progress != 0) panic("Newgame sequence out of order: 1");
 #ifdef MFLOPPY
-	gameDiskPrompt();
+        gameDiskPrompt();
 #endif
 
-	flags.ident = 1;
+        flags.ident = 1;
 
-	for (i = 0; i < NUMMONS; i++)
-		mvitals[i].mvflags = mons[i].geno & G_NOCORPSE;
+        for (i = 0; i < NUMMONS; i++)
+                mvitals[i].mvflags = mons[i].geno & G_NOCORPSE;
 
-	init_objects();		/* must be before u_init() */
+        init_objects();		/* must be before u_init() */
+        newgame_progress = 1;
+}
 
-	flags.pantheon = -1;	/* role_init() will reset this */
-	role_init();		/* must be before init_dungeons(), u_init(),
-				 * and init_artifacts() */
+/* This part of the sequence is idempotent, so that it can be called repeatedly
+   in character selection. (Well, not quite idempotent because random numbers
+   are involved; but "safe to run repeatedly".) */
+void
+newgame_part_2()
+{
+	if (newgame_progress < 1) newgame_part_1();
+        if (newgame_progress > 2) panic("Newgame sequence out of order: 2");
+	flags.pantheon = -1; /* role_specific_modifications() will reset this */
+	role_init();
 
-	init_dungeons();	/* must be before u_init() to avoid rndmonst()
-				 * creating odd monsters for any tins and eggs
-				 * in hero's initial inventory */
-	init_artifacts();	/* before u_init() in case $WIZKIT specifies
-				 * any artifacts */
-	u_init();
+        rndmonst_safe_in_newgame = TRUE;
+	u_init_idempotent();
+        rndmonst_safe_in_newgame = FALSE;
+        newgame_progress = 2;
+}
+
+void
+newgame()
+{
+	if (newgame_progress < 2) newgame_part_2();
+        if (newgame_progress > 2) panic("Newgame sequence out of order: 3");
+
+        u_init_nonidempotent();
+	init_dungeons();	
+	init_artifacts();	/* TODO: putting this here means wizkits
+                                   can't contain artifacts */
+
 
 #ifndef NO_SIGNAL
 	(void) signal(SIGINT, (SIG_RET_TYPE) done1);
@@ -512,7 +538,6 @@ newgame()
 	if(iflags.news) display_file(NEWS, FALSE);
 #endif
 	load_qtlist();	/* load up the quest text info */
-/*	quest_init();*/	/* Now part of role_init() */
 
 	mklev();
 	u_on_upstairs();
@@ -538,6 +563,7 @@ newgame()
 	save_currentstate();
 #endif
 	program_state.something_worth_saving++;	/* useful data now exists */
+        newgame_progress = 3;
 
 	/* Success! */
 	welcome(TRUE);

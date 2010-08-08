@@ -320,6 +320,9 @@ char** argv;
 void
 tty_player_selection()
 {
+#if 0
+}
+#else
 	int i, k, n;
 	char pick4u = 'n', thisch, lastch = 0;
 	boolean tutorial = FALSE;
@@ -706,6 +709,7 @@ give_up:	/* Quit */
 	/* Success! */
 	tty_display_nhwindow(BASE_WINDOW, FALSE);
 }
+#endif
 
 /*
  * plname is filled either by an option (-u Player  or	-uPlayer) or

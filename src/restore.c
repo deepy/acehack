@@ -380,6 +380,7 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	if (remember_discover) discover = remember_discover;
 
 	role_init();	/* Reset the initial role, race, gender, and alignment */
+        role_specific_modifications();  /* and quest info, etc */
 #ifdef AMII_GRAPHICS
 	amii_setpens(amii_numcolors);	/* use colors from save file */
 #endif
