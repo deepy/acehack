@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mhitu.c	3.4	2003/11/26	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1037,7 +1037,7 @@ hitmu(mtmp, mattk)
 		if (can_blnd(mtmp, &youmonst, mattk->aatyp, (struct obj*)0)) {
 		    if (!Blind) pline("%s blinds you!", Monnam(mtmp));
 		    make_blinded(Blinded+(long)dmg,FALSE);
-		    if (!Blind) Your(vision_clears);
+		    if (!Blind) Your("%s",vision_clears);
 		}
 		dmg = 0;
 		break;
@@ -1743,7 +1743,7 @@ gulpmu(mtmp, mattk)	/* monster swallows you, or damage if u.uswallow */
 			if(!Blind) {
 			    You_cant("see in here!");
 			    make_blinded((long)tmp,FALSE);
-			    if (!Blind) Your(vision_clears);
+			    if (!Blind) Your("%s",vision_clears);
 			} else
 			    /* keep him blind until disgorged */
 			    make_blinded(Blinded+1,FALSE);
@@ -1859,7 +1859,7 @@ common:
 		    if (mon_visible(mtmp) || (rnd(tmp /= 2) > u.ulevel)) {
 			You("are blinded by a blast of light!");
 			make_blinded((long)tmp, FALSE);
-			if (!Blind) Your(vision_clears);
+			if (!Blind) Your("%s",vision_clears);
 		    } else if (flags.verbose)
 			You("get the impression it was not terribly bright.");
 		}
@@ -1986,7 +1986,7 @@ gazemu(mtmp, mattk)	/* monster gazes at you */
 		    /* not blind at this point implies you're wearing
 		       the Eyes of the Overworld; make them block this
 		       particular stun attack too */
-		    if (!Blind) Your(vision_clears);
+		    if (!Blind) Your("%s",vision_clears);
 		    else make_stunned((long)d(1,3),TRUE);
 		}
 		break;

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)end.c	3.4	2003/03/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Aug 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS	/* comment line for pre-compiled headers */
@@ -466,7 +466,7 @@ long umoney;  /* total of visible and invisible gold */
   double category_ratio;
   long category_points;
   double elog2;
-  winid swin;
+  winid swin = -1;
   char buf[BUFSZ];
   elog2 = log(2) / 1000.0;
   /* Initialise the explanation window, if show is true. */

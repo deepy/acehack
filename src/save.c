@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)save.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -391,7 +391,7 @@ savestateinlock()
 		    return;
 		}
 
-		(void) read(fd, (genericptr_t) &hpid, sizeof(hpid));
+		if (read(fd, (genericptr_t) &hpid, sizeof(hpid))) {}
 		if (hackpid != hpid) {
 		    Sprintf(whynot,
 			    "Level #0 pid (%d) doesn't match ours (%d)!",
@@ -409,11 +409,11 @@ savestateinlock()
 		    done(TRICKED);
 		    return;
 		}
-		(void) write(fd, (genericptr_t) &hackpid, sizeof(hackpid));
+		if (write(fd, (genericptr_t) &hackpid, sizeof(hackpid))) {}
 		if (flags.ins_chkpt) {
 		    int currlev = ledger_no(&u.uz);
 
-		    (void) write(fd, (genericptr_t) &currlev, sizeof(currlev));
+		    if (write(fd, (genericptr_t) &currlev, sizeof(currlev))) {}
 		    save_savefile_name(fd);
 		    store_version(fd);
 #ifdef STORE_PLNAME_IN_FILE

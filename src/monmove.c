@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)monmove.c	3.4	2002/04/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -298,7 +298,7 @@ dochug(mtmp)
 register struct monst *mtmp;
 {
 	register struct permonst *mdat;
-	register int tmp=0, i;
+	register int tmp=0;
 	int inrange, nearby, scared;
 #ifdef GOLDOBJ
         struct obj *ygold = 0, *lepgold = 0;

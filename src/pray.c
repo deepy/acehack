@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pray.c	3.4	2003/03/23	*/
 /* Copyright (c) Benson I. Margulies, Mike Stephenson, Steve Linhart, 1989. */
-/* Modified 11 Sep 2009 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1317,7 +1317,7 @@ verbalize("In return for thy service, I grant thee the gift of Immortality!");
     } /* fake Amulet */
 
     if (value == 0) {
-	pline(nothing_happens);
+	pline("%s",nothing_happens);
 	return (1);
     }
 

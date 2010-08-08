@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)region.c	3.4	2002/10/15	*/
 /* Copyright (c) 1996 by Jean-Christophe Collet	 */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -445,7 +446,7 @@ xchar
 		!regions[i]->attach_2_u && !inside_region(regions[i], x, y)) {
 	    clear_hero_inside(regions[i]);
 	    if (regions[i]->leave_msg != NULL)
-		pline(regions[i]->leave_msg);
+                pline("%s",regions[i]->leave_msg);
 	    if ((f_indx = regions[i]->leave_f) != NO_CALLBACK)
 		(void) (*callbacks[f_indx])(regions[i], (genericptr_t) 0);
 	}
@@ -456,7 +457,7 @@ xchar
 		!regions[i]->attach_2_u && inside_region(regions[i], x, y)) {
 	    set_hero_inside(regions[i]);
 	    if (regions[i]->enter_msg != NULL)
-		pline(regions[i]->enter_msg);
+                pline("%s",regions[i]->enter_msg);
 	    if ((f_indx = regions[i]->enter_f) != NO_CALLBACK)
 		(void) (*callbacks[f_indx])(regions[i], (genericptr_t) 0);
 	}

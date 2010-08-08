@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mthrowu.c	3.4	2003/05/09	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -462,7 +462,7 @@ m_throw(mon, x, y, dx, dy, range, obj, verbose)
 	if (blindinc) {
 		u.ucreamed += blindinc;
 		make_blinded(Blinded + (long)blindinc, FALSE);
-		if (!Blind) Your(vision_clears);
+		if (!Blind) Your("%s",vision_clears);
 	}
 }
 
@@ -670,7 +670,7 @@ struct monst *mtmp;
 	        break; // don't attack you if peaceful
 	    }
 
-	    if (mat = m_at(x, y))
+	    if ((mat = m_at(x, y)))
 	    {
 	        // i > 0 ensures this is not a close range attack
 	        if (mtmp->mtame && !mat->mtame && i > 0)
@@ -693,8 +693,8 @@ struct monst *mtmp;
 		    // Can't make some pairs work together
 		    // if they hate each other on principle.
 		    if (Conflict ||
-		        !(mtmp->mtame && mat->mtame) || !rn2(5) &&
-			i > 0)
+		        !(mtmp->mtame && mat->mtame) ||
+                        (!rn2(5) && i > 0))
 		        mret = mat;
 		}
 
@@ -1070,7 +1070,7 @@ mlined_up(mtmp, mdef, breath)	/* is mtmp in position to use ranged attack? */
             if (x == u.ux && y == u.uy) 
 	        return FALSE;
 
-	    if (mat = m_at(x, y)) 
+	    if ((mat = m_at(x, y)))
 	    {
 	        if (!breath && mat == mdef) return lined_up;
 

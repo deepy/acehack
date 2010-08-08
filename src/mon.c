@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mon.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you're using precompiled headers, you don't want this either */
@@ -2384,7 +2384,7 @@ struct monst *mon;
 				You("cannot polymorph %s into that.", mon_nam(mon));
 			else break;
 		} while(++tries < 5);
-		if (tries==5) pline(thats_enough_tries);
+		if (tries==5) pline("%s",thats_enough_tries);
 	}
 #endif /*WIZARD*/
 	if (mndx == NON_PM) mndx = rn1(SPECIAL_PM - LOW_PM, LOW_PM);

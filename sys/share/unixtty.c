@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)unixtty.c	3.4	1990/22/02 */
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* tty.c - (Unix) version */
@@ -391,7 +392,7 @@ linux_mapon()
 {
 # ifdef TTY_GRAPHICS
 	if (!strcmp(windowprocs.name, "tty") && linux_flag_console) {
-		write(1, "\033(B", 3);
+		if (write(1, "\033(B", 3)) {}
 	}
 # endif
 }
@@ -401,7 +402,7 @@ linux_mapoff()
 {
 # ifdef TTY_GRAPHICS
 	if (!strcmp(windowprocs.name, "tty") && linux_flag_console) {
-		write(1, "\033(U", 3);
+		if (write(1, "\033(U", 3)) {}
 	}
 # endif
 }

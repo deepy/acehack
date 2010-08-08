@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mcastu.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -599,7 +599,7 @@ int spellnum;
 		  (num_eyes == 1) ?
 		  body_part(EYE) : makeplural(body_part(EYE)));
 	    make_blinded(Half_spell_damage ? 100L : 200L, FALSE);
-	    if (!Blind) Your(vision_clears);
+	    if (!Blind) Your("%s",vision_clears);
 	    dmg = 0;
 	} else
 	    impossible("no reason for monster to cast blindness spell?");
@@ -895,7 +895,7 @@ castmm(mtmp, mdef, mattk)
 	    if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my))
 	    {
                 char buf[BUFSZ];
-		Sprintf(buf, Monnam(mtmp));
+		Strcpy(buf, Monnam(mtmp));
 
 		if (is_undirected_spell(mattk->adtyp, spellnum))
 	            pline("%s points all around, then curses.", buf);
@@ -1322,7 +1322,7 @@ int spellnum;
 	        pline("A field of force surrounds %s!",
 	               mon_nam(mtmp));
 	} else {
-            register struct obj *otmp = some_armor(mtmp), *otmp2;
+            register struct obj *otmp = some_armor(mtmp);
 
 #define oresist_disintegration(obj) \
 		(objects[obj->otyp].oc_oprop == DISINT_RES || \
@@ -1648,8 +1648,6 @@ int spellnum;
 	    if (yours || canseemon(mtmp))
 	        pline("%s seems momentarily dizzy.", Monnam(mtmp));
 	} else {
-	    boolean oldprop = !!Confusion;
-
 	    if (yours || canseemon(mtmp))
 	        pline("%s seems %sconfused!", Monnam(mtmp),
 	              mtmp->mconf ? "more " : "");

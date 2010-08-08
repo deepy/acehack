@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mhitm.c	3.4	2003/01/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -198,7 +198,7 @@ mattackm(magr, mdef)
 {
     int		    i,		/* loop counter */
 		    tmp,	/* amour class difference */
-		    strike,	/* hit this attack */
+		    strike = 0,	/* hit this attack */
 		    attk,	/* attack attempted this time */
 		    struck = 0,	/* hit at least once */
 		    res[NATTK];	/* results of all attacks */

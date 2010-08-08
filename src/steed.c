@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)steed.c	3.4	2003/01/10	*/
 /* Copyright (c) Kevin Hugo, 1998-1999. */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -58,7 +59,7 @@ use_saddle(otmp)
 
 	/* Select an animal */
 	if (u.uswallow || Underwater || !getdir((char *)0)) {
-	    pline(Never_mind);
+            pline("%s",Never_mind);
 	    return 0;
 	}
 	if (!u.dx && !u.dy) {

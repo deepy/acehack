@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 5 Aug 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -62,7 +62,7 @@ use_camera(obj)
 	if(!getdir((char *)0)) return(0);
 
 	if (obj->spe <= 0) {
-		pline(nothing_happens);
+		pline("%s",nothing_happens);
 		return (1);
 	}
 	consume_obj_charge(obj, TRUE);
@@ -802,7 +802,7 @@ struct obj **optr;
 		if (!obj->cursed)
 		    (void) openit();
 		else
-		    pline(nothing_happens);
+                    pline("%s",nothing_happens);
 
 	    } else if (obj->cursed) {
 		coord mm;
@@ -834,7 +834,7 @@ struct obj **optr;
 		}
 		res += openit();
 		switch (res) {
-		  case 0:  pline(nothing_happens); break;
+		  case 0:  pline("%s",nothing_happens); break;
 		  case 1:  pline("%s opens...", Something);
 			   learno = TRUE; break;
 		  default: pline("Things open around you...");
@@ -846,7 +846,7 @@ struct obj **optr;
 		amii_speaker( obj, "AeFeaeFeAefegw", AMII_OKAY_VOLUME );
 #endif
 		if (findit() != 0) learno = TRUE;
-		else pline(nothing_happens);
+		else pline("%s",nothing_happens);
 	    }
 
 	}	/* charged BofO */
@@ -1198,7 +1198,7 @@ struct obj *obj;
 		update_inventory();
 	    } else if (rn2(2) && !Blind)
 		You("see a puff of smoke.");
-	    else pline(nothing_happens);
+	    else pline("%s",nothing_happens);
 	} else if (obj->otyp == BRASS_LANTERN) {
             if (!obj || !wield_tool(obj, "rub")) return 0;
 	    /* message from Adventure */
@@ -1206,8 +1206,8 @@ struct obj *obj;
 	    pline("Anyway, nothing exciting happens.");
         } else if (obj->otyp == OIL_LAMP) {
             if (!obj || !wield_tool(obj, "rub")) return 0;
-            pline(nothing_happens);
-	} else pline(nothing_happens);
+            pline("%s",nothing_happens);
+	} else pline("%s",nothing_happens);
 	return 1;
 }
 
@@ -1520,7 +1520,7 @@ struct obj *obj;
 	}
 
 	if (trouble_count == 0) {
-	    pline(nothing_happens);
+	    pline("%s",nothing_happens);
 	    return;
 	} else if (trouble_count > 1) {		/* shuffle */
 	    int i, j, k;
@@ -2182,7 +2182,7 @@ struct obj *obj;
 		You("wrap your bullwhip around %s on the %s.",
 		    an(singular(otmp, xname)), surface(u.ux, u.uy));
 		if (rnl(6) || pickup_object(otmp, 1L, TRUE) < 1)
-		    pline(msg_slipsfree);
+		    pline("%s",msg_slipsfree);
 		return 1;
 	    }
 	}
@@ -2223,7 +2223,7 @@ struct obj *obj;
 		wrapped_what = strcpy(buf, mon_nam(mtmp));
 	    } else if (proficient) {
 		if (attack(mtmp)) return 1;
-		else pline(msg_snap);
+		else pline("%s",msg_snap);
 	    }
 	}
 	if (!wrapped_what) {
@@ -2245,10 +2245,10 @@ struct obj *obj;
 		    vision_full_recalc = 1;
 		}
 	    } else {
-		pline(msg_slipsfree);
+		pline("%s",msg_slipsfree);
 	    }
 	    if (mtmp) wakeup(mtmp);
-	} else pline(msg_snap);
+	} else pline("%s",msg_snap);
 
     } else if (mtmp) {
 	if (!canspotmon(mtmp) &&
@@ -2340,7 +2340,7 @@ struct obj *obj;
 		    break;
 		}
 	    } else {
-		pline(msg_slipsfree);
+		pline("%s",msg_slipsfree);
 	    }
 	    wakeup(mtmp);
 	} else {
@@ -2350,7 +2350,7 @@ struct obj *obj;
 	    else You("flick your bullwhip towards %s.", mon_nam(mtmp));
 	    if (proficient) {
 		if (attack(mtmp)) return 1;
-		else pline(msg_snap);
+		else pline("%s",msg_snap);
 	    }
 	}
 
@@ -2359,7 +2359,7 @@ struct obj *obj;
 	    You("snap your whip through thin air.");
 
     } else {
-	pline(msg_snap);
+	pline("%s",msg_snap);
 
     }
     return 1;
@@ -2436,7 +2436,7 @@ use_pole (obj)
 		u.uconduct.weaphit++;
 	} else
 	    /* Now you know that nothing is there... */
-	    pline(nothing_happens);
+	    pline("%s",nothing_happens);
 	return (1);
 }
 
@@ -2598,7 +2598,7 @@ use_grapple (obj)
 	    }
 	    break;
 	}
-	pline(nothing_happens);
+	pline("%s",nothing_happens);
 	return (1);
 }
 
@@ -2999,7 +2999,7 @@ doapply()
 					       (const char *)0);
 		    makeknown(HORN_OF_PLENTY);
 		} else
-		    pline(nothing_happens);
+		    pline("%s",nothing_happens);
 		break;
 	case LAND_MINE:
 	case BEARTRAP:

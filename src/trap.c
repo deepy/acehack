@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)trap.c	3.4	2003/10/20	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -359,7 +360,7 @@ boolean td;	/* td == TRUE : trap door or hole */
 	    dont_fall = "are jerked back by your pet!";
 	}
 	if (dont_fall) {
-	    You(dont_fall);
+          You("%s",dont_fall);
 	    /* hero didn't fall through, but any objects here might */
 	    impact_drop((struct obj *)0, u.ux, u.uy, 0);
 	    if (!td) {
@@ -2498,7 +2499,7 @@ domagictrap()
 	  if (!resists_blnd(&youmonst)) {
 		You("are momentarily blinded by a flash of light!");
 		make_blinded((long)rn1(5,10),FALSE);
-		if (!Blind) Your(vision_clears);
+		if (!Blind) Your("%s",vision_clears);
 	  } else if (!Blind) {
 		You("see a flash of light!");
 	  }  else

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)questpgr.c	3.4	2000/05/05	*/
 /*	Copyright 1991, M. Stephenson		  */
-/* Modified 5 Sep 2009 by Alex Smith */
+/* Modified 8 Aug 2009 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -365,7 +365,7 @@ struct qtmsg *qt_msg;
 	for (size = 0; size < qt_msg->size; size += (long)strlen(in_line)) {
 	    (void) dlb_fgets(in_line, 80, msg_file);
 	    convert_line();
-	    pline(out_line);
+	    pline("%s",out_line);
 	}
 
 }

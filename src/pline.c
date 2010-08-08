@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)pline.c	3.4	1999/11/28	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS /* Uses ... */	/* comment line for pre-compiled headers */
@@ -257,7 +258,7 @@ impossible VA_DECL(const char *, s)
 	    paniclog("impossible", pbuf);
 	}
 	vpline(s,VA_ARGS);
-	pline("Program in disorder - perhaps you'd better #quit.");
+	pline("Program in disorder! Try saving and restoring.");
 	program_state.in_impossible = 0;
 	VA_END();
 }

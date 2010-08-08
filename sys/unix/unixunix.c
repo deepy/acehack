@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)unixunix.c	3.4	1994/11/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file collects some Unix dependencies */
@@ -268,7 +269,7 @@ int wt;
 		(void) setgid(getgid());
 		(void) setuid(getuid());
 #ifdef CHDIR
-		(void) chdir(getenv("HOME"));
+		if (chdir(getenv("HOME"))) {}
 #endif
 		return(1);
 	}

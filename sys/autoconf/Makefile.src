@@ -30,7 +30,7 @@ SYSOBJ=@SYSOBJ@
 CC = @CC@ -DAUTOCONF
 WINDRES = @WINDRES@
 
-CFLAGS = -Wall -I../include -I$(srcdir)/../include @CFLAGS@ #-fbounds-checking #-fprofile-arcs -ftest-coverage
+CFLAGS = -Wall -I../include -I$(srcdir)/../include -DGCC_WARN @CFLAGS@ #-fbounds-checking -fprofile-arcs -ftest-coverage
 LFLAGS = @LFLAGS@ -lm #-fbounds-checking
 
 # Only used for the Gnome interface.

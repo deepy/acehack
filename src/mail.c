@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)mail.c	3.4	2002/01/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -317,7 +318,7 @@ md_rush(md,tx,ty)
 	if (fx == tx && fy == ty) break;
 
 	if ((mon = m_at(fx,fy)) != 0)	/* save monster at this position */
-	    verbalize(md_exclamations());
+	    verbalize("%s",md_exclamations());
 	else if (fx == u.ux && fy == u.uy)
 	    verbalize("Excuse me.");
 

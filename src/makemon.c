@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)makemon.c	3.4	2003/09/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1781,7 +1781,7 @@ struct obj *bag;
     if (!bag || bag->otyp != BAG_OF_TRICKS) {
 	impossible("bad bag o' tricks");
     } else if (bag->spe < 1) {
-	pline(nothing_happens);
+      pline("%s",nothing_happens);
     } else {
 	boolean gotone = FALSE;
 	int cnt = 1;

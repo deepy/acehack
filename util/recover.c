@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)recover.c	3.4	1999/10/23	*/
 /*	Copyright (c) Janet Walz, 1992.				  */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -305,7 +306,7 @@ char *basename;
 			if (lfd >= 0) {
 				/* any or all of these may not exist */
 				levc = (xchar) lev;
-				write(sfd, (genericptr_t) &levc, sizeof(levc));
+				if (write(sfd, (genericptr_t) &levc, sizeof(levc))) {}
 				copy_bytes(lfd, sfd);
 				Close(lfd);
 				(void) unlink(lock);

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do_name.c	3.4	2003/01/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 8 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -48,7 +48,7 @@ boolean force;
 const char *goal;
 {
     int result = 0;
-    int cx, cy, i, c;
+    int cx, cy, c;
     int sidx, tx, ty;
     boolean msg_given = TRUE;	/* clear message window by default */
     static const char pick_chars[] = ".,;:";

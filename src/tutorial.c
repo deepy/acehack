@@ -81,9 +81,9 @@ boolean from_farlook;
     if ((lx == xupstair   && ly == yupstair) ||
         (lx == xupladder  && ly == yupladder) ||
         (lx == sstairs.sx && ly == sstairs.sy && sstairs.up)) {
-      if (u.uz.dlevel > 1)
-      if (check_tutorial_message(QT_T_STAIRS)) return TRUE;
-      else if (from_farlook)
+      if (u.uz.dlevel > 1) {
+        if (check_tutorial_message(QT_T_STAIRS)) return TRUE;
+      } else if (from_farlook)
         if (check_tutorial_message(QT_T_L1UPSTAIRS)) return TRUE;
     } else if ((lx == xdnstair   && ly == ydnstair) ||
                (lx == xdnladder  && ly == ydnladder) ||
@@ -495,7 +495,7 @@ maybe_tutorial()
   /* Items on the current square. */
   {
     struct obj *otmp; 
-    for (level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere) {
+    for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere) {
       switch (otmp->otyp) {
       case LARGE_BOX:
       case CHEST:
