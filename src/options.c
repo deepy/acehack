@@ -553,7 +553,14 @@ initoptions()
      /* assert( sizeof flags.inv_order == sizeof def_inv_order ); */
 	(void)memcpy((genericptr_t)flags.inv_order,
 		     (genericptr_t)def_inv_order, sizeof flags.inv_order);
-	flags.pickup_types[0] = '\0';
+	flags.pickup_types[0] = def_char_to_objclass('=');
+	flags.pickup_types[1] = def_char_to_objclass('"');
+	flags.pickup_types[2] = def_char_to_objclass('/');
+	flags.pickup_types[3] = def_char_to_objclass('?');
+	flags.pickup_types[4] = def_char_to_objclass('!');
+	flags.pickup_types[5] = def_char_to_objclass('%');
+	flags.pickup_types[6] = def_char_to_objclass('$');
+        flags.pickup_types[7] = 0;
 	flags.pickup_burden = MOD_ENCUMBER;
 
 #ifdef SORTLOOT
@@ -618,6 +625,13 @@ initoptions()
 #endif
 	read_config_file((char *)0);
         synch_runmode_options();
+
+#ifdef AUTOPICKUP_EXCEPTIONS
+        /* If no APEs are set, add a "no corpses" APE of our own. */
+        if (!iflags.autopickup_exceptions[AP_LEAVE] &&
+            !iflags.autopickup_exceptions[AP_GRAB])
+        add_autopickup_exception("\">*corpse*\"");
+#endif
 
 	(void)fruitadd(pl_fruit);
 	/* Remove "slime mold" from list of object names; this will	*/

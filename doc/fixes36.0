@@ -46,7 +46,7 @@ Most of the options in the game have been removed or hidden; they
 still exist if anyone really wants to change them, but most of them
 have been set to sane defaults and then made undocumented. Even some
 of the ones that still exist have changed defaults (e.g. color to
-true).
+true, autopickup [and exceptions to it] to a sane set of settings).
 
 runmode, timed_delay, and sparkle are now one combined option,
 "animation".  If you have a fast computer, it's likely that the only
