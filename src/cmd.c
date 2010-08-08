@@ -1160,7 +1160,7 @@ minimal_enlightenment()
 	start_menu(tmpwin);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Stats", FALSE);
 
-	/* Starting and current name, race, role, gender, alignment */
+	/* Starting and current name, race, role, gender, alignment, abilities */
 	Sprintf(buf, fmtstr_noorig, "name", plname);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 	Sprintf(buf, fmtstr, "race", Upolyd ? youmonst.data->mname : urace.noun, urace.noun);
@@ -1181,7 +1181,18 @@ minimal_enlightenment()
         else
           Sprintf(buf, "%-10s: %d (exp: %ld)", "level", u.ulevel, u.uexp);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
+        if (ACURR(A_STR) > 18) {
+          if (ACURR(A_STR) > STR18(100))
+            Sprintf(buf,"abilities : St:%2d ",ACURR(A_STR)-100);
+          else if (ACURR(A_STR) < STR18(100))
+            Sprintf(buf, "abilities : St:18/%02d ",ACURR(A_STR)-18);
+          else
+            Sprintf(buf,"abilities : St:18/** ");
+	} else
+          Sprintf(buf, "abilities : St:%-1d ",ACURR(A_STR));
+	Sprintf(eos(buf), "Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d",
+		ACURR(A_DEX), ACURR(A_CON), ACURR(A_INT), ACURR(A_WIS), ACURR(A_CHA));
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 	/* Deity list */
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Deities", FALSE);
@@ -1276,7 +1287,7 @@ minimal_enlightenment()
         if (HFast) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
                             "You are fast.", FALSE), n++;
         if (!n) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
-                         "You are rather mundane.", FALSE), n++;
+                         "You have no intrinsic abilities.", FALSE), n++;
 
 
 	end_menu(tmpwin, "Your Intrinsic Statistics");
