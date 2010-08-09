@@ -455,6 +455,23 @@ tty_player_selection()
                 xallowed = TRUE;
             } else {otmp = 0; xallowed = FALSE;}
             if (scumcount == 0) otmp = 0;
+            curs(BASE_WINDOW, 40, 19);
+            if (otmp) {
+                /* Show starting stats */
+                if (ACURR(A_STR) > 18) {
+                    if (ACURR(A_STR) > STR18(100))
+                        Sprintf(obuf,"St:%2d ",ACURR(A_STR)-100);
+                    else if (ACURR(A_STR) < STR18(100))
+                        Sprintf(obuf, "St:18/%02d ",ACURR(A_STR)-18);
+                    else
+                        Sprintf(obuf,"St:18/** ");
+                } else
+                    Sprintf(obuf, "St:%-1d ",ACURR(A_STR));
+                Sprintf(eos(obuf), "Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d",
+                  ACURR(A_DEX), ACURR(A_CON), ACURR(A_INT), ACURR(A_WIS), ACURR(A_CHA));
+                tty_putstr(BASE_WINDOW, 0, obuf);
+            }
+            cl_end();
             for (i = 2; i <= 17; i++) {
                 curs(BASE_WINDOW, 40, i);
                 if (otmp) {
@@ -499,7 +516,8 @@ tty_player_selection()
                     objects[otmp->otyp].oc_name_known = save_ocknown;
                     otmp = otmp->nobj;
                 } else if (i == 2 && scumcount == 0) {
-                    tty_putstr(BASE_WINDOW, 0, "(press i to view)");
+                    tty_putstr(BASE_WINDOW, 0,
+                               "(press i to view inventory and stats)");
                 }
                 cl_end();
             }
