@@ -511,15 +511,17 @@ newgame_part_1()
 void
 newgame_part_2()
 {
-	if (newgame_progress < 1) newgame_part_1();
+ 	if (newgame_progress < 1) newgame_part_1();
         if (newgame_progress > 2) panic("Newgame sequence out of order: 2");
-	flags.pantheon = -1; /* role_specific_modifications() will reset this */
-	role_init();
+	do {
+	    flags.pantheon = -1; /* role_specific_modifications() will reset this */
+            role_init();
 
-        rndmonst_safe_in_newgame = TRUE;
-	u_init_idempotent();
-        rndmonst_safe_in_newgame = FALSE;
-        newgame_progress = 2;
+            rndmonst_safe_in_newgame = TRUE;
+            u_init_idempotent();
+            rndmonst_safe_in_newgame = FALSE;
+            newgame_progress = 2;
+        } while (inv_cnt() > 16); /* ensure no more than 16 items in starting inventory */
 }
 
 void

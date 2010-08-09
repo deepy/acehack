@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 9 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -317,399 +317,213 @@ char** argv;
     tty_display_nhwindow(BASE_WINDOW, FALSE);
 }
 
+struct player_selection_menu_option {
+	int x, y;
+	char accel;
+	char* item;
+	int* savein;
+	int (*convfunction)();
+	boolean (*validator)();
+} player_selection_menu_options[] = {
+	{ 2, 4, 'a', "Archeologist", &flags.initrole, str2role, ok_role },
+        { 2, 5, 'b', "Barbarian",    &flags.initrole, str2role, ok_role },
+        { 2, 6, 'c', "Caveman",      &flags.initrole, str2role, ok_role },
+        { 2, 7, 'h', "Healer",       &flags.initrole, str2role, ok_role },
+        { 2, 8, 'k', "Knight",       &flags.initrole, str2role, ok_role },
+        { 2, 9, 'm', "Monk",         &flags.initrole, str2role, ok_role },
+        { 2,10, 'p', "Priest",       &flags.initrole, str2role, ok_role },
+        { 2,11, 'R', "Ranger",       &flags.initrole, str2role, ok_role },
+        { 2,12, 'r', "Rogue",        &flags.initrole, str2role, ok_role },
+        { 2,13, 's', "Samurai",      &flags.initrole, str2role, ok_role },
+        { 2,14, 't', "Tourist",      &flags.initrole, str2role, ok_role },
+        { 2,15, 'v', "Valkyrie",     &flags.initrole, str2role, ok_role },
+        { 2,16, 'w', "Wizard",       &flags.initrole, str2role, ok_role },
+        { 2,17, '*', "(random)",     0,               0,        0       },
+        {21, 4, 'H', "Human",        &flags.initrace, str2race, ok_race },
+        {21, 5, 'D', "Dwarf",        &flags.initrace, str2race, ok_race },
+        {21, 6, 'E', "Elf",          &flags.initrace, str2race, ok_race },
+        {21, 7, 'G', "Gnome",        &flags.initrace, str2race, ok_race },
+        {21, 8, 'O', "Orc",          &flags.initrace, str2race, ok_race },
+        {21,11, 'M', "Male",         &flags.initgend, str2gend, ok_gend },
+        {21,12, 'F', "Female",       &flags.initgend, str2gend, ok_gend },
+        {21,15, 'L', "Lawful",       &flags.initalign,str2align,ok_align},
+        {21,16, 'N', "Neutral",      &flags.initalign,str2align,ok_align},
+        {21,17, 'C', "Chaotic",      &flags.initalign,str2align,ok_align},
+        { 2,19, 'q', "quit",         0,               0,        0},
+        {13,19, '#', "reroll",       0,               0,        0},
+        {26,19, '.', "play!",        0,               0,        0},
+        {0,0,0,0,0,0} /* fencepost */
+};
+
 void
 tty_player_selection()
 {
-#if 0
-}
-#else
-	int i, k, n;
-	char pick4u = 'n', thisch, lastch = 0;
-	boolean tutorial = FALSE;
-	char pbuf[QBUFSZ], plbuf[QBUFSZ];
-	winid win;
-	anything any;
-	menu_item *selected = 0;
+	char obuf[BUFSZ];
+        boolean reroll = TRUE, xallowed = TRUE;
+        int ch;
 
-	/* prevent an unnecessary prompt */
+	/* If there's some info in the RC, optimise it before using it */
 	rigid_role_checks();
 
-	/* Should we randomly pick for the player? */
-	if (!flags.randomall &&
-	    (flags.initrole == ROLE_NONE || flags.initrace == ROLE_NONE ||
-	     flags.initgend == ROLE_NONE || flags.initalign == ROLE_NONE)) {
-	    int echoline;
-	    char *prompt = build_plselection_prompt(pbuf, QBUFSZ, flags.initrole,
-				flags.initrace, flags.initgend, flags.initalign);
+        /* Grab ourselves a random character that's as consistent with
+           the RC as possible */
+        if (flags.initrole < 0)
+          flags.initrole = pick_role(flags.initrace, flags.initgend,
+                                     flags.initalign, PICK_RANDOM);
+        if (flags.initrole < 0)
+          flags.initrole = randrole();
 
-	    tty_putstr(BASE_WINDOW, 0, "");
-	    tty_putstr(BASE_WINDOW, 0, "New? Press T to enter a tutorial.");
-	    echoline = wins[BASE_WINDOW]->cury;
-	    tty_putstr(BASE_WINDOW, 0, prompt);
-	    do {
-		pick4u = lowc(readchar());
-		if (index(quitchars, pick4u)) pick4u = 'y';
-		if (pick4u == 't') {pick4u = 'y'; tutorial = TRUE;}
-	    } while(!index(ynqchars, pick4u));
-	    if ((int)strlen(prompt) + 1 < CO) {
-		/* Echo choice and move back down line */
-		tty_putsym(BASE_WINDOW, (int)strlen(prompt)+1, echoline, pick4u);
-		tty_putstr(BASE_WINDOW, 0, "");
-	    } else
-		/* Otherwise it's hard to tell where to echo, and things are
-		 * wrapping a bit messily anyway, so (try to) make sure the next
-		 * question shows up well and doesn't get wrapped at the
-		 * bottom of the window.
-		 */
-		tty_clear_nhwindow(BASE_WINDOW);
-	    
-	    if (pick4u != 'y' && pick4u != 'n') {
-give_up:	/* Quit */
-		if (selected) free((genericptr_t) selected);
-		bail((char *)0);
-		/*NOTREACHED*/
-		return;
-	    }
-	}
+	if (flags.initrace < 0 || !validrace(flags.initrole, flags.initrace))
+          flags.initrace = pick_race(flags.initrole, flags.initgend,
+                                     flags.initalign, PICK_RANDOM);
+        if (flags.initrace < 0)
+          flags.initrace = randrace(flags.initrole);
 
-	if (tutorial) {
-	    tty_clear_nhwindow(BASE_WINDOW);
-	    tty_putstr(BASE_WINDOW, 0, "Choose a Character");
-	    win = create_nhwindow(NHW_MENU);
-	    start_menu(win);
-	    any.a_int = 1;
-	    add_menu(win, NO_GLYPH, &any, 'v', 0, ATR_NONE,
-		     "lawful female dwarf Valkyrie (uses melee and thrown weapons)",
-		     MENU_UNSELECTED);
-	    any.a_int = 2;
-	    add_menu(win, NO_GLYPH, &any, 'w', 0, ATR_NONE,
-		     "chaotic male elf Wizard      (relies mostly on spells)",
-		     MENU_UNSELECTED);
-	    any.a_int = 3;
-	    add_menu(win, NO_GLYPH, &any, 'R', 0, ATR_NONE,
-		     "neutral female human Ranger  (good with ranged combat)",
-		     MENU_UNSELECTED);
-	    any.a_int = 4;
-	    add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
-		     "quit", MENU_UNSELECTED);
-	    end_menu(win, "What character do you want to try?");
-	    n = select_menu(win, PICK_ONE, &selected);
-	    destroy_nhwindow(win);
-	    if (n != 1 || selected[0].item.a_int == 4) goto give_up;
-	    switch (selected[0].item.a_int) {
-	    case 1:
-		flags.initrole = str2role("Valkyrie");
-		flags.initrace = str2race("dwarf");
-		flags.initgend = str2gend("female");
-		flags.initalign = str2align("lawful");
-		break;
-	    case 2:
-		flags.initrole = str2role("Wizard");
-		flags.initrace = str2race("elf");
-		flags.initgend = str2gend("male");
-		flags.initalign = str2align("chaotic");
-		break;
-	    case 3:
-		flags.initrole = str2role("Ranger");
-		flags.initrace = str2race("human");
-		flags.initgend = str2gend("female");
-		flags.initalign = str2align("neutral");
-		break;
-	    default: panic("Impossible menu selection"); break;
-	    }
-	    free((genericptr_t) selected);
-	    selected = 0;
-	    flags.tutorial = 1;
-	}
-
-	(void) root_plselection_prompt(plbuf, QBUFSZ - 1,
-		flags.initrole, flags.initrace, flags.initgend, flags.initalign);
-
-	/* Select a role, if necessary */
-	/* we'll try to be compatible with pre-selected race/gender/alignment,
-	 * but may not succeed */
-	if (flags.initrole < 0) {
-	    char rolenamebuf[QBUFSZ];
-	    /* Process the choice */
-	    if (pick4u == 'y' || flags.initrole == ROLE_RANDOM || flags.randomall) {
-		/* Pick a random role */
-		flags.initrole = pick_role(flags.initrace, flags.initgend,
-						flags.initalign, PICK_RANDOM);
-		if (flags.initrole < 0) {
-		    tty_putstr(BASE_WINDOW, 0, "Incompatible role!");
-		    flags.initrole = randrole();
-		}
-	    } else {
-		tty_clear_nhwindow(BASE_WINDOW);
-		tty_putstr(BASE_WINDOW, 0, "Choosing Character's Role");
-		/* Prompt for a role */
-		win = create_nhwindow(NHW_MENU);
-		start_menu(win);
-		any.a_void = 0;		/* zero out all bits */
-		for (i = 0; roles[i].name.m; i++) {
-		    if (ok_role(i, flags.initrace, flags.initgend,
-							flags.initalign)) {
-			any.a_int = i+1;	/* must be non-zero */
-			thisch = lowc(roles[i].name.m[0]);
-			if (thisch == lastch) thisch = highc(thisch);
-			if (flags.initgend != ROLE_NONE && flags.initgend != ROLE_RANDOM) {
-				if (flags.initgend == 1	 && roles[i].name.f)
-					Strcpy(rolenamebuf, roles[i].name.f);
-				else
-					Strcpy(rolenamebuf, roles[i].name.m);
-			} else {
-				if (roles[i].name.f) {
-					Strcpy(rolenamebuf, roles[i].name.m);
-					Strcat(rolenamebuf, "/");
-					Strcat(rolenamebuf, roles[i].name.f);
-				} else 
-					Strcpy(rolenamebuf, roles[i].name.m);
-			}	
-			add_menu(win, NO_GLYPH, &any, thisch,
-			    0, ATR_NONE, an(rolenamebuf), MENU_UNSELECTED);
-			lastch = thisch;
-		    }
-		}
-		any.a_int = pick_role(flags.initrace, flags.initgend,
-				    flags.initalign, PICK_RANDOM)+1;
-		if (any.a_int == 0)	/* must be non-zero */
-		    any.a_int = randrole()+1;
-		add_menu(win, NO_GLYPH, &any , '*', 0, ATR_NONE,
-				"Random", MENU_UNSELECTED);
-		any.a_int = i+1;	/* must be non-zero */
-		add_menu(win, NO_GLYPH, &any , 'q', 0, ATR_NONE,
-				"Quit", MENU_UNSELECTED);
-		Sprintf(pbuf, "Pick a role for your %s", plbuf);
-		end_menu(win, pbuf);
-		n = select_menu(win, PICK_ONE, &selected);
-		destroy_nhwindow(win);
-
-		/* Process the choice */
-		if (n != 1 || selected[0].item.a_int == any.a_int)
-		    goto give_up;		/* Selected quit */
-
-		flags.initrole = selected[0].item.a_int - 1;
-		free((genericptr_t) selected),	selected = 0;
-	    }
-	    (void)  root_plselection_prompt(plbuf, QBUFSZ - 1,
-			flags.initrole, flags.initrace, flags.initgend, flags.initalign);
-	}
-	
-	/* Select a race, if necessary */
-	/* force compatibility with role, try for compatibility with
-	 * pre-selected gender/alignment */
-	if (flags.initrace < 0 || !validrace(flags.initrole, flags.initrace)) {
-	    /* pre-selected race not valid */
-	    if (pick4u == 'y' || flags.initrace == ROLE_RANDOM || flags.randomall) {
-		flags.initrace = pick_race(flags.initrole, flags.initgend,
-							flags.initalign, PICK_RANDOM);
-		if (flags.initrace < 0) {
-		    tty_putstr(BASE_WINDOW, 0, "Incompatible race!");
-		    flags.initrace = randrace(flags.initrole);
-		}
-	    } else {	/* pick4u == 'n' */
-		/* Count the number of valid races */
-		n = 0;	/* number valid */
-		k = 0;	/* valid race */
-		for (i = 0; races[i].noun; i++) {
-		    if (ok_race(flags.initrole, i, flags.initgend,
-							flags.initalign)) {
-			n++;
-			k = i;
-		    }
-		}
-		if (n == 0) {
-		    for (i = 0; races[i].noun; i++) {
-			if (validrace(flags.initrole, i)) {
-			    n++;
-			    k = i;
-			}
-		    }
-		}
-
-		/* Permit the user to pick, if there is more than one */
-		if (n > 1) {
-		    tty_clear_nhwindow(BASE_WINDOW);
-		    tty_putstr(BASE_WINDOW, 0, "Choosing Race");
-		    win = create_nhwindow(NHW_MENU);
-		    start_menu(win);
-		    any.a_void = 0;	    /* zero out all bits */
-		    for (i = 0; races[i].noun; i++)
-			if (ok_race(flags.initrole, i, flags.initgend,
-							flags.initalign)) {
-			    any.a_int = i+1;	/* must be non-zero */
-			    add_menu(win, NO_GLYPH, &any, races[i].noun[0],
-				0, ATR_NONE, races[i].noun, MENU_UNSELECTED);
-			}
-		    any.a_int = pick_race(flags.initrole, flags.initgend,
-					flags.initalign, PICK_RANDOM)+1;
-		    if (any.a_int == 0)	/* must be non-zero */
-			any.a_int = randrace(flags.initrole)+1;
-		    add_menu(win, NO_GLYPH, &any , '*', 0, ATR_NONE,
-				    "Random", MENU_UNSELECTED);
-		    any.a_int = i+1;	/* must be non-zero */
-		    add_menu(win, NO_GLYPH, &any , 'q', 0, ATR_NONE,
-				    "Quit", MENU_UNSELECTED);
-		    Sprintf(pbuf, "Pick the race of your %s", plbuf);
-		    end_menu(win, pbuf);
-		    n = select_menu(win, PICK_ONE, &selected);
-		    destroy_nhwindow(win);
-		    if (n != 1 || selected[0].item.a_int == any.a_int)
-			goto give_up;		/* Selected quit */
-
-		    k = selected[0].item.a_int - 1;
-		    free((genericptr_t) selected),	selected = 0;
-		}
-		flags.initrace = k;
-	    }
-	    (void)  root_plselection_prompt(plbuf, QBUFSZ - 1,
-			flags.initrole, flags.initrace, flags.initgend, flags.initalign);
-	}
-
-	/* Select a gender, if necessary */
-	/* force compatibility with role/race, try for compatibility with
-	 * pre-selected alignment */
 	if (flags.initgend < 0 || !validgend(flags.initrole, flags.initrace,
-						flags.initgend)) {
-	    /* pre-selected gender not valid */
-	    if (pick4u == 'y' || flags.initgend == ROLE_RANDOM || flags.randomall) {
-		flags.initgend = pick_gend(flags.initrole, flags.initrace,
-						flags.initalign, PICK_RANDOM);
-		if (flags.initgend < 0) {
-		    tty_putstr(BASE_WINDOW, 0, "Incompatible gender!");
-		    flags.initgend = randgend(flags.initrole, flags.initrace);
-		}
-	    } else {	/* pick4u == 'n' */
-		/* Count the number of valid genders */
-		n = 0;	/* number valid */
-		k = 0;	/* valid gender */
-		for (i = 0; i < ROLE_GENDERS; i++) {
-		    if (ok_gend(flags.initrole, flags.initrace, i,
-							flags.initalign)) {
-			n++;
-			k = i;
-		    }
-		}
-		if (n == 0) {
-		    for (i = 0; i < ROLE_GENDERS; i++) {
-			if (validgend(flags.initrole, flags.initrace, i)) {
-			    n++;
-			    k = i;
-			}
-		    }
-		}
+						flags.initgend))
+          flags.initgend = pick_gend(flags.initrole, flags.initrace,
+                                     flags.initalign, PICK_RANDOM);
+        if (flags.initgend < 0)
+          flags.initgend = randgend(flags.initrole, flags.initrace);
 
-		/* Permit the user to pick, if there is more than one */
-		if (n > 1) {
-		    tty_clear_nhwindow(BASE_WINDOW);
-		    tty_putstr(BASE_WINDOW, 0, "Choosing Gender");
-		    win = create_nhwindow(NHW_MENU);
-		    start_menu(win);
-		    any.a_void = 0;	    /* zero out all bits */
-		    for (i = 0; i < ROLE_GENDERS; i++)
-			if (ok_gend(flags.initrole, flags.initrace, i,
-							    flags.initalign)) {
-			    any.a_int = i+1;
-			    add_menu(win, NO_GLYPH, &any, genders[i].adj[0],
-				0, ATR_NONE, genders[i].adj, MENU_UNSELECTED);
-			}
-		    any.a_int = pick_gend(flags.initrole, flags.initrace,
-					    flags.initalign, PICK_RANDOM)+1;
-		    if (any.a_int == 0)	/* must be non-zero */
-			any.a_int = randgend(flags.initrole, flags.initrace)+1;
-		    add_menu(win, NO_GLYPH, &any , '*', 0, ATR_NONE,
-				    "Random", MENU_UNSELECTED);
-		    any.a_int = i+1;	/* must be non-zero */
-		    add_menu(win, NO_GLYPH, &any , 'q', 0, ATR_NONE,
-				    "Quit", MENU_UNSELECTED);
-		    Sprintf(pbuf, "Pick the gender of your %s", plbuf);
-		    end_menu(win, pbuf);
-		    n = select_menu(win, PICK_ONE, &selected);
-		    destroy_nhwindow(win);
-		    if (n != 1 || selected[0].item.a_int == any.a_int)
-			goto give_up;		/* Selected quit */
-
-		    k = selected[0].item.a_int - 1;
-		    free((genericptr_t) selected),	selected = 0;
-		}
-		flags.initgend = k;
-	    }
-	    (void)  root_plselection_prompt(plbuf, QBUFSZ - 1,
-			flags.initrole, flags.initrace, flags.initgend, flags.initalign);
-	}
-
-	/* Select an alignment, if necessary */
-	/* force compatibility with role/race/gender */
 	if (flags.initalign < 0 || !validalign(flags.initrole, flags.initrace,
-							flags.initalign)) {
-	    /* pre-selected alignment not valid */
-	    if (pick4u == 'y' || flags.initalign == ROLE_RANDOM || flags.randomall) {
-		flags.initalign = pick_align(flags.initrole, flags.initrace,
-							flags.initgend, PICK_RANDOM);
-		if (flags.initalign < 0) {
-		    tty_putstr(BASE_WINDOW, 0, "Incompatible alignment!");
-		    flags.initalign = randalign(flags.initrole, flags.initrace);
-		}
-	    } else {	/* pick4u == 'n' */
-		/* Count the number of valid alignments */
-		n = 0;	/* number valid */
-		k = 0;	/* valid alignment */
-		for (i = 0; i < ROLE_ALIGNS; i++) {
-		    if (ok_align(flags.initrole, flags.initrace, flags.initgend,
-							i)) {
-			n++;
-			k = i;
-		    }
-		}
-		if (n == 0) {
-		    for (i = 0; i < ROLE_ALIGNS; i++) {
-			if (validalign(flags.initrole, flags.initrace, i)) {
-			    n++;
-			    k = i;
-			}
-		    }
-		}
+							flags.initalign))
+          flags.initalign = pick_align(flags.initrole, flags.initrace,
+                                       flags.initgend, PICK_RANDOM);
+        if (flags.initalign < 0)
+          flags.initalign = randalign(flags.initrole, flags.initrace);
 
-		/* Permit the user to pick, if there is more than one */
-		if (n > 1) {
-		    tty_clear_nhwindow(BASE_WINDOW);
-		    tty_putstr(BASE_WINDOW, 0, "Choosing Alignment");
-		    win = create_nhwindow(NHW_MENU);
-		    start_menu(win);
-		    any.a_void = 0;	    /* zero out all bits */
-		    for (i = 0; i < ROLE_ALIGNS; i++)
-			if (ok_align(flags.initrole, flags.initrace,
-							flags.initgend, i)) {
-			    any.a_int = i+1;
-			    add_menu(win, NO_GLYPH, &any, aligns[i].adj[0],
-				 0, ATR_NONE, aligns[i].adj, MENU_UNSELECTED);
-			}
-		    any.a_int = pick_align(flags.initrole, flags.initrace,
-					    flags.initgend, PICK_RANDOM)+1;
-		    if (any.a_int == 0)	/* must be non-zero */
-			any.a_int = randalign(flags.initrole, flags.initrace)+1;
-		    add_menu(win, NO_GLYPH, &any , '*', 0, ATR_NONE,
-				    "Random", MENU_UNSELECTED);
-		    any.a_int = i+1;	/* must be non-zero */
-		    add_menu(win, NO_GLYPH, &any , 'q', 0, ATR_NONE,
-				    "Quit", MENU_UNSELECTED);
-		    Sprintf(pbuf, "Pick the alignment of your %s", plbuf);
-		    end_menu(win, pbuf);
-		    n = select_menu(win, PICK_ONE, &selected);
-		    destroy_nhwindow(win);
-		    if (n != 1 || selected[0].item.a_int == any.a_int)
-			goto give_up;		/* Selected quit */
+        /* Fixed parts of the window */
+        tty_clear_nhwindow(BASE_WINDOW);
 
-		    k = selected[0].item.a_int - 1;
-		    free((genericptr_t) selected),	selected = 0;
-		}
-		flags.initalign = k;
-	    }
-	}
+        curs(BASE_WINDOW, 6, 1);
+        tty_putstr(BASE_WINDOW, ATR_BOLD, "Create your character:");
+        curs(BASE_WINDOW, 40, 1);
+        tty_putstr(BASE_WINDOW, ATR_INVERSE, "Inventory");
+        curs(BASE_WINDOW, 6, 3);
+        tty_putstr(BASE_WINDOW, ATR_INVERSE, "Class");
+        curs(BASE_WINDOW, 25, 3);
+        tty_putstr(BASE_WINDOW, ATR_INVERSE, "Race");
+        curs(BASE_WINDOW, 25, 10);
+        tty_putstr(BASE_WINDOW, ATR_INVERSE, "Gender");
+        curs(BASE_WINDOW, 25, 14);
+        tty_putstr(BASE_WINDOW, ATR_INVERSE, "Alignment");
+
+        /* Changing parts of the window */
+        do {
+            struct player_selection_menu_option* p = player_selection_menu_options;
+            int savestat, i;
+            boolean cchanged;
+            struct obj * otmp;
+            while (p->x) {
+                curs(BASE_WINDOW, p->x, p->y);
+                Sprintf(obuf, "%c %c %s", p->accel,
+                        p->savein && p->convfunction(p->item) == *(p->savein) ? '+' : '-',
+                        p->item);
+                /* We colour a crga in brown if it couldn't be changed to without
+                   having to change some other aspect of the character */
+                cchanged = FALSE;
+                if (p->savein) {
+                    savestat = *(p->savein);
+                    *(p->savein) = p->convfunction(p->item);
+                    if (!p->validator(flags.initrole,flags.initrace,
+                                      flags.initgend,flags.initalign)) {
+                        if (iflags.wc_color) {
+                            term_start_color(CLR_BROWN);
+                            cchanged = TRUE;
+                        }
+                        if (obuf[2] == '+') obuf[2] = '!';
+                    }
+                    *(p->savein) = savestat;
+                }
+                tty_putstr(BASE_WINDOW,
+                           obuf[2] != '-' || p->accel == '.' ? ATR_BOLD : 0, obuf);
+                if (cchanged) term_end_color();
+                p++;
+            }
+            if (ok_role (flags.initrole,flags.initrace,flags.initgend,flags.initalign) &&
+                ok_race (flags.initrole,flags.initrace,flags.initgend,flags.initalign) &&
+                ok_gend (flags.initrole,flags.initrace,flags.initgend,flags.initalign) &&
+                ok_align(flags.initrole,flags.initrace,flags.initgend,flags.initalign)) {
+                if (reroll) {
+                    reroll = FALSE;
+                    newgame_part_2(); /* generate a character */
+                }
+                otmp = invent;
+                xallowed = TRUE;
+            } else {otmp = 0; xallowed = FALSE;}
+            for (i = 2; i <= 17; i++) {
+                curs(BASE_WINDOW, 40, i);
+                if (otmp) {
+                    unsigned save_ocknown;
+                    int attr, color;
+                    char* p;
+                    /* Things get a bit complex here, because the item in
+                       question is not IDed at this point in the newgame
+                       sequence (it gets IDed in part 3). Thus, we temporarily
+                       ID it for display purposes now, then revert; that way,
+                       one character that isn't used doesn't ID items for
+                       another character that is. */
+                    save_ocknown = objects[otmp->otyp].oc_name_known;
+                    objects[otmp->otyp].oc_name_known = 1;
+                    attr = ATR_NONE;
+                    color = default_item_color(otmp);
+                    Strcpy(obuf,doname(otmp));
+                    /* Remove "being worn", etc, from end of the name. */
+                    p = strstri(obuf,"(being worn)");
+                    if (p) *p = 0;
+                    p = strstri(obuf,"(wielded)");
+                    if (p) *p = 0;
+                    p = strstri(obuf,"(weapon in ");
+                    if (p) *p = 0;
+                    p = strstri(obuf,"(alternate weapon");
+                    if (p) *p = 0;
+                    p = strstri(obuf,"(in quiver)");
+                    if (p) *p = 0;
+                    p = strstri(obuf,"(on right ");
+                    if (p) *p = 0;
+                    p = strstri(obuf,"(on left ");
+                    if (p) *p = 0;
+                    if (iflags.use_menu_color) {
+                        get_menu_coloring(obuf, &color, &attr);
+                    }
+                    while (eos(obuf)[-1] == ' ') eos(obuf)[-1] = '\0';
+                    if (strlen(obuf) >= 41) {
+                        obuf[37]=obuf[38]=obuf[39]='.';
+                        obuf[40]=0;
+                    }
+                    tty_putstr_colored(BASE_WINDOW, attr, color, obuf);
+                    objects[otmp->otyp].oc_name_known = save_ocknown;
+                    otmp = otmp->nobj;
+                }
+                cl_end();
+            }
+            curs(BASE_WINDOW, 26, 19); /* the . of . - play! */
+            ch = readchar();
+            if (ch == 'q' || ch == 'Q') bail((char *)0);
+            if (ch == '#') reroll = TRUE;
+            if (ch == '*') {
+                flags.initrole = randrole();
+                flags.initrace = randrace(flags.initrole);
+                flags.initgend = randgend(flags.initrole, flags.initrace);
+                flags.initalign = randalign(flags.initrole, flags.initrace);
+                reroll = TRUE;
+            }
+            p = player_selection_menu_options;
+            while (p->x) {
+                if (p->accel == ch && p->savein) {
+                    *(p->savein) = p->convfunction(p->item);
+                    reroll = TRUE;
+                    break;
+                }
+                p++;
+            }
+        } while(ch != '.' || !xallowed);
+
 	/* Success! */
 	tty_display_nhwindow(BASE_WINDOW, FALSE);
 }
-#endif
+
 
 /*
  * plname is filled either by an option (-u Player  or	-uPlayer) or
@@ -1912,6 +1726,7 @@ tty_putstr_colored(window, attr, color, str)
     case NHW_BASE:
 	tty_curs(window, cw->curx+1, cw->cury);
 	term_start_attr(attr);
+        if (color != NO_COLOR && iflags.wc_color) term_start_color(color);
 	while (*str) {
 	    if ((int) ttyDisplay->curx >= (int) ttyDisplay->cols-1) {
 		cw->curx = 0;
@@ -1924,6 +1739,7 @@ tty_putstr_colored(window, attr, color, str)
 	}
 	cw->curx = 0;
 	cw->cury++;
+        if (color != NO_COLOR && iflags.wc_color) term_end_color();
 	term_end_attr(attr);
 	break;
     case NHW_MENU:

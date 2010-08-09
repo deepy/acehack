@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)u_init.c	3.4	2002/10/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 9 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -930,6 +930,36 @@ u_init_nonidempotent()
 		if (otmp->oclass == SPBOOK_CLASS &&
 				otmp->otyp != SPE_BLANK_PAPER)
 		    initialspell(otmp);
+
+                /* Equip starting equipment */
+		if(otmp->oclass == ARMOR_CLASS){
+			if (is_shield(otmp) && !uarms) {
+				setworn(otmp, W_ARMS);
+				if (uswapwep) setuswapwep((struct obj *) 0);
+			} else if (is_helmet(otmp) && !uarmh)
+				setworn(otmp, W_ARMH);
+			else if (is_gloves(otmp) && !uarmg)
+				setworn(otmp, W_ARMG);
+#ifdef TOURIST
+			else if (is_shirt(otmp) && !uarmu)
+				setworn(otmp, W_ARMU);
+#endif
+			else if (is_cloak(otmp) && !uarmc)
+				setworn(otmp, W_ARMC);
+			else if (is_boots(otmp) && !uarmf)
+				setworn(otmp, W_ARMF);
+			else if (is_suit(otmp) && !uarm)
+				setworn(otmp, W_ARM);
+		}
+
+		if (otmp->oclass == WEAPON_CLASS || is_weptool(otmp) ||
+                    otmp->otyp == TIN_OPENER || otmp->otyp == FLINT ||
+                    otmp->otyp == ROCK) {
+		    if (is_ammo(otmp) || is_missile(otmp)) {
+			if (!uquiver) setuqwep(otmp);
+		    } else if (!uwep) setuwep(otmp);
+		    else if (!uswapwep) setuswapwep(otmp);
+		}
         }
 
         /* pre-ID oil as it's easy to check anyway */
@@ -1100,34 +1130,6 @@ register struct trobj *trop;
 		/* defined after setting otyp+quan + blessedness */
 		obj->owt = weight(obj);
 		obj = addinv(obj);
-
-		if(obj->oclass == ARMOR_CLASS){
-			if (is_shield(obj) && !uarms) {
-				setworn(obj, W_ARMS);
-				if (uswapwep) setuswapwep((struct obj *) 0);
-			} else if (is_helmet(obj) && !uarmh)
-				setworn(obj, W_ARMH);
-			else if (is_gloves(obj) && !uarmg)
-				setworn(obj, W_ARMG);
-#ifdef TOURIST
-			else if (is_shirt(obj) && !uarmu)
-				setworn(obj, W_ARMU);
-#endif
-			else if (is_cloak(obj) && !uarmc)
-				setworn(obj, W_ARMC);
-			else if (is_boots(obj) && !uarmf)
-				setworn(obj, W_ARMF);
-			else if (is_suit(obj) && !uarm)
-				setworn(obj, W_ARM);
-		}
-
-		if (obj->oclass == WEAPON_CLASS || is_weptool(obj) ||
-			otyp == TIN_OPENER || otyp == FLINT || otyp == ROCK) {
-		    if (is_ammo(obj) || is_missile(obj)) {
-			if (!uquiver) setuqwep(obj);
-		    } else if (!uwep) setuwep(obj);
-		    else if (!uswapwep) setuswapwep(obj);
-		}
 
 #if !defined(PYRAMID_BUG) && !defined(MAC)
 		if(--trop->trquan) continue;	/* make a similar object */
