@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 9 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -478,7 +478,10 @@ display_gamewindows()
     display_nhwindow(WIN_MAP, FALSE);
 }
 
-/* Use a version of rndmonst() that's safe to use in the newgame sequence? */
+/* Use a version of rndmonst() that's safe to use in the newgame sequence?
+   Also used to determine egg safety (because it makes no sense for starting
+   inventory to have eggs capable of hatching, and in fact crashes the game if
+   such eggs are deleted in a newgame_part_2 reexecution). */
 boolean rndmonst_safe_in_newgame = FALSE;
 
 static int newgame_progress = 0;

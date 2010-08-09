@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)mkobj.c	3.4	2002/10/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 9 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -359,6 +360,8 @@ static const char dknowns[] = {
 		GEM_CLASS, SPBOOK_CLASS, WEAPON_CLASS, TOOL_CLASS, 0
 };
 
+extern boolean rndmonst_safe_in_newgame;
+
 struct obj *
 mksobj(otyp, init, artif)
 int otyp;
@@ -420,14 +423,16 @@ boolean artif;
 		break;
 	    case EGG:
 		otmp->corpsenm = NON_PM;	/* generic egg */
-		if (!rn2(3)) for (tryct = 200; tryct > 0; --tryct) {
-		    mndx = can_be_hatched(rndmonnum());
-		    if (mndx != NON_PM && !dead_species(mndx, TRUE)) {
-			otmp->corpsenm = mndx;		/* typed egg */
-			attach_egg_hatch_timeout(otmp);
-			break;
-		    }
-		}
+                if (!rndmonst_safe_in_newgame) {
+                    if (!rn2(3)) for (tryct = 200; tryct > 0; --tryct) {
+                        mndx = can_be_hatched(rndmonnum());
+                        if (mndx != NON_PM && !dead_species(mndx, TRUE)) {
+                            otmp->corpsenm = mndx;		/* typed egg */
+                            attach_egg_hatch_timeout(otmp);
+                            break;
+                        }
+                    }
+                }
 		break;
 	    case TIN:
 		otmp->corpsenm = NON_PM;	/* empty (so far) */
