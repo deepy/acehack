@@ -361,7 +361,7 @@ tty_player_selection()
 	char obuf[BUFSZ];
         boolean reroll = TRUE, xallowed = TRUE;
         int ch;
-        long scumcount = 0;
+        long scumcount = !!flags.startscum;
 
 	/* If there's some info in the RC, optimise it before using it */
 	rigid_role_checks();

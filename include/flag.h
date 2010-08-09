@@ -80,6 +80,7 @@ struct flag {
 	boolean  soundok;	/* ok to tell about sounds heard */
 	boolean  sparkle;	/* show "resisting" special FX (Scott Bigham) */
 	boolean  standout;	/* use standout for --More-- */
+	boolean  startscum;     /* set to false to prove you aren't startscumming */
 	boolean  time;		/* display elapsed 'time' */
 	boolean  tombstone;	/* print tombstone */
 	boolean  toptenwin;	/* ending list in window instead of stdout */

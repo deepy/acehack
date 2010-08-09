@@ -127,7 +127,10 @@ bars that change colour according to how wounded or exhausted you are.
 There is a new character creation screen, that allows you to view a
 character's stats and inventory before you start playing, and to
 choose a different one if you don't like it. (This breaks
-"startscumless" conduct.)
+"startscumless" conduct just by existing; if you want to prove that
+you won with the first character that the RNG produced, say as part of
+a streak, turn off the new "startscum" option and the stats and
+inventory will be hidden unless you choose to look at them.)
 
 (tty interface on all platforms but DOS, OS/2, WIN32)
 IBMgraphics now sends signals to the terminal telling it to select a
