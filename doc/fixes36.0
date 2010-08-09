@@ -124,6 +124,11 @@ The botl has been cleaned up significantly, leaving a lot more room to
 show things like statuses.  It also now shows semi-graphical Hp and Pw
 bars that change colour according to how wounded or exhausted you are.
 
+There is a new character creation screen, that allows you to view a
+character's stats and inventory before you start playing, and to
+choose a different one if you don't like it. (This breaks
+"startscumless" conduct.)
+
 (tty interface on all platforms but DOS, OS/2, WIN32)
 IBMgraphics now sends signals to the terminal telling it to select a
 suitable character set for drawing that graphics; hopefully, this will
@@ -150,6 +155,9 @@ the square before, and whether it's lit; dark areas of a room are now
 shown coloured rather than as blank space (unless color is turned
 off).  (Patch credits: based on the darkroom patch by Clive Crous, via
 UnNetHack.)
+
+A new conduct "startscumless" counts the number of times you looked at
+a character's stats before choosing to play with it.
 
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------

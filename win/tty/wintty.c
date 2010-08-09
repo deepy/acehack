@@ -361,6 +361,7 @@ tty_player_selection()
 	char obuf[BUFSZ];
         boolean reroll = TRUE, xallowed = TRUE;
         int ch;
+        long scumcount = 0;
 
 	/* If there's some info in the RC, optimise it before using it */
 	rigid_role_checks();
@@ -448,10 +449,12 @@ tty_player_selection()
                 if (reroll) {
                     reroll = FALSE;
                     newgame_part_2(); /* generate a character */
+                    if (scumcount > 0) scumcount++;
                 }
                 otmp = invent;
                 xallowed = TRUE;
             } else {otmp = 0; xallowed = FALSE;}
+            if (scumcount == 0) otmp = 0;
             for (i = 2; i <= 17; i++) {
                 curs(BASE_WINDOW, 40, i);
                 if (otmp) {
@@ -495,6 +498,8 @@ tty_player_selection()
                     tty_putstr_colored(BASE_WINDOW, attr, color, obuf);
                     objects[otmp->otyp].oc_name_known = save_ocknown;
                     otmp = otmp->nobj;
+                } else if (i == 2 && scumcount == 0) {
+                    tty_putstr(BASE_WINDOW, 0, "(press i to view)");
                 }
                 cl_end();
             }
@@ -502,6 +507,7 @@ tty_player_selection()
             ch = readchar();
             if (ch == 'q' || ch == 'Q') bail((char *)0);
             if (ch == '#') reroll = TRUE;
+            if (ch == 'i' && scumcount == 0) scumcount = 1;
             if (ch == '*') {
                 flags.initrole = randrole();
                 flags.initrace = randrace(flags.initrole);
@@ -521,6 +527,7 @@ tty_player_selection()
         } while(ch != '.' || !xallowed);
 
 	/* Success! */
+        u.uconduct.startscums = scumcount;
 	tty_display_nhwindow(BASE_WINDOW, FALSE);
 }
 

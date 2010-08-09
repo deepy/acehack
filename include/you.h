@@ -67,6 +67,7 @@ struct u_conduct {		/* number of times... */
 	long	literate;	/* read something (other than BotD) */
 	long	polypiles;	/* polymorphed an object */
 	long	polyselfs;	/* transformed yourself */
+	long    startscums;     /* viewed a character's stats at creation */
 	long	wishes;		/* used a wish */
 	long	wisharti;	/* wished for an artifact */
 				/* genocides already listed at end of game */

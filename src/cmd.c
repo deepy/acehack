@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 9 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1328,6 +1328,15 @@ int final;
 	putstr(en_win, 0, "Voluntary challenges:");
 	putstr(en_win, 0, "");
 
+	if (!u.uconduct.startscums)
+            enl_msg(You_, "did not view", "did not view",
+                    " your character before playing");
+        else {
+	    Sprintf(buf, " from %ld character%s to play with",
+		    u.uconduct.startscums, plur(u.uconduct.startscums));
+	    enl_msg(You_, "chose", "chose", buf);
+        }
+
 	if (!u.uconduct.food)
 	    enl_msg(You_, "have gone", "went", " without food");
 	    /* But beverages are okay */
@@ -1341,25 +1350,21 @@ int final;
 
 	if (!u.uconduct.weaphit)
 	    you_have_never("hit with a wielded weapon");
-#ifdef WIZARD
-	else if (wizard) {
+	else {
 	    Sprintf(buf, "used a wielded weapon %ld time%s",
 		    u.uconduct.weaphit, plur(u.uconduct.weaphit));
 	    you_have_X(buf);
 	}
-#endif
 	if (!u.uconduct.killer)
 	    you_have_been("a pacifist");
 
 	if (!u.uconduct.literate)
 	    you_have_been("illiterate");
-#ifdef WIZARD
-	else if (wizard) {
-	    Sprintf(buf, "read items or engraved %ld time%s",
+	else {
+	    Sprintf(buf, "wrote or read %ld time%s",
 		    u.uconduct.literate, plur(u.uconduct.literate));
 	    you_have_X(buf);
 	}
-#endif
 
 	ngenocided = num_genocides();
 	if (ngenocided == 0) {
@@ -1372,23 +1377,19 @@ int final;
 
 	if (!u.uconduct.polypiles)
 	    you_have_never("polymorphed an object");
-#ifdef WIZARD
-	else if (wizard) {
+	else {
 	    Sprintf(buf, "polymorphed %ld item%s",
 		    u.uconduct.polypiles, plur(u.uconduct.polypiles));
 	    you_have_X(buf);
 	}
-#endif
 
 	if (!u.uconduct.polyselfs)
 	    you_have_never("changed form");
-#ifdef WIZARD
-	else if (wizard) {
+	else {
 	    Sprintf(buf, "changed form %ld time%s",
 		    u.uconduct.polyselfs, plur(u.uconduct.polyselfs));
 	    you_have_X(buf);
 	}
-#endif
 
 	if (!u.uconduct.wishes)
 	    you_have_X("used no wishes");
