@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 9 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -48,6 +48,14 @@ static int lastinvnr = 51;	/* 0 ... 51 (never saved&restored) */
  */
 static char venom_inv[] = { VENOM_CLASS, 0 };	/* (constant) */
 #endif
+
+/* So that new characters always start with their weapon in a, like
+   players tend to expect nowadays. */
+void
+resetinvnr()
+{
+	lastinvnr = 51;
+}
 
 void
 assigninvlet(otmp)

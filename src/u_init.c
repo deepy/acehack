@@ -530,6 +530,7 @@ u_init_idempotent()
         /* Get rid of any objects that may have been lying around from
            last time. */
         while (invent) freeinv(invent);
+        resetinvnr();
 
 	/* zero u, including pointer values --
 	 * necessary when aborting from a failed restore */
