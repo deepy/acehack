@@ -38,6 +38,9 @@ const struct Role roles[] = {
 	{"Curator",     0} },
 	"Quetzalcoatl", "Camaxtli", "Huhetotl", /* Central American */
 	"Arc", "the College of Archeology", "the Tomb of the Toltec Kings",
+        "Archeologists start out equipped for dungeon exploration, with some food, a",
+        "bag, and some digging equipment; they move quickly and stealthily. The dungeon",
+        "is deadlier than they realise, though, and they are not equipped for battle.",
 	PM_ARCHEOLOGIST, NON_PM, NON_PM,
 	PM_LORD_CARNARVON, PM_STUDENT, PM_MINION_OF_HUHETOTL,
 	NON_PM, PM_HUMAN_MUMMY, S_SNAKE, S_MUMMY,
@@ -64,6 +67,9 @@ const struct Role roles[] = {
 	{"Conqueror",   "Conqueress"} },
 	"Mitra", "Crom", "Set", /* Hyborian */
 	"Bar", "the Camp of the Duali Tribe", "the Duali Oasis",
+        "Barbarians start out equipped for melee combat, with powerful and deadly",
+        "weapons, as well as some relatively light armor. Their only unusual physical",
+        "aspects are their high strength and resistance to poison.",
 	PM_BARBARIAN, NON_PM, NON_PM,
 	PM_PELIAS, PM_CHIEFTAIN, PM_THOTH_AMON,
 	PM_OGRE, PM_TROLL, S_OGRE, S_TROLL,
@@ -90,6 +96,9 @@ const struct Role roles[] = {
 	{"Pioneer",     0} },
 	"Anu", "_Ishtar", "Anshar", /* Babylonian */
 	"Cav", "the Caves of the Ancestors", "the Dragon's Lair",
+        "Cavemen and women have no advantages but their enormous strength and ignorance",
+        "of typical rules of politeness. They start only with very primitive weapons - a",
+        "club, a sling, and plenty of rocks and stones - and some primitive armor.",
 	PM_CAVEMAN, PM_CAVEWOMAN, PM_LITTLE_DOG,
 	PM_SHAMAN_KARNOV, PM_NEANDERTHAL, PM_CHROMATIC_DRAGON,
 	PM_BUGBEAR, PM_HILL_GIANT, S_HUMANOID, S_GIANT,
@@ -116,6 +125,9 @@ const struct Role roles[] = {
 	{"Chirurgeon",     0} },
 	"_Athena", "Hermes", "Poseidon", /* Greek */
 	"Hea", "the Temple of Epidaurus", "the Temple of Coeus",
+        "Healers are versed in healing magic, and start with relevant spellbooks and",
+        "potions, as well as gloves and a stethoscope; their practice gives them money",
+        "and poison resistance. Their only useful weapon is a wand of sleep.",
 	PM_HEALER, NON_PM, NON_PM,
 	PM_HIPPOCRATES, PM_ATTENDANT, PM_CYCLOPS,
 	PM_GIANT_RAT, PM_SNAKE, S_RODENT, S_YETI,
@@ -141,6 +153,9 @@ const struct Role roles[] = {
 	{"Paladin",     0} },
 	"Lugh", "_Brigit", "Manannan Mac Lir", /* Celtic */
 	"Kni", "Camelot Castle", "the Isle of Glass",
+        "The chivalrous Knights ride into combat, starting with a saddled pony, a sword",
+        "and lance, and many pieces of armor. Practice on the battlefield and chessboard",
+        "gives them combat ability, and the ability to jump - but only in Knight moves.",
 	PM_KNIGHT, NON_PM, PM_PONY,
 	PM_KING_ARTHUR, PM_PAGE, PM_IXOTH,
 	PM_QUASIT, PM_OCHRE_JELLY, S_IMP, S_JELLY,
@@ -167,6 +182,9 @@ const struct Role roles[] = {
 	"Shan Lai Ching", "Chih Sung-tzu", "Huan Ti", /* Chinese */
 	"Mon", "the Monastery of Chan-Sune",
 	  "the Monastery of the Earth-Lord",
+        "Monks live a strange vegetarian lifestyle, training to fight without weapons or",
+        "armor, and are better without such tools than with. Over time, they gain a huge",
+        "selection of intrinsic magical abilities, like fast speed and excellent vision.",
 	PM_MONK, NON_PM, NON_PM,
 	PM_GRAND_MASTER, PM_ABBOT, PM_MASTER_KAEN,
 	PM_EARTH_ELEMENTAL, PM_XORN, S_ELEMENTAL, S_XORN,
@@ -193,6 +211,9 @@ const struct Role roles[] = {
 	{"High Priest", "High Priestess"} },
 	0, 0, 0,	/* chosen randomly from among the other roles */
 	"Pri", "the Great Temple", "the Temple of Nalzok",
+        "Priests can perform many tasks that other characters need a god's help with,",
+        "like checking for curses; they start with holy water and appropriate",
+        "spellbooks. They also have some training in arms, and fight with a mace.",
 	PM_PRIEST, PM_PRIESTESS, NON_PM,
 	PM_ARCH_PRIEST, PM_ACOLYTE, PM_NALZOK,
 	PM_HUMAN_ZOMBIE, PM_WRAITH, S_ZOMBIE, S_WRAITH,
@@ -221,6 +242,9 @@ const struct Role roles[] = {
 	{"Thief",       0} },
 	"Issek", "Mog", "Kos", /* Nehwon */
 	"Rog", "the Thieves' Guild Hall", "the Assassins' Guild Hall",
+        "Rogues have a knowledge of the unsavory arts, like poisoning, picking locks,",
+        "stealthy movement, and stabbing people in the back as they flee. These skills",
+        "translate well to a dungeon, where they fight by throwing volleys of daggers.",
 	PM_ROGUE, NON_PM, NON_PM,
 	PM_MASTER_OF_THIEVES, PM_THUG, PM_MASTER_ASSASSIN,
 	PM_LEPRECHAUN, PM_GUARDIAN_NAGA, S_NYMPH, S_NAGA,
@@ -261,6 +285,9 @@ const struct Role roles[] = {
 	{"Marksman",      "Markswoman"} },
 	"Mercury", "_Venus", "Mars", /* Roman/planets */
 	"Ran", "Orion's camp", "the cave of the wumpus",
+        "Rangers are archery experts brought up in the forests, starting with a bow and",
+        "plenty of arrows, a supply of rations, and a cloak that helps their survival.",
+        "They have a knack for finding secrets, even in the unfamiliarity of a dungeon.",
 	PM_RANGER, NON_PM, PM_LITTLE_DOG /* Orion & canis major */,
 	PM_ORION, PM_HUNTER, PM_SCORPIUS,
 	PM_FOREST_CENTAUR, PM_SCORPION, S_CENTAUR, S_SPIDER,
@@ -287,6 +314,9 @@ const struct Role roles[] = {
 	{"Shogun",      0} },/* supreme commander, warlord */
 	"_Amaterasu Omikami", "Raijin", "Susanowo", /* Japanese */
 	"Sam", "the Castle of the Taro Clan", "the Shogun's Castle",
+        "Samurai are honorable fighters, starting with excellent-quality armor and",
+        "weapons, with training in both swords and the bow; this breadth of training and",
+        "their fast movement makes them formidable in all but magical combat.",
 	PM_SAMURAI, NON_PM, PM_LITTLE_DOG,
 	PM_LORD_SATO, PM_ROSHI, PM_ASHIKAGA_TAKAUJI,
 	PM_WOLF, PM_STALKER, S_DOG, S_ELEMENTAL,
@@ -313,6 +343,9 @@ const struct Role roles[] = {
 	{"Adventurer",  0} },
 	"Blind Io", "_The Lady", "Offler", /* Discworld */
 	"Tou", "Ankh-Morpork", "the Thieves' Guild Hall",
+        "Tourists seem to have wandered into the dungeon by accident, equipped for a",
+        "holiday, with a camera, some money and maps, and plenty of food. Their only",
+        "defences are a stack of enchanted darts, and monsters' aversion to photography.",
 	PM_TOURIST, NON_PM, NON_PM,
 	PM_TWOFLOWER, PM_GUIDE, PM_MASTER_OF_THIEVES,
 	PM_GIANT_SPIDER, PM_FOREST_CENTAUR, S_SPIDER, S_CENTAUR,
@@ -339,6 +372,9 @@ const struct Role roles[] = {
 	{"Lord",        "Lady"} },
 	"Tyr", "Odin", "Loki", /* Norse */
 	"Val", "the Shrine of Destiny", "the cave of Surtur",
+        "Valkyries are warriors, used to cold climates; they start with few items, but",
+        "they are all useful, including a magical sword and highly enchanted shield.",
+        "Their experience with light armor lets them move unusually stealthily.",
 	PM_VALKYRIE, NON_PM, NON_PM /*PM_WINTER_WOLF_CUB*/,
 	PM_NORN, PM_WARRIOR, PM_LORD_SURTUR,
 	PM_FIRE_ANT, PM_FIRE_GIANT, S_ANT, S_GIANT,
@@ -364,6 +400,9 @@ const struct Role roles[] = {
 	{"Mage",        0} },
 	"Ptah", "Thoth", "Anhur", /* Egyptian */
 	"Wiz", "the Lonely Tower", "the Tower of Darkness",
+        "Although wizards start with no intrinsic abilities, they not only carry a wide",
+        "selection of magical items with them, but are very good at spellcasting,",
+        "starting with two spellbooks, and good at learning spells from others.",
 	PM_WIZARD, NON_PM, PM_KITTEN,
 	PM_NEFERET_THE_GREEN, PM_APPRENTICE, PM_DARK_ONE,
 	PM_VAMPIRE_BAT, PM_XORN, S_BAT, S_WRAITH,
@@ -389,7 +428,7 @@ const struct Role roles[] = {
 struct Role urole =
 {	{"Undefined", 0}, { {0, 0}, {0, 0}, {0, 0},
 	{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0} },
-	"L", "N", "C", "Xxx", "home", "locate",
+	"", "", "", "L", "N", "C", "Xxx", "home", "locate",
 	NON_PM, NON_PM, NON_PM, NON_PM, NON_PM, NON_PM,
 	NON_PM, NON_PM, 0, 0, 0, 0,
 	/* Str Int Wis Dex Con Cha */

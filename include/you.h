@@ -82,6 +82,8 @@ struct Role {
 	const char *homebase;	/* quest leader's location (from questpgr.c) */
 	const char *intermed;	/* quest intermediate goal (from questpgr.c) */
 
+	const char *intro1, *intro2, *intro3; /* description on game load */
+
 	/*** Indices of important monsters and objects ***/
 	short malenum,		/* index (PM_) as a male (botl.c) */
 	      femalenum,	/* ...or as a female (NON_PM == same) */
