@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 9 Aug 2010 by Alex Smith */
+/* Modified 11 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -530,6 +530,7 @@ newgame()
 	if (newgame_progress < 2) newgame_part_2();
         if (newgame_progress > 2) panic("Newgame sequence out of order: 3");
 
+        role_specific_modifications();
         u_init_nonidempotent();
 	init_dungeons();	
 	init_artifacts();	/* TODO: putting this here means wizkits
