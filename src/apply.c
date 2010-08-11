@@ -1184,6 +1184,8 @@ struct obj *obj;
 	    }
 	}
 
+       if (!obj) return 0;
+
 	/* now uwep is obj */
 	if (uwep->otyp == MAGIC_LAMP) {
             if (!obj || !wield_tool(obj, "rub")) return 0;
