@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 5 Aug 2010 by Alex Smith */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -628,9 +628,10 @@ char *prefix;
 		       is_flammable(obj) ? "fireproof " : "");
 }
 
-char *
-doname(obj)
+static char *
+doname_base(obj, with_price)
 register struct obj *obj;
+boolean with_price;
 {
 	boolean ispoisoned = FALSE;
 	char prefix[PREFIX];
@@ -850,6 +851,11 @@ ring:
 			quotedprice += contained_cost(obj, shkp, 0L, FALSE, TRUE);
 		Sprintf(eos(bp), " (unpaid, %ld %s)",
 			quotedprice, currency(quotedprice));
+	} else if (with_price) {
+		long price = get_cost_of_shop_item(obj);
+		if (price > 0) {
+			Sprintf(eos(bp), " (%ld %s)", price, currency(price));
+		}
 	}
 	if (!strncmp(prefix, "a ", 2) &&
 			index(vowels, *(prefix+2) ? *(prefix+2) : *bp)
@@ -862,6 +868,22 @@ ring:
 	}
 	bp = strprepend(bp, prefix);
 	return(bp);
+}
+
+/** Wrapper function for vanilla behaviour. */
+char *
+doname(obj)
+register struct obj *obj;
+{
+	return doname_base(obj, FALSE);
+}
+
+/** Name of object including price. */
+char *
+doname_with_price(obj)
+register struct obj *obj;
+{
+	return doname_base(obj, TRUE);
 }
 
 #endif /* OVL0 */

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pickup.c	3.4	2003/07/27	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -791,8 +791,8 @@ boolean FDECL((*allow), (OBJ_P));/* allow function */
 		    add_menu_colored(win, obj_to_glyph(curr), &any,
 			    qflags & USE_INVLET ? curr->invlet : 0,
 			    def_oc_syms[(int)objects[curr->otyp].oc_class],
-                            ATR_NONE, default_item_color(curr), doname(curr),
-                            MENU_UNSELECTED);
+                            ATR_NONE, default_item_color(curr),
+                            doname_with_price(curr), MENU_UNSELECTED);
 		}
 	    }
 	    pack++;

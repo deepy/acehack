@@ -170,6 +170,10 @@ UnNetHack.)
 A new conduct "startscumless" counts the number of times you looked at
 a character's stats before choosing to play with it.
 
+Objects in shops now have visible price tags, that are shown when you
+step on them. (Patch credits: a marginally modified version of a patch
+by bhaak for UnNetHack.)
+
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
 
