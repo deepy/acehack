@@ -206,6 +206,9 @@ Command changes:
 default, letters now have vikeys meanings by default. So either the
 numbpad or the letter keys can be used to move.
 
+c, #chat: c now means #chat (the old meaning of c, "close door", has
+been moved to o). These commands can now be used to pay your bill in a
+shop (which takes precedence over ordinary chatting).
 C, #name: These commands have been merged, and display a menu to ask
 what to do. (Credits: nethack.alt.org for the idea, although the code
 is mine.)

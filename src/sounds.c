@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)sounds.c	3.4	2002/05/06	*/
 /*	Copyright (c) 1989 Janet Walz, Mike Threepoint */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -837,8 +837,7 @@ static int
 dochat()
 {
     register struct monst *mtmp;
-    register int tx,ty;
-    struct obj *otmp;
+    int tx, ty;
 
     if (is_silent(youmonst.data)) {
 	pline("As %s, you cannot speak.", an(youmonst.data->mname));
@@ -857,16 +856,9 @@ dochat()
 	return(0);
     }
 
-    if (!Blind && (otmp = shop_object(u.ux, u.uy)) != (struct obj *)0) {
-	/* standing on something in a shop and chatting causes the shopkeeper
-	   to describe the price(s).  This can inhibit other chatting inside
-	   a shop, but that shouldn't matter much.  shop_object() returns an
-	   object iff inside a shop and the shopkeeper is present and willing
-	   (not angry) and able (not asleep) to speak and the position contains
-	   any objects other than just gold.
-	*/
-	price_quote(otmp);
-	return(1);
+    if ((mtmp = shop_keeper(*in_rooms(u.ux, u.uy, SHOPBASE))) && inhishop(mtmp)) {
+        /* chat command (c/p) in a shop pays the shopkeeper */
+        return dopay();
     }
 
     if (!getdir("Talk to whom? (in what direction)")) {

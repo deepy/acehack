@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)shk.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1134,9 +1134,13 @@ dopay()
 		return(0);
 	}
 
-	/* the usual case.  allow paying at a distance when */
-	/* inside a tended shop.  should we change that?    */
-	if(sk == 1 && resident) {
+        /* You can't pay nonresident shks at a distance > 2. But if there
+           was a shk within a distance of 2, this bit wouldn't be reached
+           unless the shk was nonangry. If you owe money, just automatically
+           select the resident shk; you almost certainly want that shk rather
+           than a nonangry shk elsewhere. */
+	if (resident &&
+            (seensk == 1 || ESHK(resident)->billct || ESHK(resident)->debit)) {
 		shkp = resident;
 		goto proceed;
 	}
