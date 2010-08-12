@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -209,7 +209,8 @@ unsigned *ospecial;
 #endif
             mon_color(offset);
         check_uline();
-        special |= MG_RIDDEN;
+        if (iflags.wc_color) color += CLR_MAX*CLR_BLUE;
+        else special |= MG_RIDDEN;
     } else if ((offset = (glyph - GLYPH_BODY_OFF)) >= 0) {	/* a corpse */
 	ch = oc_syms[(int)objects[CORPSE].oc_class];
 #ifdef ROGUE_COLOR
@@ -218,7 +219,6 @@ unsigned *ospecial;
 	else
 #endif
 	    mon_color(offset);
-        check_uline();
         special |= MG_CORPSE;
     } else if ((offset = (glyph - GLYPH_DETECT_OFF)) >= 0) {	/* mon detect */
 	ch = monsyms[(int)mons[offset].mlet];
@@ -229,9 +229,8 @@ unsigned *ospecial;
 #endif
 	    mon_color(offset);
         check_uline();
-	/* Disabled for now; anyone want to get reverse video to work? */
-	/* is_reverse = TRUE; */
-        special |= MG_DETECT;
+        if (iflags.wc_color) color += CLR_MAX*CLR_MAGENTA;
+        else special |= MG_DETECT;
     } else if ((offset = (glyph - GLYPH_INVIS_OFF)) >= 0) {	/* invisible */
 	ch = DEF_INVISIBLE;
 #ifdef ROGUE_COLOR
@@ -250,7 +249,8 @@ unsigned *ospecial;
 #endif
 	    pet_color(offset);
         check_uline();
-        special |= MG_PET;
+        if (iflags.wc_color) color += CLR_MAX*CLR_BLUE;
+        else special |= MG_PET;
     } else {							/* a monster */
 	ch = monsyms[(int)mons[glyph].mlet];
 #ifdef ROGUE_COLOR
@@ -263,8 +263,15 @@ unsigned *ospecial;
 	} else
 #endif
 	{
+            struct monst * mon;
 	    mon_color(glyph);
             check_uline();
+            /* Peaceful monsters get their own branding. If we're drawing
+               the monster at all, the hero must be able to see it, and thus
+               farlook it, so this doesn't leak info. */
+            mon = m_at(x,y);
+            if (mon && mon->mpeaceful && iflags.wc_color)
+                color += CLR_MAX*CLR_BROWN;
 	    /* special case the hero for `showrace' option */
 #ifdef TEXTCOLOR
 	    if (iflags.use_color && x == u.ux && y == u.uy &&
@@ -278,12 +285,12 @@ unsigned *ospecial;
     /* Turn off color if no color defined, or rogue level w/o PC graphics. */
 # ifdef REINCARNATION
 #  ifdef ASCIIGRAPH
-    if (!has_color(color) || (Is_rogue_level(&u.uz) && !HAS_ROGUE_IBM_GRAPHICS))
+    if (!has_color(color%CLR_MAX) || (Is_rogue_level(&u.uz) && !HAS_ROGUE_IBM_GRAPHICS))
 #  else
-    if (!has_color(color) || Is_rogue_level(&u.uz))
+    if (!has_color(color%CLR_MAX) || Is_rogue_level(&u.uz))
 #  endif
 # else
-    if (!has_color(color))
+    if (!has_color(color%CLR_MAX))
 # endif
 	color = NO_COLOR;
 #endif

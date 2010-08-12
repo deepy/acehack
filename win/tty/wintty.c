@@ -894,6 +894,7 @@ tty_clear_nhwindow(window)
 	flags.botlx = 1;
 	/* fall into ... */
     case NHW_BASE:
+        onechar(0);
 	clear_screen();
 	break;
     case NHW_MENU:
@@ -2542,8 +2543,10 @@ copy_of(s)
  * for control codes).
  */
 static int current_color = CLR_GRAY;
+static int current_background = CLR_BLACK;
 static int current_attrs = 0;
 static int last_color = NO_COLOR;
+static int last_background = NO_COLOR;
 static boolean last_wc_color = FALSE;
 static int last_attrs = 0;
 void
@@ -2551,52 +2554,66 @@ onechar(c)
 int c;
 {
     boolean repeatattrs = FALSE;
+    int temp_ca = current_attrs;
+    int temp_fg = current_color;
+    int temp_bg = current_background;
     if (iflags.wc_color != last_wc_color) {
         repeatattrs = TRUE;
-        if (!iflags.wc_color) term_end_color();
+        if (!iflags.wc_color) {
+            term_end_color();
+            term_end_background();
+        }
         last_wc_color = iflags.wc_color;
         last_color = NO_COLOR;
+        last_background = NO_COLOR;
+    } else {
+        /* Check for, say, green-on-green; change it to inverse green. */
+        if (temp_fg == temp_bg) {
+            temp_ca |= 16;
+            temp_bg = CLR_BLACK;
+        }
     }
     /* This is asymmetrical, in that turning one attr off sometimes
        (but not always) turns other attrs and color off too, but turning
        an attr on always works fine. */
-    if (current_attrs != last_attrs || repeatattrs) {
+    if (temp_ca != last_attrs || repeatattrs) {
         /* Anything turned off? */
-        if ((last_attrs & 32) && !(current_color & BRIGHT)) {
+        if ((last_attrs & 32) && !(temp_fg & BRIGHT)) {
             /* The value of bold is unknown. Turn it off, and mark it as
                turned off, so it gets set to the right value, unless
                we're about to write a bright color anyway and it doesn't
                matter. */
-            if (current_attrs & 1) last_attrs &= ~1; else last_attrs |= 1;
+            if (temp_ca & 1) last_attrs &= ~1; else last_attrs |= 1;
             last_attrs &= ~32;
         }
-        if (last_attrs & ~current_attrs &  1) term_end_attr(ATR_BOLD);
-        if (last_attrs & ~current_attrs &  2) term_end_attr(ATR_DIM);
-        if (last_attrs & ~current_attrs &  4) term_end_attr(ATR_ULINE);
-        if (last_attrs & ~current_attrs &  8) term_end_attr(ATR_BLINK);
-        if (last_attrs & ~current_attrs & 16) term_end_attr(ATR_INVERSE);
-        if (last_attrs & ~current_attrs) repeatattrs = TRUE;
+        if (last_attrs & ~temp_ca &  1) term_end_attr(ATR_BOLD);
+        if (last_attrs & ~temp_ca &  2) term_end_attr(ATR_DIM);
+        if (last_attrs & ~temp_ca &  4) term_end_attr(ATR_ULINE);
+        if (last_attrs & ~temp_ca &  8) term_end_attr(ATR_BLINK);
+        if (last_attrs & ~temp_ca & 16) term_end_attr(ATR_INVERSE);
+        if (last_attrs & ~temp_ca) repeatattrs = TRUE;
         if (repeatattrs) last_attrs = 0; /* do them all again */
     }
-    if (iflags.wc_color && (current_color != last_color || repeatattrs)) {
-        term_start_color(current_color);
-        last_color = current_color;
+    if (iflags.wc_color && (temp_fg != last_color || repeatattrs)) {
+        term_start_color(temp_fg);
+        last_color = temp_fg;
         /* Setting the color to a bright one may implicitly turn on bold. */
-        if (current_color & BRIGHT) last_attrs |= 32;
+        if (temp_fg & BRIGHT) last_attrs |= 32;
         repeatattrs = TRUE;
     }
-    if (current_attrs != last_attrs || repeatattrs) {
+    if (temp_ca != last_attrs || repeatattrs) {
         /* Anything turned on? */
-        if (~last_attrs & current_attrs &  1) term_start_attr(ATR_BOLD);
-        if (~last_attrs & current_attrs &  2) term_start_attr(ATR_DIM);
-        if (~last_attrs & current_attrs &  4) term_start_attr(ATR_ULINE);
-        if (~last_attrs & current_attrs &  8) term_start_attr(ATR_BLINK);
-        if (~last_attrs & current_attrs & 16) term_start_attr(ATR_INVERSE);
-        last_attrs = current_attrs | (last_attrs & 32);
+        if (~last_attrs & temp_ca &  1) term_start_attr(ATR_BOLD);
+        if (~last_attrs & temp_ca &  2) term_start_attr(ATR_DIM);
+        if (~last_attrs & temp_ca &  4) term_start_attr(ATR_ULINE);
+        if (~last_attrs & temp_ca &  8) term_start_attr(ATR_BLINK);
+        if (~last_attrs & temp_ca & 16) term_start_attr(ATR_INVERSE);
+        last_attrs = temp_ca | (last_attrs & 32);
     }
-    if (iflags.wc_color && repeatattrs) {
+    if (iflags.wc_color && (temp_bg != last_background || repeatattrs)) {
         /* Set the background color */
-        xputs("\033[40m"); //tk
+        term_start_background(temp_bg);
+        last_background = temp_bg;
     }
     if (c != 0) putchar(c);
 }
@@ -2632,7 +2649,8 @@ static void
 tty_start_color(c)
 int c;
 {
-    current_color = c;
+    current_color = c % CLR_MAX;
+    current_background = c / CLR_MAX;
     if (current_color == NO_COLOR) current_color = CLR_GRAY;
     if (current_color == CLR_BLACK) current_color = CLR_BLUE;
 }
@@ -2643,6 +2661,7 @@ tty_end_color()
        if you set the background explicitly, you should also set the
        foreground explicitly. */
     current_color = CLR_GRAY;
+    current_background = CLR_BLACK;
 }
 
 /* Some public versions, to stop people trying to mess with attributes

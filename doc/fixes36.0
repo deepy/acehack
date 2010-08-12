@@ -177,6 +177,10 @@ Platform- and/or Interface-Specific New Features
 The standard build system is now autoconf-based.  (Patch credits:
 initially from Slash'EM; ported from UnNetHack)
 
+(tty interface)
+Monsters now have their background color changed to show various
+aspects of the monster (blue=tame, brown=peaceful, magenta=detected).
+
 Change Detail
 -------------
 

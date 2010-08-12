@@ -65,8 +65,10 @@ STATIC_VAR char tbuf[512];
 #ifdef TEXTCOLOR
 # ifdef TOS
 const char *hilites[CLR_MAX];	/* terminal escapes for the various colors */
+const char *lolites[BRIGHT];	/* same for backgrounds */
 # else
 char NEARDATA *hilites[CLR_MAX]; /* terminal escapes for the various colors */
+char NEARDATA *lolites[BRIGHT];  /* same for backgrounds */
 # endif
 #endif
 
@@ -178,14 +180,10 @@ int *wid, *hgt;
 		    if (i != CLR_BLACK) {
 			hilites[i|BRIGHT] = (char *) alloc(sizeof("\033[1;3%dm"));
 			Sprintf(hilites[i|BRIGHT], "\033[1;3%dm", i);
-#   ifdef MICRO
-                        if (i == CLR_BLUE) hilites[CLR_BLUE] = hilites[CLR_BLUE|BRIGHT];
-                        else
-#   endif
-                        {
-                            hilites[i] = (char *) alloc(sizeof("\033[0;3%dm"));
-                            Sprintf(hilites[i], "\033[0;3%dm", i);
-                        }
+			lolites[i] = (char *) alloc(sizeof("\033[4%dm"));
+			Sprintf(lolites[i], "\033[4%dm", i);
+                        hilites[i] = (char *) alloc(sizeof("\033[0;3%dm"));
+                        Sprintf(hilites[i], "\033[0;3%dm", i);
 		    }
 #  endif
 		*wid = CO;
@@ -607,6 +605,8 @@ const char *s;
 void
 cl_end()
 {
+	/* Make sure background is set first... */
+	onechar(0);
 	if(CE)
 		xputs(CE);
 	else {	/* no-CE fix - free after Harold Rynes */
@@ -894,8 +894,11 @@ init_hilite()
 	register int c;
 	char *setf, *scratch;
 
-	for (c = 0; c < SIZE(hilites); c++)
+	for (c = 0; c < SIZE(hilites); c++) {
 		hilites[c] = nh_HI;
+                if (c < SIZE(lolites)) lolites[c] = MR;
+        }
+        lolites[0] = ME;
 	hilites[NO_COLOR] = (char *)0;
 
 	if (tgetnum("Co") < 8
@@ -910,6 +913,17 @@ init_hilite()
             hilites[c|BRIGHT] = (char*) alloc(strlen(scratch)+strlen(MD)+1);
             Strcpy(hilites[c|BRIGHT], MD);
             Strcat(hilites[c|BRIGHT], scratch);
+	}
+
+	if (tgetnum("Co") < 8
+	    || ((setf = tgetstr("AB", (char **)0)) == (char *)0
+		 && (setf = tgetstr("Sb", (char **)0)) == (char *)0))
+		return;
+
+	for (c = 0; c < CLR_MAX / 2; c++) {
+	    scratch = tparm(setf, ti_map[c]);
+            lolites[c] = (char *) alloc(strlen(scratch) + 1);
+            Strcpy(lolites[c], scratch);
 	}
 }
 
@@ -1028,11 +1042,14 @@ init_hilite()
 	hilites[NO_COLOR] = (char *)0;
 
 	for (c = 0; c < SIZE(hilites); c++) {
+            if (c < BRIGHT) {
+                lolites[c] = (char *) alloc(sizeof("\033[4%dm"));
+                Sprintf(lolites[c], "\033[4%dm", c);
+            }
             if (c == NO_COLOR) continue;
-            hilites[c] = (char *) alloc(sizeof("\033[%d;3%d;4%dm"));
+            hilites[c] = (char *) alloc(sizeof("\033[%d;3%dm"));
             Sprintf(hilites[c], "\033[%d", !!(c & BRIGHT));
             Sprintf(eos(hilites[c]), ";3%d", c & ~BRIGHT);
-            Sprintf(eos(hilites[c]), ";40");
             Strcat(hilites[c], "m");
         }
 
@@ -1047,6 +1064,8 @@ kill_hilite()
 	register int c;
 
 	for (c = 0; c < CLR_MAX / 2; c++) {
+            if (lolites[c] && (lolites[c] != MR) && (lolites[c] != ME))
+                free((genericptr_t) lolites[c]),  lolites[c] = 0;
 	    if (hilites[c|BRIGHT] == hilites[c])  hilites[c|BRIGHT] = 0;
 	    if (hilites[c] && (hilites[c] != nh_HI))
 		free((genericptr_t) hilites[c]),  hilites[c] = 0;
@@ -1147,6 +1166,19 @@ int color;
 	xputs(hilites[color]);
 }
 
+void
+term_end_background()
+{
+	xputs(nh_HE);
+}
+
+
+void
+term_start_background(color)
+int color;
+{
+	xputs(lolites[color]);
+}
 
 int
 has_color(color)
