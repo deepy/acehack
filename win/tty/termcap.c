@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)termcap.c	3.4	2000/07/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -178,15 +178,14 @@ int *wid, *hgt;
 		    if (i != CLR_BLACK) {
 			hilites[i|BRIGHT] = (char *) alloc(sizeof("\033[1;3%dm"));
 			Sprintf(hilites[i|BRIGHT], "\033[1;3%dm", i);
-			if (i != CLR_GRAY)
 #   ifdef MICRO
-			    if (i == CLR_BLUE) hilites[CLR_BLUE] = hilites[CLR_BLUE|BRIGHT];
-			    else
+                        if (i == CLR_BLUE) hilites[CLR_BLUE] = hilites[CLR_BLUE|BRIGHT];
+                        else
 #   endif
-			    {
-				hilites[i] = (char *) alloc(sizeof("\033[0;3%dm"));
-				Sprintf(hilites[i], "\033[0;3%dm", i);
-			    }
+                        {
+                            hilites[i] = (char *) alloc(sizeof("\033[0;3%dm"));
+                            Sprintf(hilites[i], "\033[0;3%dm", i);
+                        }
 		    }
 #  endif
 		*wid = CO;
@@ -471,10 +470,8 @@ tty_ascgraphics_hilite_fixup()
 	if (c != CLR_BLACK) {
 	    hilites[c|BRIGHT] = (char *) alloc(sizeof("\033[1;3%dm"));
 	    Sprintf(hilites[c|BRIGHT], "\033[1;3%dm", c);
-	    if (c != CLR_GRAY) {
-		    hilites[c] = (char *) alloc(sizeof("\033[0;3%dm"));
-		    Sprintf(hilites[c], "\033[0;3%dm", c);
-	    }
+            hilites[c] = (char *) alloc(sizeof("\033[0;3%dm"));
+            Sprintf(hilites[c], "\033[0;3%dm", c);
 	}
 }
 #endif /* PC9800 */
@@ -669,6 +666,7 @@ standoutend()
 }
 
 #if 0	/* if you need one of these, uncomment it (here and in extern.h) */
+
 void
 revbeg()
 {
@@ -846,8 +844,6 @@ cl_eos()			/* free after Robert Viduya */
  * We'll try just preferring AF and hoping it always agrees with COLOR_FOO,
  * and falling back to Sf if AF isn't defined.
  *
- * In any case, treat black specially so we don't try to display black
- * characters on the assumed black background.
  */
 
 	/* `curses' is aptly named; various versions don't like these
@@ -866,9 +862,9 @@ extern char *tparm();
 #endif
 
 #  ifdef COLOR_BLACK	/* trust include file */
-#undef COLOR_BLACK
 #  else
 #   ifndef _M_UNIX	/* guess BGR */
+#define COLOR_BLACK   0
 #define COLOR_BLUE    1
 #define COLOR_GREEN   2
 #define COLOR_CYAN    3
@@ -877,6 +873,7 @@ extern char *tparm();
 #define COLOR_YELLOW  6
 #define COLOR_WHITE   7
 #   else		/* guess RGB */
+#define COLOR_BLACK   0
 #define COLOR_RED     1
 #define COLOR_GREEN   2
 #define COLOR_YELLOW  3
@@ -886,7 +883,6 @@ extern char *tparm();
 #define COLOR_WHITE   7
 #   endif
 #  endif
-#define COLOR_BLACK COLOR_BLUE
 
 const int ti_map[8] = {
 	COLOR_BLACK, COLOR_RED, COLOR_GREEN, COLOR_YELLOW,
@@ -900,7 +896,7 @@ init_hilite()
 
 	for (c = 0; c < SIZE(hilites); c++)
 		hilites[c] = nh_HI;
-	hilites[CLR_GRAY] = hilites[NO_COLOR] = (char *)0;
+	hilites[NO_COLOR] = (char *)0;
 
 	if (tgetnum("Co") < 8
 	    || ((setf = tgetstr("AF", (char **)0)) == (char *)0
@@ -909,16 +905,11 @@ init_hilite()
 
 	for (c = 0; c < CLR_MAX / 2; c++) {
 	    scratch = tparm(setf, ti_map[c]);
-	    if (c != CLR_GRAY) {
-		hilites[c] = (char *) alloc(strlen(scratch) + 1);
-		Strcpy(hilites[c], scratch);
-	    }
-	    if (c != CLR_BLACK) {
-		hilites[c|BRIGHT] = (char*) alloc(strlen(scratch)+strlen(MD)+1);
-		Strcpy(hilites[c|BRIGHT], MD);
-		Strcat(hilites[c|BRIGHT], scratch);
-	    }
-
+            hilites[c] = (char *) alloc(strlen(scratch) + 1);
+            Strcpy(hilites[c], scratch);
+            hilites[c|BRIGHT] = (char*) alloc(strlen(scratch)+strlen(MD)+1);
+            Strcpy(hilites[c|BRIGHT], MD);
+            Strcat(hilites[c|BRIGHT], scratch);
 	}
 }
 
@@ -982,8 +973,8 @@ int *fg, *bg;
 
 /*
  * Sets up highlighting sequences, using ANSI escape sequences (highlight code
- * found in print.c).  The nh_HI and nh_HE sequences (usually from SO) are
- * scanned to find foreground and background colors.
+ * found in print.c). AceHack forces the background color, so the foreground
+ * colors are forced too in order to avoid the black-on-black problem.
  */
 
 static void
@@ -1032,38 +1023,19 @@ init_hilite()
 
 #  else /* TOS */
 
-	int backg, foreg, hi_backg, hi_foreg;
-
 	for (c = 0; c < SIZE(hilites); c++)
 	    hilites[c] = nh_HI;
-	hilites[CLR_GRAY] = hilites[NO_COLOR] = (char *)0;
+	hilites[NO_COLOR] = (char *)0;
 
-	analyze_seq(nh_HI, &hi_foreg, &hi_backg);
-	analyze_seq(nh_HE, &foreg, &backg);
+	for (c = 0; c < SIZE(hilites); c++) {
+            if (c == NO_COLOR) continue;
+            hilites[c] = (char *) alloc(sizeof("\033[%d;3%d;4%dm"));
+            Sprintf(hilites[c], "\033[%d", !!(c & BRIGHT));
+            Sprintf(eos(hilites[c]), ";3%d", c & ~BRIGHT);
+            Sprintf(eos(hilites[c]), ";40");
+            Strcat(hilites[c], "m");
+        }
 
-	for (c = 0; c < SIZE(hilites); c++)
-	    /* avoid invisibility */
-	    if ((backg & ~BRIGHT) != c) {
-#   ifdef MICRO
-		if (c == CLR_BLUE) continue;
-#   endif
-		if (c == foreg)
-		    hilites[c] = (char *)0;
-		else if (c != hi_foreg || backg != hi_backg) {
-		    hilites[c] = (char *) alloc(sizeof("\033[%d;3%d;4%dm"));
-		    Sprintf(hilites[c], "\033[%d", !!(c & BRIGHT));
-		    if ((c | BRIGHT) != (foreg | BRIGHT))
-			Sprintf(eos(hilites[c]), ";3%d", c & ~BRIGHT);
-		    if (backg != CLR_BLACK)
-			Sprintf(eos(hilites[c]), ";4%d", backg & ~BRIGHT);
-		    Strcat(hilites[c], "m");
-		}
-	    }
-
-#   ifdef MICRO
-	/* brighten low-visibility colors */
-	hilites[CLR_BLUE] = hilites[CLR_BLUE|BRIGHT];
-#   endif
 #  endif /* TOS */
 }
 # endif /* UNIX */

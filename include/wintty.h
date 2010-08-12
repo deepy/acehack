@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.h	3.4	1996/02/18	*/
 /* Copyright (c) David Cohrs, 1991,1992				  */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef WINTTY_H
@@ -220,6 +220,8 @@ E short FDECL(set_tty_font_name, (winid, char *));
 #endif
 E char * NDECL(tty_get_color_string);
 #endif
+
+E void FDECL(onechar, (int));
 
 /* other defs that really should go away (they're tty specific) */
 E void NDECL(tty_start_screen);

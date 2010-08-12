@@ -1,10 +1,9 @@
 /*	SCCS Id: @(#)botl.c	3.4	1996/07/15	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
-#include "wintty.h"
 
 #ifdef OVL0
 extern const char *hu_stat[];	/* defined in eat.c */
@@ -156,12 +155,12 @@ botl_score()
 #endif
 
 /* Draws an HP bar, covering columns 1-20 of the specified row.
- * Loosely based on the "hpmon" patch by Ralph Churchill. */
+ * Very loosely based on the "hpmon" patch by Ralph Churchill. */
 STATIC_OVL void
 hp_pw_bar(current, outof, ishp, y)
   int current, outof, ishp, y;
 {
-  int hpcolor, hpattr = 0;
+  int hpcolor;
   char buf[16];
   char bt;
   int hpsplit;
@@ -178,12 +177,10 @@ hp_pw_bar(current, outof, ishp, y)
   else if (current*3 > outof*2) hpcolor = ishp ? CLR_GREEN : CLR_CYAN;
   else if (current*3 > outof)   hpcolor = ishp ? CLR_BROWN : CLR_BLUE;
   else hpcolor = ishp ? CLR_RED : CLR_MAGENTA;
-  if (current*7 <= outof) hpattr = ATR_BOLD;
+  if (current*7 <= outof) hpcolor |= BRIGHT;
   curs(WIN_STATUS, 1, y);
-  if (iflags.use_color && hpcolor != NO_COLOR) term_start_color(hpcolor);
-  term_start_attr(hpattr);
-  if (ishp) putstr(WIN_STATUS, hpattr, "HP:[");
-  else putstr(WIN_STATUS, hpattr, "Pw:[");
+  if (ishp) putstr_colored(WIN_STATUS, 0, hpcolor, "HP:[");
+  else putstr_colored(WIN_STATUS, 0, hpcolor, "Pw:[");
   if (current <= 999999 && outof <= 999999)
     Sprintf(buf, "%6d / %-6d", current, outof);
   else if (current <= 999999 && outof <= 99999999)
@@ -198,20 +195,13 @@ hp_pw_bar(current, outof, ishp, y)
     Sprintf(buf, "%4dM / %-4dM", current/1000000, outof/1000000);
   curs(WIN_STATUS, 5, y);
   bt = buf[hpsplit]; buf[hpsplit] = 0;
-  term_start_attr(ATR_INVERSE);
-  putstr(WIN_STATUS, ATR_INVERSE, buf);
-  term_end_attr(ATR_INVERSE);
-  if (hpcolor != NO_COLOR) term_end_color();
-  if (iflags.use_color && hpcolor != NO_COLOR) term_start_color(hpcolor);
-  term_start_attr(hpattr);
+  putstr_colored(WIN_STATUS, ATR_INVERSE, hpcolor, buf);
   buf[hpsplit] = bt;
   curs(WIN_STATUS, 5+hpsplit, y);
-  putstr(WIN_STATUS, hpattr, buf+hpsplit);
+  putstr_colored(WIN_STATUS, 0, hpcolor, buf+hpsplit);
   curs(WIN_STATUS, 20, y);
-  putstr(WIN_STATUS, hpattr,"]");
+  putstr_colored(WIN_STATUS, 0, hpcolor, "]");
   curs(WIN_STATUS, 22, y);
-  if (hpcolor != NO_COLOR) term_end_color();
-  term_end_attr(hpattr);
 }
 
 STATIC_OVL void

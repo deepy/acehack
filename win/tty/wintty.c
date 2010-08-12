@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 9 Aug 2010 by Alex Smith */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -154,6 +154,10 @@ static const char to_continue[] = "to continue";
 #else
 STATIC_DCL void NDECL(getret);
 #endif
+STATIC_DCL void FDECL(tty_start_color, (int));
+STATIC_DCL void NDECL(tty_end_color);
+STATIC_DCL void FDECL(tty_start_attr, (int));
+STATIC_DCL void FDECL(tty_end_attr, (int));
 STATIC_DCL void FDECL(erase_menu_or_text, (winid, struct WinDesc *, BOOLEAN_P));
 STATIC_DCL void FDECL(free_window_info, (struct WinDesc *, BOOLEAN_P));
 STATIC_DCL void FDECL(dmore,(struct WinDesc *, const char *));
@@ -289,9 +293,6 @@ char** argv;
     ttyDisplay->curx = ttyDisplay->cury = 0;
     ttyDisplay->inmore = ttyDisplay->inread = ttyDisplay->intr = 0;
     ttyDisplay->dismiss_more = 0;
-#ifdef TEXTCOLOR
-    ttyDisplay->color = NO_COLOR;
-#endif
     ttyDisplay->attrs = 0;
 
     /* set up the default windows */
@@ -307,6 +308,8 @@ char** argv;
     /* add one a space forward menu command alias */
     add_menu_cmd_alias(' ', MENU_NEXT_PAGE);
 
+    /* Clear the screen with the background color. */
+    onechar(0);
     tty_clear_nhwindow(BASE_WINDOW);
 
     tty_putstr(BASE_WINDOW, 0, "");
@@ -398,7 +401,7 @@ tty_player_selection()
         tty_clear_nhwindow(BASE_WINDOW);
 
         curs(BASE_WINDOW, 6, 1);
-        tty_putstr(BASE_WINDOW, ATR_BOLD, "Create your character:");
+        tty_putstr_colored(BASE_WINDOW, 0, CLR_WHITE, "Create your character:");
         curs(BASE_WINDOW, 40, 1);
         tty_putstr(BASE_WINDOW, ATR_INVERSE, "Inventory");
         curs(BASE_WINDOW, 6, 3);
@@ -414,32 +417,27 @@ tty_player_selection()
         do {
             struct player_selection_menu_option* p = player_selection_menu_options;
             int savestat, i;
-            boolean cchanged;
             struct obj * otmp;
             while (p->x) {
+                int color = CLR_GRAY;
                 curs(BASE_WINDOW, p->x, p->y);
                 Sprintf(obuf, "%c %c %s", p->accel,
                         p->savein && p->convfunction(p->item) == *(p->savein) ? '+' : '-',
                         p->item);
                 /* We colour a crga in brown if it couldn't be changed to without
                    having to change some other aspect of the character */
-                cchanged = FALSE;
                 if (p->savein) {
                     savestat = *(p->savein);
                     *(p->savein) = p->convfunction(p->item);
                     if (!p->validator(flags.initrole,flags.initrace,
                                       flags.initgend,flags.initalign)) {
-                        if (iflags.wc_color) {
-                            term_start_color(CLR_BROWN);
-                            cchanged = TRUE;
-                        }
+                        color = CLR_BROWN;
                         if (obuf[2] == '+') obuf[2] = '!';
                     }
                     *(p->savein) = savestat;
                 }
-                tty_putstr(BASE_WINDOW,
-                           obuf[2] != '-' || p->accel == '.' ? ATR_BOLD : 0, obuf);
-                if (cchanged) term_end_color();
+                if (obuf[2] != '-' || p->accel == '.') color += BRIGHT;
+                tty_putstr_colored(BASE_WINDOW, 0, color, obuf);
                 p++;
             }
             if (ok_role (flags.initrole,flags.initrace,flags.initgend,flags.initalign) &&
@@ -612,12 +610,12 @@ tty_askname()
 #if defined(MICRO)
 # if defined(MSDOS)
 			if (iflags.grmode) {
-				(void) putchar(c);
+				(void) onechar(c);
 			} else
 # endif
 			msmsg("%c", c);
 #else
-			(void) putchar(c);
+			(void) onechar(c);
 #endif
 			plname[ct++] = c;
 #ifdef WIN32CON
@@ -918,12 +916,11 @@ dmore(cw, s)
 
     tty_curs(BASE_WINDOW,
 	     (int)ttyDisplay->curx + offset, (int)ttyDisplay->cury);
-    if(flags.standout)
-	standoutbeg();
-    xputs(prompt);
+
     ttyDisplay->curx += strlen(prompt);
-    if(flags.standout)
-	standoutend();
+    tty_start_attr(ATR_INVERSE);
+    while (*prompt) onechar(*prompt++);
+    tty_end_attr(ATR_INVERSE);
 
     xwaitforspace(s);
 }
@@ -936,12 +933,12 @@ set_item_state(window, lineno, item)
 {
     char ch = item->selected ? (item->count == -1L ? '+' : '#') : '-';
     tty_curs(window, 4, lineno);
-    term_start_attr(item->attr);
-    if(item->color != NO_COLOR) term_start_color(item->color);
-    (void) putchar(ch);
+    tty_start_attr(item->attr);
+    tty_start_color(item->color);
+    (void) onechar(ch);
     ttyDisplay->curx++;
-    if(item->color != NO_COLOR) term_end_color();
-    term_end_attr(item->attr);
+    tty_end_color();
+    tty_end_attr(item->attr);
 }
 
 STATIC_OVL void
@@ -1111,7 +1108,7 @@ struct WinDesc *cw;
 		    tty_curs(window, 1, page_lines);
 		    if (cw->offx) cl_end();
 
-		    (void) putchar(' ');
+		    (void) onechar(' ');
 		    ++ttyDisplay->curx;
 		    /*
 		     * Don't use xputs() because (1) under unix it calls
@@ -1123,12 +1120,11 @@ struct WinDesc *cw;
 #ifdef MENU_COLOR
                     if (iflags.use_menu_color) {
                         get_menu_coloring(curr->str, &curr->color, &curr->attr);
-		        term_start_attr(curr->attr);
-		        if (curr->color != NO_COLOR && iflags.wc_color)
-                            term_start_color(curr->color);
+		        tty_start_attr(curr->attr);
+                        tty_start_color(curr->color);
                     } else
 #endif
-                        term_start_attr(curr->attr);
+                        tty_start_attr(curr->attr);
 		    for (n = 0, cp = curr->str;
 #ifndef WIN32CON
 			  *cp && (int) ++ttyDisplay->curx < (int) ttyDisplay->cols;
@@ -1140,16 +1136,15 @@ struct WinDesc *cw;
 			if (n == 2 && curr->identifier.a_void != 0 &&
 							curr->selected) {
 			    if (curr->count == -1L)
-				(void) putchar('+'); /* all selected */
+				(void) onechar('+'); /* all selected */
 			    else
-				(void) putchar('#'); /* count selected */
+				(void) onechar('#'); /* count selected */
 			} else
-			    (void) putchar(*cp);
+			    (void) onechar(*cp);
 #ifdef MENU_COLOR
-		   if (iflags.use_menu_color)
-                       if (curr->color != NO_COLOR && iflags.wc_color) term_end_color();
+                    tty_end_color();
 #endif
-                   term_end_attr(curr->attr);
+                    tty_end_attr(curr->attr);
 		}
 	    } else {
 		page_start = 0;
@@ -1373,10 +1368,10 @@ struct WinDesc *cw;
 	    color = cw->data[i][0] - 1;
 	    attr = cw->data[i][1] - 1;
 	    if (cw->offx) {
-		(void) putchar(' '); ++ttyDisplay->curx;
+		(void) onechar(' '); ++ttyDisplay->curx;
 	    }
-	    term_start_attr(attr);
-            if (iflags.wc_color && color != NO_COLOR) term_start_color(color);
+	    tty_start_attr(attr);
+            tty_start_color(color);
 	    for (cp = &cw->data[i][2];
 #ifndef WIN32CON
 		    *cp && (int) ++ttyDisplay->curx < (int) ttyDisplay->cols;
@@ -1385,9 +1380,9 @@ struct WinDesc *cw;
 		    *cp && (int) ttyDisplay->curx < (int) ttyDisplay->cols;
 		    cp++, ttyDisplay->curx++)
 #endif
-		(void) putchar(*cp);
-            if (iflags.wc_color && color != NO_COLOR) term_end_color();
-	    term_end_attr(attr);
+		(void) onechar(*cp);
+            tty_end_color();
+	    tty_end_attr(attr);
 	}
     }
     if (i == cw->maxrow) {
@@ -1596,7 +1591,7 @@ register int x, y;	/* not xchar: perhaps xchar is unsigned and
 	nocmov(x, y);
 #ifndef NO_TERMS
     } else if ((x <= 3 && cy <= 3) || (!nh_CM && x < cx)) {
-	(void) putchar('\r');
+	(void) onechar('\r');
 	ttyDisplay->curx = 0;
 	nocmov(x, y);
     } else if (!nh_CM) {
@@ -1625,7 +1620,7 @@ tty_putsym(window, x, y, ch)
     case NHW_MAP:
     case NHW_BASE:
 	tty_curs(window, x, y);
-	(void) putchar(ch);
+	(void) onechar(ch);
 	ttyDisplay->curx++;
 	cw->curx++;
 	break;
@@ -1708,6 +1703,8 @@ tty_putstr_colored(window, attr, color, str)
 	break;
 
     case NHW_STATUS:
+        tty_start_color(color);
+        tty_start_attr(attr);
 	ob = &cw->data[cw->cury][j = cw->curx];
 	if(flags.botlx) *ob = 0;
 	if(!cw->cury && (int)strlen(str) >= CO) {
@@ -1726,8 +1723,7 @@ tty_putstr_colored(window, attr, color, str)
 		}
 		break;
 	    }
-/*	    if(*ob != *nb) */
-		tty_putsym(WIN_STATUS, i, cw->cury, *nb);
+            tty_putsym(WIN_STATUS, i, cw->cury, *nb);
 	    if(*ob) ob++;
 	}
 
@@ -1735,37 +1731,39 @@ tty_putstr_colored(window, attr, color, str)
 	cw->data[cw->cury][cw->cols-1] = '\0'; /* null terminate */
 	cw->cury = (cw->cury+1) % 2;
 	cw->curx = 0;
+        tty_end_color();
+        tty_end_attr(attr);
 	break;
     case NHW_MAP:
 	tty_curs(window, cw->curx+1, cw->cury);
-	term_start_attr(attr);
+	tty_start_attr(attr);
 	while(*str && (int) ttyDisplay->curx < (int) ttyDisplay->cols-1) {
-	    (void) putchar(*str);
+	    (void) onechar(*str);
 	    str++;
 	    ttyDisplay->curx++;
 	}
 	cw->curx = 0;
 	cw->cury++;
-	term_end_attr(attr);
+	tty_end_attr(attr);
 	break;
     case NHW_BASE:
 	tty_curs(window, cw->curx+1, cw->cury);
-	term_start_attr(attr);
-        if (color != NO_COLOR && iflags.wc_color) term_start_color(color);
+	tty_start_attr(attr);
+        tty_start_color(color);
 	while (*str) {
 	    if ((int) ttyDisplay->curx >= (int) ttyDisplay->cols-1) {
 		cw->curx = 0;
 		cw->cury++;
 		tty_curs(window, cw->curx+1, cw->cury);
 	    }
-	    (void) putchar(*str);
+	    (void) onechar(*str);
 	    str++;
 	    ttyDisplay->curx++;
 	}
 	cw->curx = 0;
 	cw->cury++;
-        if (color != NO_COLOR && iflags.wc_color) term_end_color();
-	term_end_attr(attr);
+        tty_end_color();
+	tty_end_attr(attr);
 	break;
     case NHW_MENU:
     case NHW_TEXT:
@@ -2258,12 +2256,7 @@ end_glyphout()
 	graph_off();
     }
 #endif
-#ifdef TEXTCOLOR
-    if(ttyDisplay->color != NO_COLOR) {
-	term_end_color();
-	ttyDisplay->color = NO_COLOR;
-    }
-#endif
+    tty_end_color();
 }
 
 #ifndef WIN32
@@ -2276,23 +2269,23 @@ int in_ch;
 # if defined(ASCIIGRAPH) && !defined(NO_TERMS)
     if (iflags.IBMgraphics || iflags.eight_bit_tty) {
 	/* IBM-compatible displays don't need other stuff */
-	(void) putchar(ch);
+	(void) onechar(ch);
     } else if (ch & 0x80) {
 	if (!GFlag || HE_resets_AS) {
 	    graph_on();
 	    GFlag = TRUE;
 	}
-	(void) putchar((ch ^ 0x80)); /* Strip 8th bit */
+	(void) onechar((ch ^ 0x80)); /* Strip 8th bit */
     } else {
 	if (GFlag) {
 	    graph_off();
 	    GFlag = FALSE;
 	}
-	(void) putchar(ch);
+	(void) onechar(ch);
     }
 
 #else
-    (void) putchar(ch);
+    (void) onechar(ch);
 
 #endif	/* ASCIIGRAPH && !NO_TERMS */
 
@@ -2377,29 +2370,22 @@ tty_print_glyph(window, x, y, glyph)
 
 #ifndef NO_TERMS
     if (ul_hack && ch == '_') {		/* non-destructive underscore */
-	(void) putchar((char) ' ');
+	(void) onechar((char) ' ');
 	backsp();
     }
 #endif
 
 #ifdef TEXTCOLOR
-    if (color != ttyDisplay->color) {
-	if(ttyDisplay->color != NO_COLOR)
-	    term_end_color();
-	ttyDisplay->color = color;
-	if(color != NO_COLOR)
-	    term_start_color(color);
-    }
+    tty_start_color(color);
 #endif /* TEXTCOLOR */
 
-    /* must be after color check; term_end_color may turn off inverse too */
     if (((special & MG_PET) && iflags.hilite_pet) ||
 	((special & MG_DETECT) && iflags.use_inverse)) {
-	term_start_attr(ATR_INVERSE);
+	tty_start_attr(ATR_INVERSE);
 	reverse_on = TRUE;
     }
     if ((special & MG_ULINE)) {
-        term_start_attr(ATR_ULINE);
+        tty_start_attr(ATR_ULINE);
         uline_on = TRUE;
     }
 
@@ -2410,16 +2396,8 @@ tty_print_glyph(window, x, y, glyph)
 #endif
 	g_putch(ch);		/* print the character */
 
-    if (reverse_on || uline_on) {
-	term_end_attr(ATR_INVERSE);
-#ifdef TEXTCOLOR
-	/* turn off color as well, ATR_INVERSE may have done this already */
-	if(ttyDisplay->color != NO_COLOR) {
-	    term_end_color();
-	    ttyDisplay->color = NO_COLOR;
-	}
-#endif
-    }
+    tty_end_attr(ATR_INVERSE);
+    tty_end_attr(ATR_ULINE);
 
     wins[window]->curx++;	/* one character over */
     ttyDisplay->curx++;		/* the real cursor moved too */
@@ -2556,6 +2534,128 @@ copy_of(s)
 {
     if (!s) s = "";
     return strcpy((char *) alloc((unsigned) (strlen(s) + 1)), s);
+}
+
+/*
+ * The routine that does all the actual drawing. (onechar is used to
+ * write characters from the user's point of view; xputs/xputc is used
+ * for control codes).
+ */
+static int current_color = CLR_GRAY;
+static int current_attrs = 0;
+static int last_color = NO_COLOR;
+static boolean last_wc_color = FALSE;
+static int last_attrs = 0;
+void
+onechar(c)
+int c;
+{
+    boolean repeatattrs = FALSE;
+    if (iflags.wc_color != last_wc_color) {
+        repeatattrs = TRUE;
+        if (!iflags.wc_color) term_end_color();
+        last_wc_color = iflags.wc_color;
+        last_color = NO_COLOR;
+    }
+    /* This is asymmetrical, in that turning one attr off sometimes
+       (but not always) turns other attrs and color off too, but turning
+       an attr on always works fine. */
+    if (current_attrs != last_attrs || repeatattrs) {
+        /* Anything turned off? */
+        if ((last_attrs & 32) && !(current_color & BRIGHT)) {
+            /* The value of bold is unknown. Turn it off, and mark it as
+               turned off, so it gets set to the right value, unless
+               we're about to write a bright color anyway and it doesn't
+               matter. */
+            if (current_attrs & 1) last_attrs &= ~1; else last_attrs |= 1;
+            last_attrs &= ~32;
+        }
+        if (last_attrs & ~current_attrs &  1) term_end_attr(ATR_BOLD);
+        if (last_attrs & ~current_attrs &  2) term_end_attr(ATR_DIM);
+        if (last_attrs & ~current_attrs &  4) term_end_attr(ATR_ULINE);
+        if (last_attrs & ~current_attrs &  8) term_end_attr(ATR_BLINK);
+        if (last_attrs & ~current_attrs & 16) term_end_attr(ATR_INVERSE);
+        if (last_attrs & ~current_attrs) repeatattrs = TRUE;
+        if (repeatattrs) last_attrs = 0; /* do them all again */
+    }
+    if (iflags.wc_color && (current_color != last_color || repeatattrs)) {
+        term_start_color(current_color);
+        last_color = current_color;
+        /* Setting the color to a bright one may implicitly turn on bold. */
+        if (current_color & BRIGHT) last_attrs |= 32;
+        repeatattrs = TRUE;
+    }
+    if (current_attrs != last_attrs || repeatattrs) {
+        /* Anything turned on? */
+        if (~last_attrs & current_attrs &  1) term_start_attr(ATR_BOLD);
+        if (~last_attrs & current_attrs &  2) term_start_attr(ATR_DIM);
+        if (~last_attrs & current_attrs &  4) term_start_attr(ATR_ULINE);
+        if (~last_attrs & current_attrs &  8) term_start_attr(ATR_BLINK);
+        if (~last_attrs & current_attrs & 16) term_start_attr(ATR_INVERSE);
+        last_attrs = current_attrs | (last_attrs & 32);
+    }
+    if (iflags.wc_color && repeatattrs) {
+        /* Set the background color */
+        xputs("\033[40m"); //tk
+    }
+    if (c != 0) putchar(c);
+}
+static void
+tty_start_attr(a)
+int a;
+{
+    switch(a) {
+    case 0: break;
+    case ATR_BOLD:    current_attrs |= 1; break;
+    case ATR_DIM:     current_attrs |= 2; break;
+    case ATR_ULINE:   current_attrs |= 4; break;
+    case ATR_BLINK:   current_attrs |= 8; break;
+    case ATR_INVERSE: current_attrs |= 16; break;
+    default: panic ("Unknown attribute in tty_start_attr: %d", a);
+    }
+}
+static void
+tty_end_attr(a)
+int a;
+{
+    switch(a) {
+    case 0: break;
+    case ATR_BOLD:    current_attrs &= ~1; break;
+    case ATR_DIM:     current_attrs &= ~2; break;
+    case ATR_ULINE:   current_attrs &= ~4; break;
+    case ATR_BLINK:   current_attrs &= ~8; break;
+    case ATR_INVERSE: current_attrs &= ~16; break;
+    default: panic ("Unknown attribute in tty_end_attr: %d", a);
+    }
+}
+static void
+tty_start_color(c)
+int c;
+{
+    current_color = c;
+    if (current_color == NO_COLOR) current_color = CLR_GRAY;
+    if (current_color == CLR_BLACK) current_color = CLR_BLUE;
+}
+static void
+tty_end_color()
+{
+    /* We no longer use NO_COLOR, except with color turned off, because
+       if you set the background explicitly, you should also set the
+       foreground explicitly. */
+    current_color = CLR_GRAY;
+}
+
+/* Some public versions, to stop people trying to mess with attributes
+   directly. */
+void
+tty_inverse_start()
+{
+    tty_start_attr(ATR_INVERSE);
+}
+void
+tty_inverse_end()
+{
+    tty_end_attr(ATR_INVERSE);
 }
 
 #endif /* TTY_GRAPHICS */

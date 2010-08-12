@@ -132,6 +132,14 @@ you won with the first character that the RNG produced, say as part of
 a streak, turn off the new "startscum" option and the stats and
 inventory will be hidden unless you choose to look at them.)
 
+New centralised routines are used for drawing things to the screen;
+although potentially slightly less efficient than the old ones,
+they make it much easier to extend the drawing code to do new sorts of
+drawing. They also now set both the foreground and background colors
+explicitly if the color option is turned on; this should avoid the
+problem where graphics can't be seen properly due to unusual terminal
+settings such as a white background.
+
 (tty interface on all platforms but DOS, OS/2, WIN32)
 IBMgraphics now sends signals to the terminal telling it to select a
 suitable character set for drawing that graphics; hopefully, this will

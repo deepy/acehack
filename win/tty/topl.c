@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)topl.c	3.4	1996/10/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 12 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -186,11 +187,9 @@ more()
 	if(cw->curx >= CO - 8) topl_putsym('\n');
     }
 
-    if(flags.standout)
-	standoutbeg();
+    tty_inverse_start();
     putsyms(defmorestr);
-    if(flags.standout)
-	standoutend();
+    tty_inverse_end();
 
     xwaitforspace("\033 ");
 
@@ -281,21 +280,21 @@ topl_putsym(c)
 	ttyDisplay->cury++;
 	cw->cury = ttyDisplay->cury;
 #ifdef WIN32CON
-    (void) putchar(c);
+    (void) onechar(c);
 #endif
 	break;
     default:
 	if(ttyDisplay->curx == CO-1)
 	    topl_putsym('\n'); /* 1 <= curx <= CO; avoid CO */
 #ifdef WIN32CON
-    (void) putchar(c);
+    (void) onechar(c);
 #endif
 	ttyDisplay->curx++;
     }
     cw->curx = ttyDisplay->curx;
     if(cw->curx == 0) cl_end();
 #ifndef WIN32CON
-    (void) putchar(c);
+    (void) onechar(c);
 #endif
 }
 
