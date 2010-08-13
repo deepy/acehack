@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.h	3.4	2001/04/12	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 13 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef HACK_H
@@ -185,6 +185,12 @@ NEARDATA extern coord bhitpos;	/* place where throw or zap hits or stops */
 #define TEST_MOVE	1	/* test a normal move (move there next) */
 #define TEST_TRAV	2	/* test a future travel location */
 #define TEST_TRAP	3	/* check if a future travel location is a trap */
+
+/* Flags to control getdir in cmd.c */
+#define GETDIRH_NONE     0      /* do not highlight directions */
+#define GETDIRH_NEXT     1      /* highlight adjacent directions */
+#define GETDIRH_RANGE    2      /* highlight until a wall is hit, no bounces */
+#define GETDIRH_BOUNCE   3      /* highlight up to two bounces */
 
 /*** some utility macros ***/
 #define yn(query) yn_function(query,ynchars, 'n')

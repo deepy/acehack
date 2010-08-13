@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)spell.c	3.4	2003/01/17	*/
 /*	Copyright (c) M. Stephenson 1988			  */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 13 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -882,9 +882,14 @@ boolean atme;
 	case SPE_STONE_TO_FLESH:
 		if (!(objects[pseudo->otyp].oc_dir == NODIR)) {
 			if (atme) u.dx = u.dy = u.dz = 0;
-			else if (!getdir((char *)0)) {
-			    /* getdir cancelled, re-use previous direction */
-			    pline_The("magical energy is released!");
+			else while (!getdir((char *)0,
+                                            pseudo->otyp == SPE_FINGER_OF_DEATH ||
+                                            pseudo->otyp == SPE_MAGIC_MISSILE ||
+                                            pseudo->otyp == SPE_SLEEP ?
+                                         GETDIRH_BOUNCE : GETDIRH_RANGE)) {
+			    /* getdir cancelled, ask again */
+			    You("cannot stop the magic!");
+			    You("need to decide where to aim it!");
 			}
 			if(!u.dx && !u.dy && !u.dz) {
 			    if ((damage = zapyourself(pseudo, TRUE)) != 0) {

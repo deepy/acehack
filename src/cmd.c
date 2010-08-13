@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 9 Aug 2010 by Alex Smith */
+/* Modified 13 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1905,7 +1905,9 @@ reparse_direction:
                    the key the user pressed. */
                 cmd[1] = getdir(cmd[0] == 'F' ? "Attack in which direction?" :
                                 cmd[0] == 'm' ? "Move in which direction?" :
-                                cmd[0] == 'g' ? "Farmove in which direction?" : 0);
+                                cmd[0] == 'g' ? "Farmove in which direction?" : 0,
+                                cmd[0] == 'm' || cmd[0] == 'g' ?
+                                GETDIRH_RANGE : GETDIRH_NEXT);
                 if (cmd[1] == 0) cmd[0] = '\033';
                 /* Translate the pressed direction into standard
                    vikeys, no matter what control system is being used. */
@@ -2203,7 +2205,7 @@ xchar x,y;
 coord *cc;
 {
 	xchar new_x, new_y;
-	if (!getdir(prompt)) {
+	if (!getdir(prompt, GETDIRH_NEXT)) {
 		pline("%s",Never_mind);
 		return 0;
 	}
@@ -2219,11 +2221,28 @@ coord *cc;
 	return 1;
 }
 
+/* Gets a direction from the player.
+   The second argument specifies how to highlight directions. */
 int
-getdir(s)
+getdir(s,how)
 const char *s;
+int how;
 {
 	char dirsym;
+        int dist;
+
+        set_getdir_type(how);
+        for (dist = 0; dist < 80; dist++) {
+            redraw_glyph(u.ux+dist,u.uy     );
+            redraw_glyph(u.ux-dist,u.uy     );
+            redraw_glyph(u.ux     ,u.uy+dist);
+            redraw_glyph(u.ux     ,u.uy-dist);
+            redraw_glyph(u.ux+dist,u.uy+dist);
+            redraw_glyph(u.ux-dist,u.uy+dist);
+            redraw_glyph(u.ux+dist,u.uy-dist);
+            redraw_glyph(u.ux-dist,u.uy-dist);
+        }
+        flush_screen(1);
 
 #ifdef REDO
 	if(in_doagain || *readchar_queue)
@@ -2235,6 +2254,20 @@ const char *s;
 #ifdef REDO
 	savech(dirsym);
 #endif
+
+        set_getdir_type(GETDIRH_NONE);
+        for (dist = 0; dist < 80; dist++) {
+            redraw_glyph(u.ux+dist,u.uy     );
+            redraw_glyph(u.ux-dist,u.uy     );
+            redraw_glyph(u.ux     ,u.uy+dist);
+            redraw_glyph(u.ux     ,u.uy-dist);
+            redraw_glyph(u.ux+dist,u.uy+dist);
+            redraw_glyph(u.ux-dist,u.uy+dist);
+            redraw_glyph(u.ux+dist,u.uy-dist);
+            redraw_glyph(u.ux-dist,u.uy-dist);
+        }
+        flush_screen(1);
+
 	if(dirsym == '.' || dirsym == 's')
 		u.dx = u.dy = u.dz = 0;
 	else if(!movecmdui(dirsym) && !u.dz) {

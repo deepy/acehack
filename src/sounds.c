@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)sounds.c	3.4	2002/05/06	*/
 /*	Copyright (c) 1989 Janet Walz, Mike Threepoint */
-/* Modified 12 Aug 2010 by Alex Smith */
+/* Modified 13 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -861,7 +861,7 @@ dochat()
         return dopay();
     }
 
-    if (!getdir("Talk to whom? (in what direction)")) {
+    if (!getdir("Talk to whom? (in what direction)", GETDIRH_NEXT)) {
 	/* decided not to chat */
 	return(0);
     }

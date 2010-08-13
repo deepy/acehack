@@ -116,6 +116,11 @@ through a trap, it will travel to just before the trap and then stop,
 allowing the player to choose to walk through it or continue.
 (Credits: Suggestion for the change by nht.)
 
+It's no longer possible to fail to choose a direction for a spell;
+NetHack 3.4.3 just repeats the last direction (perhaps killing the
+player arbitrarily), AceHack 3.6.0 will keep prompting until a
+direction is given.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
@@ -184,6 +189,9 @@ initially from Slash'EM; ported from UnNetHack)
 (tty interface)
 Monsters now have their background color changed to show various
 aspects of the monster (blue=tame, brown=peaceful, magenta=detected).
+
+When using directional commands (t, m, etc), the possible directions
+to aim in are highlighted.
 
 Change Detail
 -------------

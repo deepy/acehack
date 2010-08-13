@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 12 Aug 2010 by Alex Smith */
+/* Modified 13 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -106,6 +106,14 @@ boolean disturbed;
   /* unreachable */
 }
 
+static int getdirx, getdiry, getdirh = GETDIRH_NONE;
+void set_getdir_type(how)
+int how;
+{
+  getdirh = how;
+  getdirx = u.ux;
+  getdiry = u.uy;
+}
 
 /*ARGSUSED*/
 void
@@ -294,6 +302,17 @@ unsigned *ospecial;
 # endif
 	color = NO_COLOR;
 #endif
+
+    /* Do any background marking that getdir might want. For the time being,
+       keep it simple: the lines extend to the edge of the map for RANGE or
+       BOUNCE, and one character for NEXT. */
+    if (getdirh != GETDIRH_NONE)
+      if (color < CLR_MAX && //getdirh != GETDIRH_NONE &&
+        (x == getdirx || y == getdiry ||
+         x+y == getdirx+getdiry || x-y == getdirx-getdiry) &&
+        (getdirh != GETDIRH_NEXT ||
+         (abs(x-getdirx) <= 1 && abs(y-getdiry) <= 1)))
+        color += CLR_MAX * CLR_RED;
 
     *ochar = (int)ch;
     *ospecial = special;

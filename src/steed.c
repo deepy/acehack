@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)steed.c	3.4	2003/01/10	*/
 /* Copyright (c) Kevin Hugo, 1998-1999. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 13 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -58,7 +58,7 @@ use_saddle(otmp)
 	}
 
 	/* Select an animal */
-	if (u.uswallow || Underwater || !getdir((char *)0)) {
+	if (u.uswallow || Underwater || !getdir((char *)0, GETDIRH_NEXT)) {
             pline("%s",Never_mind);
 	    return 0;
 	}
@@ -175,7 +175,7 @@ doride()
 
 	if (u.usteed)
 	    dismount_steed(DISMOUNT_BYCHOICE);
-	else if (getdir((char *)0) && isok(u.ux+u.dx, u.uy+u.dy)) {
+	else if (getdir((char *)0, GETDIRH_NEXT) && isok(u.ux+u.dx, u.uy+u.dy)) {
 #ifdef WIZARD
 	if (wizard && yn("Force the mount to succeed?") == 'y')
 		forcemount = TRUE;

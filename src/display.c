@@ -1,7 +1,7 @@
 /*	SCCS Id: @(#)display.c	3.4	2003/02/19	*/
 /* Copyright (c) Dean Luick, with acknowledgements to Kevin Darcy */
 /* and Dave Cohrs, 1990.					  */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 13 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -1274,6 +1274,16 @@ show_glyph(x,y,glyph)
     }
 }
 
+void
+redraw_glyph(x,y)
+int x,y;
+{
+    if (!isok(x,y)) return;
+//    gbuf[y][x].glyph = levl[x][y].glyph;
+    gbuf[y][x].new   = 1;
+    if (gbuf_start[y] > x) gbuf_start[y] = x;
+    if (gbuf_stop[y]  < x) gbuf_stop[y]  = x;
+}
 
 /*
  * Reset the changed glyph borders so that none of the 3rd screen has
