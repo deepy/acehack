@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)shk.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 14 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -834,6 +834,12 @@ register struct obj *obj, *merge;
 #endif
 		}
 	}
+
+	/* fix for C343-218, C343-275 and C343-276 */
+	if (obj == uwep) uwepgone();
+	if (obj == uswapwep) uswapwepgone();
+	if (obj == uquiver) uqwepgone();
+
 	dealloc_obj(obj);
 }
 #endif /* OVLB */

@@ -39,6 +39,9 @@ The game no longer crashes if a thrown potion breaks on iron bars and
 would otherwise have hit a monster. (Patch credits: bhaak via
 UnNetHack.)
 
+The game no longer crashes when a wielded item is applied to the face,
+autotransforms, or burns out. (Patch credits: bhaak via UnNetHack.)
+
 Modified Features
 -----------------
 
