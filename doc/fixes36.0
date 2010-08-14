@@ -150,6 +150,12 @@ or lava now requires an 'm' prefix (or whatever it's set to in your
 options), in order to prevent players falling into water or lava by
 mistake. (Credits: suggestion by casmith789.)
 
+Attempting to walk into a door is now equivalent to trying to open it
+(say with the 'o' command). (This even works for an unknown door; just
+leaning on a door is enough to open it, unless it gets stuck or
+resists.) (Credits: idea taken from UnNetHack, but with different
+code.)
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

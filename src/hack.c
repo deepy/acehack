@@ -1257,6 +1257,14 @@ domove()
 		return;
 	}
 
+        /* If moving into a door, open it. */
+        if (IS_DOOR(tmpr->typ) && tmpr->doormask != D_BROKEN &&
+            tmpr->doormask != D_NODOOR && tmpr->doormask != D_ISOPEN) {
+            setnextgetdirdxdy(u.dx, u.dy);
+            if (doopen() == 0) {flags.move = 0; nomul(0);}
+            return;
+        }
+
 	if (!test_move(u.ux, u.uy, x-u.ux, y-u.uy, DO_MOVE)) {
 	    flags.move = 0;
 	    nomul(0);

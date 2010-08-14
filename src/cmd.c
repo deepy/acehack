@@ -2307,6 +2307,33 @@ coord *cc;
 	return 1;
 }
 
+static int nextgetdir = 0;
+/* Forces the next return value from getdir.
+   Argument is a vikeys direction; the direction will not be
+   screwed up by stunning or confusion, so that must be checked
+   before using this function. */
+void
+setnextgetdir(c)
+int c;
+{
+    nextgetdir = c;
+}
+
+void
+setnextgetdirdxdy(dx,dy)
+int dx,dy;
+{
+    if (dx == 0 && dy == 0) setnextgetdir('.');
+    if (dx == 0 && dy  < 0) setnextgetdir('k');
+    if (dx == 0 && dy  > 0) setnextgetdir('j');
+    if (dx  < 0 && dy == 0) setnextgetdir('h');
+    if (dx  < 0 && dy  < 0) setnextgetdir('y');
+    if (dx  < 0 && dy  > 0) setnextgetdir('b');
+    if (dx  > 0 && dy == 0) setnextgetdir('l');
+    if (dx  > 0 && dy  < 0) setnextgetdir('u');
+    if (dx  > 0 && dy  > 0) setnextgetdir('n');
+}
+
 /* Gets a direction from the player.
    The second argument specifies how to highlight directions. */
 int
@@ -2316,6 +2343,12 @@ int how;
 {
 	char dirsym;
         int dist;
+
+        if (nextgetdir) {
+            movecmd(nextgetdir);
+            nextgetdir = 0;
+            return 1;
+        }
 
         set_getdir_type(how);
         for (dist = 0; dist < 80; dist++) {
