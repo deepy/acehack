@@ -1,6 +1,6 @@
 #	SCCS Id: @(#)quest.txt	3.4	2002/01/30
 #	Copyright (c) 1991 by M. Stephenson
-#       Modified 12 September 2009 by Alex Smith
+#       Modified 14 Aug 2010 by Alex Smith
 # NetHack may be freely redistributed.  See license for details.
 #
 #	The quest text file for AceHack 3.6
@@ -2383,7 +2383,7 @@ to figure out what I need from a samurai?"
 "You are no longer my samurai, %p.
 
 "Hara-kiri is denied.  You are ordered to shave your head and then to
-become a monk.  Your fief and family are forfeit.  Wakarimasu?"
+become a monk.  Your fief and family are forfeit.  Wakarimasu ka?"
 %E
 %Cc Sam 00019
 "%p-san, you have learned well and honored your family.
@@ -2414,7 +2414,7 @@ request that I commit seppuku.
 emperor's property.  Be quick!  The emperor will be here for the
 cha-no-you in 5 sticks.
 
-"Wakarimasu?"
+"Wakarimasu ka?"
 %E
 %Cp Sam 00025
 "To defeat %n you must overcome the seven emotions:
