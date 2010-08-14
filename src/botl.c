@@ -17,6 +17,15 @@ const char * const enc_stat[] = {
 	"Overloaded"
 };
 
+/* hunger texts used on bottom line (each 8 chars long) */
+#define SATIATED	0
+#define NOT_HUNGRY	1
+#define HUNGRY		2
+#define WEAK		3
+#define FAINTING	4
+#define FAINTED		5
+#define STARVED		6
+
 STATIC_DCL void NDECL(bot1);
 STATIC_DCL void NDECL(bot2);
 #endif /* OVL0 */
@@ -210,7 +219,7 @@ bot1()
   char buf[MAXCO];
   hp_pw_bar(Upolyd ? u.mh : u.uhp, Upolyd ? u.mhmax : u.uhpmax, 1, 0);
   char* nb;
-  Sprintf(buf, "AC:%d X:%d ", u.uac, u.ulevel);
+  Sprintf(buf, "AC:%d Xp:%d ", u.uac, u.ulevel);
   if (Upolyd)
     Sprintf(buf, "AC:%d HD:%d ", u.uac, mons[u.umonnum].mlevel);
   (void) describe_level(nb = eos(buf));
@@ -266,11 +275,28 @@ char *buf;
 }
 
 STATIC_OVL void
+draw_status(msg, pos, color)
+char* msg;
+int* pos;
+int color;
+{
+  if (*pos < 21) {*pos += strlen(msg)+1; return;}
+  curs(WIN_STATUS, *pos, 1);
+  *pos += strlen(msg);
+  putstr_colored(WIN_STATUS, 0, color, msg);
+  if (*pos < 80) {
+    curs(WIN_STATUS, *pos, 1);
+    putstr(WIN_STATUS, 0, " ");
+  }
+  (*pos)++;
+}
+
+STATIC_OVL void
 bot2()
 {
   char  buf[MAXCO];
-  register char *nb;
   int cap = near_capacity();
+  int spos = -1081, i;
   
   hp_pw_bar(u.uen, u.uenmax, 0, 1);
   Sprintf(buf, "%c%ld S:%ld T:%ld", oc_syms[COIN_CLASS],
@@ -282,27 +308,57 @@ bot2()
           botl_score(), moves);
   putstr(WIN_STATUS, 0, buf);
 
-  Strcpy(buf, "");
-  nb = eos(buf);
-  if(strcmp(hu_stat[u.uhs], "        ")) {
-    Sprintf(nb = eos(nb), " ");
-    Strcat(buf, hu_stat[u.uhs]);
+  /* Rules for statuscolors:
+   * Things that the player cannot go around with forever are bright:
+   * Delayed instadeaths (e.g. Ill) are bright magenta
+   * Warnings (e.g. Weak) are orange, or red if less urgent (e.g. Hungry)
+   * Things that the player can live with for ages are darker:
+   * Good statuses (e.g. St+) are green
+   * Bad statuses (e.g. St-) are magenta
+   * Neutral statuses (e.g. Lev) are brown
+   * Temporary statuses (e.g. Blind, Conf) are bright blue
+   * The least bad statuses are drawn first; two passes are made, one to
+   * figure out where to start drawing, the other to draw.
+   */
+  for(i = 1; i <= 2; i++) {
+    if(ACURR(A_STR) > AMAX(A_STR)) draw_status("St+", &spos, CLR_GREEN);
+    if(ACURR(A_DEX) > AMAX(A_DEX)) draw_status("Dx+", &spos, CLR_GREEN);
+    if(ACURR(A_CON) > AMAX(A_CON)) draw_status("Co+", &spos, CLR_GREEN);
+    if(ACURR(A_INT) > AMAX(A_INT)) draw_status("In+", &spos, CLR_GREEN);
+    if(ACURR(A_WIS) > AMAX(A_WIS)) draw_status("Wi+", &spos, CLR_GREEN);
+    if(ACURR(A_CHA) > AMAX(A_CHA)) draw_status("Ch+", &spos, CLR_GREEN);
+    if(Levitation)     draw_status("Lev", &spos, CLR_BROWN);
+    if(ACURR(A_STR) < AMAX(A_STR)) draw_status("St-", &spos, CLR_MAGENTA);
+    if(ACURR(A_DEX) < AMAX(A_DEX)) draw_status("Dx-", &spos, CLR_MAGENTA);
+    if(ACURR(A_CON) < AMAX(A_CON)) draw_status("Co-", &spos, CLR_MAGENTA);
+    if(ACURR(A_INT) < AMAX(A_INT)) draw_status("In-", &spos, CLR_MAGENTA);
+    if(ACURR(A_WIS) < AMAX(A_WIS)) draw_status("Wi-", &spos, CLR_MAGENTA);
+    if(ACURR(A_CHA) < AMAX(A_CHA)) draw_status("Ch-", &spos, CLR_MAGENTA);
+    if(cap > UNENCUMBERED)
+      draw_status(enc_stat[cap], &spos, CLR_MAGENTA);
+    if(strcmp(hu_stat[u.uhs], "        ")) {
+      draw_status(hu_stat[u.uhs], &spos,
+                  u.uhs==HUNGRY||u.uhs==SATIATED ? CLR_RED :
+                  u.uhs>=FAINTING ? CLR_BRIGHT_MAGENTA : CLR_ORANGE);
+    }
+    if(Blind)          draw_status("Blind", &spos, CLR_BRIGHT_BLUE);
+    if(Glib)           draw_status("Greasy", &spos, CLR_BRIGHT_BLUE);
+    if(Confusion)      draw_status("Conf", &spos, CLR_BRIGHT_BLUE);
+    if(Wounded_legs)   draw_status("Lame", &spos, CLR_BRIGHT_BLUE);
+    if(Stunned)        draw_status("Stun", &spos, CLR_BRIGHT_BLUE);
+    if(Hallucination)  draw_status("Hallu", &spos, CLR_BRIGHT_BLUE);
+    if(Sick) {
+      if (u.usick_type & SICK_VOMITABLE)
+        draw_status("FoodPois", &spos, CLR_BRIGHT_MAGENTA);
+      if (u.usick_type & SICK_NONVOMITABLE)
+        draw_status("Ill", &spos, CLR_BRIGHT_MAGENTA);
+    }
+    if(Strangled)      draw_status("Strangle", &spos, CLR_BRIGHT_MAGENTA);
+    if(Slimed)         draw_status("Slime", &spos, CLR_BRIGHT_MAGENTA);
+    if(Stoned)         draw_status("Petrify", &spos, CLR_BRIGHT_MAGENTA);
+    spos = -1000-spos;
   }
-  if(Confusion) Sprintf(nb = eos(nb), " Conf");
-  if(Sick) {
-    if (u.usick_type & SICK_VOMITABLE)
-      Sprintf(nb = eos(nb), " FoodPois");
-    if (u.usick_type & SICK_NONVOMITABLE)
-      Sprintf(nb = eos(nb), " Ill");
-  }
-  if(Blind)	   Sprintf(nb = eos(nb), " Blind");
-  if(Stunned)	   Sprintf(nb = eos(nb), " Stun");
-  if(Hallucination)  Sprintf(nb = eos(nb), " Hallu");
-  if(Slimed)         Sprintf(nb = eos(nb), " Slime");
-  if(cap > UNENCUMBERED)
-    Sprintf(nb = eos(nb), " %s", enc_stat[cap]);
-  curs(WIN_STATUS, 80-strlen(buf), 1);
-  putstr(WIN_STATUS, 0, buf);
+  curs(WIN_STATUS, 80, 1);
 }
 
 void

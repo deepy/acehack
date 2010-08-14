@@ -151,6 +151,10 @@ Platform- and/or Interface-Specific Fixes
 The botl has been cleaned up significantly, leaving a lot more room to
 show things like statuses.  It also now shows semi-graphical Hp and Pw
 bars that change colour according to how wounded or exhausted you are.
+Statuses are now coloured according to severity, and many more things
+are shown as statuses than were before (e.g. levitation, greasy hands,
+poisoned). (Credits: Thanks to Squolly for suggesting the expansion of
+statuses.)
 
 There is a new character creation screen, that allows you to view a
 character's stats and inventory before you start playing, and to
