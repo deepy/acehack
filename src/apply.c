@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 14 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -922,13 +922,13 @@ struct obj **optr;
 		You(no_elbow_room);
 		return;
 	}
-	if(Underwater) {
-		pline("Sorry, fire and water don't mix.");
-		return;
-	}
 
 	otmp = carrying(CANDELABRUM_OF_INVOCATION);
 	if(!otmp || otmp->spe == 7) {
+        	if(Underwater) {
+		pline("Sorry, fire and water don't mix.");
+		return;
+	}
 		use_lamp(obj);
 		return;
 	}
@@ -938,6 +938,9 @@ struct obj **optr;
 		safe_qbuf(qbuf, sizeof(" to ?"), the(xname(otmp)),
 			the(simple_typename(otmp->otyp)), "it"));
 	if(yn(qbuf) == 'n') {
+        	if(Underwater) {
+		pline("Sorry, fire and water don't mix.");
+		return;}
 		if (!obj->lamplit)
 		    You("try to light %s...", the(xname(obj)));
 		use_lamp(obj);
