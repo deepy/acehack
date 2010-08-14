@@ -42,6 +42,9 @@ UnNetHack.)
 The game no longer crashes when a wielded item is applied to the face,
 autotransforms, or burns out. (Patch credits: bhaak via UnNetHack.)
 
+The game no longer crashes when acid falls into a pool or moat. (Patch
+credits: bhaak via UnNetHack.)
+
 Modified Features
 -----------------
 

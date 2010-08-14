@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 14 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -209,7 +209,7 @@ const char *verb;
 		    map_background(x, y, 0);
 		    newsym(x, y);
 		}
-		water_damage(obj, FALSE, FALSE);
+		return water_damage(obj, FALSE, FALSE);
 	} else if (u.ux == x && u.uy == y &&
 		(!u.utrap || u.utraptype != TT_PIT) &&
 		(t = t_at(x,y)) != 0 && t->tseen &&
