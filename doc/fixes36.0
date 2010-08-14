@@ -265,6 +265,11 @@ accessories to be worn, with P now being deprecated.
 X: Now a synonym for #twoweapon. (Credits: Another nethack.alt.org
 idea.) The old meaning of X, "enter explore mode", was moved to
 #xplore.
+^X: Now shows ability scores (as they're no longer on the botl), both
+current and "natural" (i.e. without the effects of items or poison).
+Also lists information shown at game end, like inventory and conducts,
+although it does not identify your possessions for you; likewise, it
+will show your intrinsics, but not your extrinsics.
 #: Now used to repeat commands (like the old numpad n), in addition to
 its use for entering extended commands.
 

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 14 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -147,7 +147,6 @@ extern int NDECL(tutorial_redisplay);
 STATIC_PTR int NDECL(enter_explore_mode);
 STATIC_PTR int NDECL(doattributes);
 STATIC_PTR int NDECL(doconduct); /**/
-STATIC_PTR boolean NDECL(minimal_enlightenment);
 
 #ifdef OVLB
 STATIC_DCL void FDECL(enlght_line, (const char *,const char *,const char *));
@@ -1138,95 +1137,22 @@ int final;	/* 0 => still in progress; 1 => over, survived; 2 => dead */
 	return;
 }
 
-/*
- * Courtesy function for non-debug, non-explorer mode players
- * to help refresh them about who/what they are.
- * Returns FALSE if menu cancelled (dismissed with ESC), TRUE otherwise.
- */
-STATIC_OVL boolean
-minimal_enlightenment()
+STATIC_OVL void
+unspoilered_intrinsics()
 {
 	winid tmpwin;
-	menu_item *selected;
-	anything any;
-	int genidx, n;
-	char buf[BUFSZ], buf2[BUFSZ];
-	static const char fmtstr[] = "%-10s: %-12s (originally %s)";
-	static const char fmtstr_noorig[] = "%-10s: %s";
-	static const char deity_fmtstr[] = "%-17s%s";
-	any.a_void = 0;
-	buf[0] = buf2[0] = '\0';
+        int n;
+        menu_item* selected;
+        anything any;
+
+        any.a_void = 0;
 	tmpwin = create_nhwindow(NHW_MENU);
 	start_menu(tmpwin);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Stats", FALSE);
-
-	/* Starting and current name, race, role, gender, alignment, abilities */
-	Sprintf(buf, fmtstr_noorig, "name", plname);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	Sprintf(buf, fmtstr, "race", Upolyd ? youmonst.data->mname : urace.noun, urace.noun);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	Sprintf(buf, fmtstr_noorig, "role",
-		((Upolyd ? u.mfemale : flags.female) && urole.name.f) ?
-                urole.name.f : urole.name.m);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	genidx = is_neuter(youmonst.data) ? 2 : flags.female;
-	Sprintf(buf, fmtstr, "gender", genders[genidx].adj, genders[flags.initgend].adj);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	Sprintf(buf, fmtstr, "alignment", align_str(u.ualign.type),
-                align_str(u.ualignbase[A_ORIGINAL]));
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-        if (u.ulevel < 30)
-          Sprintf(buf, "%-10s: %d (exp: %ld, %d needed)", "level",
-                  u.ulevel, u.uexp, newuexp(u.ulevel));
-        else
-          Sprintf(buf, "%-10s: %d (exp: %ld)", "level", u.ulevel, u.uexp);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-        if (ACURR(A_STR) > 18) {
-          if (ACURR(A_STR) > STR18(100))
-            Sprintf(buf,"abilities : St:%2d ",ACURR(A_STR)-100);
-          else if (ACURR(A_STR) < STR18(100))
-            Sprintf(buf, "abilities : St:18/%02d ",ACURR(A_STR)-18);
-          else
-            Sprintf(buf,"abilities : St:18/** ");
-	} else
-          Sprintf(buf, "abilities : St:%-1d ",ACURR(A_STR));
-	Sprintf(eos(buf), "Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d",
-		ACURR(A_DEX), ACURR(A_CON), ACURR(A_INT), ACURR(A_WIS), ACURR(A_CHA));
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-	/* Deity list */
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Deities", FALSE);
-	Sprintf(buf2, deity_fmtstr, align_gname(A_CHAOTIC),
-	    (u.ualignbase[A_ORIGINAL] == u.ualign.type
-		&& u.ualign.type == A_CHAOTIC) ? " (s,c)" :
-	    (u.ualignbase[A_ORIGINAL] == A_CHAOTIC)       ? " (s)" :
-	    (u.ualign.type   == A_CHAOTIC)       ? " (c)" : "");
-	Sprintf(buf, fmtstr_noorig, "Chaotic", buf2);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-	Sprintf(buf2, deity_fmtstr, align_gname(A_NEUTRAL),
-	    (u.ualignbase[A_ORIGINAL] == u.ualign.type
-		&& u.ualign.type == A_NEUTRAL) ? " (s,c)" :
-	    (u.ualignbase[A_ORIGINAL] == A_NEUTRAL)       ? " (s)" :
-	    (u.ualign.type   == A_NEUTRAL)       ? " (c)" : "");
-	Sprintf(buf, fmtstr_noorig, "Neutral", buf2);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
-
-	Sprintf(buf2, deity_fmtstr, align_gname(A_LAWFUL),
-	    (u.ualignbase[A_ORIGINAL] == u.ualign.type &&
-		u.ualign.type == A_LAWFUL)  ? " (s,c)" :
-	    (u.ualignbase[A_ORIGINAL] == A_LAWFUL)        ? " (s)" :
-	    (u.ualign.type   == A_LAWFUL)        ? " (c)" : "");
-	Sprintf(buf, fmtstr_noorig, "Lawful", buf2);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 
         /* Intrinsic list
            This lists only intrinsics that produce messages when gained
            and/or lost, to avoid giving away information not in vanilla
            NetHack. */
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Peculiarities", FALSE);
-        n = 0;
 
         /* Resistances */
         if (HFire_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
@@ -1246,6 +1172,9 @@ minimal_enlightenment()
         if (HSick_resistance) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
                                        "You are immune to sickness.", FALSE), n++;
         /* Senses */
+        /* See invis is a tricky one, as you can't necessarily
+           determine it from messages (e.g. if you quaff an unIDed
+           potion of see invis). Still, it's given anyway. */
         if (HSee_invisible) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
                                      "You see invisible.", FALSE), n++;
         if (HTelepat) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
@@ -1289,21 +1218,153 @@ minimal_enlightenment()
         if (!n) add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE,
                          "You have no intrinsic abilities.", FALSE), n++;
 
-
-	end_menu(tmpwin, "Your Intrinsic Statistics");
+	end_menu(tmpwin, "Your Intrinsic Abilities");
 	n = select_menu(tmpwin, PICK_NONE, &selected);
 	destroy_nhwindow(tmpwin);
-	return (n != -1);
 }
 
 STATIC_PTR int
 doattributes()
 {
-	if (!minimal_enlightenment())
-		return 0;
-	if (wizard || discover)
-		enlightenment(0);
-	return 0;
+	winid tmpwin;
+	menu_item *selected;
+	anything any;
+	int genidx, n, r;
+	char buf[BUFSZ], buf2[BUFSZ];
+	static const char fmtstr[] = "%-10s: %-12s (originally %s)";
+	static const char fmtstr_noorig[] = "%-10s: %s";
+	static const char deity_fmtstr[] = "%-17s%s";
+	any.a_void = 0;
+	buf[0] = buf2[0] = '\0';
+	tmpwin = create_nhwindow(NHW_MENU);
+	start_menu(tmpwin);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Stats", FALSE);
+
+	/* Starting and current name, race, role, gender, alignment, abilities */
+	Sprintf(buf, fmtstr_noorig, "name", plname);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+	Sprintf(buf, fmtstr, "race", Upolyd ? youmonst.data->mname : urace.noun, urace.noun);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+	Sprintf(buf, fmtstr_noorig, "role",
+		((Upolyd ? u.mfemale : flags.female) && urole.name.f) ?
+                urole.name.f : urole.name.m);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+	genidx = is_neuter(youmonst.data) ? 2 : flags.female;
+	Sprintf(buf, fmtstr, "gender", genders[genidx].adj, genders[flags.initgend].adj);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+	Sprintf(buf, fmtstr, "alignment", align_str(u.ualign.type),
+                align_str(u.ualignbase[A_ORIGINAL]));
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+        if (u.ulevel < 30)
+          Sprintf(buf, "%-10s: %d (exp: %ld, %d needed)", "level",
+                  u.ulevel, u.uexp, newuexp(u.ulevel));
+        else
+          Sprintf(buf, "%-10s: %d (exp: %ld)", "level", u.ulevel, u.uexp);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+        if (ACURR(A_STR) > 18) {
+          if (ACURR(A_STR) > STR18(100))
+            Sprintf(buf,"abilities : St:%2d ",ACURR(A_STR)-100);
+          else if (ACURR(A_STR) < STR18(100))
+            Sprintf(buf, "abilities : St:18/%02d ",ACURR(A_STR)-18);
+          else
+            Sprintf(buf,"abilities : St:18/** ");
+	} else
+          Sprintf(buf, "abilities : St:%-1d ",ACURR(A_STR));
+	Sprintf(eos(buf), "Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d",
+		ACURR(A_DEX), ACURR(A_CON), ACURR(A_INT), ACURR(A_WIS), ACURR(A_CHA));
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+        if (AMAX(A_STR) > 18) {
+          if (AMAX(A_STR) > STR18(100))
+            Sprintf(buf,"naturally : St:%2d ",AMAX(A_STR)-100);
+          else if (AMAX(A_STR) < STR18(100))
+            Sprintf(buf, "naturally : St:18/%02d ",AMAX(A_STR)-18);
+          else
+            Sprintf(buf,"naturally : St:18/** ");
+	} else
+          Sprintf(buf, "naturally : St:%-1d ",AMAX(A_STR));
+	Sprintf(eos(buf), "Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d",
+		AMAX(A_DEX), AMAX(A_CON), AMAX(A_INT), AMAX(A_WIS), AMAX(A_CHA));
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+	/* Deity list */
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Deities", FALSE);
+	Sprintf(buf2, deity_fmtstr, align_gname(A_CHAOTIC),
+	    (u.ualignbase[A_ORIGINAL] == u.ualign.type
+		&& u.ualign.type == A_CHAOTIC) ? " (s,c)" :
+	    (u.ualignbase[A_ORIGINAL] == A_CHAOTIC)       ? " (s)" :
+	    (u.ualign.type   == A_CHAOTIC)       ? " (c)" : "");
+	Sprintf(buf, fmtstr_noorig, "Chaotic", buf2);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+
+	Sprintf(buf2, deity_fmtstr, align_gname(A_NEUTRAL),
+	    (u.ualignbase[A_ORIGINAL] == u.ualign.type
+		&& u.ualign.type == A_NEUTRAL) ? " (s,c)" :
+	    (u.ualignbase[A_ORIGINAL] == A_NEUTRAL)       ? " (s)" :
+	    (u.ualign.type   == A_NEUTRAL)       ? " (c)" : "");
+	Sprintf(buf, fmtstr_noorig, "Neutral", buf2);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+
+	Sprintf(buf2, deity_fmtstr, align_gname(A_LAWFUL),
+	    (u.ualignbase[A_ORIGINAL] == u.ualign.type &&
+		u.ualign.type == A_LAWFUL)  ? " (s,c)" :
+	    (u.ualignbase[A_ORIGINAL] == A_LAWFUL)        ? " (s)" :
+	    (u.ualign.type   == A_LAWFUL)        ? " (c)" : "");
+	Sprintf(buf, fmtstr_noorig, "Lawful", buf2);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+
+        /* A list of submenus, based on the DYWYPI? at end of game. */
+        add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
+                 "Other Information", FALSE);
+        any.a_int = 'i';
+        add_menu(tmpwin, NO_GLYPH, &any, 'i', 0, ATR_NONE,
+                 "Inventory", MENU_UNSELECTED);
+        any.a_int = 'a';
+        add_menu(tmpwin, NO_GLYPH, &any, 'a', 0, ATR_NONE,
+                 "Intrinsic abilities", MENU_UNSELECTED);
+        any.a_int = 'v';
+        add_menu(tmpwin, NO_GLYPH, &any, 'v', 0, ATR_NONE,
+                 "Vanquished creatures", MENU_UNSELECTED);
+        if (num_genocides() > 0) {
+            any.a_int = 'g';
+            add_menu(tmpwin, NO_GLYPH, &any, 'g', 0, ATR_NONE,
+                     "Genocided creatures", MENU_UNSELECTED);
+        }
+        any.a_int = 'c';
+        add_menu(tmpwin, NO_GLYPH, &any, 'c', 0, ATR_NONE,
+                 "Conducts followed", MENU_UNSELECTED);
+        any.a_int = 's';
+        add_menu(tmpwin, NO_GLYPH, &any, 's', 0, ATR_NONE,
+                 "Score breakdown", MENU_UNSELECTED);
+        if (wizard || discover) {
+            any.a_int = 'w';
+            add_menu(tmpwin, NO_GLYPH, &any, 'w', 0, ATR_NONE,
+                     "Wizard/Explore mode spoilers", MENU_UNSELECTED);
+        }
+
+	end_menu(tmpwin, "Your Statistics");
+	n = select_menu(tmpwin, PICK_ONE, &selected);
+	destroy_nhwindow(tmpwin);
+
+        r = 0;
+
+        if (n == 1) switch(selected[0].item.a_int) {
+        case 'i': r = ddoinv(); break;
+        case 'a': unspoilered_intrinsics(); break;
+        case 'v': list_vanquished('Y', FALSE); break;
+        case 'g': list_genocided('y', FALSE); break;
+        case 'c': r = doconduct(); break;
+        case 's': calculate_score(-1,TRUE,
+#ifndef GOLDOBJ
+                                  u.ugold
+#else
+                                  money_cnt(invent)
+#endif
+                                  + hidden_gold()); break;
+        case 'w': enlightenment(0);
+        }
+        if (n == 1) free((genericptr_t) selected);
+	return r;
 }
 
 /* KMH, #conduct

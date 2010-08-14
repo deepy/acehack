@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)end.c	3.4	2003/03/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 14 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS	/* comment line for pre-compiled headers */
@@ -41,8 +41,6 @@ STATIC_DCL void FDECL(get_valuables, (struct obj *));
 STATIC_DCL void FDECL(sort_valuables, (struct valuable_data *,int));
 STATIC_DCL int  FDECL(artifact_score, (struct obj *,BOOLEAN_P,winid));
 STATIC_DCL void FDECL(savelife, (int));
-STATIC_DCL void FDECL(list_vanquished, (CHAR_P,BOOLEAN_P));
-STATIC_DCL void FDECL(list_genocided, (CHAR_P,BOOLEAN_P));
 STATIC_DCL boolean FDECL(should_query_disclose_option, (int,char *));
 
 #if defined(__BEOS__) || defined(MICRO) || defined(WIN32) || defined(OS2)
@@ -635,7 +633,7 @@ long umoney;  /* total of visible and invisible gold */
   total *= category_raw; total /= 100;
   if (show) {
     Sprintf(buf, "Survival:        %10s  (score multiplied by %3ld%%)",
-            category_raw == 90 ? "died" :
+            category_raw == 90 ? (how == -1 ? "unknown" : "died") :
             category_raw == 200 ? "ascended" : "survived",
             category_raw);
     putstr(swin, 0, buf);
@@ -1208,7 +1206,7 @@ int status;
 	nethack_exit(status);
 }
 
-STATIC_OVL void
+void
 list_vanquished(defquery, ask)
 char defquery;
 boolean ask;
@@ -1230,11 +1228,11 @@ boolean ask;
     /* vanquished creatures list;
      * includes all dead monsters, not just those killed by the player
      */
-    if (ntypes != 0) {
+    if (ntypes != 0 || defquery == 'Y') {
 	c = ask ? yn_function("Do you want an account of creatures vanquished?",
 			      ynqchars, defquery) : defquery;
 	if (c == 'q') done_stopprint++;
-	if (c == 'y') {
+	if (c == 'y' || c == 'Y') {
 	    klwin = create_nhwindow(NHW_MENU);
 	    putstr(klwin, 0, "Vanquished creatures:");
 	    putstr(klwin, 0, "");
@@ -1267,10 +1265,8 @@ boolean ask;
 		    }
 		    putstr(klwin, 0, buf);
 		}
-	    /*
-	     * if (Hallucination)
-	     *     putstr(klwin, 0, "and a partridge in a pear tree");
-	     */
+	    if (Hallucination)
+	        putstr(klwin, 0, "and a partridge in a pear tree");
 	    if (ntypes > 1) {
 		putstr(klwin, 0, "");
 		Sprintf(buf, "%ld creatures vanquished.", total_killed);
@@ -1294,7 +1290,7 @@ num_genocides()
     return n;
 }
 
-STATIC_OVL void
+void
 list_genocided(defquery, ask)
 char defquery;
 boolean ask;

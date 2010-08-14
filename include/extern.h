@@ -556,6 +556,8 @@ E void FDECL(done, (int));
 E void FDECL(container_contents, (struct obj *,BOOLEAN_P,BOOLEAN_P));
 E void FDECL(terminate, (int));
 E int NDECL(num_genocides);
+E void FDECL(list_vanquished, (char,boolean));
+E void FDECL(list_genocided, (char,boolean));
 
 /* ### engrave.c ### */
 
