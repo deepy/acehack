@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dokick.c	3.4	2003/12/04	*/
 /* Copyright (c) Izchak Miller, Mike Stephenson, Steve Linhart, 1989. */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 14 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -554,7 +554,7 @@ xchar x, y;
 	mon = bhit(u.dx, u.dy, range, KICKED_WEAPON,
 		   (int FDECL((*),(MONST_P,OBJ_P)))0,
 		   (int FDECL((*),(OBJ_P,OBJ_P)))0,
-		   kickobj);
+		   kickobj, NULL);
 
 	if(mon) {
 	    if (mon->isshk &&

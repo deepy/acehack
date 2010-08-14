@@ -35,6 +35,10 @@ credits: ?)
 Bisecting a long worm with 1hp no longer crashes the game. (Patch
 credits: ?)
 
+The game no longer crashes if a thrown potion breaks on iron bars and
+would otherwise have hit a monster. (Patch credits: bhaak via
+UnNetHack.)
+
 Modified Features
 -----------------
 
