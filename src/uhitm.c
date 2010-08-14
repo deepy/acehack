@@ -1,9 +1,10 @@
 /*	SCCS Id: @(#)uhitm.c	3.4	2003/02/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 14 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
+#include "eshk.h"
 
 STATIC_DCL boolean FDECL(known_hitum, (struct monst *,int *,struct attack *));
 STATIC_DCL void FDECL(steal_it, (struct monst *, struct attack *));
@@ -192,16 +193,33 @@ struct obj *wep;	/* uwep for attack(), null for kick_monster() */
 	    wakeup(mtmp);
 	}
 
-	if (flags.confirm && mtmp->mpeaceful
-	    && !Confusion && !Hallucination && !Stunned) {
-		if (canspotmon(mtmp)) {
-			Sprintf(qbuf, "Really attack %s?", mon_nam(mtmp));
-			if (yn(qbuf) != 'y') {
-				flags.move = 0;
-				return(TRUE);
-			}
-		}
-	}
+        /* Remaining cases only happen if the player knows what the monster
+           is and walked into it deliberately */
+        if (canspotmon(mtmp) && !Confusion && !Hallucination && !Stunned) {
+            /* attempting to walk into a shopkeeper, without the F prefix,
+               attempts to pay them instead, if there's anything to pay;
+               attempting to walk into an always-peaceful without F chats
+               to them */
+            if (mtmp->isshk &&
+                (ESHK(mtmp)->robbed || ESHK(mtmp)->billct || ESHK(mtmp)->debit)) {
+                dopay();
+                return TRUE;
+            }
+            if (always_peaceful(mtmp->data) && mtmp->mpeaceful) {
+                setnextgetdirdxdy(mtmp->mx-u.ux, mtmp->my-u.uy);
+                dotalk();
+                setnextgetdir(0); /* player might be muted */
+                return TRUE;
+            }
+
+            if (flags.confirm && mtmp->mpeaceful) {
+                Sprintf(qbuf, "Really attack %s?", mon_nam(mtmp));
+                if (yn(qbuf) != 'y') {
+                        flags.move = 0;
+                        return(TRUE);
+                }
+            }
+        }
 
 	return(FALSE);
 }
@@ -303,40 +321,38 @@ register struct monst *mtmp;
 	 */
 	/* Intelligent chaotic weapons (Stormbringer) want blood */
 	if (is_safepet(mtmp) && !flags.forcefight) {
-	    if (!uwep || uwep->oartifact != ART_STORMBRINGER) {
-		/* there are some additional considerations: this won't work
-		 * if in a shop or Punished or you miss a random roll or
-		 * if you can walk thru walls and your pet cannot (KAA) or
-		 * if your pet is a long worm (unless someone does better).
-		 * there's also a chance of displacing a "frozen" monster.
-		 * sleeping monsters might magically walk in their sleep.
-		 */
-		boolean foo = (Punished || !rn2(7) || is_longworm(mtmp->data)),
-			inshop = FALSE;
-		char *p;
+            /* there are some additional considerations: this won't work
+             * if in a shop or Punished or you miss a random roll or
+             * if you can walk thru walls and your pet cannot (KAA) or
+             * if your pet is a long worm (unless someone does better).
+             * there's also a chance of displacing a "frozen" monster.
+             * sleeping monsters might magically walk in their sleep.
+             */
+            boolean foo = (Punished || !rn2(7) || is_longworm(mtmp->data)),
+                    inshop = FALSE;
+            char *p;
 
-		for (p = in_rooms(mtmp->mx, mtmp->my, SHOPBASE); *p; p++)
-		    if (tended_shop(&rooms[*p - ROOMOFFSET])) {
-			inshop = TRUE;
-			break;
-		    }
+            for (p = in_rooms(mtmp->mx, mtmp->my, SHOPBASE); *p; p++)
+                if (tended_shop(&rooms[*p - ROOMOFFSET])) {
+                    inshop = TRUE;
+                    break;
+                }
 
-		if (inshop || foo ||
-			(IS_ROCK(levl[u.ux][u.uy].typ) &&
-					!passes_walls(mtmp->data))) {
-		    char buf[BUFSZ];
+            if (inshop || foo ||
+                    (IS_ROCK(levl[u.ux][u.uy].typ) &&
+                                    !passes_walls(mtmp->data))) {
+                char buf[BUFSZ];
 
-		    monflee(mtmp, rnd(6), FALSE, FALSE);
-		    Strcpy(buf, y_monnam(mtmp));
-		    buf[0] = highc(buf[0]);
-		    You("stop.  %s is in the way!", buf);
-		    return(TRUE);
-		} else if ((mtmp->mfrozen || (! mtmp->mcanmove)
-				|| (mtmp->data->mmove == 0)) && rn2(6)) {
-		    pline("%s doesn't seem to move!", Monnam(mtmp));
-		    return(TRUE);
-		} else return(FALSE);
-	    }
+                monflee(mtmp, rnd(6), FALSE, FALSE);
+                Strcpy(buf, y_monnam(mtmp));
+                buf[0] = highc(buf[0]);
+                You("stop.  %s is in the way!", buf);
+                return(TRUE);
+            } else if ((mtmp->mfrozen || (! mtmp->mcanmove)
+                            || (mtmp->data->mmove == 0)) && rn2(6)) {
+                pline("%s doesn't seem to move!", Monnam(mtmp));
+                return(TRUE);
+            } else return(FALSE);
 	}
 
 	/* possibly set in attack_checks;

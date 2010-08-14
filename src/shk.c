@@ -1146,7 +1146,8 @@ dopay()
            select the resident shk; you almost certainly want that shk rather
            than a nonangry shk elsewhere. */
 	if (resident &&
-            (seensk == 1 || ESHK(resident)->billct || ESHK(resident)->debit)) {
+            (seensk == 1 || ESHK(resident)->billct || ESHK(resident)->debit ||
+             ESHK(resident)->robbed)) {
 		shkp = resident;
 		goto proceed;
 	}

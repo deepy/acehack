@@ -1262,6 +1262,7 @@ domove()
             tmpr->doormask != D_NODOOR && tmpr->doormask != D_ISOPEN) {
             setnextgetdirdxdy(u.dx, u.dy);
             if (doopen() == 0) {flags.move = 0; nomul(0);}
+            setnextgetdir(0); /* in case the player has no hands */
             return;
         }
 

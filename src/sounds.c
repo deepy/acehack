@@ -5,6 +5,7 @@
 
 #include "hack.h"
 #include "edog.h"
+#include "eshk.h"
 #ifdef USER_SOUNDS
 # ifdef USER_SOUNDS_REGEX
 #include <regex.h>
@@ -856,8 +857,11 @@ dochat()
 	return(0);
     }
 
-    if ((mtmp = shop_keeper(*in_rooms(u.ux, u.uy, SHOPBASE))) && inhishop(mtmp)) {
-        /* chat command (c/p) in a shop pays the shopkeeper */
+    if ((mtmp = shop_keeper(*in_rooms(u.ux, u.uy, SHOPBASE))) &&
+        inhishop(mtmp) && (ESHK(mtmp)->robbed || ESHK(mtmp)->billct ||
+                           ESHK(mtmp)->debit)) {
+        /* chat command (c/p) in a shop pays the shopkeeper, if there's any
+           payment to do*/
         return dopay();
     }
 

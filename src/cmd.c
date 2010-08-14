@@ -1992,8 +1992,7 @@ reparse_direction:
                 cmd[1] = getdir(cmd[0] == 'F' ? "Attack in which direction?" :
                                 cmd[0] == 'm' ? "Move in which direction?" :
                                 cmd[0] == 'g' ? "Farmove in which direction?" : 0,
-                                cmd[0] == 'm' || cmd[0] == 'g' ?
-                                GETDIRH_RANGE : GETDIRH_NEXT);
+                                cmd[0] == 'g' ? GETDIRH_RANGE : GETDIRH_NEXT);
                 if (cmd[1] == 0) cmd[0] = '\033';
                 /* Translate the pressed direction into standard
                    vikeys, no matter what control system is being used. */

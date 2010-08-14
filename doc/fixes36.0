@@ -156,6 +156,12 @@ leaning on a door is enough to open it, unless it gets stuck or
 resists.) (Credits: idea taken from UnNetHack, but with different
 code.)
 
+Walking into shopkeepers now attempts to pay them, if you owe them
+anything; walking into other always-peaceful monsters (or shopkeepers
+who you owe no money) chats to them. (Sometimes-peaceful monsters
+still give the "do you want to attack?" prompt.) In order to attack
+such monsters, use the 'F' command.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
