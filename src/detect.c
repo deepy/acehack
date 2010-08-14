@@ -1214,8 +1214,9 @@ register int aflag;
 		    } else {
 		/* Be careful not to find anything in an SCORR or SDOOR */
 			if((mtmp = m_at(x, y)) && !aflag) {
-			    if(mtmp->m_ap_type) {
-				seemimic(mtmp);
+			    if(mtmp->m_ap_type &&
+                               !glyph_is_invisible(levl[x][y].glyph)) {
+                                map_invisible(x,y);
 		find:		exercise(A_WIS, TRUE);
 				if (!canspotmon(mtmp)) {
 				    if (glyph_is_invisible(levl[x][y].glyph)) {

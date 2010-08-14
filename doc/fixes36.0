@@ -280,6 +280,8 @@ is mine.)
 M: Now a synonym for #monster.
 ^V: New command, to review tutorial slides.
 Q: No longer prints a message about #quit.
+s: No longer wakes mimics (instead, upon detecting a mimic, an
+unseen-monster I glyph is placed on the square to mark its location)
 S: Now allows the user to quit, in addition to continuing to play.
 (The key sequence S!y to quit is chosen to be almost impossible to
 press by mistake, in order to hopefully prevent accidents; I had
