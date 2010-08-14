@@ -165,6 +165,7 @@ E void NDECL(add_debug_extended_commands);
 E void FDECL(rhack, (char *));
 E int NDECL(doextlist);
 E int NDECL(extcmd_via_menu);
+E char * FDECL(key_for_cmd, (char *));
 E void FDECL(enlightenment, (int));
 E void FDECL(show_conduct, (int));
 E int FDECL(xytod, (SCHAR_P,SCHAR_P));

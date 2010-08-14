@@ -5,6 +5,7 @@
 
 #include "hack.h"
 #include "func_tab.h"
+#include <ctype.h>
 /* #define DEBUG */	/* uncomment for debugging */
 
 /*
@@ -1695,6 +1696,30 @@ static const struct ext_func_tab debug_extcmdlist[] = {
         {"wish", "(debug mode) create an item", wiz_wish, TRUE},
 	{(char *)0, (char *)0, donull, TRUE}
 };
+
+char*
+key_for_cmd(cmd)
+char* cmd;
+{
+  static char buf[8];
+  struct ext_func_tab *a = extcmdlist;
+  while (a->ef_txt) {
+    if (!strcmp(a->ef_txt,cmd+1)) {
+      buf[1] = 0;
+      if (isprint(a->binding1)) {*buf=a->binding1; return buf;}
+      if (isprint(a->binding2)) {*buf=a->binding2; return buf;}
+      if (isprint(a->binding3)) {*buf=a->binding3; return buf;}
+      buf[0] = '^';
+      buf[2] = 0;
+      if (isprint(unctrl(a->binding1))) {buf[1]=unctrl(a->binding1); return buf;}
+      if (isprint(unctrl(a->binding2))) {buf[1]=unctrl(a->binding2); return buf;}
+      if (isprint(unctrl(a->binding3))) {buf[1]=unctrl(a->binding3); return buf;}
+      return cmd;
+    }
+    a++;
+  }
+  return cmd;
+}
 
 /*
  * Insert debug commands into the extended command list.  This function

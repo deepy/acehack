@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.c	3.4	2003/04/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 14 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1262,6 +1262,22 @@ domove()
 	    nomul(0);
 	    return;
 	}
+
+	/* If no 'm' prefix, veto dangerous moves */
+        if (!flags.nopick || flags.run) {
+            if (!Levitation && !Flying && !is_clinger(youmonst.data) &&
+                !Stunned && !Confusion &&
+                (is_pool(x, y) || is_lava(x, y)) && levl[x][y].seenv &&
+                !is_pool(u.ux, u.uy) && !is_lava(u.ux, u.uy)) {
+                pline(is_pool(x, y) ? "You never learned to swim!" :
+                      "That lava looks rather dangerous...");
+                pline("(Use %s-direction to move there anyway.)",
+                      key_for_cmd("#move"));
+                flags.move = 0;
+                nomul(0);
+                return;
+            }
+        }
 
 	/* Move ball and chain.  */
 	if (Punished)

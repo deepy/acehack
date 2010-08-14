@@ -144,6 +144,12 @@ NetHack 3.4.3 just repeats the last direction (perhaps killing the
 player arbitrarily), AceHack 3.6.0 will keep prompting until a
 direction is given.
 
+While not stunned, confused, levitating, flying, or in a monster form
+that can move along the ceiling, attempting to move into known water
+or lava now requires an 'm' prefix (or whatever it's set to in your
+options), in order to prevent players falling into water or lava by
+mistake. (Credits: suggestion by casmith789.)
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
