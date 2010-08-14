@@ -172,6 +172,12 @@ explicitly if the color option is turned on; this should avoid the
 problem where graphics can't be seen properly due to unusual terminal
 settings such as a white background.
 
+The game now highlights possible directions to, e.g., fire things in,
+by using a red background. (Credits: this was kerio's idea.)
+Background colors are also used to signify other things, e.g. detected
+monsters, pets, peaceful monsters. (Credits: This idea was inspired by
+Dungeon Crawl Stone Soup.)
+
 (tty interface on all platforms but DOS, OS/2, WIN32)
 IBMgraphics now sends signals to the terminal telling it to select a
 suitable character set for drawing that graphics; hopefully, this will
