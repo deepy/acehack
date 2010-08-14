@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 12 Aug 2010 by Alex Smith */
+/* Modified 14 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -362,7 +362,7 @@ void
 tty_player_selection()
 {
 	char obuf[BUFSZ];
-        boolean reroll = TRUE, xallowed = TRUE;
+        boolean reroll = FALSE, xallowed = TRUE;
         int ch;
         long scumcount = !!flags.startscum;
 
@@ -396,6 +396,8 @@ tty_player_selection()
                                        flags.initgend, PICK_RANDOM);
         if (flags.initalign < 0)
           flags.initalign = randalign(flags.initrole, flags.initrace);
+
+        newgame_part_2();
 
         /* Fixed parts of the window */
         tty_clear_nhwindow(BASE_WINDOW);
