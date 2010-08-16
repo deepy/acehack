@@ -12,7 +12,7 @@ increases to abilities while wearing cursed gauntlets of dexterity or
 a cursed helm of brilliance.
 
 It's no longer possible to wrest a wand in one turn via levitation.
-(Patch credits: bcd@pvv.org)
+(Patch credits: Brent Dalager <bcd@pvv.org>)
 
 Item lists are now sorted into alphabetical order; this avoids an
 exploit whereby the player could determine the identity of an item
@@ -30,10 +30,10 @@ High Priests on the Astral Plane no longer give away their identity
 when Called something else.
 
 Candles can now be added to a candelabrum while underwater. (Patch
-credits: ?)
+credits: Sgeo via the NetHack patchdb)
 
 Bisecting a long worm with 1hp no longer crashes the game. (Patch
-credits: ?)
+credits: bhaak via the NetHack patchdb)
 
 The game no longer crashes if a thrown potion breaks on iron bars and
 would otherwise have hit a monster. (Patch credits: bhaak via
