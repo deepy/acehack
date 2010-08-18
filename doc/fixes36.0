@@ -204,6 +204,12 @@ fixes. The control code \001 is no longer used on the Rogue level on
 these platforms either, preventing many terminals breaking upon
 encountering it.
 
+(UNIX-like systems, either directly or via autoconf)
+The default number of players allowed to play at once on a UNIX system
+is now unlimited, rather than 4. (The restriction is a pretty
+meaningless one anyway, as it can be avoided merely by running NetHack
+directly rather than via the script that normally runs it.)
+
 General New Features
 --------------------
 

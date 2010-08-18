@@ -1,10 +1,14 @@
 #!/bin/sh
 #	SCCS Id: @(#)nethack.sh	3.4	1990/02/26
+# Modified by Alex Smith, 19 Aug 2010
 
-HACKDIR=/usr/games/lib/nethackdir
+HACKDIR=/usr/games/lib/acehackdir
 export HACKDIR
-HACK=$HACKDIR/nethack
-MAXNROFPLAYERS=4
+HACK=$HACKDIR/acehack
+# by default there's no max on the number of players that can play at once
+# this provides only minimal security, as if more people want to play at
+# once, they can just run NetHack directly, ignoring this script altogether
+MAXNROFPLAYERS=
 
 # Since Nethack.ad is installed in HACKDIR, add it to XUSERFILESEARCHPATH
 case "x$XUSERFILESEARCHPATH" in

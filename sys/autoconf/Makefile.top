@@ -1,6 +1,7 @@
 #	NetHack Makefile.
 #       @configure_input@
 #	SCCS Id: @(#)Makefile.top	3.4	1995/01/05
+#	Modified by Alex Smith, 19 Aug 2010
 
 VPATH=@srcdir@
 srcdir=@srcdir@
@@ -20,8 +21,8 @@ srcdir=@srcdir@
 # make NetHack
 PREFIX   = @prefix@
 EXEEXT	 = @EXEEXT@
-SCRIPT   = nethack
-GAME     = nethack$(EXEEXT)
+SCRIPT   = acehack
+GAME     = acehack$(EXEEXT)
 GAMEUID  = @OWNER@
 GAMEGRP  = @GROUP@
 
@@ -45,7 +46,7 @@ VARDIRPERM  = 0755
 # These must agree with the definitions in unixconf.h
 
 # Defs. for non file areas support.
-GAMEDIR  = $(PREFIX)/nethackdir
+GAMEDIR  = $(PREFIX)/acehackdir
 VARDIR = $(GAMEDIR)
 FILE_AREA_VAR = $(VARDIR)
 FILE_AREA_SAVE = $(VARDIR)/save
@@ -230,11 +231,10 @@ dofiles:
 		cp $(srcdir)/doc/Guidebook.txt $(FILE_AREA_DOC); \
 	fi
 	cp $(srcdir)/dat/license $(FILE_AREA_DOC)
-#	cp win/Qt/KDE/knethack.kdelnk $(KDEDIR)/share/applnk/Games
 	@HOST_UNIX@-rm -f $(SHELLDIR)/$(SCRIPT)
-	@HOST_UNIX@sed -e 's;/usr/games/lib/nethackdir;$(FILE_AREA_UNSHARE);' \
-	@HOST_UNIX@	-e 's;HACKDIR/nethack;HACKDIR/$(GAME);' \
-	@HOST_UNIX@	< $(srcdir)/sys/unix/nethack.sh \
+	@HOST_UNIX@sed -e 's;/usr/games/lib/acehackdir;$(FILE_AREA_UNSHARE);' \
+	@HOST_UNIX@	-e 's;HACKDIR/acehack;HACKDIR/$(GAME);' \
+	@HOST_UNIX@	< $(srcdir)/sys/unix/acehack.sh \
 	@HOST_UNIX@	> $(SHELLDIR)/$(SCRIPT)
 # set up their permissions
 	-( cd $(FILE_AREA_UNSHARE) ; $(CHOWN) $(GAMEUID) $(GAME) recover$(EXEEXT) ; \

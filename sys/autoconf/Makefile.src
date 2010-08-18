@@ -1,6 +1,7 @@
 #	NetHack Makefile.
 #       @configure_input@
 #	SCCS Id: @(#)Makefile.src	3.4	2002/03/02
+#	Modified by Alex Smith, 19 Aug 2010
 
 VPATH = @srcdir@
 srcdir = @srcdir@
@@ -130,7 +131,7 @@ WINLIB = @WINLIB@
 LIBS =
 
 # make NetHack
-GAME     = nethack$(EXEEXT)
+GAME     = acehack$(EXEEXT)
 
 RANDOBJ =
 
