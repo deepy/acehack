@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 19 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -1042,6 +1042,7 @@ boolean at_stairs, falling, portal;
 	keepdogs(FALSE);
 	if (u.uswallow)				/* idem */
 		u.uswldtim = u.uswallow = 0;
+	recalc_mapseen(); /* recalculate map overview before we leave the level */
 	/*
 	 *  We no longer see anything on the level.  Make sure that this
 	 *  follows u.uswallow set to null since uswallow overrides all
@@ -1077,6 +1078,11 @@ boolean at_stairs, falling, portal;
 #ifdef USE_TILES
 	substitute_tiles(newlevel);
 #endif
+	/* record this level transition as a potential seen branch unless using
+	 * some non-standard means of transportation (level teleport).
+	 */
+	if ((at_stairs || falling || portal) && (u.uz.dnum != newlevel->dnum))
+		recbranch_mapseen(&u.uz, newlevel);
 	assign_level(&u.uz0, &u.uz);
 	assign_level(&u.uz, newlevel);
 	assign_level(&u.utolev, newlevel);

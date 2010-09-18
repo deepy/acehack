@@ -2,7 +2,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /* Copyright (c) M. Stephenson, 1990, 1991.			  */
 /* Copyright (c) Dean Luick, 1990.				  */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 19 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define MAKEDEFS_C	/* use to conditionally include file sections */
@@ -653,6 +653,7 @@ static const char *build_opts[] = {
 #ifdef WIZARD
 		"debug mode",
 #endif
+		"dungeon map overview patch",
 #ifdef ELBERETH
 		"Elbereth",
 #endif

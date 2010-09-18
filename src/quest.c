@@ -1,6 +1,7 @@
 /*	SCCS Id: @(#)quest.c	3.4	2000/05/05	*/
 /*	Copyright 1991, M. Stephenson		  */
 /* NetHack may be freely redistributed.  See license for details. */
+/* Modified 19 Sep 2010 by Alex Smith */
 
 #include "hack.h"
 
@@ -157,6 +158,7 @@ boolean seal;
     if (seal) {	/* remove the portal to the quest - sealing it off */
 	int reexpelled = u.uevent.qexpelled;
 	u.uevent.qexpelled = 1;
+	remdun_mapseen(quest_dnum);
 	/* Delete the near portal now; the far (main dungeon side)
 	   portal will be deleted as part of arrival on that level.
 	   If monster movement is in progress, any who haven't moved

@@ -236,6 +236,11 @@ Objects in shops now have visible price tags, that are shown when you
 step on them. (Patch credits: a marginally modified version of a patch
 by bhaak for UnNetHack.)
 
+New commands ^O (or #overview) and ^F (or #annotate) show a summary of
+features you've seen on levels you've visited, and allow you to name
+the current dungeon level with a name that shows up in ^O,
+respectively. (Patch credits: Hojita Discordia, via UnNetHack.)
+
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
 

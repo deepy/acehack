@@ -1,6 +1,7 @@
 /*	SCCS Id: @(#)vision.c	3.4	1999/02/18	*/
 /* Copyright (c) Dean Luick, with acknowledgements to Dave Cohrs, 1990.	*/
 /* NetHack may be freely redistributed.  See license for details.	*/
+/* Modified 19 Sep 2010 by Alex Smith */
 
 #include "hack.h"
 
@@ -806,6 +807,8 @@ skip:
     /* Set the new min and max pointers. */
     viz_rmin  = next_rmin;
     viz_rmax = next_rmax;
+
+    recalc_mapseen();
 }
 
 

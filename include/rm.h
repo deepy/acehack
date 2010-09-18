@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)rm.h	3.4	1999/12/12	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 19 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef RM_H
@@ -335,6 +335,7 @@ extern const struct symdef def_warnsyms[WARNCOUNT];
 struct rm {
 	int glyph;		/* what the hero thinks is there */
 	schar typ;		/* what is really there */
+	Bitfield(styp, 6);	/* last seen/touched dungeon typ */
 	uchar seenv;		/* seen vector */
 
 	Bitfield(flags,5);	/* extra information for typ */

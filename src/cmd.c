@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 19 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1486,6 +1486,7 @@ int final;
 
 struct ext_func_tab extcmdlist[] = {
   {"adjust", "adjust inventory letters", doorganize, TRUE, 1, C('i'), M('a'), 0, 0},
+  {"annotate", "name current level", donamelevel, TRUE, 5, C('f'), 0, 0, 0},
   {"apply", "use a tool or ignite a potion", doapply, FALSE, 11, 'a', 0, 0, 0},
   {"autopickup", "toggle the autopickup option", dotogglepickup, TRUE, 10,
    '@', 0, 0, 0},
@@ -1551,6 +1552,7 @@ struct ext_func_tab extcmdlist[] = {
   {"open", "open or close a door or container on the ground", doopen,
    FALSE, 11, 'o', M('l'), 0, 0},
   {"options", "change game options", doset, TRUE, 10, 'O', 0, 0, 0},
+  {"overview", "show an overview of the dungeon", dooverview, TRUE, 5, C('o'), 0, 0, 0},
   {"pickup", "pick up one or more items", dopickup, FALSE, 10, ',', 0, 0, 0},
   {"pray", "pray to the gods for help", dopray, TRUE, 1, M('p'), 0, 0, 0},
   {"quaff", "drink a potion or other liquid", dodrink, FALSE, 11, 'q', 0, 0, 0},

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mklev.c	3.4	2001/11/29	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Sep 2010 by Alex Smith */
+/* Modified 19 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -923,6 +923,7 @@ mklev()
 {
 	struct mkroom *croom;
 
+	init_mapseen(&u.uz);
 	if(getbones()) return;
 	in_mklev = TRUE;
 	makelevel();

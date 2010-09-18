@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)extern.h	3.4	2003/03/10	*/
 /* Copyright (c) Steve Creps, 1988.				  */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 19 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef EXTERN_H
@@ -509,6 +509,13 @@ E schar FDECL(lev_by_name, (const char *));
 #ifdef WIZARD
 E schar FDECL(print_dungeon, (BOOLEAN_P,schar *,xchar *));
 #endif
+E int NDECL(donamelevel);
+E int NDECL(dooverview);
+E void FDECL(forget_mapseen, (int));
+E void FDECL(init_mapseen, (d_level *));
+E void NDECL(recalc_mapseen);
+E void FDECL(recbranch_mapseen, (d_level *, d_level *));
+E void FDECL(remdun_mapseen, (int));
 
 /* ### eat.c ### */
 
