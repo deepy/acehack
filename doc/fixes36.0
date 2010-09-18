@@ -52,6 +52,9 @@ Some actions now take 1 action rather than 0: manipulating a
 drawbridge with music, kicking at nothing. (Patch credits: bhaak via
 UnNetHack.)
 
+The game no longer crashes when trying to travel on a level with a
+very large number of boulders.
+
 Modified Features
 -----------------
 
@@ -162,6 +165,9 @@ who you owe no money) chats to them. (Sometimes-peaceful monsters
 still give the "do you want to attack?" prompt.) In order to attack
 such monsters, use the 'F' command.
 
+The #enhance/^E screen now shows how many skill slots you have left,
+and how many it costs you to enhance various skills.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
@@ -196,13 +202,19 @@ Background colors are also used to signify other things, e.g. detected
 monsters, pets, peaceful monsters. (Credits: This idea was inspired by
 Dungeon Crawl Stone Soup.)
 
+Squares which contain known traps are colored cyan no matter what is
+actually on the square, to warn the player against stumbling into
+them.
+
+The default character used to represent traps is now ^ rather than ".
+
 (tty interface on all platforms but DOS, OS/2, WIN32)
 IBMgraphics now sends signals to the terminal telling it to select a
 suitable character set for drawing that graphics; hopefully, this will
 make IBMgraphics "just work" rather than requiring crazy character set
-fixes. The control code \001 is no longer used on the Rogue level on
-these platforms either, preventing many terminals breaking upon
-encountering it.
+fixes. The control codes \001 and \004 are no longer used on the Rogue
+level on these platforms either, preventing many terminals breaking
+upon encountering it.
 
 (UNIX-like systems, either directly or via autoconf)
 The default number of players allowed to play at once on a UNIX system
