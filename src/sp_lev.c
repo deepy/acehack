@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)sp_lev.c	3.4	2001/09/06	*/
 /*	Copyright (c) 1989 by Jean-Christophe Collet */
-/* Modified 21 Jul 2010 by Alex Smith */
+/* Modified 18 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -2463,17 +2463,15 @@ dlb *fd;
 	while(n--) {
 		Fread((genericptr_t)&tmplad, 1, sizeof(tmplad), fd);
 
-		x = tmplad.x;  y = tmplad.y;
-		get_location(&x, &y, DRY);
-
-		levl[x][y].typ = LADDER;
-		if (tmplad.up == 1) {
-			xupladder = x;	yupladder = y;
-			levl[x][y].ladder = LA_UP;
-		} else {
-			xdnladder = x;	ydnladder = y;
-			levl[x][y].ladder = LA_DOWN;
-		}
+                do {
+                    x = tmplad.x;  y = tmplad.y;
+                    get_location(&x, &y, DRY);
+		} while(prevstair.x && xi++ < 100 &&
+			distmin(x,y,prevstair.x,prevstair.y) <= 8);
+		if ((badtrap = t_at(x,y)) != 0) deltrap(badtrap);
+		mkstairs(x, y, (char)tmplad.up, (struct mkroom *)0, LADDER);
+		prevstair.x = x;
+		prevstair.y = y;
 	}
 
 	prevstair.x = prevstair.y = 0;

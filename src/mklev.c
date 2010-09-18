@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mklev.c	3.4	2001/11/29	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Jul 2010 by Alex Smith */
+/* Modified 18 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1290,13 +1290,23 @@ struct mkroom *croom;
 	    return;
 
 	if(up) {
-		xupstair = x;
-		yupstair = y;
-		upstairs_room = croom;
+          if (typ == LADDER) {
+            xupladder = x;
+            yupladder = y;
+          } else {
+            xupstair = x;
+            yupstair = y;
+          }
+          upstairs_room = croom;
 	} else {
-		xdnstair = x;
-		ydnstair = y;
-		dnstairs_room = croom;
+          if (typ == LADDER) {
+            xdnladder = x;
+            ydnladder = y;
+          } else {
+            xdnstair = x;
+            ydnstair = y;
+          }
+          dnstairs_room = croom;
 	}
 
 	levl[x][y].typ = typ;
