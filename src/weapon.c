@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)weapon.c	3.4	2002/11/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 18 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -1070,11 +1070,16 @@ enhance_weapon_skill()
 		 } else
 #endif
 		{
-		    if (!iflags.menu_tab_sep)
-			Sprintf(buf, " %s %-*s [%s]",
-			    prefix, longest, P_NAME(i), sklnambuf);
-		    else
-			Sprintf(buf, " %s%s\t[%s]",
+                  if (!iflags.menu_tab_sep) {
+                    if (can_advance(i, 0) || could_advance(i))
+                      Sprintf(buf, " %s %-*s [%s; %d to advance]", prefix,
+                              longest, P_NAME(i), sklnambuf,
+                              slots_required(i));
+                    else Sprintf(buf, " %s %-*s [%s]",
+                                 prefix, longest, P_NAME(i), sklnambuf);
+                  }
+                  else
+                    Sprintf(buf, " %s%s\t[%s]",
 			    prefix, P_NAME(i), sklnambuf);
 		}
 		any.a_int = can_advance(i, speedy) ? i+1 : 0;
@@ -1084,11 +1089,9 @@ enhance_weapon_skill()
 
 	    Strcpy(buf, (to_advance > 0) ? "Pick a skill to advance:" :
 					   "Current skills:");
-#ifdef WIZARD
-	    if (wizard && !speedy)
-		Sprintf(eos(buf), "  (%d slot%s available)",
-			u.weapon_slots, plur(u.weapon_slots));
-#endif
+            Sprintf(eos(buf), "  (%d slot%s available)",
+                    u.weapon_slots, plur(u.weapon_slots));
+
 	    end_menu(win, buf);
 	    n = select_menu(win, to_advance ? PICK_ONE : PICK_NONE, &selected);
 	    destroy_nhwindow(win);
