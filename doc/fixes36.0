@@ -1,4 +1,4 @@
-Changes in AceHack 3.6.0. Emacs, this is a -*- text -*- file.
+Changes in AceHack 3.6.0.  Emacs, this is a -*- text -*- file.
 
 This is a list of changes between NetHack 3.4.3 and AceHack 3.6.0.
 These are in no particular order, and every change is listed, even
@@ -29,27 +29,27 @@ they entered.)
 High Priests on the Astral Plane no longer give away their identity
 when Called something else.
 
-Candles can now be added to a candelabrum while underwater. (Patch
+Candles can now be added to a candelabrum while underwater.  (Patch
 credits: Sgeo via the NetHack patchdb)
 
-Bisecting a long worm with 1hp no longer crashes the game. (Patch
+Bisecting a long worm with 1hp no longer crashes the game.  (Patch
 credits: bhaak via the NetHack patchdb)
 
 The game no longer crashes if a thrown potion breaks on iron bars and
-would otherwise have hit a monster. (Patch credits: bhaak via
+would otherwise have hit a monster.  (Patch credits: bhaak via
 UnNetHack.)
 
 The game no longer crashes when a wielded item is applied to the face,
-autotransforms, or burns out. (Patch credits: bhaak via UnNetHack.)
+autotransforms, or burns out.  (Patch credits: bhaak via UnNetHack.)
 
-The game no longer crashes when acid falls into a pool or moat. (Patch
-credits: bhaak via UnNetHack.)
+The game no longer crashes when acid falls into a pool or moat.
+(Patch credits: bhaak via UnNetHack.)
 
-Some typographical and grammatical errors were fixed. (Patch credits:
+Some typographical and grammatical errors were fixed.  (Patch credits:
 bhaak via UnNetHack.)
 
 Some actions now take 1 action rather than 0: manipulating a
-drawbridge with music, kicking at nothing. (Patch credits: bhaak via
+drawbridge with music, kicking at nothing.  (Patch credits: bhaak via
 UnNetHack.)
 
 The game no longer crashes when trying to travel on a level with a
@@ -70,7 +70,7 @@ code by Grunt)
 
 Most of the options in the game have been removed or hidden; they
 still exist if anyone really wants to change them, but most of them
-have been set to sane defaults and then made undocumented. Even some
+have been set to sane defaults and then made undocumented.  Even some
 of the ones that still exist have changed defaults (e.g. color to
 true, autopickup [and exceptions to it] to a sane set of settings).
 
@@ -112,26 +112,26 @@ in the "Change Detail" section at the end.)
 
 Many monsters have changed colour (ghosts and shades have even changed
 sym, to W) in order to make it easier for the player to tell them
-apart; underlining is used as well as colour for this purpose. (See
+apart; underlining is used as well as colour for this purpose.  (See
 the "Change Detail" section at the end for details.)
 
 Jumping boots now give a message when worn or removed (in nearly every
 case in vanilla NetHack, you can check /anyway/ without even spending
 a turn), which causes them to self-ID.  Likewise, all characters
-recognise potions of oil for the same reason. (Credits: suggestion for
-auto-IDing jumping boots by casmith789.)
+recognise potions of oil for the same reason.  (Credits: suggestion
+for auto-IDing jumping boots by casmith789.)
 
 The gaze of a floating eye now forces players to miss, rather than
-paralyzing them. (Floating eyes still have their paralysis defence in
+paralyzing them.  (Floating eyes still have their paralysis defence in
 all other contexts.)
 
 Instead of automatically confirming attacks on peaceful monsters,
 Stormbringer now acts as a ring of aggravate monster while wielded (in
 addition to its other effects).
 
-Amnesia's effect has been changed. It now no longer causes the player
+Amnesia's effect has been changed.  It now no longer causes the player
 to forget the map or seen traps; instead, it affects a much larger
-proportion of objects. Forgotten objects are now /called/ by their
+proportion of objects.  Forgotten objects are now /called/ by their
 actual name; so forgetting what a potion of blindness does, for
 instance, would lead to "potion called potion of blindness" rather
 than "potion of blindness" in the inventory.
@@ -151,22 +151,26 @@ While not stunned, confused, levitating, flying, or in a monster form
 that can move along the ceiling, attempting to move into known water
 or lava now requires an 'm' prefix (or whatever it's set to in your
 options), in order to prevent players falling into water or lava by
-mistake. (Credits: suggestion by casmith789.)
+mistake.  (Credits: suggestion by casmith789.)
 
 Attempting to walk into a door is now equivalent to trying to open it
-(say with the 'o' command). (This even works for an unknown door; just
-leaning on a door is enough to open it, unless it gets stuck or
-resists.) (Credits: idea taken from UnNetHack, but with different
+(say with the 'o' command).  (This even works for an unknown door;
+just leaning on a door is enough to open it, unless it gets stuck or
+resists.)  (Credits: idea taken from UnNetHack, but with different
 code.)
 
 Walking into shopkeepers now attempts to pay them, if you owe them
 anything; walking into other always-peaceful monsters (or shopkeepers
-who you owe no money) chats to them. (Sometimes-peaceful monsters
-still give the "do you want to attack?" prompt.) In order to attack
+who you owe no money) chats to them.  (Sometimes-peaceful monsters
+still give the "do you want to attack?" prompt.)  In order to attack
 such monsters, use the 'F' command.
 
 The #enhance/^E screen now shows how many skill slots you have left,
 and how many it costs you to enhance various skills.
+
+The message "You climb up the ladder." no longer appears when climbing
+ladders (mostly because ladders are a lot more prevalent in AceHack
+than in NetHack).
 
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
@@ -177,12 +181,12 @@ show things like statuses.  It also now shows semi-graphical Hp and Pw
 bars that change colour according to how wounded or exhausted you are.
 Statuses are now coloured according to severity, and many more things
 are shown as statuses than were before (e.g. levitation, greasy hands,
-poisoned). (Credits: Thanks to Squolly for suggesting the expansion of
-statuses.)
+poisoned).  (Credits: Thanks to Squolly for suggesting the expansion
+of statuses.)
 
 There is a new character creation screen, that allows you to view a
 character's stats and inventory before you start playing, and to
-choose a different one if you don't like it. (This breaks
+choose a different one if you don't like it.  (This breaks
 "startscumless" conduct just by existing; if you want to prove that
 you won with the first character that the RNG produced, say as part of
 a streak, turn off the new "startscum" option and the stats and
@@ -191,16 +195,16 @@ inventory will be hidden unless you choose to look at them.)
 New centralised routines are used for drawing things to the screen;
 although potentially slightly less efficient than the old ones,
 they make it much easier to extend the drawing code to do new sorts of
-drawing. They also now set both the foreground and background colors
+drawing.  They also now set both the foreground and background colors
 explicitly if the color option is turned on; this should avoid the
 problem where graphics can't be seen properly due to unusual terminal
 settings such as a white background.
 
 The game now highlights possible directions to, e.g., fire things in,
-by using a red background. (Credits: this was kerio's idea.)
+by using a red background.  (Credits: this was kerio's idea.)
 Background colors are also used to signify other things, e.g. detected
-monsters, pets, peaceful monsters. (Credits: This idea was inspired by
-Dungeon Crawl Stone Soup.)
+monsters, pets, peaceful monsters.  (Credits: This idea was inspired
+by Dungeon Crawl Stone Soup.)
 
 Squares which contain known traps are colored cyan no matter what is
 actually on the square, to warn the player against stumbling into
@@ -212,13 +216,13 @@ The default character used to represent traps is now ^ rather than ".
 IBMgraphics now sends signals to the terminal telling it to select a
 suitable character set for drawing that graphics; hopefully, this will
 make IBMgraphics "just work" rather than requiring crazy character set
-fixes. The control codes \001 and \004 are no longer used on the Rogue
-level on these platforms either, preventing many terminals breaking
-upon encountering it.
+fixes.  The control codes \001 and \004 are no longer used on the
+Rogue level on these platforms either, preventing many terminals
+breaking upon encountering it.
 
 (UNIX-like systems, either directly or via autoconf)
 The default number of players allowed to play at once on a UNIX system
-is now unlimited, rather than 4. (The restriction is a pretty
+is now unlimited, rather than 4.  (The restriction is a pretty
 meaningless one anyway, as it can be avoided merely by running NetHack
 directly rather than via the script that normally runs it.)
 
@@ -234,7 +238,7 @@ via UnNethack.)  AceHack-specific additions include a default set of
 colours for items depending on the item's behavior: see "Change
 Detail" for more information.
 
-Every area of the game now has coloured walls and floor. The exact
+Every area of the game now has coloured walls and floor.  The exact
 colours depend on which branch you're in, whether you've stepped on
 the square before, and whether it's lit; dark areas of a room are now
 shown coloured rather than as blank space (unless color is turned
@@ -245,13 +249,13 @@ A new conduct "startscumless" counts the number of times you looked at
 a character's stats before choosing to play with it.
 
 Objects in shops now have visible price tags, that are shown when you
-step on them. (Patch credits: a marginally modified version of a patch
-by bhaak for UnNetHack.)
+step on them.  (Patch credits: a marginally modified version of a
+patch by bhaak for UnNetHack.)
 
 New commands ^O (or #overview) and ^F (or #annotate) show a summary of
 features you've seen on levels you've visited, and allow you to name
 the current dungeon level with a name that shows up in ^O,
-respectively. (Patch credits: Hojita Discordia, via UnNetHack.)
+respectively.  (Patch credits: Hojita Discordia, via UnNetHack.)
 
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
@@ -289,14 +293,14 @@ unique items (e.g. bell of opening, amulet of yendor): light magenta
 Command changes:
 
 1,2,3,4,6,7,8,9,y,u,h,j,k,l,b,n: Numbers now have numpad meanings by
-default, letters now have vikeys meanings by default. So either the
+default, letters now have vikeys meanings by default.  So either the
 numbpad or the letter keys can be used to move.
 
 c, #chat: c now means #chat (the old meaning of c, "close door", has
-been moved to o). These commands can now be used to pay your bill in a
-shop (which takes precedence over ordinary chatting).
+been moved to o).  These commands can now be used to pay your bill in
+a shop (which takes precedence over ordinary chatting).
 C, #name: These commands have been merged, and display a menu to ask
-what to do. (Credits: nethack.alt.org for the idea, although the code
+what to do.  (Credits: nethack.alt.org for the idea, although the code
 is mine.)
 ^E: Now a synonym for #enhance.
 ^I: Now a synonym for #adjust.
@@ -311,12 +315,12 @@ press by mistake, in order to hopefully prevent accidents; I had
 trouble typing it in order to write this changelog!)
 T, R: These commands have been merged; either will allow armor or
 accessories to be removed, with R now being deprecated.
-V: A new command that merges #rub, #invoke, and wand-breaking. (The
+V: A new command that merges #rub, #invoke, and wand-breaking.  (The
 old V was moved to #versionhistory.)
 W, P: These commands have been merged; either will allow armor or
 accessories to be worn, with P now being deprecated.
-X: Now a synonym for #twoweapon. (Credits: Another nethack.alt.org
-idea.) The old meaning of X, "enter explore mode", was moved to
+X: Now a synonym for #twoweapon.  (Credits: Another nethack.alt.org
+idea.)  The old meaning of X, "enter explore mode", was moved to
 #xplore.
 ^X: Now shows ability scores (as they're no longer on the botl), both
 current and "natural" (i.e. without the effects of items or poison).
