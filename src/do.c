@@ -1156,8 +1156,7 @@ boolean at_stairs, falling, portal;
 		if (Punished && !Levitation) {
 			pline("With great effort you climb the %s.",
 				at_ladder ? "ladder" : "stairs");
-		} else if (at_ladder)
-		    You("climb up the ladder.");
+		}
 	    } else {	/* down */
 		if (at_ladder && !newdungeon) {
                   u_on_upladder();
