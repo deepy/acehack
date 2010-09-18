@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 18 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -2571,8 +2571,7 @@ int c;
     } else {
         /* Check for, say, green-on-green; change it to inverse green. */
         if (temp_fg == temp_bg) {
-            temp_ca |= 16;
-            temp_bg = CLR_BLACK;
+          temp_fg = CLR_BLACK;
         }
     }
     /* This is asymmetrical, in that turning one attr off sometimes
