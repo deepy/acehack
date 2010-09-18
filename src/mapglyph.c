@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 19 Aug 2010 by Alex Smith */
+/* Modified 18 Sep 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -290,6 +290,15 @@ unsigned *ospecial;
 	}
     }
 
+    {
+      /* Brand squares known to be trapped as cyan. */
+      struct trap *ttmp = t_at(x,y);
+      if (ttmp && ttmp->tseen) {
+        color %= CLR_MAX;
+        color += CLR_MAX*CLR_CYAN;
+      }
+    }
+
 #ifdef TEXTCOLOR
     /* Turn off color if no color defined, or rogue level w/o PC graphics. */
 # ifdef REINCARNATION
@@ -308,7 +317,7 @@ unsigned *ospecial;
        keep it simple: the lines extend to the edge of the map for RANGE or
        BOUNCE, and one character for NEXT. */
     if (getdirh != GETDIRH_NONE)
-      if (color < CLR_MAX && //getdirh != GETDIRH_NONE &&
+      if (color < CLR_MAX &&
         (x == getdirx || y == getdiry ||
          x+y == getdirx+getdiry || x-y == getdirx-getdiry) &&
         (getdirh != GETDIRH_NEXT ||
