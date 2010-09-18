@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objects.c	3.4	2002/07/31	*/
 /* Copyright (c) Mike Threepoint, 1989.				  */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 19 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef OBJECTS_PASS_2_
@@ -763,7 +763,7 @@ FOOD("banana",              10, 1,  2, 0, VEGGY,  80, CLR_YELLOW, MCLASS_MUNDANE
 FOOD("carrot",              15, 1,  2, 0, VEGGY,  50, CLR_ORANGE, MCLASS_HEALING),
 FOOD("sprig of wolfsbane",   7, 1,  1, 0, VEGGY,  40, CLR_GREEN, MCLASS_HEALING),
 FOOD("clove of garlic",      7, 1,  1, 0, VEGGY,  40, CLR_WHITE, MCLASS_HEALING),
-FOOD("slime mold",          75, 1,  5, 0, VEGGY, 250, HI_ORGANIC, MCLASS_HEALING),
+FOOD("slime mold",          75, 1,  5, 0, VEGGY, 250, HI_ORGANIC, MCLASS_MUNDANE),
 
 /* people food */
 FOOD("lump of royal jelly",  0, 1,  2, 0, VEGGY, 200, CLR_YELLOW, MCLASS_HEALING),
