@@ -56,6 +56,11 @@ The game no longer crashes when trying to travel on a level with a
 very large number of boulders or with certain highly unusual
 placements of closed doors.
 
+The materials and/or descriptions of some objects are made of have
+been changed to make them react more consistently with what their
+names suggest (pearl rings are now made of bone; leather spellbooks
+are now "leather-bound" to signify they're really made of paper).
+
 Modified Features
 -----------------
 

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objects.c	3.4	2002/07/31	*/
 /* Copyright (c) Mike Threepoint, 1989.				  */
-/* Modified 19 Aug 2010 by Alex Smith */
+/* Modified 18 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef OBJECTS_PASS_2_
@@ -524,7 +524,7 @@ RING("conflict", CONFLICT, "ruby",           300, 1, 0, 9, GEMSTONE, CLR_RED,
 RING("warning", WARNING, "diamond",          100, 1, 0,10, GEMSTONE, CLR_WHITE,
      MCLASS_DIVINATION),
 RINGE("poison resistance", POISON_RES, "pearl",
-					     150, 1, 0, 4, IRON, CLR_WHITE),
+					     150, 1, 0, 4, BONE, CLR_WHITE),
 RINGE("fire resistance", FIRE_RES, "iron",   200, 1, 0, 5, IRON, HI_METAL),
 RINGE("cold resistance", COLD_RES, "brass",  150, 1, 0, 4, COPPER, HI_COPPER),
 RINGE("shock resistance", SHOCK_RES, "copper",
@@ -892,7 +892,7 @@ SPELL("finger of death", "stained",     P_ATTACK_SPELL,       5, 10, 7, 1, RAY,
       HI_PAPER, MCLASS_ATTACK),
 SPELL("light",           "cloth",       P_DIVINATION_SPELL,  45,  1, 1, 1, NODIR,
       HI_CLOTH, MCLASS_DIVINATION),
-SPELL("detect monsters", "leather",     P_DIVINATION_SPELL,  43,  1, 1, 1, NODIR,
+SPELL("detect monsters", "leather-bound",P_DIVINATION_SPELL, 43,  1, 1, 1, NODIR,
       HI_LEATHER, MCLASS_DIVINATION),
 SPELL("healing",         "white",       P_HEALING_SPELL,     40,  2, 1, 1, IMMEDIATE,
       CLR_WHITE, MCLASS_HEALING),
