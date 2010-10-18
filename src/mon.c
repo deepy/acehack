@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mon.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 18 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you're using precompiled headers, you don't want this either */
@@ -1401,8 +1401,10 @@ struct monst *mtmp;
 			if (attacktype(mtmp->data, AT_EXPL)
 			    || attacktype(mtmp->data, AT_BOOM))
 				pline("%s reconstitutes!", Monnam(mtmp));
-			else
+			else if (canseemon(mtmp))
 				pline("%s looks much better!", Monnam(mtmp));
+                        else
+                                pline("%s seems much better!", Monnam(mtmp));
 			pline_The("medallion crumbles to dust!");
 		}
 		m_useup(mtmp, lifesave);

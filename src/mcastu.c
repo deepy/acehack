@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mcastu.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 18 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -373,13 +373,13 @@ int spellnum;
 	    verbalize("Destroy the thief, my pet%s!", plur(count));
 	else {
 	    const char *mappear =
-		(count == 1) ? "A monster appears" : "Monsters appear";
+		(count == 1) ? "A monster appears" : "You sense a hostile presence";
 
 	    /* messages not quite right if plural monsters created but
 	       only a single monster is seen */
 	    if (Invisible && !perceives(mtmp->data) &&
 				    (mtmp->mux != u.ux || mtmp->muy != u.uy))
-		pline("%s around a spot near you!", mappear);
+		pline("%s nearby!", mappear);
 	    else if (Displaced && (mtmp->mux != u.ux || mtmp->muy != u.uy))
 		pline("%s around your displaced image!", mappear);
 	    else

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)sounds.c	3.4	2002/05/06	*/
 /*	Copyright (c) 1989 Janet Walz, Mike Threepoint */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 18 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -168,16 +168,22 @@ dosounds()
 	    if (is_undead(mtmp->data) &&
 		mon_in_room(mtmp, MORGUE)) {
 		switch (rn2(2)+hallu) {
+		    case 1:
+                        if (!strcmp(body_part(HAIR), "hair")) {
+                            pline_The("%s on the back of your %s stands up.",
+			    	    body_part(HAIR), body_part(NECK));
+			    break;
+                        }
+                        /* fall through */
+		    case 2:
+                        if (!strcmp(body_part(HAIR), "hair")) {
+                            pline_The("%s on your %s seems to stand up.",
+                                    body_part(HAIR), body_part(HEAD));
+                            break;
+                        }
+                        /* fall through */
 		    case 0:
 			You("suddenly realize it is unnaturally quiet.");
-			break;
-		    case 1:
-			pline_The("%s on the back of your %s stands up.",
-				body_part(HAIR), body_part(NECK));
-			break;
-		    case 2:
-			pline_The("%s on your %s seems to stand up.",
-				body_part(HAIR), body_part(HEAD));
 			break;
 		}
 		return;
@@ -871,8 +877,13 @@ dochat()
     }
 
 #ifdef STEED
-    if (u.usteed && u.dz > 0)
+    if (u.usteed && u.dz > 0) {
+        if (!u.usteed->mcanmove || u.usteed->msleeping) {
+            pline("Your steed remains silent...");
+            return 0;
+        }
 	return (domonnoise(u.usteed));
+    }
 #endif
     if (u.dz) {
 	pline("They won't hear you %s there.", u.dz < 0 ? "up" : "down");

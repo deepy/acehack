@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 12 Aug 2010 by Alex Smith */
+/* Modified 18 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -784,6 +784,7 @@ register const char *let,*word;
 	boolean usegold = FALSE;	/* can't use gold because its illegal */
 	boolean allowall = FALSE;
 	boolean allownone = FALSE;
+	boolean specialnone = FALSE;
 	boolean useboulder = FALSE;
 	xchar foox = 0;
 	long cnt;
@@ -810,6 +811,7 @@ register const char *let,*word;
 
 	if(*let == ALL_CLASSES) let++, allowall = TRUE;
 	if(*let == ALLOW_NONE) let++, allownone = TRUE;
+	if(*let == SPECIAL_NONE) let++, specialnone = TRUE;
 	/* "ugly check" for reading fortune cookies, part 1 */
 	/* The normal 'ugly check' keeps the object on the inventory list.
 	 * We don't want to do that for shirts/cookies, so the check for
@@ -995,7 +997,8 @@ register const char *let,*word;
 		    return((struct obj *)0);
 		}
 		if(ilet == '-') {
-			return(allownone ? &zeroobj : (struct obj *) 0);
+			return(allownone || specialnone ?
+                               &zeroobj : (struct obj *) 0);
 		}
 		if(ilet == def_oc_syms[COIN_CLASS]) {
 			if (!usegold) {

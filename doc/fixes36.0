@@ -48,6 +48,10 @@ The game no longer crashes when acid falls into a pool or moat.
 Some typographical and grammatical errors were fixed.  (Patch credits:
 bhaak via UnNetHack for some fixes, others are original to AceHack.)
 
+Many messages have been corrected to be more accurate; YAFMs have been
+added in certain special cases where a generic message wouldn't make
+much sense. Likewise, there are also some extra hallucination messages.
+
 Some actions now take 1 action rather than 0: manipulating a
 drawbridge with music, kicking at nothing.  (Patch credits: bhaak via
 UnNetHack.)

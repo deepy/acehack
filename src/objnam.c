@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 12 Aug 2010 by Alex Smith */
+/* Modified 18 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1408,6 +1408,7 @@ const char *oldstr;
 				|| !strncmp(spot, " versus ", 8)
 				|| !strncmp(spot, " from ", 6)
 				|| !strncmp(spot, " in ", 4)
+				|| !strncmp(spot, "-in-", 4) /* mother-in-law */
 				|| !strncmp(spot, " on ", 4)
 				|| !strncmp(spot, " a la ", 6)
 				|| !strncmp(spot, " with", 5)	/* " with "? */
@@ -1447,6 +1448,7 @@ const char *oldstr;
 			!strcmp(spot-4, "tengu") ||
 			!strcmp(spot-4, "manes"))) ||
 	    (len >= 6 && !strcmp(spot-5, "ki-rin")) ||
+	    (len >= 6 && !strcmp(spot-5, "Nazgul")) ||
 	    (len >= 7 && !strcmp(spot-6, "gunyoki")))
 		goto bottom;
 

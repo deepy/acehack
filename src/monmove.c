@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)monmove.c	3.4	2002/04/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 18 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -234,8 +234,11 @@ boolean fleemsg;
 		if (fleetime == 1) fleetime++;
 		mtmp->mfleetim = min(fleetime, 127);
 	    }
-	    if (!mtmp->mflee && fleemsg && canseemon(mtmp) && !mtmp->mfrozen)
+	    if (!mtmp->mflee && fleemsg && canseemon(mtmp) && !mtmp->mfrozen
+                && mtmp->data->mlet != S_MIMIC)
 		pline("%s turns to flee!", (Monnam(mtmp)));
+            else
+                pline("%s mimics a chicken for a moment!", (Monnam(mtmp)));
 	    mtmp->mflee = 1;
 	}
 }

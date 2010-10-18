@@ -69,13 +69,14 @@ STATIC_DCL boolean force_save_hs;
 
 #else
 
-STATIC_OVL NEARDATA const char comestibles[] = { FOOD_CLASS, 0 };
+STATIC_OVL NEARDATA const char comestibles[] = { SPECIAL_NONE, FOOD_CLASS, 0 };
 
 /* Gold must come first for getobj(). */
 STATIC_OVL NEARDATA const char allobj[] = {
-	COIN_CLASS, WEAPON_CLASS, ARMOR_CLASS, POTION_CLASS, SCROLL_CLASS,
-	WAND_CLASS, RING_CLASS, AMULET_CLASS, FOOD_CLASS, TOOL_CLASS,
-	GEM_CLASS, ROCK_CLASS, BALL_CLASS, CHAIN_CLASS, SPBOOK_CLASS, 0 };
+        SPECIAL_NONE, COIN_CLASS, WEAPON_CLASS, ARMOR_CLASS, POTION_CLASS,
+        SCROLL_CLASS, WAND_CLASS, RING_CLASS, AMULET_CLASS, FOOD_CLASS,
+        TOOL_CLASS, GEM_CLASS, ROCK_CLASS, BALL_CLASS, CHAIN_CLASS,
+        SPBOOK_CLASS, 0 };
 
 STATIC_OVL boolean force_save_hs = FALSE;
 
@@ -2476,6 +2477,11 @@ floorfood(verb,corpsecheck)	/* get food from floor or pack */
 	 */
 	otmp = getobj(feeding ? (const char *)allobj :
 				(const char *)comestibles, verb);
+        if (otmp == &zeroobj) {
+            pline("Self-loathing is one thing, but it would be ridiculous "
+                  "to %s yourself...", verb);
+            return NULL;
+        }
 	if (corpsecheck && otmp)
 	    if (otmp->otyp != CORPSE || (corpsecheck == 2 && !tinnable(otmp))) {
 		You_cant("%s that!", verb);
