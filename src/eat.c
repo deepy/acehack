@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)eat.c	3.4	2003/02/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 18 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1258,10 +1258,10 @@ eatcorpse(otmp)		/* called when a corpse is selected as food */
 
 	if (mnum != PM_ACID_BLOB && !stoneable && rotted > 5L) {
 		boolean cannibal = maybe_cannibal(mnum, FALSE);
-		pline("Ulch - that %s was tainted%s!",
+		pline("Ulch!  That %s was tainted%s!",
 		      mons[mnum].mlet == S_FUNGUS ? "fungoid vegetation" :
 		      !vegetarian(&mons[mnum]) ? "meat" : "protoplasm",
-		      cannibal ? " cannibal" : "");
+		      cannibal ? "; you cannibal" : "");
 		if (Sick_resistance) {
 			pline("It doesn't seem at all sickening, though...");
 		} else {

@@ -46,14 +46,15 @@ The game no longer crashes when acid falls into a pool or moat.
 (Patch credits: bhaak via UnNetHack.)
 
 Some typographical and grammatical errors were fixed.  (Patch credits:
-bhaak via UnNetHack.)
+bhaak via UnNetHack for some fixes, others are original to AceHack.)
 
 Some actions now take 1 action rather than 0: manipulating a
 drawbridge with music, kicking at nothing.  (Patch credits: bhaak via
 UnNetHack.)
 
 The game no longer crashes when trying to travel on a level with a
-very large number of boulders.
+very large number of boulders or with certain highly unusual
+placements of closed doors.
 
 Modified Features
 -----------------
