@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)role.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985-1999. */
-/* Modified 8 Aug 2009 by Alex Smith */
+/* Modified 20 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -402,7 +402,7 @@ const struct Role roles[] = {
 	"Wiz", "the Lonely Tower", "the Tower of Darkness",
         "Although wizards start with no intrinsic abilities, they not only carry a wide",
         "selection of magical items with them, but are very good at spellcasting,",
-        "starting with two spellbooks, and good at learning spells from others.",
+        "starting with two spellbooks, and skilled at learning further spells.",
 	PM_WIZARD, NON_PM, PM_KITTEN,
 	PM_NEFERET_THE_GREEN, PM_APPRENTICE, PM_DARK_ONE,
 	PM_VAMPIRE_BAT, PM_XORN, S_BAT, S_WRAITH,
@@ -428,7 +428,7 @@ const struct Role roles[] = {
 struct Role urole =
 {	{"Undefined", 0}, { {0, 0}, {0, 0}, {0, 0},
 	{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0} },
-	"", "", "", "L", "N", "C", "Xxx", "home", "locate",
+	"L", "N", "C", "Xxx", "home", "locate", "", "", "",
 	NON_PM, NON_PM, NON_PM, NON_PM, NON_PM, NON_PM,
 	NON_PM, NON_PM, 0, 0, 0, 0,
 	/* Str Int Wis Dex Con Cha */
@@ -446,6 +446,9 @@ struct Role urole =
 const struct Race races[] = {
 {	"human", "human", "humanity", "Hum",
 	{"man", "woman"},
+        "The main advantage of humans is their versatility; whereas the other races are",
+        "restricted to only a few choices, humans can take any role. They have no major",
+        "weaknesses but an inability to see in the dark, but no real strengths either.",
 	PM_HUMAN, NON_PM, PM_HUMAN_MUMMY, PM_HUMAN_ZOMBIE,
 	MH_HUMAN | ROLE_MALE|ROLE_FEMALE |
 	  ROLE_LAWFUL|ROLE_NEUTRAL|ROLE_CHAOTIC,
@@ -459,6 +462,9 @@ const struct Race races[] = {
 },
 {	"elf", "elven", "elvenkind", "Elf",
 	{0, 0},
+        "Elves are the most magical of all the races, with a bonus to spellcasting",
+        "abilities like intelligence, wisdom, and magical power, but a penalty to those",
+        "involved with fighting. Elves see in the dark; experienced elves never sleep.",
 	PM_ELF, NON_PM, PM_ELF_MUMMY, PM_ELF_ZOMBIE,
 	MH_ELF | ROLE_MALE|ROLE_FEMALE | ROLE_CHAOTIC,
 	MH_ELF, MH_ELF, MH_ORC,
@@ -471,6 +477,9 @@ const struct Race races[] = {
 },
 {	"dwarf", "dwarven", "dwarvenkind", "Dwa",
 	{0, 0},
+        "Dwarves are expert smiths, making excellent weapons and armour; they are born",
+        "fighters, with more hitpoints and combat ability, but are bad at spellcasting.",
+        "Brought up in caves, they can see the body heat of enemies even in darkness.",
 	PM_DWARF, NON_PM, PM_DWARF_MUMMY, PM_DWARF_ZOMBIE,
 	MH_DWARF | ROLE_MALE|ROLE_FEMALE | ROLE_LAWFUL,
 	MH_DWARF, MH_DWARF|MH_GNOME, MH_ORC,
@@ -483,6 +492,9 @@ const struct Race races[] = {
 },
 {	"gnome", "gnomish", "gnomehood", "Gno",
 	{0, 0},
+        "Gnomes are much shorter creatures than humans, but otherwise similar; they",
+        "have slightly more magical energy, but fewer hitpoints than even an elf. Used",
+        "to mining, they can see heat in the darkness, and use touchstones with skill.",
 	PM_GNOME, NON_PM, PM_GNOME_MUMMY, PM_GNOME_ZOMBIE,
 	MH_GNOME | ROLE_MALE|ROLE_FEMALE | ROLE_NEUTRAL,
 	MH_GNOME, MH_DWARF|MH_GNOME, MH_HUMAN,
@@ -495,6 +507,9 @@ const struct Race races[] = {
 },
 {	"orc", "orcish", "orcdom", "Orc",
 	{0, 0},
+        "The brutish orcs have poor abilities and make inferior equipment; however,",
+        "they can eat certain food others find poisonous or distateful, and see body",
+        "heat in the dark. They are worse both physically and magically then humans.",
 	PM_ORC, NON_PM, PM_ORC_MUMMY, PM_ORC_ZOMBIE,
 	MH_ORC | ROLE_MALE|ROLE_FEMALE | ROLE_CHAOTIC,
 	MH_ORC, 0, MH_HUMAN|MH_ELF|MH_DWARF,
@@ -514,7 +529,7 @@ const struct Race races[] = {
  */
 struct Race urace =
 {	"something", "undefined", "something", "Xxx",
-	{0, 0},
+	{0, 0}, "", "", "",
 	NON_PM, NON_PM, NON_PM, NON_PM,
 	0, 0, 0, 0,
 	/*    Str     Int Wis Dex Con Cha */
@@ -528,18 +543,33 @@ struct Race urace =
 
 /* Table of all genders */
 const struct Gender genders[] = {
-	{"male",	"he",	"him",	"his",	"Mal",	ROLE_MALE},
-	{"female",	"she",	"her",	"her",	"Fem",	ROLE_FEMALE},
-	{"neuter",	"it",	"it",	"its",	"Ntr",	ROLE_NEUTER}
+	{"male",	"he",	"him",	"his",	"Mal",	ROLE_MALE,
+"The gender of your character has only very minor effects on gameplay. Male",
+"characters cannot be valkyries, but otherwise have the whole range of",
+"professions, races and alignments open to them."},
+	{"female",	"she",	"her",	"her",	"Fem",	ROLE_FEMALE,
+"The gender of your character has only very minor effects on gameplay. Females",
+"can do any job they wish, not being barred from any character combination on",
+"the grounds of their gender; valkyries must be female."},
+	{"neuter",	"it",	"it",	"its",	"Ntr",	ROLE_NEUTER, "", "", ""}
 };
 
 
 /* Table of all alignments */
 const struct Align aligns[] = {
-	{"law",		"lawful",	"Law",	ROLE_LAWFUL,	A_LAWFUL},
-	{"balance",	"neutral",	"Neu",	ROLE_NEUTRAL,	A_NEUTRAL},
-	{"chaos",	"chaotic",	"Cha",	ROLE_CHAOTIC,	A_CHAOTIC},
-	{"evil",	"unaligned",	"Una",	0,		A_NONE}
+	{"law",		"lawful",	"Law",	ROLE_LAWFUL,	A_LAWFUL,
+"Lawful players are welcomed in law-abiding communities, which tend to be",
+"peaceful towards those who share their alignment. Their gods dislike dishonest",
+"or underhanded behaviour, such as using poison, theft, or graverobbing."},
+	{"balance",	"neutral",	"Neu",	ROLE_NEUTRAL,	A_NEUTRAL,
+"While a neutral code of conduct has few obvious advantages or disadvantages,",
+"animals are often peaceful to those that share their views. Magic also has",
+"such a view; a few powerful magical items are only usable by neutral players."},
+	{"chaos",	"chaotic",	"Cha",	ROLE_CHAOTIC,	A_CHAOTIC,
+"Chaotic players put little faith in traditional morals, considering themselves",
+"free to steal, murder, and slaughter almost as they wish. Chaotic gods are",
+"thus hard to anger; but once angered, they are far from quick to forgive."},
+	{"evil",	"unaligned",	"Una",	0,		A_NONE, "", "", ""}
 };
 
 STATIC_DCL char * FDECL(promptsep, (char *, int));

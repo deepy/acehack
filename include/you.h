@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)you.h	3.4	2000/05/21	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 19 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef YOU_H
@@ -160,6 +161,9 @@ struct Race {
 	const char *filecode;	/* code for filenames */
 	struct RoleName individual; /* individual as a noun ("man", "elf") */
 
+        /*** Blurb on the intro screen ***/
+        const char *intro1, *intro2, *intro3;
+
 	/*** Indices of important monsters and objects ***/
 	short malenum,		/* PM_ as a male monster */
 	      femalenum,	/* ...or as a female (NON_PM == same) */
@@ -205,6 +209,7 @@ struct Gender {
 	const char *his;	/* his/her/its */
 	const char *filecode;	/* file code */
 	short allow;		/* equivalent ROLE_ mask */
+        const char *intro1, *intro2, *intro3;
 };
 #define ROLE_GENDERS	2	/* number of permitted player genders */
 				/* increment to 3 if you allow neuter roles */
@@ -225,6 +230,7 @@ struct Align {
 	const char *filecode;	/* file code */
 	short allow;		/* equivalent ROLE_ mask */
 	aligntyp value;		/* equivalent A_ value */
+        const char *intro1, *intro2, *intro3;
 };
 #define ROLE_ALIGNS	3	/* number of permitted player alignments */
 

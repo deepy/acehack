@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 18 Sep 2010 by Alex Smith */
+/* Modified 19 Oct 2010 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -363,8 +363,9 @@ tty_player_selection()
 {
 	char obuf[BUFSZ];
         boolean reroll = FALSE, xallowed = TRUE;
-        int ch;
+        int ch = 0;
         long scumcount = !!flags.startscum;
+        const char *line1, *line2, *line3;
 
 	/* If there's some info in the RC, optimise it before using it */
 	rigid_role_checks();
@@ -414,6 +415,17 @@ tty_player_selection()
         tty_putstr(BASE_WINDOW, ATR_INVERSE, "Gender");
         curs(BASE_WINDOW, 25, 14);
         tty_putstr(BASE_WINDOW, ATR_INVERSE, "Alignment");
+
+        /* Default advice blurb; 3 lines of 78 characters each */
+        curs(BASE_WINDOW, 2, 21);
+        tty_putstr(BASE_WINDOW, 0, ((line1=
+"Choose the class, race, gender, and alignment of your character. Information")));
+        curs(BASE_WINDOW, 2, 22);
+        tty_putstr(BASE_WINDOW, 0, ((line2=
+"about your choices will appear here as you make them, to help you decide which")));
+        curs(BASE_WINDOW, 2, 23);
+        tty_putstr(BASE_WINDOW, 0, ((line3=
+"character to play; press . when you're happy with what you have.")));
 
         /* Changing parts of the window */
         do {
@@ -521,6 +533,20 @@ tty_player_selection()
                 }
                 cl_end();
             }
+            if (!xallowed) {
+                line1 =
+"This is not a legal character; two or more of the settings you requested";
+                line2 =
+"(marked by exclamation marks) are not legal in combination. Try changing some";
+                line3 =
+"of those settings to other values.";
+            }
+            curs(BASE_WINDOW, 2, 21); cl_end();
+            curs(BASE_WINDOW, 2, 21); tty_putstr(BASE_WINDOW, 0, line1);
+            curs(BASE_WINDOW, 2, 22); cl_end();
+            curs(BASE_WINDOW, 2, 22); tty_putstr(BASE_WINDOW, 0, line2);
+            curs(BASE_WINDOW, 2, 23); cl_end();
+            curs(BASE_WINDOW, 2, 23); tty_putstr(BASE_WINDOW, 0, line3);
             curs(BASE_WINDOW, 26, 19); /* the . of . - play! */
             ch = readchar();
             if (ch == 'q' || ch == 'Q') bail((char *)0);
@@ -531,6 +557,11 @@ tty_player_selection()
                 flags.initrace = randrace(flags.initrole);
                 flags.initgend = randgend(flags.initrole, flags.initrace);
                 flags.initalign = randalign(flags.initrole, flags.initrace);
+                /* switch to blurb about the role selected, because the old
+                   blurb is likely either wrong or misleading */
+                line1 = roles[flags.initrole].intro1;
+                line2 = roles[flags.initrole].intro2;
+                line3 = roles[flags.initrole].intro3;
                 reroll = TRUE;
             }
             p = player_selection_menu_options;
@@ -538,6 +569,29 @@ tty_player_selection()
                 if (p->accel == ch && p->savein) {
                     *(p->savein) = p->convfunction(p->item);
                     reroll = TRUE;
+                    /* This is not really code duplication, because the
+                       "intro1", etc., fields correspond to different
+                       memory addresses in the four structures */
+                    if (p->validator == ok_role) {
+                        line1 = roles[flags.initrole].intro1;
+                        line2 = roles[flags.initrole].intro2;
+                        line3 = roles[flags.initrole].intro3;
+                    }
+                    if (p->validator == ok_race) {
+                        line1 = races[flags.initrace].intro1;
+                        line2 = races[flags.initrace].intro2;
+                        line3 = races[flags.initrace].intro3;
+                    }
+                    if (p->validator == ok_gend) {
+                        line1 = genders[flags.initgend].intro1;
+                        line2 = genders[flags.initgend].intro2;
+                        line3 = genders[flags.initgend].intro3;
+                    }
+                    if (p->validator == ok_align) {
+                        line1 = aligns[flags.initalign].intro1;
+                        line2 = aligns[flags.initalign].intro2;
+                        line3 = aligns[flags.initalign].intro3;
+                    }
                     break;
                 }
                 p++;
