@@ -234,11 +234,12 @@ boolean fleemsg;
 		if (fleetime == 1) fleetime++;
 		mtmp->mfleetim = min(fleetime, 127);
 	    }
-	    if (!mtmp->mflee && fleemsg && canseemon(mtmp) && !mtmp->mfrozen
-                && mtmp->data->mlet != S_MIMIC)
+	    if (!mtmp->mflee && fleemsg && canseemon(mtmp) && !mtmp->mfrozen) {
+              if (mtmp->data->mlet != S_MIMIC)
 		pline("%s turns to flee!", (Monnam(mtmp)));
-            else
+              else
                 pline("%s mimics a chicken for a moment!", (Monnam(mtmp)));
+            }
 	    mtmp->mflee = 1;
 	}
 }
