@@ -187,6 +187,11 @@ The message "You climb up the ladder." no longer appears when climbing
 ladders (mostly because ladders are a lot more prevalent in AceHack
 than in NetHack).
 
+Timings for equipping and unequipping objects have changed slightly.
+In particular, it now does not cost a turn to swap your main and
+readied weapons (and as a result, it /does/ cost a turn to put a
+weapon straight into your readied-weapon slot, using the A command.)
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
@@ -309,8 +314,10 @@ Command changes:
 
 1,2,3,4,6,7,8,9,y,u,h,j,k,l,b,n: Numbers now have numpad meanings by
 default, letters now have vikeys meanings by default.  So either the
-numbpad or the letter keys can be used to move.
-
+numpad or the letter keys can be used to move. For command repeat,
+type # before the repeat count.
+A: Now allows equipping items to arbitrary slots, as well as
+unequipping them from those slots.
 c, #chat: c now means #chat (the old meaning of c, "close door", has
 been moved to o).  These commands can now be used to pay your bill in
 a shop (which takes precedence over ordinary chatting).
@@ -334,6 +341,7 @@ V: A new command that merges #rub, #invoke, and wand-breaking.  (The
 old V was moved to #versionhistory.)
 W, P: These commands have been merged; either will allow armor or
 accessories to be worn, with P now being deprecated.
+x: No longer costs a turn.
 X: Now a synonym for #twoweapon.  (Credits: Another nethack.alt.org
 idea.)  The old meaning of X, "enter explore mode", was moved to
 #xplore.

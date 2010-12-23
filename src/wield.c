@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wield.c	3.4	2003/01/29	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -65,6 +65,8 @@ STATIC_DCL int FDECL(ready_weapon, (struct obj *));
 				&& (erodeable_wep(optr) \
 				   || (optr)->otyp == TIN_OPENER))
 
+/* from do_wear.c, so the A command can specify objects to wield/quiver */
+extern struct obj* forced_object;
 
 /*** Functions that place a given item in a slot ***/
 /* Proper usage includes:
@@ -240,11 +242,15 @@ dowield()
 	multi = 0;
 	if (cantwield(youmonst.data)) {
 		pline("Don't be ridiculous!");
+                forced_object = NULL;
 		return(0);
 	}
 
 	/* Prompt for a new weapon */
-	if (!(wep = getobj(wield_objs, "wield")))
+        if (forced_object) {
+          wep = forced_object;
+          forced_object = NULL;
+        } else if (!(wep = getobj(wield_objs, "wield")))
 		/* Cancelled */
 		return (0);
 	else if (wep == uwep) {
@@ -325,7 +331,7 @@ doswapweapon()
 	if (u.twoweap && !can_twoweapon())
 		untwoweapon();
 
-	return (result);
+	return 0;
 }
 
 int
@@ -341,7 +347,10 @@ dowieldquiver()
 	multi = 0;
 
 	/* Prompt for a new quiver */
-	if (!(newquiver = getobj(quivee_types, "ready")))
+        if (forced_object) {
+          newquiver = forced_object;
+          forced_object = NULL;
+	} else if (!(newquiver = getobj(quivee_types, "ready")))
 		/* Cancelled */
 		return (0);
 

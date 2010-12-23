@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Oct 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -752,7 +752,7 @@ STATIC_OVL boolean
 putting_on(action)
 const char *action;
 {
-    return !strcmp(action, "wear") ||
+    return !strncmp(action, "wear", 4) || /* "wear as..." */
            !strcmp(action, "put on") ||
            !strcmp(action, "equip");
 }
@@ -859,6 +859,14 @@ register const char *let,*word;
 		|| (putting_on(word) &&
 		     (otmp->owornmask & (W_ARMOR | W_RING | W_AMUL | W_TOOL)))
 							/* already worn */
+                || (!strncmp(word, "wear as ", 8) && /* equipment slot check */
+                    ((!strcmp(word+8,"body armour") && !is_suit(otmp)) ||
+                     (!strcmp(word+8,"a cloak") && !is_cloak(otmp)) ||
+                     (!strcmp(word+8,"footwear") && !is_boots(otmp)) ||
+                     (!strcmp(word+8,"gloves") && !is_gloves(otmp)) ||
+                     (!strcmp(word+8,"a helmet") && !is_helmet(otmp)) ||
+                     (!strcmp(word+8,"a shield") && !is_shield(otmp)) ||
+                     (!strcmp(word+8,"a shirt") && !is_shirt(otmp))))
 		|| (!strcmp(word, "ready") &&
 		    (otmp == uwep || (otmp == uswapwep && u.twoweap)))
 		    ) {
@@ -873,7 +881,7 @@ register const char *let,*word;
 		    ((otmp->oclass == FOOD_CLASS && otmp->otyp != MEAT_RING) ||
 		    (otmp->oclass == TOOL_CLASS &&
 		     otyp != BLINDFOLD && otyp != TOWEL && otyp != LENSES)))
-		|| (!strcmp(word, "wield") &&
+		|| ((!strcmp(word, "wield") || !strcmp(word, "ready")) &&
 		    (otmp->oclass == TOOL_CLASS && !is_weptool(otmp)))
 		|| (!strcmp(word, "eat") && !is_edible(otmp))
 		|| (!strcmp(word, "sacrifice") &&

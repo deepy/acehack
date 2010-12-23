@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do_wear.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 6 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -18,7 +18,7 @@ static NEARDATA long taking_off = 0L;
 static NEARDATA int todelay;
 static boolean cancelled_don = FALSE;
 
-static struct obj* forced_object = NULL;
+struct obj* forced_object = NULL;
 
 static NEARDATA const char see_yourself[] = "see yourself";
 static NEARDATA const char unknown_type[] = "Unknown type of %s (%d)";
@@ -1054,6 +1054,12 @@ cancel_don()
 static NEARDATA const char clothes[] = {ARMOR_CLASS, 0};
 static NEARDATA const char accessories[] = {RING_CLASS, AMULET_CLASS, TOOL_CLASS, FOOD_CLASS, 0};
 static NEARDATA const char wearables[] = {ARMOR_CLASS, RING_CLASS, AMULET_CLASS, TOOL_CLASS, FOOD_CLASS, 0};
+/* Players are allowed to wield, quiver, ready arbitrary objects. */
+static NEARDATA const char quiverables[] = {ALL_CLASSES, ALLOW_NONE, GEM_CLASS, WEAPON_CLASS, 0};
+static NEARDATA const char wieldables[] = {ALL_CLASSES, ALLOW_NONE, WEAPON_CLASS, TOOL_CLASS, 0};
+static NEARDATA const char amulets[] = {AMULET_CLASS, 0};
+static NEARDATA const char rings[] = {RING_CLASS, FOOD_CLASS, 0};
+static NEARDATA const char eyewear[] = {TOOL_CLASS, 0};
 
 /* the 'T' command */
 int
@@ -1974,6 +1980,27 @@ do_takeoff()
 	return(otmp);
 }
 
+/* A pseudo-command, used for a callback in A. */
+STATIC_PTR
+int
+ready_as_offhand()
+{
+  struct obj* otmp = forced_object;
+  forced_object = NULL;
+  if (!otmp) return 0;
+  if (cantwield(youmonst.data)) {
+    pline("If you can't wield weapons, how can you ready them?");
+    return 0;
+  }
+  if (otmp == uwep) {
+    pline("You are already wielding that!");
+    return 0;
+  }
+  setuswapwep(otmp);
+  if (u.twoweap && !can_twoweapon()) untwoweapon();
+  return 1;
+}
+
 static const char *disrobing = "";
 
 STATIC_PTR
@@ -1990,8 +2017,7 @@ take_off()
 	    } else {
 		if ((otmp = do_takeoff())) off_msg(otmp);
 	    }
-	    takeoff_mask &= ~taking_off;
-            puton_mask &= ~taking_off;
+            takeoff_mask &= ~taking_off;
 	    taking_off = 0L;
 	}
 
@@ -2013,6 +2039,8 @@ take_off()
 
 	if (taking_off == 0L) {
 	  You("finish %s.", disrobing);
+          /* abort impossible equip/unequip attempts */
+          takeoff_mask = puton_mask = 0;
 	  return 0;
 	} else if (taking_off == W_WEP) {
           otmp = uwep;
@@ -2065,11 +2093,77 @@ take_off()
 	}
 
         if (!otmp && ((puton_mask & taking_off))) {
-          /* //tk */
-          pline("Putting on an item, todo");
+          const char* sensible_selections = wearables;
+          char selections[20] = {ALLOW_NONE, 0};
+          const char* prompt = "equip";
+          int (*equipfunc)() = dowear;
+          switch (taking_off) {
+          case W_WEP:
+            sensible_selections = wieldables; prompt = "wield";
+            equipfunc = dowield; break;
+          case W_SWAPWEP:
+            sensible_selections = wieldables; prompt = "ready";
+            equipfunc = ready_as_offhand; break;
+          case W_QUIVER:
+            sensible_selections = quiverables; prompt = "quiver";
+            equipfunc = dowieldquiver; break;
+            /* Note: text after "wear as" is parsed by getobj, don't
+               change it here without also changing it there */
+          case WORN_ARMOR:
+            sensible_selections = clothes; prompt = "wear as body armour"; break;
+          case WORN_CLOAK:
+            sensible_selections = clothes; prompt = "wear as a cloak"; break;
+            /* Be careful not to reference body parts here... */
+          case WORN_BOOTS:
+            sensible_selections = clothes; prompt = "wear as footwear"; break;
+          case WORN_GLOVES:
+            sensible_selections = clothes; prompt = "wear as gloves"; break;
+          case WORN_HELMET:
+            sensible_selections = clothes; prompt = "wear as a helmet"; break;
+          case WORN_SHIELD:
+            sensible_selections = clothes; prompt = "wear as a shield"; break;
+          case WORN_SHIRT:
+            sensible_selections = clothes; prompt = "wear as a shirt"; break;
+          case WORN_AMUL:
+            sensible_selections = amulets; prompt = "wear as an amulet"; break;
+          case LEFT_RING:
+            sensible_selections = rings; prompt = "wear as a left ring"; break;
+          case RIGHT_RING:
+            sensible_selections = rings; prompt = "wear as a right ring"; break;
+          case WORN_BLINDF:
+            sensible_selections = eyewear; prompt = "wear as eyewear"; break;
+          default: impossible("Equipping to a nonexistent slot?");
+          }
           puton_mask &= ~taking_off;
           taking_off = 0;
+          strcat(selections, sensible_selections);
           todelay = 0;
+          otmp = getobj(selections, prompt);
+          if (otmp && otmp != &zeroobj) {
+            forced_object = otmp;
+            otmp = NULL;
+            disrobing = "equipping yourself";
+            /* A weird mix of two time systems here. We call dowear to
+               do the hard work of equipping, but then need to convert
+               the time penalty from helplessness to an occupation
+               callback. (This does potentially lead to a slight
+               exploit where an interrupted A, followed by T or R,
+               lets you equip things in fewer turns than in vanilla;
+               the same bug exists in vanilla for unequipping. It's
+               hard to see how to avoid this without allowing for
+               "half-equipped" situations; maybe A should cause
+               helplessness if interrupted?) */
+            todelay = (*equipfunc)();
+            if (multi < 0) {
+              nomovemsg = NULL;
+              todelay -= multi;
+              multi = 0;
+              if (afternmv) {
+                (*afternmv)();
+                afternmv = 0; /* not NULL, it's a function pointer */
+              }
+            }
+          }
           return take_off();
         }
 
@@ -2102,7 +2196,7 @@ doddoremarm()
 {
     int result = 0;
 
-    if (taking_off || takeoff_mask) {
+    if (taking_off || takeoff_mask || puton_mask) {
 	You("continue %s.", disrobing);
 	set_occupation(take_off, disrobing, 0);
 	return 0;
@@ -2118,8 +2212,8 @@ doddoremarm()
 	/* specific activity when handling weapons only */
 	if (!(takeoff_mask & ~(W_WEP|W_SWAPWEP|W_QUIVER)))
 	    disrobing = "disarming";
-        if (puton_mask != 0L)
-            disrobing = "equpping yourself";
+        if (puton_mask != takeoff_mask) /* i.e. empty slots selected */
+            disrobing = "equipping yourself";
 	(void) take_off();
     }
     /* The time to perform the command is already completely accounted for
@@ -2215,60 +2309,61 @@ int retry;
     else          strcpy(mname, "Eyewear          - (none)");
     add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, mname, MENU_UNSELECTED);
 
-    end_menu(win, "Equip to or unequip from which equipment slots?");
+    end_menu(win, "Change equipment in which equipment slots?");
     n = select_menu(win, PICK_ANY, &selected);
 
+    /* The way this works is that we first uneqiup everything, then
+       prompt for new equipment in each slot, one by one. The player
+       can cancel a prompt, or press -, to choose to empty that slot. */
     for(i = 0; i < n; i++) switch(selected[i].item.a_int) {
         case 'c':
-          if (uarmc) select_off(uarmc); else puton_mask |= WORN_CLOAK;
+          if (uarmc) select_off(uarmc); puton_mask |= WORN_CLOAK;
           break;
         case 'm':
-          if (uarm) select_off(uarm); else puton_mask |= WORN_ARMOR;
+          if (uarm) select_off(uarm); puton_mask |= WORN_ARMOR;
           break;
 #ifdef TOURIST
         case 'u':
-          if (uarmu) select_off(uarmu); else puton_mask |= WORN_SHIRT;
+          if (uarmu) select_off(uarmu); puton_mask |= WORN_SHIRT;
           break;
 #endif
         case 'h':
-          if (uarmh) select_off(uarmh); else puton_mask |= WORN_HELMET;
+          if (uarmh) select_off(uarmh); puton_mask |= WORN_HELMET;
           break;
         case 'g':
-          if (uarmg) select_off(uarmg); else puton_mask |= WORN_GLOVES;
+          if (uarmg) select_off(uarmg); puton_mask |= WORN_GLOVES;
           break;
         case 'f':
-          if (uarmf) select_off(uarmf); else puton_mask |= WORN_BOOTS;
+          if (uarmf) select_off(uarmf); puton_mask |= WORN_BOOTS;
           break;
         case 's':
-          if (uarms) select_off(uarms); else puton_mask |= WORN_SHIELD;
+          if (uarms) select_off(uarms); puton_mask |= WORN_SHIELD;
           break;
         case 'w':
-          if (uwep) select_off(uwep); else puton_mask |= W_WEP;
+          if (uwep) select_off(uwep); puton_mask |= W_WEP;
           break;
         case 'x':
-          if (uswapwep) select_off(uswapwep); else puton_mask |= W_SWAPWEP;
+          if (uswapwep) select_off(uswapwep); puton_mask |= W_SWAPWEP;
           break;
         case 'q':
-          if (uquiver) select_off(uquiver); else puton_mask |= W_QUIVER;
+          if (uquiver) select_off(uquiver); puton_mask |= W_QUIVER;
           break;
         case 'a':
-          if (uamul) select_off(uamul); else puton_mask |= WORN_AMUL;
+          if (uamul) select_off(uamul); puton_mask |= WORN_AMUL;
           break;
         case 'l':
-          if (uleft) select_off(uleft); else puton_mask |= LEFT_RING;
+          if (uleft) select_off(uleft); puton_mask |= LEFT_RING;
           break;
         case 'r':
-          if (uright) select_off(uright); else puton_mask |= RIGHT_RING;
+          if (uright) select_off(uright); puton_mask |= RIGHT_RING;
           break;
         case 'b':
-          if (ublindf) select_off(ublindf); else puton_mask |= WORN_BLINDF;
+          if (ublindf) select_off(ublindf); puton_mask |= WORN_BLINDF;
           break;          
     }
 
     destroy_nhwindow(win);
     if (n >= 1) free((genericptr_t) selected);
-
-//	    (void) select_off(pick_list[i].item.a_obj);
     return 0;
 }
 
