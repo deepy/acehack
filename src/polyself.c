@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)polyself.c	3.4	2003/01/08	*/
 /*	Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -757,7 +757,8 @@ dobreathe()
 	u.uen -= 15;
 	flags.botl = 1;
 
-	if (!getdir((char *)0, GETDIRH_BOUNCE)) return(0);
+	if (!getdir("Breathe in which direction?", GETDIRH_BOUNCE, 1))
+          return(0);
 
 	mattk = attacktype_fordmg(youmonst.data, AT_BREA, AD_ANY);
 	if (!mattk)
@@ -773,7 +774,8 @@ dospit()
 {
 	struct obj *otmp;
 
-	if (!getdir((char *)0, GETDIRH_RANGE)) return(0);
+	if (!getdir("Spit your venom in which direction?", GETDIRH_RANGE, 1))
+          return(0);
 	otmp = mksobj(u.umonnum==PM_COBRA ? BLINDING_VENOM : ACID_VENOM,
 			TRUE, FALSE);
 	otmp->spe = 1; /* to indicate it's yours */

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)zap.c	3.4	2003/08/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1854,7 +1854,7 @@ dozap()
 		exercise(A_STR, FALSE);
 		return(1);
 	} else if(!(objects[obj->otyp].oc_dir == NODIR) &&
-                  !getdir((char *)0, GETDIRH_RANGE)) {
+                  !getdir("Aim the wand in which direction?", GETDIRH_RANGE, 1)) {
                 /* can't show bounces for wands, in case they're unIDed */
 		if (!Blind)
 		    pline("%s glows and fades.", The(xname(obj)));

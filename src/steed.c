@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)steed.c	3.4	2003/01/10	*/
 /* Copyright (c) Kevin Hugo, 1998-1999. */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -58,7 +58,8 @@ use_saddle(otmp)
 	}
 
 	/* Select an animal */
-	if (u.uswallow || Underwater || !getdir((char *)0, GETDIRH_NEXT)) {
+	if (u.uswallow || Underwater ||
+            !getdir("Saddle in which direction?", GETDIRH_NEXT, 1)) {
             pline("%s",Never_mind);
 	    return 0;
 	}
@@ -175,7 +176,10 @@ doride()
 
 	if (u.usteed)
 	    dismount_steed(DISMOUNT_BYCHOICE);
-	else if (getdir((char *)0, GETDIRH_NEXT) && isok(u.ux+u.dx, u.uy+u.dy)) {
+        /* in AceHack, can only show the prompt via an explicit #ride,
+           but the call to getdir is needed anyway */
+	else if (getdir("In which direction is the monster to ride?",
+                        GETDIRH_NEXT, 1) && isok(u.ux+u.dx, u.uy+u.dy)) {
 #ifdef WIZARD
 	if (wizard && yn("Force the mount to succeed?") == 'y')
 		forcemount = TRUE;

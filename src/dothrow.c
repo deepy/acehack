@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dothrow.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 't' (throw) */
@@ -47,7 +47,8 @@ int shotlimit;
 
 	/* ask "in what direction?" */
 #ifndef GOLDOBJ
-	if (!getdir((char *)0, GETDIRH_RANGE)) {
+	if (!getdir("Which direction do you want to throw or fire that?",
+                    GETDIRH_RANGE, 1)) {
 		if (obj->oclass == COIN_CLASS) {
 		    u.ugold += obj->quan;
 		    flags.botl = 1;
@@ -58,7 +59,8 @@ int shotlimit;
 
 	if(obj->oclass == COIN_CLASS) return(throw_gold(obj));
 #else
-	if (!getdir((char *)0, GETDIRH_RANGE)) {
+	if (!getdir("Which direction do you want to throw or fire that?",
+                    GETDIRH_RANGE, 1)) {
 	    /* obj might need to be merged back into the singular gold object */
 	    freeinv(obj);
 	    addinv(obj);

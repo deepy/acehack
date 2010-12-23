@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)lock.c	3.4	2000/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -514,7 +514,8 @@ doopen()		/* try to open a door */
 	    return 0;
 	}
 
-	if(!get_adjacent_loc((char *)0, (char *)0, u.ux, u.uy, &cc)) return(0);
+	if(!get_adjacent_loc("Open or close a door in which direction?",
+                             (char *)0, u.ux, u.uy, &cc)) return(0);
 
 	if((cc.x == u.ux) && (cc.y == u.uy)) return(0);
 
@@ -539,6 +540,11 @@ doopen()		/* try to open a door */
 				Blind ? "feel" : "see");
 		return(0);
 	}
+
+        if (door->doormask & D_ISOPEN) {
+          setnextgetdirdxdy(cc.x-u.ux, cc.y-u.uy);
+          return doclose();
+        }
 
 	if (!(door->doormask & D_CLOSED)) {
 	    const char *mesg;
@@ -620,7 +626,13 @@ doclose()		/* try to close a door */
 	    return 0;
 	}
 
-	if(!getdir((char *)0, GETDIRH_NEXT)) return(0);
+        /* It's pretty rare to get here and show the prompt in
+           AceHack, as o does the same thing and is the recommended
+           method, and using c would reach a different function.
+           However, the call is needed so that this function can be
+           used as a command handler. */
+	if(!getdir("Close a door in which direction?", GETDIRH_NEXT, 1))
+          return(0);
 
 	x = u.ux + u.dx;
 	y = u.uy + u.dy;

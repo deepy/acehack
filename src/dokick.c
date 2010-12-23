@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dokick.c	3.4	2003/12/04	*/
 /* Copyright (c) Izchak Miller, Mike Stephenson, Steve Linhart, 1989. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -685,7 +685,8 @@ dokick()
 		return 0;
 	}
 
-	if(!getdir((char *)0, GETDIRH_NEXT)) return(0);
+	if(!getdir("In which direction do you want to kick?", GETDIRH_NEXT, 1))
+          return(0);
 	if(!u.dx && !u.dy) return(0);
 
 	x = u.ux + u.dx;

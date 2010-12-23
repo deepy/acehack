@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dig.c	3.4	2003/03/23	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -835,7 +835,7 @@ struct obj *obj;
 	}
 
 	Sprintf(qbuf, "In what direction do you want to %s?", verb);
-	if(!getdir(qbuf, GETDIRH_NEXT))
+	if(!getdir(qbuf, GETDIRH_NEXT, 1))
 		return(res);
 
 	return(use_pick_axe2(obj));

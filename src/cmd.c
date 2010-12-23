@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Sep 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1968,6 +1968,9 @@ wiz_migrate_mons()
 #define unctrl(c)	((c) <= C('z') ? (0x60 | (c)) : (c))
 #define unmeta(c)	(0x7f & (c))
 
+/* Holds the key that getdir errored out on. Mostly only useful if it
+   was told not to loop. */
+static int getdir_errorkey = 0;
 
 void
 rhack(cmd)
@@ -1993,9 +1996,12 @@ reparse_direction:
                    the key the user pressed. */
                 cmd[1] = getdir(cmd[0] == 'F' ? "Attack in which direction?" :
                                 cmd[0] == 'm' ? "Move in which direction?" :
-                                cmd[0] == 'g' ? "Farmove in which direction?" : 0,
-                                cmd[0] == 'g' ? GETDIRH_RANGE : GETDIRH_NEXT);
-                if (cmd[1] == 0) cmd[0] = '\033';
+                                cmd[0] == 'g' ? "Repeatedly move in which direction?" : 0,
+                                cmd[0] == 'g' ? GETDIRH_RANGE : GETDIRH_NEXT, 0);
+                if (cmd[1] == 0) {
+                  cmd[0] = '\033';
+                  pline("I don't know what you mean.");
+                }
                 /* Translate the pressed direction into standard
                    vikeys, no matter what control system is being used. */
                 else if (u.dz > 0) cmd[1] = '>';
@@ -2292,7 +2298,7 @@ xchar x,y;
 coord *cc;
 {
 	xchar new_x, new_y;
-	if (!getdir(prompt, GETDIRH_NEXT)) {
+	if (!getdir(prompt, GETDIRH_NEXT, 1)) {
 		pline("%s",Never_mind);
 		return 0;
 	}
@@ -2336,14 +2342,20 @@ int dx,dy;
 }
 
 /* Gets a direction from the player.
-   The second argument specifies how to highlight directions. */
+   The second argument specifies how to highlight directions.
+   Returns 1 on success; on error, sets getdir_errorkey to the
+   code of the key actually pressed, and returns 0. If the third
+   argument is TRUE, don't allow erroneous input, but rather
+   keep asking until the user presses something valid. */
 int
-getdir(s,how)
+getdir(s,how,loop)
 const char *s;
 int how;
+int loop;
 {
 	char dirsym;
         int dist;
+        int redone = FALSE;
 
         if (nextgetdir) {
             movecmd(nextgetdir);
@@ -2351,6 +2363,7 @@ int how;
             return 1;
         }
 
+getdir_again:
         set_getdir_type(how);
         for (dist = 0; dist < 80; dist++) {
             redraw_glyph(u.ux+dist,u.uy     );
@@ -2369,8 +2382,9 @@ int how;
 	    dirsym = readchar();
 	else
 #endif
-	    dirsym = yn_function ((s && *s != '^') ? s : "In what direction?",
-					(char *)0, '\0');
+            dirsym = yn_function ((s && *s != '^') ? s :
+                                  *s == '^' ? s+1 : "In what direction?",
+                                  (char *)0, '\0');
 #ifdef REDO
 	savech(dirsym);
 #endif
@@ -2391,13 +2405,18 @@ int how;
 	if(dirsym == '.' || dirsym == 's')
 		u.dx = u.dy = u.dz = 0;
 	else if(!movecmdui(dirsym) && !u.dz) {
-		boolean did_help = FALSE;
+		boolean did_help = !loop;
 		if(!index(quitchars, dirsym)) {
-		    if (iflags.cmdassist) {
+                    /* If loop is false, caller must handle error messages;
+                       show help on a press of ? no matter what */
+                    if ((iflags.cmdassist && !redone && loop) || dirsym == '?') {
 			did_help = help_dir((s && *s == '^') ? dirsym : 0,
 					    "Invalid direction key!");
 		    }
 		    if (!did_help) pline("What a strange direction!");
+                    redone = TRUE;
+                    getdir_errorkey = dirsym;
+                    if (loop || dirsym == '?') goto getdir_again;
 		}
 		return 0;
 	}

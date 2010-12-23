@@ -155,7 +155,12 @@ allowing the player to choose to walk through it or continue.
 It's no longer possible to fail to choose a direction for a spell;
 NetHack 3.4.3 just repeats the last direction (perhaps killing the
 player arbitrarily), AceHack 3.6.0 will keep prompting until a
-direction is given.
+direction is given. Similar fixes apply to all other direction
+prompts, which will keep prompting repeatedly until explicitly
+cancelled (as spellcasting always requires a direction, it'll keep
+prompting until one is given even /if/ explicitly cancelled).
+Targeting prompts are also a little more explicit in what input they
+want now, too.
 
 While not stunned, confused, levitating, flying, or in a monster form
 that can move along the ceiling, attempting to move into known water

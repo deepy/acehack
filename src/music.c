@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)music.c	3.4	2003/05/25	*/
 /*	Copyright (c) 1989 by Jean-Christophe Collet */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 23 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -403,7 +403,8 @@ struct obj *instr;
 	    if (do_spec && instr->spe > 0) {
 		consume_obj_charge(instr, TRUE);
 
-		if (!getdir((char *)0, GETDIRH_BOUNCE)) {
+		if (!getdir("Aim your horn in which direction?",
+                            GETDIRH_BOUNCE, 1)) {
 		    pline("%s.", Tobjnam(instr, "vibrate"));
 		    break;
 		} else if (!u.dx && !u.dy && !u.dz) {

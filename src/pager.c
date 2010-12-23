@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pager.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file contains the command routines dowhatis() and dohelp() and */
@@ -772,7 +772,8 @@ doidtrap()
 	register struct trap *trap;
 	int x, y, tt;
 
-	if (!getdir("^", GETDIRH_NEXT)) return 0;
+	if (!getdir("^Show remembered traps in which direction?",
+                    GETDIRH_NEXT, 1)) return 0;
 	x = u.ux + u.dx;
 	y = u.uy + u.dy;
 	for (trap = ftrap; trap; trap = trap->ntrap)

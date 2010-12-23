@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Oct 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -59,7 +59,8 @@ use_camera(obj)
 		pline("Using your camera underwater would void the warranty.");
 		return(0);
 	}
-	if(!getdir((char *)0, GETDIRH_RANGE)) return(0);
+	if(!getdir("Take a photo in which direction?", GETDIRH_RANGE, 1))
+          return(0);
 
 	if (obj->spe <= 0) {
 		pline("%s",nothing_happens);
@@ -219,7 +220,8 @@ use_stethoscope(obj)
 		You("have no free %s.", body_part(HAND));
 		return 0;
 	}
-	if (!getdir((char *)0, GETDIRH_NEXT)) return 0;
+	if (!getdir("Use your stethoscope in which direction?",
+                    GETDIRH_NEXT, 1)) return 0;
 
 	res = (moves == last_used_move) &&
 	      (youmonst.movement == last_used_movement);
@@ -611,7 +613,8 @@ struct obj *obj;
 	register char mlet;
 	boolean vis;
 
-	if(!getdir((char *)0, GETDIRH_RANGE)) return 0;
+	if(!getdir("Show the mirror in which direction?",
+                   GETDIRH_RANGE, 1)) return 0;
 	if(obj->cursed && !rn2(2)) {
 		if (!Blind)
 			pline_The("mirror fogs up and doesn't reflect!");
@@ -1742,7 +1745,8 @@ struct obj **optr;
 		if (!figurine_location_checks(obj, (coord *)0, FALSE))
 			return;
 	}
-	if(!getdir((char *)0, GETDIRH_NEXT)) {
+	if(!getdir("Place the figurine on which square next to you?",
+                   GETDIRH_NEXT, 1)) {
 		flags.move = multi = 0;
 		return;
 	}
@@ -2136,7 +2140,7 @@ struct obj *obj;
 	if (!wield_tool(obj, "lash")) return 0;
 	else res = 1;
     }
-    if (!getdir((char *)0, GETDIRH_NEXT)) return res;
+    if (!getdir("Whip in which direction?", GETDIRH_NEXT, 1)) return res;
 
     if (Stunned || (Confusion && !rn2(5))) confdir();
     rx = u.ux + u.dx;

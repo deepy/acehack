@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)trap.c	3.4	2003/10/20	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -3415,7 +3415,11 @@ boolean force;
 	char the_trap[BUFSZ], qbuf[QBUFSZ];
 	int containercnt = 0;
 
-	if(!getdir((char *)0, GETDIRH_NEXT)) return(0);
+        /* Specifying ^ as the first arg is special in getdir; it not
+           specifies the command string, but triggers special help text
+           on invalid input (trapping ^ then T as opposed to control-T...) */
+	if(!getdir("^Interact with a trap in which direction?", GETDIRH_NEXT, 1))
+          return(0);
 	x = u.ux + u.dx;
 	y = u.uy + u.dy;
 
