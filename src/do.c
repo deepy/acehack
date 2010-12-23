@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Sep 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -86,6 +86,15 @@ boolean pushing;
 		
 		newsym(rx,ry);
 		if (pushing) {
+#ifdef STEED
+                    if (u.usteed) {
+                      char *bp = y_monnam(u.usteed);
+                      *bp = highc(*bp); /* bp points to a static buffer */
+                        pline("%s pushes %s into the %s.",
+                              bp, the(xname(otmp)), what);
+                    }
+                    else
+#endif
 		    You("push %s into the %s.", the(xname(otmp)), what);
 		    if (flags.verbose && !Blind)
 			pline("Now you can cross it!");
