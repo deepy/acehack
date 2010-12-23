@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)uhitm.c	3.4	2003/02/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -604,6 +604,15 @@ int thrown;
 			tmp = 0;
 		    else
 			tmp = rnd(2);
+		    if (objects[obj->otyp].oc_material == SILVER &&
+			hates_silver(mdat)) {
+                        /* need to duplicate this check for silver arrows;
+                           they aren't caught below as they're weapons,
+                           and aren't caught in dmgval as they aren't melee
+                           weapons. */
+			silvermsg = TRUE; silverobj = TRUE;
+                        tmp += rnd(20);
+		    }
 		    if (!thrown && obj == uwep && obj->otyp == BOOMERANG &&
 			    rnl(4) == 4-1) {
 			boolean more_than_1 = (obj->quan > 1L);

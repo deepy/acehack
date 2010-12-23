@@ -65,6 +65,11 @@ been changed to make them react more consistently with what their
 names suggest (pearl rings are now made of bone; leather spellbooks
 are now "leather-bound" to signify they're really made of paper).
 
+Wielded silver arrows now deal silver damage the same way wielded
+silver nonweapons do. (Even though bashing with arrows isn't
+particularly affective, the silver is enough to hurt certain
+monsters no matter how clumsily it makes contact.)
+
 Modified Features
 -----------------
 
