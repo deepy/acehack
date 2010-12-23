@@ -2383,7 +2383,8 @@ getdir_again:
 	else
 #endif
             dirsym = yn_function ((s && *s != '^') ? s :
-                                  *s == '^' ? s+1 : "In what direction?",
+                                  (s && *s == '^') ? s+1 :
+                                  "In what direction?",
                                   (char *)0, '\0');
 #ifdef REDO
 	savech(dirsym);

@@ -524,7 +524,7 @@ register struct monst *mtmp;
 			    /* Silver dragons are silver in color, not made of silver */
 			    Sprintf(verbuf, "%s! Your silver sheen does not frighten me!",
 					youmonst.data == &mons[PM_SILVER_DRAGON] ?
-					"Fool" : "Young Fool");
+					"Fool" : "Young fool");
 			    verbl_msg = verbuf; 
 			} else {
 			    vampindex = rn2(SIZE(vampmsg));

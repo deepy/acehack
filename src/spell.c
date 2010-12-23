@@ -882,7 +882,7 @@ boolean atme;
 	case SPE_STONE_TO_FLESH:
 		if (!(objects[pseudo->otyp].oc_dir == NODIR)) {
 			if (atme) u.dx = u.dy = u.dz = 0;
-			else while (!getdir((char *)0,
+			else while (!getdir("Aim the spell in which direction?",
                                             pseudo->otyp == SPE_FINGER_OF_DEATH ||
                                             pseudo->otyp == SPE_MAGIC_MISSILE ||
                                             pseudo->otyp == SPE_SLEEP ?
