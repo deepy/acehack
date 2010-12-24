@@ -474,6 +474,8 @@ tty_ascgraphics_hilite_fixup()
 }
 #endif /* PC9800 */
 
+static int tty_y_offset = 0;
+
 void
 tty_start_screen()
 {
@@ -498,6 +500,10 @@ tty_start_screen()
 	decgraphics_mode_callback = tty_decgraphics_termcap_fixup;
 #endif
 	tty_number_pad(1);	/* make keypad send digits */
+
+        /* Move everything downwards to the bottom of the screen.
+           Menus can override this. */
+        if (LI > 25) tty_y_offset = LI-25;
 }
 
 void
@@ -532,7 +538,7 @@ int x,y;
 		} else if(nh_CM) {
 			cmov(x, y);
 		} else if(HO) {
-			home();
+			home_raw();
 			tty_curs(BASE_WINDOW, x+1, y);
 		} /* else impossible("..."); */
 	} else if ((int) ttyDisplay->cury < y) {
@@ -570,7 +576,7 @@ void
 cmov(x, y)
 register int x, y;
 {
-	xputs(tgoto(nh_CM, x, y));
+	xputs(tgoto(nh_CM, x, y + tty_y_offset));
 	ttyDisplay->cury = y;
 	ttyDisplay->curx = x;
 }
@@ -634,7 +640,8 @@ clear_screen()
 	 */
 	if (CL) {
 		xputs(CL);
-		home();
+		home_raw();
+                cmov(0,0); /* resync coordinates */
 	}
 }
 
@@ -642,15 +649,21 @@ clear_screen()
 #ifdef OVL0
 
 void
-home()
+home_raw()
 {
 	if(HO)
 		xputs(HO);
 	else if(nh_CM)
 		xputs(tgoto(nh_CM, 0, 0));
 	else
-		tty_curs(BASE_WINDOW, 1, 0);	/* using UP ... */
+		tty_curs(BASE_WINDOW, 1, -tty_y_offset); /* using UP ... */
 	ttyDisplay->curx = ttyDisplay->cury = 0;
+}
+
+void
+home()
+{
+	tty_curs(BASE_WINDOW, 1, 0);
 }
 
 void
@@ -789,7 +802,7 @@ tty_delay_output()
 	else if(ospeed > 0 && ospeed < SIZE(tmspc10) && nh_CM) {
 		/* delay by sending cm(here) an appropriate number of times */
 		register int cmlen = strlen(tgoto(nh_CM, ttyDisplay->curx,
-							ttyDisplay->cury));
+						  ttyDisplay->cury+tty_y_offset));
 		register int i = 500 + tmspc10[ospeed]/2;
 
 		while(i > 0) {
