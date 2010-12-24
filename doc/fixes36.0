@@ -282,6 +282,15 @@ features you've seen on levels you've visited, and allow you to name
 the current dungeon level with a name that shows up in ^O,
 respectively.  (Patch credits: Hojita Discordia, via UnNetHack.)
 
+A Crawl-style autoexplore feature has been added; pressing v will
+repeatedly travel to the nearest unexplored square (a square which
+will give more information about the map or a stack of items).
+However, NetHack is not nearly as suited to autoexplore as Crawl is; I
+find that using the command leads to exploration considerably less
+efficient than I could manage by hand, and so I must caution people to
+use this at their own risk. (I even considered giving it no key
+binding by default.)
+
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
 
@@ -342,6 +351,7 @@ press by mistake, in order to hopefully prevent accidents; I had
 trouble typing it in order to write this changelog!)
 T, R: These commands have been merged; either will allow armor or
 accessories to be removed, with R now being deprecated.
+v: Now does autoexplore. (The old v was moved to #versionshort.)
 V: A new command that merges #rub, #invoke, and wand-breaking.  (The
 old V was moved to #versionhistory.)
 W, P: These commands have been merged; either will allow armor or

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 24 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -112,6 +112,7 @@ STATIC_PTR int NDECL(timed_occupation);
 STATIC_PTR int NDECL(doextcmd);
 STATIC_PTR int NDECL(domonability);
 STATIC_PTR int NDECL(dotravel);
+STATIC_PTR int NDECL(doautoexplore);
 # ifdef WIZARD
 STATIC_PTR int NDECL(wiz_wish);
 STATIC_PTR int NDECL(wiz_identify);
@@ -1487,7 +1488,9 @@ int final;
 struct ext_func_tab extcmdlist[] = {
   {"adjust", "adjust inventory letters", doorganize, TRUE, 1, C('i'), M('a'), 0, 0},
   {"annotate", "name current level", donamelevel, TRUE, 5, C('f'), 0, 0, 0},
-  {"apply", "use a tool or ignite a potion", doapply, FALSE, 11, 'a', 0, 0, 0},
+  {"apply", "use a tool or ignite a potion", doapply, FALSE, 12, 'a', 0, 0, 0},
+  {"autoexplore", "travel somewhere interesting", doautoexplore, FALSE,
+   11, 'v', 0, 0, 0},
   {"autopickup", "toggle the autopickup option", dotogglepickup, TRUE, 10,
    '@', 0, 0, 0},
   {"cast", "cast a spell from memory", docast, TRUE, 11, 'Z', 0, 0, 0},
@@ -2094,7 +2097,7 @@ reparse:
 			    flags.travel = 1;
 			    iflags.travel1 = 1;
 			    flags.run = 8;
-			    flags.nopick = 1;
+			    flags.nopick = !iflags.autoexplore;
 			    do_rush = TRUE;
 			    break;
 		    }
@@ -2780,9 +2783,20 @@ dotravel()
 	}
 	iflags.travelcc.x = u.tx = cc.x;
 	iflags.travelcc.y = u.ty = cc.y;
+        iflags.autoexplore = FALSE;
 	cmd[0] = CMD_TRAVEL;
 	readchar_queue = cmd;
 	return 0;
+}
+
+STATIC_PTR int
+doautoexplore()
+{
+	static char cmd[2];
+	iflags.autoexplore = TRUE;
+        cmd[0] = CMD_TRAVEL;
+        readchar_queue = cmd;
+        return 0;
 }
 
 #ifdef PORT_DEBUG

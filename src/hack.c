@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.c	3.4	2003/04/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -13,7 +13,7 @@ STATIC_DCL int FDECL(still_chewing,(XCHAR_P,XCHAR_P));
 #ifdef SINKS
 STATIC_DCL void NDECL(dosinkfall);
 #endif
-STATIC_DCL boolean FDECL(findtravelpath, (BOOLEAN_P));
+STATIC_DCL boolean FDECL(findtravelpath, (boolean(*)(int, int)));
 STATIC_DCL boolean FDECL(monstinroom, (struct permonst *,int));
 
 STATIC_DCL void FDECL(move_update, (BOOLEAN_P));
@@ -707,15 +707,52 @@ int mode;
     return TRUE;
 }
 
+/* Returns whether a square might be interesting to autoexplore onto.
+   This is done purely in terms of the glyph on the square, and the
+   stepped-on memory, i.e. information the player knows already, to
+   avoid leaking information. The algorithm is taken from TAEB: "step
+   on any item we haven't stepped on, or any square we haven't stepped
+   on adjacent to stone that isn't adjacent to a square that has been
+   stepped on; however, never step on a boulder this way". This won't
+   quite give correct results for side corridors which were walked
+   past when blind, as we don't distinguish stepped-while-blind from
+   stepped-while-nonblind. */
+static boolean
+unexplored(x, y)
+int x, y;
+{
+  int i, j, k, l;
+  if (!isok(x, y)) return FALSE;
+  if (levl[x][y].stepped_on) return FALSE;
+  if (glyph_is_object(levl[x][y].glyph) &&
+      glyph_to_obj(levl[x][y].glyph) == BOULDER) return FALSE;
+  if (glyph_is_object(levl[x][y].glyph)) return TRUE;
+  for (i = -1; i <= 1; i++)
+    for (j = -1; j <= 1; j++) {
+      if (isok(x+i, y+j) &&
+          glyph_is_cmap(levl[x+i][y+j].glyph) &&
+          glyph_to_cmap(levl[x+i][y+j].glyph) == S_stone) {
+        int flag = TRUE;
+        for (k = -1; k <= 1; k++)
+          for (l = -1; l <= 1; l++)
+            if (isok(x+i+k, y+j+l) && levl[x+i+k][y+j+l].stepped_on)
+              flag = FALSE;
+        if (flag) return TRUE;
+      }
+    }
+  return FALSE;
+}
+
 /*
  * Find a path from the destination (u.tx,u.ty) back to (u.ux,u.uy).
- * A shortest path is returned.  If guess is TRUE, consider various
- * inaccessible locations as valid intermediate path points.
+ * A shortest path is returned.  If guess is non-NULL, instead travel
+ * as near to the target as you can, using guess as a function that
+ * specifies what is considered to be a valid target.
  * Returns TRUE if a path was found.
  */
 static boolean
 findtravelpath(guess)
-boolean guess;
+boolean (*guess)(int, int);
 {
     /* if travel to adjacent, reachable location, use normal movement rules */
     if (!guess && iflags.travel1 && distmin(u.ux, u.uy, u.tx, u.ty) == 1) {
@@ -729,7 +766,7 @@ boolean guess;
 	}
 	flags.run = 8;
     }
-    if (u.tx != u.ux || u.ty != u.uy) {
+    if (u.tx != u.ux || u.ty != u.uy || guess == unexplored) {
 	xchar travel[COLNO][ROWNO];
 	xchar travelstepx[2][COLNO*ROWNO];
 	xchar travelstepy[2][COLNO*ROWNO];
@@ -823,18 +860,22 @@ boolean guess;
 
 	    dist = distmin(ux, uy, tx, ty);
 	    d2 = dist2(ux, uy, tx, ty);
+            if (guess == unexplored) {
+              dist = COLNO;
+              d2 = COLNO * COLNO + ROWNO * ROWNO;
+            }
 	    for (tx = 1; tx < COLNO; ++tx)
 		for (ty = 0; ty < ROWNO; ++ty)
 		    if (travel[tx][ty]) {
 			nxtdist = distmin(ux, uy, tx, ty);
-			if (nxtdist == dist && couldsee(tx, ty)) {
+			if (nxtdist == dist && guess(tx, ty)) {
 			    nd2 = dist2(ux, uy, tx, ty);
 			    if (nd2 < d2) {
 				/* prefer non-zigzag path */
 				px = tx; py = ty;
 				d2 = nd2;
 			    }
-			} else if (nxtdist < dist && couldsee(tx, ty)) {
+			} else if (nxtdist < dist && guess(tx, ty)) {
 			    px = tx; py = ty;
 			    dist = nxtdist;
 			    d2 = dist2(ux, uy, tx, ty);
@@ -845,6 +886,10 @@ boolean guess;
 		/* no guesses, just go in the general direction */
 		u.dx = sgn(u.tx - u.ux);
 		u.dy = sgn(u.ty - u.uy);
+                if (u.dx == 0 && u.dy == 0) {
+                    nomul(0);
+                    return FALSE;
+                }
 		if (test_move(u.ux, u.uy, u.dx, u.dy, TEST_MOVE))
 		    return TRUE;
 		goto found;
@@ -855,7 +900,7 @@ boolean guess;
 	    uy = u.uy;
 	    set = 0;
 	    n = radius = 1;
-	    guess = FALSE;
+	    guess = NULL;
 	    goto noguess;
 	}
 	return FALSE;
@@ -866,6 +911,14 @@ found:
     u.dy = 0;
     nomul(0);
     return FALSE;
+}
+
+/* A function version of couldsee, so we can take a pointer to it. */
+static boolean
+couldsee_func(x, y)
+int x, y;
+{
+  return couldsee(x, y);
 }
 
 void
@@ -885,8 +938,14 @@ domove()
 	u_wipe_engr(rnd(5));
 
 	if (flags.travel) {
-	    if (!findtravelpath(FALSE))
-		(void) findtravelpath(TRUE);
+            if (iflags.autoexplore) {
+                u.tx = u.ux;
+                u.ty = u.uy;
+                if(!findtravelpath(unexplored))
+                    iflags.autoexplore = FALSE;
+            }
+	    else if (!findtravelpath(NULL))
+		(void) findtravelpath(couldsee_func);
 	    iflags.travel1 = 0;
 	}
 

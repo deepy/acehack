@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)flag.h	3.4	2002/08/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 23 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you change the flag structure make sure you increment EDITLEVEL in   */
@@ -174,6 +174,7 @@ struct instance_flags {
 	int *opt_booldup;	/* for duplication of boolean opts in config file */
 	int *opt_compdup;	/* for duplication of compound opts in config file */
 	uchar	bouldersym;	/* symbol for boulder display */
+        boolean autoexplore;    /* in autoexplore */
 	boolean travel1;	/* first travel step */
 	coord	travelcc;	/* coordinates for travel_cache */
 #ifdef WIZARD
