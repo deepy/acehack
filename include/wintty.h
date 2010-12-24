@@ -118,7 +118,6 @@ E void FDECL(xputg, (int, int, unsigned));
 E void NDECL(cl_end);
 E void NDECL(clear_screen);
 E void NDECL(home);
-E void NDECL(home_raw);
 E void NDECL(standoutbeg);
 E void NDECL(standoutend);
 # if 0
