@@ -339,9 +339,10 @@ C, #name: These commands have been merged, and display a menu to ask
 what to do.  (Credits: nethack.alt.org for the idea, although the code
 is mine.)
 ^E: Now a synonym for #enhance.
+G: A combined command for controlled teleportation, jumping, and
+riding. (They're all forms of jump, if you think about it.)
 ^I: Now a synonym for #adjust.
 M: Now a synonym for #monster.
-^V: New command, to review tutorial slides.
 Q: No longer prints a message about #quit.
 s: No longer wakes mimics (instead, upon detecting a mimic, an
 unseen-monster I glyph is placed on the square to mark its location)
@@ -354,6 +355,7 @@ accessories to be removed, with R now being deprecated.
 v: Now does autoexplore. (The old v was moved to #versionshort.)
 V: A new command that merges #rub, #invoke, and wand-breaking.  (The
 old V was moved to #versionhistory.)
+^V: New command, to review tutorial slides.
 W, P: These commands have been merged; either will allow armor or
 accessories to be worn, with P now being deprecated.
 x: No longer costs a turn.

@@ -1529,7 +1529,7 @@ struct ext_func_tab extcmdlist[] = {
   {"help", "open the in-game help", dohelp, TRUE, 10, '?', 0, 0, 0},
   {"inventory", "list, describe or use items", ddoinv, TRUE, 10, 'i', 0, 0, 0},
   {"invoke", "invoke an object's powers", doinvoke, TRUE, 1, 'V', 0, 0, 0},
-  {"jump", "walk, jump or teleport to a location", dojump, FALSE, 1, 'G', M('j'), 0, 0},
+  {"jump", "jump or teleport to a location, or ride a steed", dojump, FALSE, 1, 'G', M('j'), 0, 0},
   {"kick", "kick an adjacent object or monster", dokick, FALSE, 10, C('d'), 0, 0, 0},
   {"lookhere", "describe the current square", dolook, TRUE, 10, ':', 0, 0, 0},
   {"loot", "loot a box on the floor", doloot, FALSE, 1, 0, 0, 0, 0},

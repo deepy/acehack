@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 24 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1232,28 +1232,41 @@ int magic; /* 0=Physical, otherwise skill level */
 {
 	coord cc;
 
+        if (!magic)
+          pline("Where do you want to jump, teleport, or ride?");
+        else
+          pline("Where do you want to jump?");
+	cc.x = u.ux;
+	cc.y = u.uy;
+	if (getpos(&cc, TRUE, "the desired position") < 0)
+		return 0;	/* user pressed ESC */
+
+        if (!magic && m_at(cc.x, cc.y) && distu(cc.x, cc.y) <= 2) {
+                return mount_steed(m_at(cc.x, cc.y), FALSE);
+        }
+
 	if (!magic && (nolimbs(youmonst.data) || slithy(youmonst.data))) {
 		/* normally (nolimbs || slithy) implies !Jumping,
 		   but that isn't necessarily the case for knights */
 		You_cant("jump; you have no legs!");
-		return 0;
+		goto teleport_instead;
 	} else if (!magic && !Jumping) {
 		You_cant("jump very far.");
-		return 0;
+		goto teleport_instead;
 	} else if (u.uswallow) {
 		if (magic) {
 			You("bounce around a little.");
 			return 1;
 		}
-		pline("You've got to be kidding!");
-		return 0;
+		pline("Jumping wouldn't get you very far in here...");
+		goto teleport_instead;
 	} else if (u.uinwater) {
 		if (magic) {
 			You("swish around a little.");
 			return 1;
 		}
-		pline("This calls for swimming, not jumping!");
-		return 0;
+		pline("Jumping is rather difficult underwater.");
+		goto teleport_instead;
 	} else if (u.ustuck) {
 		if (u.ustuck->mtame && !Conflict && !u.ustuck->mconf) {
 		    You("pull free from %s.", mon_nam(u.ustuck));
@@ -1265,20 +1278,20 @@ int magic; /* 0=Physical, otherwise skill level */
 			return 1;
 		}
 		You("cannot escape from %s!", mon_nam(u.ustuck));
-		return 0;
+		goto teleport_instead;
 	} else if (Levitation || Is_airlevel(&u.uz) || Is_waterlevel(&u.uz)) {
 		if (magic) {
 			You("flail around a little.");
 			return 1;
 		}
 		You("don't have enough traction to jump.");
-		return 0;
+		goto teleport_instead;
 	} else if (!magic && near_capacity() > UNENCUMBERED) {
 		You("are carrying too much to jump!");
-		return 0;
+		goto teleport_instead;
 	} else if (!magic && (u.uhunger <= 100 || ACURR(A_STR) < 6)) {
 		You("lack the strength to jump!");
-		return 0;
+		goto teleport_instead;
 	} else if (Wounded_legs) {
 		long wl = (Wounded_legs & BOTH_SIDES);
 		const char *bp = body_part(LEG);
@@ -1293,36 +1306,40 @@ int magic; /* 0=Physical, otherwise skill level */
 		     (wl == LEFT_SIDE) ? "left " :
 			(wl == RIGHT_SIDE) ? "right " : "",
 		     bp, (wl == BOTH_SIDES) ? "are" : "is");
-		return 0;
+		goto teleport_instead;
 	}
 #ifdef STEED
 	else if (u.usteed && u.utrap) {
-		pline("%s is stuck in a trap.", Monnam(u.usteed));
-		return (0);
+		pline("%s is stuck in a trap, and cannot jump.", Monnam(u.usteed));
+		goto teleport_instead;
 	}
 #endif
 
-	pline("Where do you want to jump?");
-	cc.x = u.ux;
-	cc.y = u.uy;
-	if (getpos(&cc, TRUE, "the desired position") < 0)
-		return 0;	/* user pressed ESC */
 	if (!magic && !(HJumping & ~INTRINSIC) && !EJumping &&
 			distu(cc.x, cc.y) != 5) {
 		/* The Knight jumping restriction still applies when riding a
 		 * horse.  After all, what shape is the knight piece in chess?
 		 */
-		pline("Illegal move!");
-		return 0;
+		pline("That would be an illegal move...");
+		goto teleport_instead;
 	} else if (distu(cc.x, cc.y) > (magic ? 6+magic*3 : 9)) {
-		pline("Too far!");
-		return 0;
+		pline("That's too far to jump.");
+        teleport_instead:
+                if (magic) return 0;
+                {
+                  int rv;
+                  pline("You try to teleport instead.");
+                  set_telecontrol_coordinates(cc.x, cc.y);
+                  rv = dotele();
+                  set_telecontrol_coordinates(-1, -1);
+                  return rv;
+                }
 	} else if (!cansee(cc.x, cc.y)) {
 		You("cannot see where to land!");
-		return 0;
+                goto teleport_instead;
 	} else if (!isok(cc.x, cc.y)) {
 		You("cannot jump there!");
-		return 0;
+                return 0;
 	} else {
 	    coord uc;
 	    int range, temp;

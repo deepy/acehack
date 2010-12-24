@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)teleport.c	3.4	2003/08/11	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 24 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -395,6 +395,17 @@ boolean force_it;
 	return TRUE;
 }
 
+static int telecontrol_ccx = -1;
+static int telecontrol_ccy = -1;
+
+void
+set_telecontrol_coordinates(x, y)
+int x, y;
+{
+  telecontrol_ccx = x;
+  telecontrol_ccy = y;
+}
+
 void
 tele()
 {
@@ -431,24 +442,31 @@ tele()
 		    char buf[BUFSZ];
 		    if (u.usteed) Sprintf(buf," and %s", mon_nam(u.usteed));
 #endif
-		    pline("To what position do you%s want to be teleported?",
+                    if (telecontrol_ccx == -1) {
+                      pline("To what position do you%s want to be teleported?",
 #ifdef STEED
 				u.usteed ? buf :
 #endif
-			   "");
-		    cc.x = u.ux;
-		    cc.y = u.uy;
-		    if (getpos(&cc, TRUE, "the desired position") < 0)
+                            "");
+                      cc.x = u.ux;
+                      cc.y = u.uy;
+                      if (getpos(&cc, TRUE, "the desired position") < 0)
 			return;	/* abort */
+                    } else {
+                      cc.x = telecontrol_ccx;
+                      cc.y = telecontrol_ccy;
+                    }
 		    /* possible extensions: introduce a small error if
 		       magic power is low; allow transfer to solid rock */
 		    if (teleok(cc.x, cc.y, FALSE)) {
 			teleds(cc.x, cc.y, FALSE);
 			return;
 		    }
-		    pline("Sorry...");
+		    pline("You lose control of your teleport as something blocks the way.");
 		}
-	}
+	} else if (telecontrol_ccx > -1) {
+            pline("But, you don't know how to control your destination!");
+        }
 
 	(void) safe_teleds(FALSE);
 }
@@ -465,7 +483,9 @@ dotele()
 	if (trap) {
 		if (trap->once) {
 			pline("This is a vault teleport, usable once only.");
-			if (yn("Jump in?") == 'n')
+                        if (telecontrol_ccx > -1)
+                          pline("Also, you won't be able to choose the target.");
+			if (yn("Jump in anyway?") == 'n')
 				trap = 0;
 			else {
 				deltrap(trap);
@@ -493,10 +513,16 @@ dotele()
 		if (!wizard) {
 #endif
 		    if (!castit) {
+                      if (telecontrol_ccx > -1) {
+                        pline("But you don't know how.");
+                        return(0);
+                      }
+                      else {
 			if (!Teleportation)
 			    You("don't know that spell.");
 			else You("are not able to teleport at will.");
 			return(0);
+                      }
 		    }
 #ifdef WIZARD
 		}
