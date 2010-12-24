@@ -275,7 +275,10 @@ a character's stats before choosing to play with it.
 
 Objects in shops now have visible price tags, that are shown when you
 step on them.  (Patch credits: a marginally modified version of a
-patch by bhaak for UnNetHack.)
+patch by bhaak for UnNetHack.) Additionally, objects with unique
+prices within their object class (such as scrolls of identify) will be
+pre-identified if found in a shop, except for weapons, armour, and
+rocks/gems.
 
 New commands ^O (or #overview) and ^F (or #annotate) show a summary of
 features you've seen on levels you've visited, and allow you to name

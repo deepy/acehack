@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Oct 2010 by Alex Smith */
+/* Modified 24 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -42,7 +42,7 @@
    otense(obj, verb): Conjugate verb as if obj was verbing
    "shatters" (stack size 1), "shatter" (stack size 2)
    vtense(subj, verb): Conjgate verb as if subj was verbing
-   "they","shatter" -> "shatter"; "you","shatter" -> "shatters"
+   "they","shatter" -> "shatter"; "it","shatter" -> "shatters"
    Doname2(obj): doname() with leading capital
    "The blessed Amulet of Yendor (being worn)", "A poisoned +4 dagger"
    yname(obj): like xname(), but incorporates ownership details
@@ -639,7 +639,29 @@ boolean with_price;
 	/* when we have to add something at the start of prefix instead of the
 	 * end (Strcat is used on the end)
 	 */
-	register char *bp = xname(obj);
+	register char *bp;
+
+        if (with_price) {
+          /* If this item has a unique /base/ price for items within
+             its class, and isn't a gem (shks lie about those) or a
+             weapon or armour (and thus possibly enchanted), we
+             automatically ID it. It'd be possible to do a bit better than
+             this, but only a bit. */
+          if (obj->oclass != ARMOR_CLASS && obj->oclass != WEAPON_CLASS &&
+              obj->oclass != GEM_CLASS) {
+            int i;
+            boolean id = TRUE;
+            for (i = 0; i < NUM_OBJECTS; i++) {
+              if (i == obj->otyp) continue;
+              if (objects[i].oc_cost  == objects[obj->otyp].oc_cost &&
+                  objects[i].oc_class == objects[obj->otyp].oc_class)
+                id = FALSE;
+            }
+            if (id) makeknown(obj->otyp);
+          }
+        }
+
+        bp = xname(obj);
 
 	/* When using xname, we want "poisoned arrow", and when using
 	 * doname, we want "poisoned +0 arrow".  This kludge is about the only
