@@ -1,7 +1,7 @@
 /*	SCCS Id: @(#)display.c	3.4	2003/02/19	*/
 /* Copyright (c) Dean Luick, with acknowledgements to Kevin Darcy */
 /* and Dave Cohrs, 1990.					  */
-/* Modified 13 Aug 2010 by Alex Smith */
+/* Modified 25 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -1337,9 +1337,18 @@ row_refresh(start,stop,y)
 void
 cls()
 {
+    /* Note that the two calls to display_nhwindow are necessary. The first
+       prints any --More-- required before clearing the screen; the second
+       redraws the topl after the screen clear (showing the faded version
+       of the message in question). Note that a --More-- may be required
+       even though the message is still visible after the redraw, either
+       because it's about to be replaced by another message, or because it
+       pertains specifically to the screen state before the redraw (e.g.
+       object detection). */
     display_nhwindow(WIN_MESSAGE, FALSE); /* flush messages */
     flags.botlx = 1;		/* force update of botl window */
     clear_nhwindow(WIN_MAP);	/* clear physical screen */
+    display_nhwindow(WIN_MESSAGE, FALSE); /* redraw message window */
 
     clear_glyph_buffer();	/* this is sort of an extra effort, but OK */
 }

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 19 Oct 2010 by Alex Smith */
+/* Modified 25 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -938,6 +938,7 @@ tty_clear_nhwindow(window)
 		docorner(1, cw->cury+1);
 	    ttyDisplay->toplin = 0;
 	}
+        fade_topl();
 	break;
     case NHW_STATUS:
 	tty_curs(window, 1, 0);
@@ -1473,8 +1474,10 @@ tty_display_nhwindow(window, blocking)
 	    more();
 	    ttyDisplay->toplin = 1; /* more resets this */
 	    tty_clear_nhwindow(window);
-	} else
+	} else {
 	    ttyDisplay->toplin = 0;
+            fade_topl(); /* this can be necessary during a screen redraw */
+        }
 	cw->curx = cw->cury = 0;
 	if(!cw->active)
 	    iflags.window_inited = TRUE;
@@ -2302,6 +2305,7 @@ docorner(xmin, ymax)
 	flags.botlx = 1;
 	bot();
     }
+    fade_topl(); /* and we have also wrecked the top line */
 }
 
 void
@@ -2731,6 +2735,17 @@ tty_inverse_end()
 {
     tty_end_attr(ATR_INVERSE);
 }
+void
+tty_start_fade()
+{
+    tty_start_color(CLR_BLUE);
+}
+void
+tty_end_fade()
+{
+    tty_end_color();
+}
+
 
 #endif /* TTY_GRAPHICS */
 

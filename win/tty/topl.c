@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)topl.c	3.4	1996/10/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 12 Aug 2010 by Alex Smith */
+/* Modified 25 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -139,6 +139,28 @@ redotoplin(str)
 	ttyDisplay->toplin = 1;
 	if(ttyDisplay->cury && otoplin != 3)
 		more();
+}
+
+/* Redraws the old topl, but in dark blue to show it isn't current. */
+void
+fade_topl()
+{
+  home();
+  if(*toplines & 0x80) {
+    tty_start_fade();
+    g_putch((int)*toplines);
+    ttyDisplay->curx++;
+    tty_end_fade();
+    end_glyphout(); /* this doesn't work correctly during a fade */
+    tty_start_fade();
+    putsyms(toplines+1);
+  } else {
+    end_glyphout();
+    tty_start_fade();
+    putsyms(toplines);
+  }
+  cl_end();
+  tty_end_fade();
 }
 
 STATIC_OVL void
