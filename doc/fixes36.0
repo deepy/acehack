@@ -209,14 +209,6 @@ are shown as statuses than were before (e.g. levitation, greasy hands,
 poisoned).  (Credits: Thanks to Squolly for suggesting the expansion
 of statuses.)
 
-There is a new character creation screen, that allows you to view a
-character's stats and inventory before you start playing, and to
-choose a different one if you don't like it.  (This breaks
-"startscumless" conduct just by existing; if you want to prove that
-you won with the first character that the RNG produced, say as part of
-a streak, turn off the new "startscum" option and the stats and
-inventory will be hidden unless you choose to look at them.)
-
 New centralised routines are used for drawing things to the screen;
 although potentially slightly less efficient than the old ones,
 they make it much easier to extend the drawing code to do new sorts of
@@ -224,16 +216,6 @@ drawing.  They also now set both the foreground and background colors
 explicitly if the color option is turned on; this should avoid the
 problem where graphics can't be seen properly due to unusual terminal
 settings such as a white background.
-
-The game now highlights possible directions to, e.g., fire things in,
-by using a red background.  (Credits: this was kerio's idea.)
-Background colors are also used to signify other things, e.g. detected
-monsters, pets, peaceful monsters.  (Credits: This idea was inspired
-by Dungeon Crawl Stone Soup.)
-
-Squares which contain known traps are colored cyan no matter what is
-actually on the square, to warn the player against stumbling into
-them.
 
 The default character used to represent traps is now ^ rather than ".
 
@@ -305,8 +287,26 @@ initially from Slash'EM; ported from UnNetHack)
 Monsters now have their background color changed to show various
 aspects of the monster (blue=tame, brown=peaceful, magenta=detected).
 
-When using directional commands (t, m, etc), the possible directions
-to aim in are highlighted.
+There is a new character creation screen, that allows you to view a
+character's stats and inventory before you start playing, and to
+choose a different one if you don't like it.  (This breaks
+"startscumless" conduct just by existing; if you want to prove that
+you won with the first character that the RNG produced, say as part of
+a streak, turn off the new "startscum" option and the stats and
+inventory will be hidden unless you choose to look at them.)
+
+The game now highlights possible directions to, e.g., fire things in,
+by using a red background.  (Credits: this was kerio's idea.)
+Background colors are also used to signify other things, e.g. detected
+monsters, pets, peaceful monsters.  (Credits: This idea was inspired
+by Dungeon Crawl Stone Soup.) Likewise, squares which contain known
+traps are shown with a cyan background no matter what is actually on
+the square, to warn the player against stumbling into them.
+
+The last message shown is now always shown at the top of the screen in
+dark blue, to make it easier to figure out what juts happened when
+moving quickly. (Control-P still works for reviewing messages, if you
+want to check further back.)
 
 Change Detail
 -------------
@@ -317,7 +317,7 @@ unidentified: cyan
 enchantment+erosion negative: red
 attack (e.g. weapons/attack wands/books of attack spells): green
 item/dungeon-affecting (e.g. digging, enchanting, polymorph): brown
-creation (e.g. create monster, bag of tricks, wishing): cyan
+creation (e.g. create monster, bag of tricks, wishing): light cyan
 intrinsics/extrinsics (e.g. invisibility, gain strength): light blue
 debuffing enemies (e.g. sleep, taming, conflict): blue
 divination (e.g. lamp, identify, crystal ball): white
