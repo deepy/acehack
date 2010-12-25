@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 24 Dec 2010 by Alex Smith */
+/* Modified 25 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2004,11 +2004,17 @@ reparse_direction:
                 if (cmd[1] == 0) {
                   cmd[0] = '\033';
                   pline("I don't know what you mean.");
+                } else if (u.dz != 0) {
+                  /* F, m, g are meaningless with vertical movement */
+                  if (cmd[0] == 'F') {
+                    pline("But there can't be a monster lurking above or below you!");
+                    pline("(With an appropriate weapon, use the a command "
+                          "to attack terrain.)");
+                  } else pline("That doesn't make any sense...");
+                  cmd[0] = '\033';
                 }
                 /* Translate the pressed direction into standard
                    vikeys, no matter what control system is being used. */
-                else if (u.dz > 0) cmd[1] = '>';
-                else if (u.dz < 0) cmd[1] = '<';
                 else if (u.dx > 0 && u.dy > 0) cmd[1] = 'n';
                 else if (u.dx > 0 && u.dy < 0) cmd[1] = 'u';
                 else if (u.dx < 0 && u.dy > 0) cmd[1] = 'b';
@@ -2142,8 +2148,8 @@ reparse:
 	    /* don't report "unknown command" for change of heart... */
 	    bad_command = FALSE;
         } else if (inreparse) {
-            /* It's possible to get here if a grid-bug-form player attempts
-               to indirectly use a command that is normally a movement
+            /* It's possible to get here if a grid-bug-form player
+               attempts to use a command that is normally a movement
                command, but meaningless for a grid bug. */
             pline("That's not a direction!");
             flags.move = FALSE;
@@ -2279,8 +2285,10 @@ char sym;
           if ((sym & 0xff) != (tlist->binding1 & 0xff) &&
               (sym & 0xff) != (tlist->binding2 & 0xff) &&
               (sym & 0xff) != (tlist->binding3 & 0xff)) continue;
-            if (!tlist->replacewithkey) return 0;
-            return movecmd(tlist->replacewithkey);
+          if(tlist->ef_funct == doup) return movecmd('<');
+          if(tlist->ef_funct == dodown) return movecmd('>');
+          if (!tlist->replacewithkey) return 0;
+          return movecmd(tlist->replacewithkey);
         }
         return 0;
 }
@@ -2434,40 +2442,25 @@ help_dir(sym, msg)
 char sym;
 const char *msg;
 {
-	char ctrl;
 	winid win;
-	static const char wiz_only_list[] = "EFGIOVW";
-	char buf[BUFSZ], buf2[BUFSZ], *expl;
+	char buf[BUFSZ];
 
 	win = create_nhwindow(NHW_TEXT);
 	if (!win) return FALSE;
 	if (msg) {
-		Sprintf(buf, "cmdassist: %s", msg);
-		putstr(win, 0, buf);
+		putstr(win, 0, msg);
 		putstr(win, 0, "");
 	}
 	if (letter(sym)) { 
 	    sym = highc(sym);
-	    ctrl = (sym - 'A') + 1;
-	    if ((expl = dowhatdoes_core(ctrl, buf2))
-		&& (!index(wiz_only_list, sym)
-#ifdef WIZARD
-		    || wizard
-#endif
-	                     )) {
-		Sprintf(buf, "Are you trying to use ^%c%s?", sym,
-			index(wiz_only_list, sym) ? "" :
-			" as specified in the Guidebook");
-		putstr(win, 0, buf);
-		putstr(win, 0, "");
-		putstr(win, 0, expl);
-		putstr(win, 0, "");
-		putstr(win, 0, "To use that command, you press");
-		Sprintf(buf,
-			"the <Ctrl> key, and the <%c> key at the same time.", sym);
-		putstr(win, 0, buf);
-		putstr(win, 0, "");
-	    }
+            Sprintf(buf, "(If you're trying to press '^%c', the ^ represents",
+                    sym);
+            putstr(win, 0, buf);
+            Sprintf(buf, "Control; hold Control and press %c, don't press the",
+                    sym);
+            putstr(win, 0, buf);
+            putstr(win, 0, "^ key on your keyboard.)");
+            putstr(win, 0, "");
 	}
 	if (u.umonnum == PM_GRID_BUG) {
 	    putstr(win, 0, "Valid direction keys in your current form are:");
@@ -2489,7 +2482,6 @@ const char *msg;
 	putstr(win, 0, "          >  down");
 	putstr(win, 0, "          .  direct at yourself");
 	putstr(win, 0, "");
-	putstr(win, 0, "(Suppress this message with !cmdassist in config file.)");
 	display_nhwindow(win, FALSE);
 	destroy_nhwindow(win);
 	return TRUE;
