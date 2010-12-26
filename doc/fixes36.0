@@ -273,8 +273,16 @@ will give more information about the map or a stack of items).
 However, NetHack is not nearly as suited to autoexplore as Crawl is; I
 find that using the command leads to exploration considerably less
 efficient than I could manage by hand, and so I must caution people to
-use this at their own risk. (I even considered giving it no key
-binding by default.)
+use this at their own risk. Autoexplore stops upon encountering an
+item, upon exploring into a dead end or next to a boulder (situations
+which the player will likely want to handle themselves), upon
+encountering a door for the first time, or upon failing to displace a
+pet or open a door.
+
+The set of things that stop travel and/or command repeat by default
+has changed. In particular, pets will now be displaced rather than
+stopping travel, and taking damage for any reason will stop command
+repeat and travel.
 
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pickup.c	3.4	2003/07/27	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 12 Aug 2010 by Alex Smith */
+/* Modified 26 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -440,8 +440,9 @@ int what;		/* should be a long */
 		    return (0);
 		}
 
-		/* if there's anything here, stop running */
-		if (OBJ_AT(u.ux,u.uy) && flags.run && flags.run != 8 && !flags.nopick) nomul(0);
+		/* if there's anything here, stop running and travel */
+		if (OBJ_AT(u.ux,u.uy) && flags.run &&
+                    (flags.run != 8 || flags.travel) && !flags.nopick) nomul(0);
 	}
 
 	add_valid_menu_class(0);	/* reset */

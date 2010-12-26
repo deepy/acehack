@@ -861,8 +861,8 @@ boolean (*guess)(int, int);
 	    dist = distmin(ux, uy, tx, ty);
 	    d2 = dist2(ux, uy, tx, ty);
             if (guess == unexplored) {
-              dist = COLNO;
-              d2 = COLNO * COLNO + ROWNO * ROWNO;
+              dist = COLNO * ROWNO;
+              d2 = COLNO * COLNO * ROWNO * ROWNO;
             }
 	    for (tx = 1; tx < COLNO; ++tx)
 		for (ty = 0; ty < ROWNO; ++ty)
@@ -939,6 +939,31 @@ domove()
 
 	if (flags.travel) {
             if (iflags.autoexplore) {
+                if (Blind) {
+                  /* necessary to not autoexplore while blind; the logic
+                     can't handle it, nor could it sensibly without
+                     somehow knowing when to search and when to move */
+                  pline("You stop exploring, because you can't see where"
+                        " you're going.");
+                  flags.move = 0;
+                  nomul(0);
+                  return;
+                }
+                if (In_sokoban(&u.uz)) {
+                  pline("You somehow know the layout of this place"
+                        " without exploring.");
+                  pline("But, you feel you should be careful moving"
+                        " around.");
+                  flags.move = 0;
+                  nomul(0);
+                  return;
+                }
+                if (Stunned || Confusion) {
+                  pline("Your head is spinning too much to explore.");
+                  flags.move = 0;
+                  nomul(0);
+                  return;
+                }
                 u.tx = u.ux;
                 u.ty = u.uy;
                 if(!findtravelpath(unexplored))
@@ -1096,8 +1121,9 @@ domove()
 		}
 
 		mtmp = m_at(x,y);
-		if (mtmp) {
+		if (mtmp && !is_safepet(mtmp)) {
 			/* Don't attack if you're running, and can see it */
+                        /* It's fine to displace pets, though */
 			/* We should never get here if forcefight */
 			if (flags.run &&
 			    ((!Blind && mon_visible(mtmp) &&
@@ -1120,7 +1146,10 @@ domove()
 
 	/* attack monster */
 	if(mtmp) {
-	    nomul(0);
+            /* don't stop travel when displacing pets; if the
+               displace fails for some reason, attack() in uhitm.c
+               will stop travel rather than domove */
+            if (!is_safepet(mtmp) || flags.forcefight) nomul(0);
 	    /* only attack if we know it's there */
 	    /* or if we used the 'F' command to fight blindly */
 	    /* or if it hides_under, in which case we call attack() to print
@@ -1135,7 +1164,7 @@ domove()
 	     * invisible monster--then, we fall through to attack() and
 	     * attack_check(), which still wastes a turn, but prints a
 	     * different message and makes the player remember the monster.		     */
-	    if(flags.nopick &&
+	    if(flags.nopick && !flags.travel &&
 		  (canspotmon(mtmp) || glyph_is_invisible(levl[x][y].glyph))){
 		if(mtmp->m_ap_type && !Protection_from_shape_changers
 						    && !sensemon(mtmp))
@@ -1466,10 +1495,32 @@ domove()
 
 	reset_occupations();
 	if (flags.run) {
-	    if ( flags.run < 8 )
+	    if (flags.run < 8) {
 		if (IS_DOOR(tmpr->typ) || IS_ROCK(tmpr->typ) ||
 			IS_FURNITURE(tmpr->typ))
 		    nomul(0);
+            } else if (flags.travel && iflags.autoexplore) {
+              /* autoexplore stoppers: being orthogonally
+                 adjacent to a boulder, being orthogonally adjacent
+                 to 3 or more walls; this logic could be incorrect
+                 when blind, but we check for that earlier; while
+                 not blind, we'll assume the hero knows about adjacent
+                 walls and boulders due to being able to see them */
+              int wallcount = 0;
+              if (isok(u.ux-1, u.uy  ))
+                wallcount += IS_ROCK(levl[u.ux-1][u.uy  ].typ) +
+                  !!sobj_at(BOULDER, u.ux-1, u.uy  ) * 3;
+              if (isok(u.ux+1, u.uy  ))
+                wallcount += IS_ROCK(levl[u.ux+1][u.uy  ].typ) +
+                  !!sobj_at(BOULDER, u.ux+1, u.uy  ) * 3;
+              if (isok(u.ux  , u.uy-1))
+                wallcount += IS_ROCK(levl[u.ux  ][u.uy-1].typ) +
+                  !!sobj_at(BOULDER, u.ux  , u.uy-1) * 3;
+              if (isok(u.ux  , u.uy+1))
+                wallcount += IS_ROCK(levl[u.ux  ][u.uy+1].typ) +
+                  !!sobj_at(BOULDER, u.ux  , u.uy+1) * 3;
+              if (wallcount >= 3) nomul(0);
+            }
 	}
 
 	if (hides_under(youmonst.data))
@@ -2039,7 +2090,7 @@ lookaround()
 		    mtmp->m_ap_type != M_AP_OBJECT &&
 		    (!mtmp->minvis || See_invisible) && !mtmp->mundetected) {
 	    if((flags.run != 1 && !mtmp->mtame)
-					|| (x == u.ux+u.dx && y == u.uy+u.dy))
+               || (x == u.ux+u.dx && y == u.uy+u.dy && !flags.travel))
 		goto stop;
 	}
 
@@ -2241,6 +2292,8 @@ boolean k_format;
 	u.uhp -= n;
 	if(u.uhp > u.uhpmax)
 		u.uhpmax = u.uhp;	/* perhaps n was negative */
+        else
+		nomul(0);               /* taking damage stops command repeat */
 	flags.botl = 1;
 	if(u.uhp < 1) {
 		killer_format = k_format;

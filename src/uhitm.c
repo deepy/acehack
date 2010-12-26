@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)uhitm.c	3.4	2003/02/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 26 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -347,10 +347,12 @@ register struct monst *mtmp;
                 Strcpy(buf, y_monnam(mtmp));
                 buf[0] = highc(buf[0]);
                 You("stop.  %s is in the way!", buf);
+                nomul(0);
                 return(TRUE);
             } else if ((mtmp->mfrozen || (! mtmp->mcanmove)
                             || (mtmp->data->mmove == 0)) && rn2(6)) {
                 pline("%s doesn't seem to move!", Monnam(mtmp));
+                nomul(0);
                 return(TRUE);
             } else return(FALSE);
 	}
