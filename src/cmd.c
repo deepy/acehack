@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 25 Dec 2010 by Alex Smith */
+/* Modified 26 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2367,6 +2367,7 @@ int loop;
 	char dirsym;
         int dist;
         int redone = FALSE;
+        boolean gridbug = u.umonnum == PM_GRID_BUG;
 
         if (nextgetdir) {
             movecmd(nextgetdir);
@@ -2381,10 +2382,12 @@ getdir_again:
             redraw_glyph(u.ux-dist,u.uy     );
             redraw_glyph(u.ux     ,u.uy+dist);
             redraw_glyph(u.ux     ,u.uy-dist);
-            redraw_glyph(u.ux+dist,u.uy+dist);
-            redraw_glyph(u.ux-dist,u.uy+dist);
-            redraw_glyph(u.ux+dist,u.uy-dist);
-            redraw_glyph(u.ux-dist,u.uy-dist);
+            if (!gridbug) {
+              redraw_glyph(u.ux+dist,u.uy+dist);
+              redraw_glyph(u.ux-dist,u.uy+dist);
+              redraw_glyph(u.ux+dist,u.uy-dist);
+              redraw_glyph(u.ux-dist,u.uy-dist);
+            }
         }
         flush_screen(1);
 
@@ -2407,10 +2410,12 @@ getdir_again:
             redraw_glyph(u.ux-dist,u.uy     );
             redraw_glyph(u.ux     ,u.uy+dist);
             redraw_glyph(u.ux     ,u.uy-dist);
-            redraw_glyph(u.ux+dist,u.uy+dist);
-            redraw_glyph(u.ux-dist,u.uy+dist);
-            redraw_glyph(u.ux+dist,u.uy-dist);
-            redraw_glyph(u.ux-dist,u.uy-dist);
+            if (!gridbug) {
+              redraw_glyph(u.ux+dist,u.uy+dist);
+              redraw_glyph(u.ux-dist,u.uy+dist);
+              redraw_glyph(u.ux+dist,u.uy-dist);
+              redraw_glyph(u.ux-dist,u.uy-dist);
+            }
         }
         flush_screen(1);
 

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 18 Sep 2010 by Alex Smith */
+/* Modified 26 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -316,13 +316,17 @@ unsigned *ospecial;
     /* Do any background marking that getdir might want. For the time being,
        keep it simple: the lines extend to the edge of the map for RANGE or
        BOUNCE, and one character for NEXT. */
-    if (getdirh != GETDIRH_NONE)
+    if (getdirh != GETDIRH_NONE) {
+      /* Grid bugs don't understand the concept of diagonals, even for
+         merely highlighting on the map. */
+      boolean gridbug = u.umonnum == PM_GRID_BUG;
       if (color < CLR_MAX &&
         (x == getdirx || y == getdiry ||
-         x+y == getdirx+getdiry || x-y == getdirx-getdiry) &&
+         (!gridbug && (x+y == getdirx+getdiry || x-y == getdirx-getdiry))) &&
         (getdirh != GETDIRH_NEXT ||
          (abs(x-getdirx) <= 1 && abs(y-getdiry) <= 1)))
         color += CLR_MAX * CLR_RED;
+    }
 
     *ochar = (int)ch;
     *ospecial = special;
