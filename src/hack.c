@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.c	3.4	2003/04/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 26 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -947,6 +947,12 @@ domove()
 	    else if (!findtravelpath(NULL))
 		(void) findtravelpath(couldsee_func);
 	    iflags.travel1 = 0;
+            if (u.dx == 0 && u.dy == 0) {
+              /* couldn't find a move; end travel without costing a turn */
+                flags.move = 0;
+                nomul(0);
+                return;
+            }
 	}
 
 	if(((wtcap = near_capacity()) >= OVERLOADED
