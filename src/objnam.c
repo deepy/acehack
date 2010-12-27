@@ -644,20 +644,23 @@ boolean with_weight;
 	 */
 	register char *bp;
 
-        if (with_price) {
+        if (with_price && (obj->unpaid || get_cost_of_shop_item(obj) > 0)) {
           /* If this item has a unique /base/ price for items within
              its class, and isn't a gem (shks lie about those) or a
              weapon or armour (and thus possibly enchanted), we
-             automatically ID it. It'd be possible to do a bit better than
-             this, but only a bit. */
+             automatically ID it. This takes weight into account too
+             (as it's shown in inventory listings), which conveniently
+             happens to distinguish between different description
+             groups when we need it to. */
           if (obj->oclass != ARMOR_CLASS && obj->oclass != WEAPON_CLASS &&
               obj->oclass != GEM_CLASS) {
             int i;
             boolean id = TRUE;
             for (i = 0; i < NUM_OBJECTS; i++) {
               if (i == obj->otyp) continue;
-              if (objects[i].oc_cost  == objects[obj->otyp].oc_cost &&
-                  objects[i].oc_class == objects[obj->otyp].oc_class)
+              if (objects[i].oc_cost == objects[obj->otyp].oc_cost &&
+                  objects[i].oc_class == objects[obj->otyp].oc_class &&
+                  objects[i].oc_weight == objects[obj->otyp].oc_weight)
                 id = FALSE;
             }
             if (id) makeknown(obj->otyp);
