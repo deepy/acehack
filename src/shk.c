@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)shk.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 27 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2857,7 +2857,7 @@ int mode;		/* 0: deliver count 1: paged */
 		totused += thisused;
 		obj->unpaid = 0;		/* ditto */
 		/* Why 'x'?  To match `I x', more or less. */
-		buf_p = xprname(obj, (char *)0, 'x', FALSE, thisused, uquan);
+		buf_p = xprname(obj, (char *)0, 'x', FALSE, thisused, uquan, FALSE);
 #ifdef __SASC
 				/* SAS/C 6.2 can't cope for some reason */
 		sasc_bug(obj,save_unpaid);
@@ -2873,10 +2873,10 @@ int mode;		/* 0: deliver count 1: paged */
 	    totused += eshkp->debit;
 	    buf_p = xprname((struct obj *)0,
 			    "usage charges and/or other fees",
-			    GOLD_SYM, FALSE, eshkp->debit, 0L);
+			    GOLD_SYM, FALSE, eshkp->debit, 0L, FALSE);
 	    putstr(datawin, 0, buf_p);
 	}
-	buf_p = xprname((struct obj *)0, "Total:", '*', FALSE, totused, 0L);
+	buf_p = xprname((struct obj *)0, "Total:", '*', FALSE, totused, 0L, FALSE);
 	putstr(datawin, 0, "");
 	putstr(datawin, 0, buf_p);
 	display_nhwindow(datawin, FALSE);

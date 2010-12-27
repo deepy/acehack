@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 24 Dec 2010 by Alex Smith */
+/* Modified 27 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -22,6 +22,8 @@
    "the 2nd dagger", "the 4th arrow"
    doname(obj): fully detailed name of object or stack as seen in inventory
    "the blessed Amulet of Yendor (being worn)", "a poisoned +4 dagger"
+   doname_w(obj): like doname, but also shows weight
+   "a poisoned +4 dagger (w:10)", "a bag called holding (w:1300)"
    corpse_xname(obj, ignore_oquan): describe a corpse or pile of corpses
    "horse corpse", "horse corpses"
    cxname(obj): xname, but with specific corpse naming
@@ -629,9 +631,10 @@ char *prefix;
 }
 
 static char *
-doname_base(obj, with_price)
+doname_base(obj, with_price, with_weight)
 register struct obj *obj;
 boolean with_price;
+boolean with_weight;
 {
 	boolean ispoisoned = FALSE;
 	char prefix[PREFIX];
@@ -879,6 +882,9 @@ ring:
 			Sprintf(eos(bp), " (%ld %s)", price, currency(price));
 		}
 	}
+        if (with_weight) {
+        	Sprintf(eos(bp), " (w:%u)", (unsigned)obj->owt);
+        }
 	if (!strncmp(prefix, "a ", 2) &&
 			index(vowels, *(prefix+2) ? *(prefix+2) : *bp)
 			&& (*(prefix+2) || (strncmp(bp, "uranium", 7)
@@ -892,21 +898,38 @@ ring:
 	return(bp);
 }
 
-/** Wrapper function for vanilla behaviour. */
+/* Wrapper function for vanilla behaviour. */
 char *
 doname(obj)
 register struct obj *obj;
 {
-	return doname_base(obj, FALSE);
+	return doname_base(obj, FALSE, FALSE);
 }
 
-/** Name of object including price. */
+/* Name of object including price. */
 char *
 doname_with_price(obj)
 register struct obj *obj;
 {
-	return doname_base(obj, TRUE);
+	return doname_base(obj, TRUE, FALSE);
 }
+
+/* Name of object including weight. */
+char *
+doname_w(obj)
+register struct obj *obj;
+{
+	return doname_base(obj, FALSE, TRUE);
+}
+
+/* Name of object including both. */
+char *
+doname_w_with_price(obj)
+register struct obj *obj;
+{
+	return doname_base(obj, TRUE, TRUE);
+}
+
 
 #endif /* OVL0 */
 #ifdef OVLB

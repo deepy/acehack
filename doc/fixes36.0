@@ -284,6 +284,10 @@ has changed. In particular, pets will now be displaced rather than
 stopping travel, and taking damage for any reason will stop command
 repeat and travel.
 
+Inventory lists now show the weight of each item in them. (Credits:
+this feature was inspired by Vulture's, although AceHack uses
+different code.)
+
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
 

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)extern.h	3.4	2003/03/10	*/
 /* Copyright (c) Steve Creps, 1988.				  */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 27 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef EXTERN_H
@@ -798,7 +798,8 @@ E void FDECL(identify_pack, (int));
 E int FDECL(askchain, (struct obj **,const char *,int,int (*)(OBJ_P),
 			int (*)(OBJ_P),int,const char *));
 E void FDECL(prinv, (const char *,struct obj *,long));
-E char *FDECL(xprname, (struct obj *,const char *,CHAR_P,BOOLEAN_P,long,long));
+E char *FDECL(xprname, (struct obj *,const char *,CHAR_P,BOOLEAN_P,
+                        long,long,BOOLEAN_P));
 E int NDECL(ddoinv);
 E char FDECL(display_inventory, (const char *,BOOLEAN_P));
 E int FDECL(display_binventory, (int,int,BOOLEAN_P));
@@ -1376,6 +1377,8 @@ E char *FDECL(mshot_xname, (struct obj *));
 E boolean FDECL(the_unique_obj, (struct obj *obj));
 E char *FDECL(doname, (struct obj *));
 E char *FDECL(doname_with_price, (struct obj *));
+E char *FDECL(doname_w, (struct obj *));
+E char *FDECL(doname_w_with_price, (struct obj *));
 E boolean FDECL(not_fully_identified, (struct obj *));
 E char *FDECL(corpse_xname, (struct obj *,BOOLEAN_P));
 E char *FDECL(cxname, (struct obj *));

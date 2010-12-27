@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 27 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1406,7 +1406,8 @@ nextclass:
 		if (ckfn && !(*ckfn)(otmp)) continue;
 		if (!allflag) {
 			Strcpy(qbuf, !ininv ? doname(otmp) :
-				xprname(otmp, (char *)0, ilet, !nodot, 0L, 0L));
+				xprname(otmp, (char *)0, ilet, !nodot, 0L, 0L,
+                                        FALSE));
 			Strcat(qbuf, "?");
 			sym = (takeoff || ident || otmp->quan < 2L) ?
 				nyaq(qbuf) : nyNaq(qbuf);
@@ -1591,20 +1592,21 @@ long quan;
 	if (!prefix) prefix = "";
 	pline("%s%s%s",
 	      prefix, *prefix ? " " : "",
-	      xprname(obj, (char *)0, obj_to_let(obj), TRUE, 0L, quan));
+	      xprname(obj, (char *)0, obj_to_let(obj), TRUE, 0L, quan, FALSE));
 }
 
 #endif /* OVL2 */
 #ifdef OVL1
 
 char *
-xprname(obj, txt, let, dot, cost, quan)
+xprname(obj, txt, let, dot, cost, quan, swt)
 struct obj *obj;
 const char *txt;	/* text to print instead of obj */
 char let;		/* inventory letter */
 boolean dot;		/* append period; (dot && cost => Iu) */
 long cost;		/* cost (for inventory of unpaid or expended items) */
 long quan;		/* if non-0, print this quantity, not obj->quan */
+boolean swt;            /* whether to show the weight of this object */
 {
 #ifdef LINT	/* handle static char li[BUFSZ]; */
     char li[BUFSZ];
@@ -1638,7 +1640,7 @@ long quan;		/* if non-0, print this quantity, not obj->quan */
 	/* ordinary inventory display or pickup message */
 	Sprintf(li, "%c - %s%s",
 		(use_invlet ? obj->invlet : let),
-		(txt ? txt : doname(obj)), (dot ? "." : ""));
+		(txt ? txt : (swt?doname_w:doname)(obj)), (dot ? "." : ""));
     }
     if (savequan) obj->quan = savequan;
 
@@ -2094,7 +2096,7 @@ long* out_cnt;
 		if (otmp->invlet == lets[0]) {
 		    ret = message_menu(lets[0],
 			  want_reply ? PICK_ONE : PICK_NONE,
-			  xprname(otmp, (char *)0, lets[0], TRUE, 0L, 0L));
+			  xprname(otmp, (char *)0, lets[0], TRUE, 0L, 0L, TRUE));
 		    if (out_cnt) *out_cnt = -1L;	/* select all */
 		    break;
 		}
@@ -2151,12 +2153,12 @@ nextclass:
 	    any.a_char = ilet;
 	    add_menu_colored(win, obj_to_glyph(otmp), &any, ilet,
                              0, ATR_NONE, default_item_color(otmp),
-                             doname(otmp), MENU_UNSELECTED);
+                             doname_w(otmp), MENU_UNSELECTED);
 #ifdef DUMP_LOG
 	    if (want_dump) {
 	      char letbuf[7];
 	      sprintf(letbuf, "  %c - ", ilet);
-	      dump(letbuf, doname(otmp));
+	      dump(letbuf, doname_w(otmp));
 	    }
 #endif
 	  }
@@ -2176,7 +2178,7 @@ nextclass:
 			    add_menu_colored(win, obj_to_glyph(otmp),
                                              &any, ilet, 0, ATR_NONE,
                                              default_item_color(otmp),
-                                             doname(otmp), MENU_UNSELECTED);
+                                             doname_w(otmp), MENU_UNSELECTED);
 			}
 		}
 	}
@@ -2303,7 +2305,7 @@ dounpaid()
 
 	pline("%s", xprname(otmp, distant_name(otmp, doname),
 			    marker ? otmp->invlet : CONTAINED_SYM,
-			    TRUE, unpaid_cost(otmp), 0L));
+			    TRUE, unpaid_cost(otmp), 0L, FALSE));
 	return;
     }
 
@@ -2328,7 +2330,7 @@ dounpaid()
 		    save_unpaid = otmp->unpaid;
 		    otmp->unpaid = 0;
 		    putstr(win, 0, xprname(otmp, distant_name(otmp, doname),
-					   ilet, TRUE, cost, 0L));
+					   ilet, TRUE, cost, 0L, FALSE));
 		    otmp->unpaid = save_unpaid;
 		    num_so_far++;
 		}
@@ -2354,7 +2356,7 @@ dounpaid()
 		    marker->unpaid = 0;    /* suppress "(unpaid)" suffix */
 		    putstr(win, 0,
 			   xprname(marker, distant_name(marker, doname),
-				   CONTAINED_SYM, TRUE, cost, 0L));
+				   CONTAINED_SYM, TRUE, cost, 0L, FALSE));
 		    marker->unpaid = save_unpaid;
 		}
 	    }
@@ -2362,7 +2364,7 @@ dounpaid()
     }
 
     putstr(win, 0, "");
-    putstr(win, 0, xprname((struct obj *)0, "Total:", '*', FALSE, totcost, 0L));
+    putstr(win, 0, xprname((struct obj *)0, "Total:", '*', FALSE, totcost, 0L, FALSE));
     display_nhwindow(win, FALSE);
     destroy_nhwindow(win);
 }
