@@ -1,7 +1,7 @@
 /*	SCCS Id: @(#)display.c	3.4	2003/02/19	*/
 /* Copyright (c) Dean Luick, with acknowledgements to Kevin Darcy */
 /* and Dave Cohrs, 1990.					  */
-/* Modified 25 Dec 2010 by Alex Smith */
+/* Modified 28 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -1267,7 +1267,10 @@ show_glyph(x,y,glyph)
 	return;
     }
 
-    if (gbuf[y][x].glyph != glyph) {
+    /* If the glyph has changed, or it's a sort of glyph susceptible to
+       change rendering over time (e.g. doors), update it. */
+    if (gbuf[y][x].glyph != glyph || glyph_to_cmap(glyph) == S_vcdoor
+        || glyph_to_cmap(glyph) == S_hcdoor) {
 	gbuf[y][x].glyph = glyph;
 	gbuf[y][x].new   = 1;
 	if (gbuf_start[y] > x) gbuf_start[y] = x;

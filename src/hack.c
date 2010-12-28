@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.c	3.4	2003/04/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Dec 2010 by Alex Smith */
+/* Modified 28 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -713,10 +713,9 @@ int mode;
    avoid leaking information. The algorithm is taken from TAEB: "step
    on any item we haven't stepped on, or any square we haven't stepped
    on adjacent to stone that isn't adjacent to a square that has been
-   stepped on; however, never step on a boulder this way". This won't
-   quite give correct results for side corridors which were walked
-   past when blind, as we don't distinguish stepped-while-blind from
-   stepped-while-nonblind. */
+   stepped on; however, never step on a boulder this way". We also
+   avoid treating doors known to be locked as valid explore targets
+   (although they are still valid travel intermediates). */
 static boolean
 unexplored(x, y)
 int x, y;
@@ -724,6 +723,10 @@ int x, y;
   int i, j, k, l;
   if (!isok(x, y)) return FALSE;
   if (levl[x][y].stepped_on) return FALSE;
+  if (glyph_to_cmap(levl[x][y].glyph) == S_vcdoor ||
+      glyph_to_cmap(levl[x][y].glyph) == S_hcdoor)
+    if (levl[x][y].fknown & FKNOWN_LOCKED &&
+        levl[x][y].flags & D_LOCKED) return FALSE;
   if (glyph_is_object(levl[x][y].glyph) &&
       glyph_to_obj(levl[x][y].glyph) == BOULDER) return FALSE;
   if (glyph_is_object(levl[x][y].glyph)) return TRUE;
@@ -1575,8 +1578,10 @@ domove()
 void
 invocation_message()
 {
-	/* mark the square as stepped on, whether it's the VS or not */
-	levl[u.ux][u.uy].stepped_on = 1;
+	/* mark the square as stepped on, whether it's the VS or not;
+           don't do so when blind, though, because it would misleadingly
+           imply we'd properly explored that area */
+	if (!Blind) levl[u.ux][u.uy].stepped_on = 1;
 	/* a special clue-msg when on the Invocation position */
 	if(invocation_pos(u.ux, u.uy) && !On_stairs(u.ux, u.uy)) {
 	    char buf[BUFSZ];

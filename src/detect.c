@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)detect.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 27 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -727,12 +727,15 @@ outtrapmap:
 
     for (obj = fobj; obj; obj = obj->nobj)
 	if ((obj->otyp==LARGE_BOX || obj->otyp==CHEST) && obj->otrapped)
-	sense_trap((struct trap *)0, obj->ox, obj->oy, sobj && sobj->cursed);
+            sense_trap((struct trap *)0, obj->ox, obj->oy, sobj && sobj->cursed);
 
     for (door = 0; door < doorindex; door++) {
 	cc = doors[door];
+        /* we're going to redraw just after this anyway, so don't bother
+           with updating the map to match the fknown status */
+        if (!sobj || !sobj->cursed) levl[cc.x][cc.y].fknown |= FKNOWN_TRAPPED;
 	if (levl[cc.x][cc.y].doormask & D_TRAPPED)
-	sense_trap((struct trap *)0, cc.x, cc.y, sobj && sobj->cursed);
+            sense_trap((struct trap *)0, cc.x, cc.y, sobj && sobj->cursed);
     }
 
     newsym(u.ux,u.uy);

@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)bones.c	3.4	2003/09/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985,1993. */
+/* Modified 28 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -311,6 +312,9 @@ struct obj *corpse;
 	/* Clear all memory from the level. */
 	for(x=0; x<COLNO; x++) for(y=0; y<ROWNO; y++) {
 	    levl[x][y].seenv = 0;
+            levl[x][y].stepped_on = 0;
+            levl[x][y].fknown = 0;
+            levl[x][y].styp = S_stone;
 	    levl[x][y].waslit = 0;
 	    levl[x][y].glyph = cmap_to_glyph(S_stone);
 	}

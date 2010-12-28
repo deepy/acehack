@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 26 Dec 2010 by Alex Smith */
+/* Modified 27 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -189,6 +189,22 @@ unsigned *ospecial;
                 color = CLR_BRIGHT_GREEN;
             /* Otherwise, customise colors for the location based on the branch
                and exact location */
+            else if (glyph_to_cmap(glyph) == S_vcdoor ||
+                     glyph_to_cmap(glyph) == S_hcdoor) {
+              /* Closed doors that have known lock status are coloured
+                 accordingly; if they also are known to be trapped, that
+                 shows in their background color. (Yes, this is looking
+                 at character-secret information in the display code,
+                 but it's safe because we first check that the character
+                 already knew that information. */
+              if (levl[x][y].fknown & FKNOWN_LOCKED)
+                color = (levl[x][y].flags & D_LOCKED) ? CLR_RED : CLR_GREEN;
+              if (levl[x][y].fknown & FKNOWN_TRAPPED &&
+                  levl[x][y].flags & D_TRAPPED) {
+                color %= CLR_MAX; /* just in case... */
+                color += CLR_MAX*CLR_CYAN;
+              }
+            }
             else color = dungeon_specific_color(
               glyph, levl[x][y].stepped_on, color, x, y);
         }

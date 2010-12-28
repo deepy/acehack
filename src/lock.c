@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)lock.c	3.4	2000/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 27 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -118,6 +118,8 @@ picklock()	/* try to open/close a lock */
 	    } else if (xlock.door->doormask & D_LOCKED)
 		xlock.door->doormask = D_CLOSED;
 	    else xlock.door->doormask = D_LOCKED;
+            xlock.door->fknown |= FKNOWN_LOCKED;
+            map_background(u.ux+u.dx, u.uy+u.dy, 1);
 	} else {
 	    xlock.box->olocked = !xlock.box->olocked;
 	    if(xlock.box->otrapped)	
@@ -402,6 +404,13 @@ pick_lock(pick) /* pick a lock with a given object */
 		    }
 #endif
 
+                    /* the player knows whether the door is locked as
+                       soon as they start trying to pick it, and that
+                       the door genuinely is a door already, so it's
+                       safe to both mark its lock status, and replace
+                       the view with what's really there */
+                    door->fknown |= FKNOWN_LOCKED;
+                    map_background(cc.x, cc.y, 1);
 		    Sprintf(qbuf,"%sock it?",
 			(door->doormask & D_LOCKED) ? "Unl" : "L" );
 
@@ -553,7 +562,10 @@ doopen()		/* try to open a door */
 	    case D_BROKEN: mesg = " is broken"; break;
 	    case D_NODOOR: mesg = "way has no door"; break;
 	    case D_ISOPEN: mesg = " is already open"; break;
-	    default:	   mesg = " is locked"; break;
+	    default: 
+                door->fknown |= FKNOWN_LOCKED;
+                map_background(cc.x, cc.y, 1);
+                mesg = " is locked"; break;
 	    }
 	    pline("This door%s.", mesg);
 	    if (Blind) feel_location(cc.x,cc.y);
@@ -582,6 +594,8 @@ doopen()		/* try to open a door */
 	} else {
 	    exercise(A_STR, TRUE);
 	    pline_The("door resists!");
+            door->fknown |= FKNOWN_LOCKED;
+            map_background(cc.x, cc.y, 1);      /* known to be a door already */
 	}
 
 	return(1);
@@ -695,6 +709,7 @@ doclose()		/* try to close a door */
 		rn2(25) < (ACURRSTR+ACURR(A_DEX)+ACURR(A_CON))/3) {
 		pline_The("door closes.");
 		door->doormask = D_CLOSED;
+                door->fknown |= FKNOWN_LOCKED; /* we know it's unlocked */
 		if (Blind)
 		    feel_location(x,y);	/* the hero knows she closed it */
 		else
@@ -831,6 +846,7 @@ int x, y;
 	    }
 	    block_point(x, y);
 	    door->doormask = D_LOCKED | (door->doormask & D_TRAPPED);
+            if (cansee(x, y)) door->fknown |= FKNOWN_LOCKED;
 	    newsym(x,y);
 	    break;
 	case WAN_OPENING:
@@ -838,6 +854,10 @@ int x, y;
 	    if (door->doormask & D_LOCKED) {
 		msg = "The door unlocks!";
 		door->doormask = D_CLOSED | (door->doormask & D_TRAPPED);
+                if (cansee(x, y)) {
+                  door->fknown |= FKNOWN_LOCKED;
+                  map_background(x, y, 1);
+                }
 	    } else res = FALSE;
 	    break;
 	case WAN_STRIKING:

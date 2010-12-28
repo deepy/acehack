@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)save.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 28 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -517,12 +517,15 @@ int mode;
 		    if (prm->glyph == rgrm->glyph
 			&& prm->typ == rgrm->typ
 			&& prm->seenv == rgrm->seenv
+                        && prm->styp == rgrm->styp
+                        && prm->fknown == rgrm->fknown
 			&& prm->horizontal == rgrm->horizontal
 			&& prm->flags == rgrm->flags
 			&& prm->lit == rgrm->lit
 			&& prm->waslit == rgrm->waslit
 			&& prm->roomno == rgrm->roomno
-			&& prm->edge == rgrm->edge) {
+			&& prm->edge == rgrm->edge
+                        && prm->stepped_on == rgrm->stepped_on) {
 			match++;
 			if (match > 254) {
 			    match = 254;	/* undo this match */

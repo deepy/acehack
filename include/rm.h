@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)rm.h	3.4	1999/12/12	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Sep 2010 by Alex Smith */
+/* Modified 28 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef RM_H
@@ -328,6 +328,16 @@ extern const struct symdef def_warnsyms[WARNCOUNT];
 #define ICED_MOAT	16
 
 /*
+ * What the player knows about nonvisible aspects of a wall/door.
+ * The flag merely indicates that the player correctly knows the
+ * state; what they know it to be depends on the state.
+ */
+#define FKNOWN_LOCKED 1
+#define FKNOWN_TRAPPED 2
+#define FKNOWN_DIGGABLE 1
+#define FKNOWN_PASSWALL 2
+
+/*
  * The structure describing a coordinate position.
  * Before adding fields, remember that this will significantly affect
  * the size of temporary files and save files.
@@ -335,8 +345,10 @@ extern const struct symdef def_warnsyms[WARNCOUNT];
 struct rm {
 	int glyph;		/* what the hero thinks is there */
 	schar typ;		/* what is really there */
-	Bitfield(styp, 6);	/* last seen/touched dungeon typ */
 	uchar seenv;		/* seen vector */
+
+	Bitfield(styp, 6);	/* last seen/touched dungeon typ */
+        Bitfield(fknown, 2);    /* information known about flags */
 
 	Bitfield(flags,5);	/* extra information for typ */
 	Bitfield(horizontal,1); /* wall/door/etc is horiz. (more typ info) */

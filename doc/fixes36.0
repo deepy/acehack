@@ -277,7 +277,8 @@ use this at their own risk. Autoexplore stops upon encountering an
 item, upon exploring into a dead end or next to a boulder (situations
 which the player will likely want to handle themselves), upon
 encountering a door for the first time, or upon failing to displace a
-pet or open a door.
+pet or open a door (although continuing autoexplore after failing to
+open a locked door will ignore the door).
 
 The set of things that stop travel and/or command repeat by default
 has changed. In particular, pets will now be displaced rather than
@@ -314,6 +315,10 @@ monsters, pets, peaceful monsters.  (Credits: This idea was inspired
 by Dungeon Crawl Stone Soup.) Likewise, squares which contain known
 traps are shown with a cyan background no matter what is actually on
 the square, to warn the player against stumbling into them.
+
+The character memorises whether doors are locked or unlocked, and this
+is shown by changing their color (red for locked, green for unlocked,
+the usual brown for unsure).
 
 The last message shown is now always shown at the top of the screen in
 dark blue, to make it easier to figure out what juts happened when

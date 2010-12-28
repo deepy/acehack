@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)monmove.c	3.4	2002/04/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Oct 2010 by Alex Smith */
+/* Modified 27 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -68,7 +68,13 @@ register struct monst *mtmp;
 			(void) angry_guards(!(flags.soundok));
 		  } else {
 			verbalize("Hey, stop picking that lock!");
-			levl[x][y].looted |=  D_WARNED;
+			levl[x][y].looted |= D_WARNED;
+                        levl[x][y].fknown |= FKNOWN_TRAPPED;
+                        /* map_background is safe here: if you're
+                           picking the lock, you must know there's a
+                           door there, so it's safe to draw what's
+                           really there */
+                        map_background(x, y, 1);
 		  }
 		  stop_occupation();
 		}

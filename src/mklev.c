@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mklev.c	3.4	2001/11/29	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Sep 2010 by Alex Smith */
+/* Modified 28 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1521,6 +1521,7 @@ int dist;
     if(dist < 6) lev->lit = TRUE;
     lev->waslit = TRUE;
     lev->horizontal = FALSE;
+    lev->fknown = 0;
     viz_array[y][x] = (dist < 6 ) ?
 	(IN_SIGHT|COULD_SEE) : /* short-circuit vision recalc */
 	COULD_SEE;
