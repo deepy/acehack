@@ -2391,7 +2391,7 @@ dotypeinv()
 	boolean billx = *u.ushops && doinvbill(0);
 	menu_item *pick_list;
 	boolean traditional = TRUE;
-	const char *prompt = "What type of object do you want an inventory of?";
+	const char *prompt = "What type of object do you want an explanation of?";
 
 #ifndef GOLDOBJ
 	if (!invent && !u.ugold && !billx) {

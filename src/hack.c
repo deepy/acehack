@@ -714,19 +714,21 @@ int mode;
    on any item we haven't stepped on, or any square we haven't stepped
    on adjacent to stone that isn't adjacent to a square that has been
    stepped on; however, never step on a boulder this way". We also
-   avoid treating doors known to be locked as valid explore targets
-   (although they are still valid travel intermediates). */
+   avoid treating traps and doors known to be locked as valid explore
+   targets (although they are still valid travel intermediates). */
 static boolean
 unexplored(x, y)
 int x, y;
 {
   int i, j, k, l;
+  struct trap *ttmp = t_at(x, y);
   if (!isok(x, y)) return FALSE;
   if (levl[x][y].stepped_on) return FALSE;
   if (glyph_to_cmap(levl[x][y].glyph) == S_vcdoor ||
       glyph_to_cmap(levl[x][y].glyph) == S_hcdoor)
     if (levl[x][y].fknown & FKNOWN_LOCKED &&
         levl[x][y].flags & D_LOCKED) return FALSE;
+  if (ttmp && ttmp->tseen) return FALSE;
   if (glyph_is_object(levl[x][y].glyph) &&
       glyph_to_obj(levl[x][y].glyph) == BOULDER) return FALSE;
   if (glyph_is_object(levl[x][y].glyph)) return TRUE;
@@ -770,7 +772,7 @@ boolean (*guess)(int, int);
 	flags.run = 8;
     }
     if (u.tx != u.ux || u.ty != u.uy || guess == unexplored) {
-	xchar travel[COLNO][ROWNO];
+	unsigned travel[COLNO][ROWNO];
 	xchar travelstepx[2][COLNO*ROWNO];
 	xchar travelstepy[2][COLNO*ROWNO];
 	xchar tx, ty, ux, uy;
@@ -871,6 +873,7 @@ boolean (*guess)(int, int);
 		for (ty = 0; ty < ROWNO; ++ty)
 		    if (travel[tx][ty]) {
 			nxtdist = distmin(ux, uy, tx, ty);
+                        if (guess == unexplored) nxtdist = travel[tx][ty];
 			if (nxtdist == dist && guess(tx, ty)) {
 			    nd2 = dist2(ux, uy, tx, ty);
 			    if (nd2 < d2) {
