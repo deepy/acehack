@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pager.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 29 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file contains the command routines dowhatis() and dohelp() and */
@@ -877,13 +877,14 @@ static const char *help_menu_items[] = {
 /* 7*/	"List of extended commands.",
 /* 8*/	"The NetHack license (used by AceHack).",
 /* 9*/  "Redisplay tutorial messages.",
+/*10*/  "Show brief version information.",
 #define TUTHLP_SLOT 9
 #ifdef PORT_HELP
 	"%s-specific help and commands.",
 #define PORT_HELP_ID 100
-#define WIZHLP_SLOT 11
+#define WIZHLP_SLOT 12
 #else
-#define WIZHLP_SLOT 10
+#define WIZHLP_SLOT 11
 #endif
 #ifdef WIZARD
 	"List of wizard-mode commands.",
@@ -954,8 +955,9 @@ dohelp()
 			case  7:  (void) doextlist();  break;
 			case  8:  display_file(LICENSE, TRUE);  break;
 			case  9:  tutorial_redisplay();  break;
+                        case 10:  (void) doversion(); break;
 #ifdef WIZARD
-			/* handle slot 10 or 11 */
+			/* handle slot 11 or 12 */
 			default: display_file(DEBUGHELP, TRUE);  break;
 #endif
 #ifdef PORT_HELP

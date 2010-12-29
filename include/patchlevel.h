@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)patchlevel.h	3.4	2003/12/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Jul 2010 by Alex Smith */
+/* Modified 29 Dec 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* AceHack 3.6.0 */
@@ -34,7 +34,7 @@
  * PP = patch level, ee = edit level, L = literal suffix "L",
  * with all four numbers specified as two hexadecimal digits.
  */
-#define VERSION_COMPATIBILITY 0x03060000L	/* 3.4.0-0 */
+#define VERSION_COMPATIBILITY 0x03060000L	/* 3.6.0-0 */
 
 
 /*****************************************************************************/
