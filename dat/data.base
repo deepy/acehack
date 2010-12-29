@@ -25,6 +25,9 @@
 # description. Therefore, unidentified descriptions should be written standalone, and
 # identified descriptions to follow on from their unidentified counterparts.
 
+agate
+	This is one of the least valuable sorts of gemstone, and is not hard enough to
+	be able to make scratches in rock.
 agate ring
 	A small ring with an agate set into it, designed to be worn on a finger.
 aklys
@@ -38,6 +41,16 @@ alchemy smock
 	acids and poisons, both of which are occupational hazards for them; it also
 	provides minimal protection against blows, and occasionally blocks certain
 	types of special attacks used by monsters.
+amber
+	This material, made from hardened sap, is valued as a gemstone, although
+	relatively soft as gemstones go. It is quite valuable, although not as much so
+	as all but the cheapest hard gemstones, and less so than a citrine or
+	aquamarine.
+amethyst
+	This soft gemstone is not all that valuable as gemstones go, although it has
+	another purpose: it removes the alcohol content of drinks it is dipped into,
+	allowing them to be drunk safely without a risk of becoming drunk as a
+	result.
 amulet of change
 	Created as a practical joke by some whimsical wizard, it causes its wearer to
 	change from male to female or vice versa; to prevent the victim simply using
@@ -105,6 +118,9 @@ athame
 	dagger, with the usual low damage rate, high accuracy, and bonus against
 	smaller enemies. However, it is unusually hard, being capable of cutting
 	through stone without issues, but unsuited for use as a thrown weapon.
+aquamarine
+	This hard gem captures the look of being underwater, and is considered
+	valuable as a result, about as much so as a citrine stone.
 axe
 	An iron melee weapon with a broad blade at an angle to its haft, designed for
 	chopping, doing more damage than a dagger, but less than a short sword. It has
@@ -179,8 +195,16 @@ black dragon scales
 	Some scales taken from the dead body of a black dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also protects its wearer from disintegration attacks.
+black gem
+	A black object cut into facets, looking like a gemstone. In general, magical
+	identification or abilities as a jeweller are needed to determine how valuable
+	apparent gemstones are, or even whether they are real or fake; and proof of a
+	stone's value is needed to be able to sell it at a shop.
 black onyx ring
 	A small ring with a black onyx set into it, designed to be worn on a finger.
+black opal
+	It is hard, and considered very valuable, about as much so as an emerald and
+	much more so than a normal opal.
 black potion
 	A glass vial containing black liquid that seems to suck light out of the air
 	around it.
@@ -204,6 +228,11 @@ blue dragon scales
 	ring mail. It also gives almost perfect protection from the effects of
 	electricity and lightning, although it protects only the wearer, not his or
 	her equipment.
+blue gem
+	A blue object cut into facets, looking like a gemstone. In general, magical
+	identification or abilities as a jeweller are needed to determine how valuable
+	apparent gemstones are, or even whether they are real or fake; and proof of a
+	stone's value is needed to be able to sell it at a shop.
 book of the dead
 	The words in this dreaded book are one of the keys to unlocking a special
 	vibrating magical door; all that is needed is to read them aloud, but only if
@@ -215,6 +244,11 @@ boomerang
 	deals more damage than any single other thrown weapon, and can even sometimes
 	return to its user given enough space, but follows a curved path and sometimes
 	breaks on impact.
+boulder
+	A huge chunk of rock. It could make for a very powerful weapon, except that it
+	looks very unlikely that a normal-sized person could lift it, or even climb
+	over or around it. Most likely, you'll just have to settle for pushing it out
+	of your way, or squeezing past it.
 bow
 	A piece of string with both ends connected to a curved piece of wood; wielding
 	a bow allows arrows to be fired rather than thrown. Bashing monsters with a
@@ -311,9 +345,15 @@ cheap plastic imitation of the amulet of yendor
 chest
 	A very heavy reinforced wooden box that can be locked, designed to have items
 	stored inside it.
+chrysoberyl
+	It is considered somewhat valuable as a gemstone, about as much so as a
+	typical garnet; it is not hard enough to make scratches in rock.
 circular amulet
 	A mysterious iron circle, connected to a chain so that it can be worn around a
 	person's neck.
+citrine
+	The unusual color of this soft gemstone makes it valuable, about as much so as
+	an aquamarine stone, and more so than all but the most valuable soft gems.
 clay ring
 	A piece of fired clay in the shape of a circle, designed to be worn on a
 	finger.
@@ -378,7 +418,7 @@ cornuthaum
 	of wizards, making their natural arrogance more effective and occasionally
 	giving them a sense of the surrounding area; but only wizards can pull this
 	feat off, with other classes merely looking stupid wearing such a hat.
-corpse
+*corpse
 	A dead monster. The bodies of monsters can always be eaten, but eating the
 	wrong sort of monster might be dangerous or even fatal; on the other hand,
 	some corpses are very beneficial to eat. Corpses tend to spoil over time,
@@ -491,8 +531,18 @@ dented pot
 	years. Nowadays, it only provides minimal protection to the head, although it
 	will turn aside many falling objects; also, note that its metallic nature
 	interferes with spellcasting.
+diamond
+	This gem is famous for its hardness; although not shaped to be useful as a
+	weapon, it is not damaged at all by scratching into even solid rock. It is
+	also considered one of the most valuable gems in existence, and worth more
+	than almost any other gem.
 diamond ring
 	A small ring with a diamond set into it, designed to be worn on a finger.
+dilithium crystal
+	This gem is incredibly valuable (more so than any other), although relatively
+	soft. It resembles nothing else seen in the world; although it theoretically
+	has several scientific uses, they require specialised equipment not found in a
+	dungeon, so its only use to an adventurer is its value.
 dog eared spellbook
 	A book, whose pages are dirty, as if it has been read many times. Reading it
 	is dangerous, but a sufficiently skilled reader can learn a spell from it.
@@ -618,6 +668,9 @@ elvish mithril-coat
 	specifically designed to withstand high levels of magical enchantment. It
 	covers the entire body, providing almost perfect protection from many sorts of
 	special attacks of monsters.
+emerald
+	Although not quite as valuable as a ruby or even sapphire, this hard gemstone
+	is nonetheless very valuable.
 emerald potion
 	A glass vial containing an emerald green liquid.
 emerald ring
@@ -666,6 +719,13 @@ flail
 	A heavy iron ball attached to a handle by a chain, which can be swung at an
 	enemy. It does about as much damage as a scimitar, saber or long sword against
 	smaller enemies, but has only a minimal bonus against larger ones.
+flint stone
+	This ordinary stone made of flint has no magical properties, although it does
+	at least make reasonable sling ammunition, and could even be thrown by hand as
+	a weapon in emergencies, although it would not do much damage.
+fluorite
+	This soft gemstone is relatively cheap as gemstones go, although more valuable
+	than jade or agate, or many non-gemstone items.
 flute
 	A wooden tube with holes that can be covered by the fingers; blowing sideways
 	across one end and covering different patterns of holes will play different
@@ -693,6 +753,9 @@ fumble boots
 	These minimally protective leather boots have an insidious enchantment, making
 	their wearer occasionally noisily trip, slip, or otherwise fail to walk
 	normally.
+garnet
+	This gemstone is somewhat valuable, a little more so than an amethyst, despite
+	not being hard enough to scratch into solid rock.
 gauntlets of dexterity
 	These leather gloves make their wearer more adept at aiming, archery,
 	accuracy, and similar tasks that need a dexterity or a steady hand; however,
@@ -751,6 +814,8 @@ gray spellbook
 	A book, whose cover depicts dismal rainclouds, and even feels rather
 	damp. Reading it is dangerous, but a sufficiently skilled reader can learn a
 	spell from it.
+gray stone
+	This roughly spherical gray rock is clearly not valuable as a gemstone.
 green dragon scale mail
 	A hugely protective suit of armour made magically from the scales of a dead
 	green dragon; armour made from dragons protects better than any other. It also
@@ -761,6 +826,11 @@ green dragon scales
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also gives its wearer almost perfect protection from the effects
 	of all forms of poison.
+green gem
+	A green object cut into facets, looking like a gemstone. In general, magical
+	identification or abilities as a jeweller are needed to determine how valuable
+	apparent gemstones are, or even whether they are real or fake; and proof of a
+	stone's value is needed to be able to sell it at a shop.
 guisarme
 	It is as effective as a short sword or spear against larger enemies, but even
 	more effective against smaller enemies than it is against larger ones.
@@ -780,6 +850,12 @@ hawaiian shirt
 	A garish and brightly coloured cloth shirt, fitting tightly enough to be worn
 	underneath other sorts of armour, although providing no protection to the body
 	unless magically enchanted.
+heavy iron ball
+very heavy iron ball
+	This huge ball of iron seems to have been designed to weight something or
+	someone down; forcing someone to struggle with such an object would be quite
+	the punishment. Its weight would make it a surprisingly good bludgeoning
+	weapon, for someone willing to struggle carrying it.
 helm of brilliance
 	Although this magical helmet provides only minimal protection to the head (in
 	addition to protection from falling objects), it enhances the intellect of the
@@ -845,6 +921,9 @@ indigo spellbook
 	A book, where every page is an incredible dark purple, with the writing in
 	bright green. Reading it is dangerous, but a sufficiently skilled reader can
 	learn a spell from it.
+iron chain
+	This length of chain, made of iron, has no obvious beneficial uses to an
+	adventurer. It looks like it was designed for punishing a prisoner.
 iron hook
 	This is an iron hook at the end of an iron chain.
 iron ring
@@ -856,15 +935,28 @@ iron skull cap
 	A crude blackened iron cap, designed to protect the head from blows.
 ivory ring
 	A circle carved from ivory, designed to be worn on a finger.
+jacinth
+	This gem is extremely valuable (almost as valuable as a ruby, and more than a
+	sapphire), and hard enough to scratch into solid rock without damaging itself.
 jackboots
 	Knee-high leather boots that cover the entire lower leg.
+jade
+	Although not hard enough to scratch into rock, and less valuable than most
+	other gemstones, it is still worth more than an agate or piece of obsidian.
 jade ring
 	A small ring with a piece of jade set into it, designed to be worn on a
 	finger.
+jasper
+	This gemstone, although relatively cheap as gemstones go, is still quite
+	valuable compared with many other items, and more valuable than fluorite or
+	jade. It is not hard enough to scratch into rock.
 javelin
 	It has a better range than most spears, but does not have the usual bonus
 	against larger enemies, making it less effective than a typical spear or short
 	sword.
+jet
+	This relatively soft gemstone is somewhat valuable, more so than most other
+	similarly soft gemstones, but less so than all hard gemstones.
 jumping boots
 	These minimally protective leather boots allow the wearer to jump incredibly
 	far in a burst of energy, letting them cross small streams or jump over pits
@@ -977,6 +1069,9 @@ light green spellbook
 	A book, with pictures of a grassy field under a green sky on its covers.
 	Reading it is dangerous, but a sufficiently skilled reader can learn a spell
 	from it.
+loadstone
+	This hated magical stone is not only exceedinly heavy, but has a tendency to
+	curse itself, making it impossible to drop until the curse is lifted.
 lock pick
 	A small oddly-shaped piece of iron. Those who have some understanding of the
 	workings of a lock can use it to fool the lock into opening or closing by
@@ -1006,6 +1101,10 @@ lucern hammer
 	It is about as effective as a short sword, except that its bonus is against
 	smaller rather than larger enemies, much the same as a battle-axe, and it has
 	a slightly larger bonus than a battle-axe or bec de corbin.
+luckstone
+	This stone is enchanted to provide luck to its wearer, making several random
+	events happen give slightly better results on average. In addition, it
+	prevents luck wearing off over time.
 lump of royal jelly
 	Food produced by bees to feed baby bee princesses, designed to make them grow
 	up into a queen bee. Eating it provides a moderate amount of nutrition, around
@@ -1086,6 +1185,10 @@ mummy wrapping
 	used by monsters.
 murky potion
 	A glass vial containing brown liquid that resembles mud.
+obsidian
+	This is one of the least valuable sorts of gemstone, being little more than an
+	unusually valuable sort of naturally occuring glass, and thus not hard enough
+	to make scratches in rock.
 octagonal amulet
 	A geometrically perfect iron octagon, connected to a chain so that it can be
 	worn around a person's neck.
@@ -1109,6 +1212,9 @@ oilskin sack
 	bag immune to water damage.
 old gloves
 	A tattered and worn-out pair of gloves.
+opal
+	It is small, round, and considered somewhat valuable as a gemstone, more so
+	than a chrysoberyl or garnet; although not hard enough to scratch into rock.
 opal ring
 	A small ring with an opal set into it, designed to be worn on a finger.
 opera cloak
@@ -1129,6 +1235,11 @@ orange dragon scales
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also makes its wearer never need sleep, and likewise immune to
 	any effects that would make him or her sleep.
+orange gem
+	An orange object cut into facets, looking like a gemstone. In general, magical
+	identification or abilities as a jeweller are needed to determine how valuable
+	apparent gemstones are, or even whether they are real or fake; and proof of a
+	stone's value is needed to be able to sell it at a shop.
 orange potion
 	A glass vial containing a subdued orange liquid.
 orange spellbook
@@ -1220,7 +1331,7 @@ piece of cloth
 pink potion
 	A glass vial containing a shockingly pink liquid.
 pink spellbook
-	A book with light pink pages, smelling suspiciously of perfume.  Reading it is
+	A book with light pink pages, smelling suspiciously of perfume. Reading it is
 	dangerous, but a sufficiently skilled reader can learn a spell from it.
 plaid spellbook
 	A book, with a woven cover that somehow manages to be indescribably boring.
@@ -1396,6 +1507,11 @@ red dragon scales
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also gives almost perfect protection from the effects of fire,
 	heat, and flames, although it protects only the wearer, not his or her items.
+red gem
+	A red object cut into facets, looking like a gemstone. In general, magical
+	identification or abilities as a jeweller are needed to determine how valuable
+	apparent gemstones are, or even whether they are real or fake; and proof of a
+	stone's value is needed to be able to sell it at a shop.
 red spellbook
 	A book, with a bizarre cover made of solid red wax. Reading it is dangerous,
 	but a sufficiently skilled reader can learn a spell from it.
@@ -1517,16 +1633,25 @@ ring of warning
 	that they cannot otherwise sense, giving a rough estimate of how dangerous a
 	threat each one is.
 robe
-	A heavy cloth robe, designed to be worn as a cloak above body armour.  It
+	A heavy cloth robe, designed to be worn as a cloak above body armour. It
 	helps its wearer focus on spellcasting, making spells less likely to go wrong;
 	and even provides a moderate amount of protection to the body, along with
 	blocking certain types of special attacks used by monsters almost all the
 	time.
+rock
+	This common brownish stone is just a lump of rock, and not particularly
+	useful; it might serve as sling ammunition or as a projectile in emergencies,
+	although would not be particularly effective for either purpose.
 rubber hose
 	This moderate length of plastic can be used as a makeshift whip for
 	bludgeoning enemies in melee; doing so does only small amounts of damage,
 	about as much as a dagger (slightly more than a dart, but much less than a
 	typical short sword).
+ruby
+	This is a slightly impure version of corundum; strangely, the impurities,
+	which give it its famous red colour, also make it much more valuable. It is
+	mostly only useful for its extremely high value, making it coveted treasure,
+	although it is hard enough to scratch into rock without damage to itself.
 ruby potion
 	A glass vial containing a ruby-red liquid.
 ruby ring
@@ -1567,6 +1692,9 @@ saddle
 	animal. Sufficiently friendly horses may let you ride them if first saddled.
 samurai sword
 	A very well-crafted long sword made of high-quality iron.
+sapphire
+	This gemstone is extremely valuable, although not worth quite as much as a
+	ruby, and hard enough to scratch into solid stone without damage to itself.
 sapphire ring
 	A small ring with a sapphire set into it, designed to be worn on a finger.
 scale mail
@@ -1604,7 +1732,7 @@ scroll of create monster
 	When read, it magically creates a monster (or possibly several monsters) from
 	nothing. Note that nothing forces the resulting monsters to be friendly.
 scroll of destroy armor
-	When read, it destroys a random piece of armor worn by its reader.  It's not
+	When read, it destroys a random piece of armor worn by its reader. It's not
 	entirely clear why this scroll was invented in the first place; the leading
 	theory is that some perverted wizard used it as an ingenious practical joke.
 scroll of earth
@@ -1667,7 +1795,7 @@ scroll of taming
 	monsters when read out loud, trying to make them change sides and cooperate
 	with their reader. The success rate is far from perfect, though.
 scroll of teleportation
-	Reading it instantly transports the wearer to a different location.  The
+	Reading it instantly transports the wearer to a different location. The
 	scroll has no innate capability to choose any particular location, so by
 	default the teleportation will be to somewhere random, but independent magic
 	might be able to influence the spell's aim.
@@ -1855,7 +1983,7 @@ spellbook of identify
 spellbook of invisibility
 	This escape spell turns its caster temporarily invisible, meaning that they
 	can be seen only by monsters with some other method of detecting their
-	location.  The effect wears off after a while.
+	location. The effect wears off after a while.
 spellbook of jumping
 	This escape spell allows its caster to immediately once make a surprisingly
 	long (and magically aided) jump, landing a long distance away; it can lead to
@@ -1960,6 +2088,10 @@ stained spellbook
 stamped scroll
 	A neatly folded piece of paper in an envelope. A stamp in one corner shows
 	that someone has paid for its delivery.
+*statue*
+	A lifelike artist's representation of a monster, carved out of rock. It seems
+	to have no obvious use, although there might potentially be items inside it.
+	Some statues might not be what they seem, either.
 steel ring
 	A simple circle of steel, designed to be worn on a finger.
 stethoscope
@@ -2042,9 +2174,18 @@ tinning kit
 tooled horn
 	Although this horn is non-magical, its dramatic noise might sometimes scare
 	nearby monsters into running away.
+topaz
+	Although hard enough to scratch into rock without damage to itself, this
+	gemstone is nonetheless only quite valuable, less so than citrine, turquoise,
+	amber, or any other hard gem.
 topaz ring
 	A small ring with a piece of topaz set into it, designed to be worn on a
 	finger.
+touchstone
+	This rock is useful in identifying gems, reacting differently according to
+	what is rubbed on it. Gnomes and archaeologists are skilled with the use of
+	these devices, and can determine a lot about the gem in question; but even an
+	amateur will be able to distinguish fakes from genuine gemstones.
 towel
 	This useful piece of cloth is designed to wipe water off wet objects, but has
 	numerous other uses; for instance, it can be used to clean dirty hands and
@@ -2064,10 +2205,15 @@ tripe ration
 	with lots of bad side effects, dogs consider this one of the best treats
 	available.
 tsurugi
-	turquoise spellbook
+	This one shows signs of having been more heavily enchanted in the past.
+turquoise spellbook
 	A book, whose covers are made from thin slivers of semi-precious blue and
 	green gems. Reading it is dangerous, but a sufficiently skilled reader can
 	learn a spell from it.
+turquoise
+	Turquoises vary from almost blue to almost green in colour, and are considered
+	very valuable despite their relative softness, more so than pretty much any
+	other soft gem, and almost as valuable as an emerald.
 twisted ring
 	Several strands of iron strangely twisted together into a single circle,
 	designed to be worn on a finger.
@@ -2096,6 +2242,11 @@ vellum spellbook
 velvet spellbook
 	A book, with high-quality purple fabric making up its covers. Reading it is
 	dangerous, but a sufficiently skilled reader can learn a spell from it.
+violet gem
+	A violet object cut into facets, looking like a gemstone. In general, magical
+	identification or abilities as a jeweller are needed to determine how valuable
+	apparent gemstones are, or even whether they are real or fake; and proof of a
+	stone's value is needed to be able to sell it at a shop.
 violet spellbook
 	A book, whose purple covers are made from some kind of plant, which might even
 	still be alive. Reading it is dangerous, but a sufficiently skilled reader can
@@ -2137,6 +2288,11 @@ white dragon scales
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also gives almost perfect protection from the effects of cold
 	and ice, although it protects only the wearer, not his or her items.
+white gem
+	A white object cut into facets, looking like a gemstone. In general, magical
+	identification or abilities as a jeweller are needed to determine how valuable
+	apparent gemstones are, or even whether they are real or fake; and proof of a
+	stone's value is needed to be able to sell it at a shop.
 white potion
 	A glass vial containing plain white liquid.
 white spellbook
@@ -2161,6 +2317,9 @@ wooden ring
 worm tooth
 	A tooth taken from a dead worm, just about usable as a makeshift knife, but
 	less effective in combat than anything designed as a weapon.
+worthless * glass
+	This appears to be a fake, a piece of glass that looks like it might be a
+	gemstone, but in fact completely valueless.
 wrinkled spellbook
 	A book, shrunken like a walnut or an ageing balloon. Reading it is dangerous,
 	but a sufficiently skilled reader can learn a spell from it.
@@ -2180,11 +2339,21 @@ yellow dragon scales
 	ring mail. It also gives its wearer almost perfect protection from the effects
 	of acid and corrosive liquids, although it protects only the wearer, not his
 	or her equipment.
+yellow gem
+	A yellow object cut into facets, looking like a gemstone. In general, magical
+	identification or abilities as a jeweller are needed to determine how valuable
+	apparent gemstones are, or even whether they are real or fake; and proof of a
+	stone's value is needed to be able to sell it at a shop.
 yellow potion
 	A glass vial containing a creamy yellow liquid.
 yellow spellbook
 	A book, its pages yellowing through some former exposure to sunlight. Reading
 	it is dangerous, but a sufficiently skilled reader can learn a spell from it.
+yellowish brown gem
+	A yellowish-brown object cut into facets, looking like a gemstone. In general,
+	magical identification or abilities as a jeweller are needed to determine how
+	valuable apparent gemstones are, or even whether they are real or fake; and
+	proof of a stone's value is needed to be able to sell it at a shop.
 yumi
 	This bow is of top-quality samurai manufacture; although it is normally no
 	more powerful than a standard bow, samurai are particularly familiar with how
@@ -2196,4 +2365,4 @@ yumi
 # LocalWords:  bardiche fauchard guisarme lucern corbin bec aklys cornuthaum un
 # LocalWords:  IDed mithril gray AceHack armor uruk hai yendor beartrap lembas
 # LocalWords:  mantelet roundshield wolfsbane werecreatures yendorian labeled
-# LocalWords:  NetHack unlabeled LocalWords undeath
+# LocalWords:  NetHack unlabeled LocalWords undeath makedefs wildcards hawaiian
