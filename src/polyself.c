@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)polyself.c	3.4	2003/01/08	*/
 /*	Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -496,11 +496,11 @@ int	mntmp;
 #endif
 
 	if (flags.verbose) {
-	    static const char use_thec[] = "Use the command #%s to %s.";
-	    static const char monsterc[] = "monster";
+	    static const char use_thec[] = "Use the command %s to %s.";
+	    char* monsterc = key_for_cmd("#monster");
 #ifdef YOUMONST_SPELL
 	    if (attacktype(youmonst.data, AT_MAGC))
-		pline(use_thec,monsterc,"cast monster spells");
+		pline(use_thec,monsterc,"cast monster spells outside combat");
 #endif //YOUMONST_SPELL
 	    if (can_breathe(youmonst.data))
 		pline(use_thec,monsterc,"use your breath weapon");

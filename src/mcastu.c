@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mcastu.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Oct 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1583,7 +1583,7 @@ int spellnum;
 	    if (!success)
 	        You("cast at a clump of sticks, but nothing happens.");
 	    else if (let == S_SNAKE)
-	        You("transforms a clump of sticks into snakes!");
+	        You("transform a clump of sticks into snakes!");
 	    else
 	        You("summon insects!");
         } else if (canseemon(mtmp)) {
