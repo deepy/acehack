@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)region.c	3.4	2002/10/15	*/
 /* Copyright (c) 1996 by Jean-Christophe Collet	 */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -879,10 +879,10 @@ genericptr_t p1;
 genericptr_t p2;
 {
     NhRegion *reg;
-    int damage;
+    size_t damage;
 
     reg = (NhRegion *) p1;
-    damage = (int) reg->arg;
+    damage = (size_t) reg->arg;
 
     /* If it was a thick cloud, it dissipates a little first */
     if (damage >= 5) {
@@ -904,7 +904,7 @@ genericptr_t p2;
     int dam;
 
     reg = (NhRegion *) p1;
-    dam = (int) reg->arg;
+    dam = (size_t) reg->arg;
     if (p2 == NULL) {		/* This means *YOU* Bozo! */
 	if (nonliving(youmonst.data) || Breathless)
 	    return FALSE;
@@ -952,7 +952,7 @@ NhRegion *
 create_gas_cloud(x, y, radius, damage)
 xchar x, y;
 int radius;
-int damage;
+size_t damage;
 {
     NhRegion *cloud;
     int i, nrect;

@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)obj.h	3.4	2002/01/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef OBJ_H
@@ -22,7 +23,7 @@ struct obj {
 #define ocarry		v.v_ocarry
 
 	struct obj *cobj;	/* contents list for containers */
-	unsigned o_id;
+	size_t o_id;
 	xchar ox,oy;
 	short otyp;		/* object class number */
 	unsigned owt;

@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)monst.h	3.4	1999/01/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef MONST_H
@@ -40,7 +41,7 @@
 struct monst {
 	struct monst *nmon;
 	struct permonst *data;
-	unsigned m_id;
+	size_t m_id;
 	short mnum;		/* permanent monster index number */
 	short movement;		/* movement points (derived from permonst definition and added effects */
 	uchar m_lev;		/* adjusted difficulty level of monster */

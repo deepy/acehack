@@ -238,6 +238,10 @@ is now unlimited, rather than 4.  (The restriction is a pretty
 meaningless one anyway, as it can be avoided merely by running NetHack
 directly rather than via the script that normally runs it.)
 
+(64-bit systems)
+The source has been adjusted to compile safely on 64-bit systems.
+(Patch credits: Clive Crous, via UnNetHack.)
+
 General New Features
 --------------------
 
