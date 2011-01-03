@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 27 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -651,7 +651,10 @@ boolean with_weight;
              automatically ID it. This takes weight into account too
              (as it's shown in inventory listings), which conveniently
              happens to distinguish between different description
-             groups when we need it to. */
+             groups when we need it to. Candles are also IDed, as they
+             can be distinguished from other weight-2 items by shape
+             (tallow candles would be IDed according to the above
+             rules but not wax, which is just weird). */
           if (obj->oclass != ARMOR_CLASS && obj->oclass != WEAPON_CLASS &&
               obj->oclass != GEM_CLASS) {
             int i;
@@ -663,7 +666,7 @@ boolean with_weight;
                   objects[i].oc_weight == objects[obj->otyp].oc_weight)
                 id = FALSE;
             }
-            if (id) makeknown(obj->otyp);
+            if (id || obj->otyp == WAX_CANDLE) makeknown(obj->otyp);
           }
         }
 
@@ -886,7 +889,22 @@ ring:
 		}
 	}
         if (with_weight) {
-        	Sprintf(eos(bp), " (w:%u)", (unsigned)obj->owt);
+                /* UnIDed gray stones and (when gloveless) trice
+                   corpses are special cases, as the character can't
+                   briefly pick them up to determine how heavy they
+                   are, like they can with other items. If the object
+                   is already in the player's inventory, though, it's
+                   OK to show the weight as the player already knows.*/
+ 		if (((obj->otyp == CORPSE &&
+                      (obj->corpsenm == PM_COCKATRICE ||
+                       obj->corpsenm == PM_CHICKATRICE)) ||
+                     ((obj->otyp == LUCKSTONE || obj->otyp == LOADSTONE ||
+                       obj->otyp == TOUCHSTONE || obj->otyp == FLINT) &&
+                      !objects[obj->otyp].oc_name_known)) &&
+                    obj->where != OBJ_INVENT) {
+                  Sprintf(eos(bp), " (w:?)");
+                } else
+                  Sprintf(eos(bp), " (w:%u)", (unsigned)obj->owt);
         }
 	if (!strncmp(prefix, "a ", 2) &&
 			index(vowels, *(prefix+2) ? *(prefix+2) : *bp)

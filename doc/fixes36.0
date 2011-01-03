@@ -285,9 +285,13 @@ has changed. In particular, pets will now be displaced rather than
 stopping travel, and taking damage for any reason will stop command
 repeat and travel.
 
-Inventory lists now show the weight of each item in them. (Credits:
-this feature was inspired by Vulture's, although AceHack uses
-different code.)
+Inventory lists now show the weight of each item in them, with a
+couple of exceptions (specifically, items that the character couldn't
+safely pick up to determine their weight, like unidentified gray
+stones and cockatrice corpses). The weight of gauntlets of power was
+changed to 10 to prevent this leaking information that isn't readily
+available in vanilla NetHack. (Credits: this feature was inspired by
+Vulture's, although AceHack uses different code.)
 
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
