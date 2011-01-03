@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)vault.c	3.4	2003/01/15	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -524,9 +525,9 @@ letknow:
 			You_hear("the shrill sound of a guard's whistle.");
 		    else
 			You(um_dist(grd->mx, grd->my, 2) ?
-			    "see an angry %s approaching." :
-			    "are confronted by an angry %s.",
-			    g_monnam(grd));
+			    "see %s approaching." :
+			    "are confronted by %s.",
+			    x_monnam(grd, ARTICLE_A, "angry", SUPPRESS_IT, FALSE));
 		    return(-1);
 		} else {
 		    verbalize("Well, begone.");
@@ -542,7 +543,7 @@ letknow:
 		  !egrd->gddone && !in_fcorridor(grd, u.ux, u.uy) &&
 		  levl[egrd->fakecorr[0].fx][egrd->fakecorr[0].fy].typ
 				 == egrd->fakecorr[0].ftyp) {
-		pline_The("%s, confused, disappears.", g_monnam(grd));
+		pline("%s, confused, disappears.", noit_Monnam(grd));
 		disappear_msg_seen = TRUE;
 		goto cleanup;
 	    }
@@ -723,7 +724,7 @@ cleanup:
 		if(!semi_dead && (in_fcorridor(grd, u.ux, u.uy) ||
 				     cansee(x, y))) {
 		    if (!disappear_msg_seen && see_guard)
-			pline("Suddenly, the %s disappears.", g_monnam(grd));
+			pline("Suddenly, %s disappears.", noit_mon_nam(grd));
 		    return(1);
 		}
 		return(-2);
