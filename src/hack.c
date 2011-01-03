@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.c	3.4	2003/04/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2083,6 +2083,21 @@ lookaround()
     if (u.umonnum == PM_GRID_BUG && u.dx && u.dy) {
 	nomul(0);
 	return;
+    }
+
+    /* Having a hostile monster in LOS stops running after one turn,
+       unless sessile or shift-moving. We don't count detection just
+       via telepathy, as it might be over the other end of the level,
+       unless the monster is within 5 spaces of us. */
+    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+        if ((canseemon(mtmp) ||
+             (canspotmon(mtmp) &&
+              distmin(u.ux, u.uy, mtmp->mx, mtmp->my) <= 5)) &&
+            !mtmp->mpeaceful && !mtmp->mtame &&
+            mtmp->data->mmove && flags.run != 1) {
+            nomul(0);
+            return;
+        }
     }
 
     if(Blind || flags.run == 0) return;
