@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)potion.c	3.4	2002/10/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -388,6 +388,13 @@ dopotion(otmp)
 register struct obj *otmp;
 {
 	int retval;
+
+	if (otmp == uwep) {
+            /* Unwield the potion to avoid a crash if its effect
+               causes the player to drop it. We don't print a message
+               here; setuwep doesn't either. */
+            setuwep(0);
+        }
 
 	otmp->in_use = TRUE;
 	nothing = unkn = 0;

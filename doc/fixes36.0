@@ -2,7 +2,9 @@ Changes in AceHack 3.6.0.  Emacs, this is a -*- text -*- file.
 
 This is a list of changes between NetHack 3.4.3 and AceHack 3.6.0.
 These are in no particular order, and every change is listed, even
-though some are likely much bigger than others.
+though some are likely much bigger than others. Changes here that are
+not credited use code specific to AceHack, and were likely made by
+Alex Smith.
 
 General Fixes
 -------------
@@ -41,6 +43,9 @@ UnNetHack.)
 
 The game no longer crashes when a wielded item is applied to the face,
 autotransforms, or burns out.  (Patch credits: bhaak via UnNetHack.)
+
+The game no longer crashes when a wielded potion of polymorph is drunk
+and polymorphs the player into a monster with no hands.
 
 The game no longer crashes when acid falls into a pool or moat.
 (Patch credits: bhaak via UnNetHack.)
