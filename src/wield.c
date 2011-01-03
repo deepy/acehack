@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wield.c	3.4	2003/01/29	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -8,7 +8,7 @@
 /* KMH -- Differences between the three weapon slots.
  *
  * The main weapon (uwep):
- * 1.  Is filled by the (w)ield command.
+ * 1.  Is filled by the (w)ield command, or via A.
  * 2.  Can be filled with any type of item.
  * 3.  May be carried in one or both hands.
  * 4.  Is used as the melee weapon and as the launcher for
@@ -23,7 +23,7 @@
  * 1.  Is filled by the e(x)change command, which swaps this slot
  *     with the main weapon.  If the "pushweapon" option is set,
  *     the (w)ield command will also store the old weapon in the
- *     secondary slot.
+ *     secondary slot. Can also be filled with A.
  * 2.  Can be field with anything that will fit in the main weapon
  *     slot; that is, any type of item.
  * 3.  Is usually NOT considered to be carried in the hands.
@@ -36,9 +36,12 @@
  * 5.  Never conveys intrinsics.
  * 6.  Cursed items never weld (see #3 for reasons), but they also
  *     prevent two-weapon combat.
+ * 7.  Is considered to be "quickly exchangeable" with uwep; that is,
+ *     swapping with uwep takes no time, filling uswapwep with
+ *     anything but uwep therefore must take time.
  *
  * The quiver (uquiver):
- * 1.  Is filled by the (Q)uiver command.
+ * 1.  Is filled by the (Q)uiver command, or via A.
  * 2.  Can be filled with any type of item.
  * 3.  Is considered to be carried in a special part of the pack.
  * 4.  Is used as the item to throw with the (f)ire command.
