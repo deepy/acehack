@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dokick.c	3.4	2003/12/04	*/
 /* Copyright (c) Izchak Miller, Mike Stephenson, Steve Linhart, 1989. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -60,6 +60,16 @@ register boolean clumsy;
 	       and shades have no passive counterattack */
 	    return;
 	}
+
+        /* in AceHack, floating eyes are immune to kicks if their
+           passive would fire, just like they're immune to other
+           melee damage. "it" here because the floating eye has been
+           named already in the previous message. */
+        if (mon->data == &mons[PM_FLOATING_EYE] && canseemon(mon) &&
+            !Free_action && !Reflecting && mon->mcansee) {
+            pline("But it glares at you, making your kick go wild!");
+            return;
+        }
 
 	if(mon->m_ap_type) seemimic(mon);
 

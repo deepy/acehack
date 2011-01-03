@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)uhitm.c	3.4	2003/02/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -443,8 +443,13 @@ struct attack *uattk;
         if (mon->data == &mons[PM_FLOATING_EYE] && canseemon(mon) &&
             !Free_action && !Reflecting && mon->mcansee) {
             *mhit = 0;
-            pline("%s glares at you, and you cannot finish your attack!",
-                  Monnam(mon));
+            pline("%s glares at you.", Monnam(mon));
+            /* can't keep this short enough to be a oneliner, it seems;
+               so no need to try to keep this and the previous message
+               below 80 between them. (On 80x24, this also causes a
+               suitably scary --More-- after the first message.) */
+            pline("You manage to look away just in time; "
+                  "but that disturbs your aim, and you miss.");
         } else if(!*mhit) {
 	    missum(mon, uattk);
 	} else {
