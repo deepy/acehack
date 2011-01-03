@@ -75,6 +75,8 @@ silver nonweapons do. (Even though bashing with arrows isn't
 particularly affective, the silver is enough to hurt certain
 monsters no matter how clumsily it makes contact.)
 
+Boulders generated via polymorph now block line of sight correctly.
+
 Modified Features
 -----------------
 

@@ -1520,6 +1520,9 @@ struct obj *obj, *otmp;
 		    break;
 		}
 		obj = poly_obj(obj, STRANGE_OBJECT);
+                /* poly_obj doesn't block vision, do that ourselves now. */
+                if (obj->where == OBJ_FLOOR && obj->otyp == BOULDER)
+                    block_point(obj->ox,obj->oy);
 		newsym(obj->ox,obj->oy);
 		break;
 	case WAN_PROBING:
