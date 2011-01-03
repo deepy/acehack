@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 27 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -107,7 +107,8 @@ boolean disturbed;
 }
 
 static int getdirx, getdiry, getdirh = GETDIRH_NONE;
-void set_getdir_type(how)
+void
+set_getdir_type(how)
 int how;
 {
   getdirh = how;

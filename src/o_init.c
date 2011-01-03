@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)o_init.c	3.4	1999/12/09	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Nov 2009 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -428,7 +428,8 @@ dodiscovered()				/* free after Robert Viduya */
 /* Returns the number of objects discovered but not prediscovered. The
    objects must be formally IDed; merely naming doesn't count. Returns
    actual and maximum possible values. */
-void count_discovered_objects(curp, maxp)
+void
+count_discovered_objects(curp, maxp)
 int *curp;
 int *maxp;
 {

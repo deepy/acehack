@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1258,7 +1258,7 @@ doattributes()
                 align_str(u.ualignbase[A_ORIGINAL]));
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
         if (u.ulevel < 30)
-          Sprintf(buf, "%-10s: %d (exp: %ld, %d needed)", "level",
+          Sprintf(buf, "%-10s: %d (exp: %ld, %ld needed)", "level",
                   u.ulevel, u.uexp, newuexp(u.ulevel));
         else
           Sprintf(buf, "%-10s: %d (exp: %ld)", "level", u.ulevel, u.uexp);
@@ -1702,6 +1702,9 @@ static const struct ext_func_tab debug_extcmdlist[] = {
 	{(char *)0, (char *)0, donull, TRUE}
 };
 
+#define unctrl(c)	((c) <= C('z') ? (0x60 | (c)) : (c))
+#define unmeta(c)	(0x7f & (c))
+
 char*
 key_for_cmd(cmd)
 char* cmd;
@@ -1967,9 +1970,6 @@ wiz_migrate_mons()
 #endif
 
 #endif /* WIZARD */
-
-#define unctrl(c)	((c) <= C('z') ? (0x60 | (c)) : (c))
-#define unmeta(c)	(0x7f & (c))
 
 /* Holds the key that getdir errored out on. Mostly only useful if it
    was told not to loop. */

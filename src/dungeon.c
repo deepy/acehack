@@ -1,12 +1,13 @@
 /*	SCCS Id: @(#)dungeon.c	3.4	1999/10/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Sep 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
 #include "dgn_file.h"
 #include "dlb.h"
 #include "display.h"
+#include <ctype.h>
 
 #ifdef OVL1
 
@@ -58,7 +59,6 @@ STATIC_DCL void FDECL(print_branch, (winid, int, int, int, BOOLEAN_P, struct lch
 #endif
 
 mapseen *mapseenchn = (struct mapseen *)0;
-STATIC_DCL void FDECL(free_mapseen, (mapseen *));
 STATIC_DCL mapseen *FDECL(load_mapseen, (int));
 STATIC_DCL void FDECL(save_mapseen, (int, mapseen *));
 STATIC_DCL mapseen *FDECL(find_mapseen, (d_level *));
@@ -1825,7 +1825,7 @@ recbranch_mapseen(source, dest)
 	/* branch not found, so not a real branch. */
 	if (!br) return;
   
-	if (mptr = find_mapseen(source)) {
+	if ((mptr = find_mapseen(source))) {
 		if (mptr->br && br != mptr->br)
 			impossible("Two branches on the same level?");
 		mptr->br = br;
@@ -2040,11 +2040,10 @@ STATIC_OVL boolean
 interest_mapseen(mptr)
 mapseen *mptr;
 {
-	return (on_level(&u.uz, &mptr->lev) || (!mptr->feat.forgot) && (
-		INTEREST(mptr->feat) ||
-		(mptr->custom) || 
-		(mptr->br)
-	));
+	return ((on_level(&u.uz, &mptr->lev) || (!mptr->feat.forgot)) &&
+		(INTEREST(mptr->feat) ||
+                 (mptr->custom) || 
+                 (mptr->br)));
 }
 
 /* recalculate mapseen for the current level */
@@ -2165,11 +2164,9 @@ dooverview()
 {
 	winid win;
 	mapseen *mptr;
-	boolean first;
+	boolean first = TRUE;
 	boolean printdun;
-	int lastdun;
-
-	first = TRUE;
+	int lastdun = -1;
 
 	/* lazy intialization */
 	(void) recalc_mapseen();
@@ -2333,7 +2330,7 @@ boolean printdun;
 	/* wizmode prints out proto dungeon names for clarity */
 	if (wizard) {
 		s_level *slev;
-		if (slev = Is_special(&mptr->lev))
+		if ((slev = Is_special(&mptr->lev)))
 			Sprintf(eos(buf), " [%s]", slev->proto);
 	}
 #endif

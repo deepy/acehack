@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.h	3.4	1996/02/18	*/
 /* Copyright (c) David Cohrs, 1991,1992				  */
-/* Modified 12 Aug 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef WINTTY_H
@@ -140,6 +140,8 @@ E void NDECL(cl_eos);
  */
 E void FDECL(term_start_attr,(int attr));
 E void FDECL(term_end_attr,(int attr));
+E void FDECL(term_start_background,(int));
+E void NDECL(term_end_background);
 E void NDECL(term_start_raw_bold);
 E void NDECL(term_end_raw_bold);
 
@@ -155,6 +157,7 @@ E int FDECL(has_color,(int color));
 E void FDECL(addtopl, (const char *));
 E void NDECL(more);
 E void FDECL(update_topl, (const char *));
+E void NDECL(fade_topl);
 E void FDECL(putsyms, (const char*));
 
 /* ### wintty.c ### */
@@ -221,6 +224,10 @@ E short FDECL(set_tty_font_name, (winid, char *));
 E char * NDECL(tty_get_color_string);
 #endif
 
+E void NDECL(tty_start_fade);
+E void NDECL(tty_end_fade);
+E void NDECL(tty_inverse_start);
+E void NDECL(tty_inverse_end);
 E void FDECL(onechar, (int));
 
 /* other defs that really should go away (they're tty specific) */

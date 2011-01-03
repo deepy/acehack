@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 27 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1988,7 +1988,8 @@ find_unpaid(list, last_found)
  * Returns the default color to color an item in a menu of items, based on its
  * menu class.
  */
-int default_item_color(obj)
+int
+default_item_color(obj)
 struct obj *obj;
 {
 	/* If the item's known-cursed, that overrides other colouring rules. */
