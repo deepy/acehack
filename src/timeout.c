@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)timeout.c	3.4	2002/12/17	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -712,7 +712,10 @@ const char *tailer;
 	    case OBJ_FLOOR:
 		You("see %s flicker%s.", an(xname(obj)), tailer);
 		break;
+            default:
+                return;
 	}
+        obj->known = 1; /* ID charge count */
 }
 
 /* Print a dimming message for brass lanterns. */
@@ -734,7 +737,10 @@ struct obj *obj;
 		pline("%s lantern is getting dim.",
 		    s_suffix(Monnam(obj->ocarry)));
 		break;
+            default:
+                return;
 	}
+        obj->known = 1; /* ID charge count */
 }
 
 /*
@@ -836,10 +842,12 @@ long timeout;
 				    case OBJ_MINVENT:
 					pline("%s %s seems about to go out.",
 					    whose, xname(obj));
+                                        obj->known = 1;
 					break;
 				    case OBJ_FLOOR:
 					You("see %s about to go out.",
 					    an(xname(obj)));
+                                        obj->known = 1;
 					break;
 				}
 			    }
@@ -858,6 +866,7 @@ long timeout;
 				    else
 					pline("%s %s has gone out.",
 					    whose, xname(obj));
+                                    obj->known = 1;
 				    break;
 				case OBJ_FLOOR:
 				    if (obj->otyp == BRASS_LANTERN)
@@ -865,6 +874,7 @@ long timeout;
 				    else
 					You("see %s go out.",
 					    an(xname(obj)));
+                                    obj->known = 1;
 				    break;
 			    }
 			}
@@ -898,12 +908,14 @@ long timeout;
 					whose,
 					menorah ? "candelabrum's " : "",
 					many ? "s are" : " is");
+                                    obj->known = 1;
 				    break;
 				case OBJ_FLOOR:
 				    You("see %scandle%s getting short.",
 					    menorah ? "a candelabrum's " :
 						many ? "some " : "a ",
 					    many ? "s" : "");
+                                    obj->known = 1;
 				    break;
 			    }
 			break;
@@ -920,6 +932,7 @@ long timeout;
 					    many ? "s'" : "'s",
 					    many ? "s" : "",
 					    many ? "" : "s");
+                                    obj->known = 1;
 				    break;
 				case OBJ_FLOOR:
 				    You("see %scandle%s flame%s flicker low!",
@@ -927,6 +940,7 @@ long timeout;
 						many ? "some " : "a ",
 					    many ? "s'" : "'s",
 					    many ? "s" : "");
+                                    obj->known = 1;
 				    break;
 			    }
 			break;
@@ -941,7 +955,7 @@ long timeout;
 					pline("%s candelabrum's flame%s.",
 					    whose,
 					    many ? "s die" : " dies");
-					break;
+                                        break;
 				    case OBJ_FLOOR:
 					You("see a candelabrum's flame%s die.",
 						many ? "s" : "");
@@ -1169,7 +1183,9 @@ cleanup_burn(arg, expire_time)
 {
     struct obj *obj = (struct obj *)arg;
     if (!obj->lamplit) {
-	impossible("cleanup_burn: obj %s not lit", xname(obj));
+        /* This happens when updating charge count for inventory
+           purposes. We don't turn the light source off in that case. */
+        obj->age += expire_time - monstermoves;
 	return;
     }
 

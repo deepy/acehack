@@ -298,6 +298,12 @@ changed to 10 to prevent this leaking information that isn't readily
 available in vanilla NetHack. (Credits: this feature was inspired by
 Vulture's, although AceHack uses different code.)
 
+Formally identifying light sources, or seeing them flicker, now makes
+their remaining burn time visible (much like charges on formally
+identified wands). Likewise, attempting to zap an empty wand marks it
+as empty, and scrolls of charging also identify the number of charges
+in the thing they charge (as a side-effect).
+
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
 

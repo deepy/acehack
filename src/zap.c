@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)zap.c	3.4	2003/08/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1765,8 +1765,11 @@ int
 zappable(wand)
 register struct obj *wand;
 {
-	if(wand->spe < 0 || (wand->spe == 0 && rn2(121)))
+	if(wand->spe < 0 || (wand->spe == 0 && rn2(121))) {
+        	You("feel an absence of magical power.");
+		wand->known = 1; /* show it as :0 */
 		return 0;
+        }
 	if(wand->spe == 0)
 		You("wrest one last charge from the worn-out wand.");
 	wand->spe--;
@@ -1848,7 +1851,7 @@ dozap()
 	check_unpaid(obj);
 
 	/* zappable addition done by GAN 11/03/86 */
-	if(!zappable(obj)) pline("%s",nothing_happens);
+	if(!zappable(obj)) {} /* zappable now prints the message itself */
 	else if(obj->cursed && !rn2(100)) {
 		backfire(obj);	/* the wand blows up in your face! */
 		exercise(A_STR, FALSE);

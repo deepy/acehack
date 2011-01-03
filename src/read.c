@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)read.c	3.4	2003/10/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 3 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -201,8 +201,13 @@ struct obj *obj;
 			(obj->known || objects[obj->otyp].oc_uname));
 	if (is_weptool(obj))	/* specific check before general tools */
 	    return FALSE;
+        /* magic lamps aren't actually chargeable, /but/ must be shown
+           in the list to avoid accidentally IDing them */
 	if (obj->oclass == TOOL_CLASS)
-	    return (boolean)(objects[obj->otyp].oc_charged);
+	    return (boolean)(objects[obj->otyp].oc_charged ||
+                             obj->otyp == BRASS_LANTERN ||
+                             obj->otyp == OIL_LAMP ||
+                             obj->otyp == MAGIC_LAMP);
 	return FALSE; /* why are weapons/armor considered charged anyway? */
 }
 
@@ -220,6 +225,10 @@ int curse_bless;
 
 	is_cursed = curse_bless < 0;
 	is_blessed = curse_bless > 0;
+
+        /* Scrolls of charging now ID charge count, as well as doing
+           the charging, unless cursed. */
+	if (!is_cursed) obj->known = 1;
 
 	if (obj->oclass == WAND_CLASS) {
 	    /* undo any prior cancellation, even when is_cursed */
@@ -298,11 +307,10 @@ int curse_bless;
 	} else if (obj->oclass == TOOL_CLASS) {
 	    int rechrg = (int)obj->recharged;
 
-	    if (objects[obj->otyp].oc_charged) {
-		/* tools don't have a limit, but the counter used does */
-		if (rechrg < 7)	/* recharge_limit */
-		    obj->recharged++;
-	    }
+            /* tools don't have a limit, but the counter used does */
+            if (rechrg < 7)	/* recharge_limit */
+                obj->recharged++;
+
 	    switch(obj->otyp) {
 	    case BELL_OF_OPENING:
 		if (is_cursed) stripspe(obj);

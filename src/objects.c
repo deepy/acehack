@@ -581,6 +581,11 @@ OBJECT(OBJ("Amulet of Yendor",	/* note: description == name */
 		BITS(kn,mrg,chg,0,mgc,chg,0,0,0,0,0,P_NONE,mat), \
 		0, TOOL_CLASS, prob, 0, \
 		wt, cost, 0, 0, 0, 0, wt, color, mc )
+#define LIGHTSOURCE(name,desc,kn,mrg,mgc,chg,prob,wt,cost,mat,color,mc) \
+	OBJECT( OBJ(name,desc), \
+		BITS(kn,mrg,1,0,mgc,chg,0,0,0,0,0,P_NONE,mat), \
+		0, TOOL_CLASS, prob, 0, \
+		wt, cost, 0, 0, 0, 0, wt, color, mc )
 #define CONTAINER(name,desc,kn,mgc,chg,prob,wt,cost,mat,color) \
 	OBJECT( OBJ(name,desc), \
 		BITS(kn,0,chg,1,mgc,chg,0,0,0,0,0,P_NONE,mat), \
@@ -614,16 +619,16 @@ TOOL("lock pick", (char *)0,    1, 0, 0, 0,  75,  4,  20, IRON, HI_METAL,
      MCLASS_INANIMATE),
 #endif
 /* light sources */
-TOOL("tallow candle", "candle", 0, 1, 0, 0,  20,  2,  10, WAX, CLR_WHITE,
-     MCLASS_DIVINATION),
-TOOL("wax candle", "candle",    0, 1, 0, 0,   5,  2,  20, WAX, CLR_WHITE,
-     MCLASS_DIVINATION),
-TOOL("brass lantern", (char *)0,1, 0, 0, 0,  30, 30,  12, COPPER, CLR_YELLOW,
-     MCLASS_DIVINATION),
-TOOL("oil lamp", "lamp",        0, 0, 0, 0,  45, 20,  10, COPPER, CLR_YELLOW,
-     MCLASS_DIVINATION),
+LIGHTSOURCE("tallow candle", "candle", 0, 1, 0, 0,  20,  2,  10, WAX, CLR_WHITE,
+            MCLASS_DIVINATION),
+LIGHTSOURCE("wax candle", "candle",    0, 1, 0, 0,   5,  2,  20, WAX, CLR_WHITE,
+            MCLASS_DIVINATION),
+LIGHTSOURCE("brass lantern", (char *)0,1, 0, 0, 0,  30, 30,  12, COPPER, CLR_YELLOW,
+            MCLASS_DIVINATION),
+LIGHTSOURCE("oil lamp", "lamp",        0, 0, 0, 0,  45, 20,  10, COPPER, CLR_YELLOW,
+            MCLASS_DIVINATION),
 TOOL("magic lamp", "lamp",      0, 0, 1, 0,  15, 20,  50, COPPER, CLR_YELLOW,
-     MCLASS_DIVINATION),
+     MCLASS_DIVINATION), /* TOOL not LIGHTSOURCE as it never runs out */
 /* other tools */
 #ifdef TOURIST
 TOOL("expensive camera", (char *)0,

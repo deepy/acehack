@@ -777,7 +777,6 @@ plus:
 			Sprintf(eos(bp), " (%s candle%s%s)",
 				tmpbuf, plur(obj->spe),
 				!obj->lamplit ? " attached" : ", lit");
-			break;
 		} else if (obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP ||
 			obj->otyp == BRASS_LANTERN || Is_candle(obj)) {
 			if (Is_candle(obj) &&
@@ -785,9 +784,22 @@ plus:
 				Strcat(prefix, "partly used ");
 			if(obj->lamplit)
 				Strcat(bp, " (lit)");
-			break;
 		}
-		if(objects[obj->otyp].oc_charged)
+                if (ignitable(obj) && obj->known &&
+                    obj->otyp != MAGIC_LAMP && !artifact_light(obj)) {
+                	/* We need to stop and restart the timer to
+                           get the exact number of turns remaining. */
+                	boolean waslit = obj->lamplit;
+                        /* without turning off the light source itself... */
+                        obj->lamplit = 0;
+                	if (waslit)
+                            stop_timer(BURN_OBJECT, (genericptr_t) obj);
+                	Sprintf(eos(bp), " (%d:%ld)", (int)obj->recharged,
+                                obj->age); /* not spe! */
+                        if (waslit) begin_burn(obj, TRUE);
+                        break;
+                }
+		if (objects[obj->otyp].oc_charged)
 		    goto charges;
 		break;
 	case WAND_CLASS:
