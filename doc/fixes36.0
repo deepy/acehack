@@ -371,6 +371,7 @@ Command changes:
 default, letters now have vikeys meanings by default.  So either the
 numpad or the letter keys can be used to move. For command repeat,
 type # before the repeat count.
+a: No longer breaks wands (use V).
 A: Now allows equipping items to arbitrary slots, as well as
 unequipping them from those slots.
 c, #chat: c now means #chat (the old meaning of c, "close door", has

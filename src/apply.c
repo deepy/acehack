@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 24 Dec 2010 by Alex Smith */
+/* Modified 23 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -8,9 +8,9 @@
 
 #ifdef OVLB
 
-static const char tools[] = { TOOL_CLASS, WEAPON_CLASS, WAND_CLASS, 0 };
+static const char tools[] = { ALL_CLASSES, TOOL_CLASS, WEAPON_CLASS, 0 };
 static const char tools_too[] = { ALL_CLASSES, TOOL_CLASS, POTION_CLASS,
-				  WEAPON_CLASS, WAND_CLASS, GEM_CLASS, 0 };
+				  WEAPON_CLASS, GEM_CLASS, 0 };
 
 #ifdef TOURIST
 STATIC_DCL int FDECL(use_camera, (struct obj *));
@@ -2835,8 +2835,10 @@ doapply()
 	    return 1;	/* evading your grasp costs a turn; just be
 			   grateful that you don't drop it as well */
 
-	if (obj->oclass == WAND_CLASS)
-	    return do_break_wand(obj);
+	if (obj->oclass == WAND_CLASS) {
+            pline("To break wands, use the %s command.", key_for_cmd("#invoke"));
+	    return 0;
+        }
 
 	switch(obj->otyp){
 	case BLINDFOLD:
