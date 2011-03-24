@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.c	3.4	2003/04/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 23 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -538,11 +538,23 @@ xchar x, y;
 	return((boolean)(Invocation_lev(&u.uz) && x == inv_pos.x && y == inv_pos.y));
 }
 
+static void
+autoexplore_msg(text, mode)
+const char *text;
+int mode;
+{
+	if (iflags.autoexplore) {
+		char tmp[BUFSZ];
+		Strcpy(tmp, text);
+		pline("%s blocks your way.", upstart(tmp));
+	}
+}
+
 #endif /* OVL1 */
 #ifdef OVL3
 
-/* return TRUE if (dx,dy) is an OK place to move
- * mode is one of DO_MOVE, TEST_MOVE, TEST_TRAV or TEST_TRAP
+/** Return TRUE if (dx,dy) is an OK place to move
+ *  mode is one of DO_MOVE, TEST_MOVE, TEST_TRAV or TEST_TRAP
  */
 boolean 
 test_move(ux, uy, dx, dy, mode)
@@ -650,7 +662,7 @@ int mode;
     /* Pick travel path that does not require crossing a trap.
      * Avoid water and lava using the usual running rules.
      * (but not u.ux/u.uy because findtravelpath walks toward u.ux/u.uy) */
-    if (flags.run == 8 && (mode == TEST_MOVE || mode == TEST_TRAP) &&
+    if (flags.run == 8 && (mode != DO_MOVE) &&
         (x != u.ux || y != u.uy)) {
 	struct trap* t = t_at(x, y);
 
@@ -674,19 +686,23 @@ int mode;
 			     || block_entry(x, y))
 			 )) {
 	/* Can't move at a diagonal out of a doorway with door. */
-	return FALSE;
+	 if (mode == DO_MOVE) autoexplore_msg("something", mode);
+	 return FALSE;
     }
 
     if (sobj_at(BOULDER,x,y) && (In_sokoban(&u.uz) || !Passes_walls)) {
-	if (!(Blind || Hallucination) && (flags.run >= 2) && mode != TEST_TRAV)
+	if (!(Blind || Hallucination) && (flags.run >= 2) && mode != TEST_TRAV) {
+	    if (sobj_at(BOULDER,x,y) && mode == DO_MOVE) autoexplore_msg("a boulder", mode);
 	    return FALSE;
+	}
 	if (mode == DO_MOVE) {
 	    /* tunneling monsters will chew before pushing */
 	    if (tunnels(youmonst.data) && !needspick(youmonst.data) &&
 		!In_sokoban(&u.uz)) {
 		if (still_chewing(x,y)) return FALSE;
-	    } else
+	    } else {
 		if (moverock() < 0) return FALSE;
+	    }
 	} else if (mode == TEST_TRAV) {
 	    struct obj* obj;
 
@@ -731,6 +747,8 @@ int x, y;
   if (ttmp && ttmp->tseen) return FALSE;
   if (glyph_is_object(levl[x][y].glyph) &&
       glyph_to_obj(levl[x][y].glyph) == BOULDER) return FALSE;
+  if (glyph_is_object(levl[x][y].glyph) &&
+      inside_shop(x, y)) return FALSE;
   if (glyph_is_object(levl[x][y].glyph)) return TRUE;
   for (i = -1; i <= 1; i++)
     for (j = -1; j <= 1; j++) {
@@ -970,13 +988,19 @@ domove()
                   nomul(0);
                   return;
                 }
-                u.tx = u.ux;
-                u.ty = u.uy;
-                if(!findtravelpath(unexplored))
-                    iflags.autoexplore = FALSE;
-            }
-	    else if (!findtravelpath(NULL))
+		u.tx = u.ux;
+		u.ty = u.uy;
+		if (!findtravelpath(unexplored)) {
+			iflags.autoexplore = FALSE;
+			/* TODO: Check if really done (known closed doors,
+			 * boulders blocking your way) and offer doing
+			 * travel when done */
+			pline("Nowhere else around here can be "
+                              "automatically explored.");
+		}
+	    } else if (!findtravelpath(NULL)) {
 		(void) findtravelpath(couldsee_func);
+	    }
 	    iflags.travel1 = 0;
             if (u.dx == 0 && u.dy == 0) {
               /* couldn't find a move; end travel without costing a turn */
@@ -1139,6 +1163,7 @@ domove()
 			     sensemon(mtmp))) {
 				nomul(0);
 				flags.move = 0;
+				autoexplore_msg(Monnam(mtmp));
 				return;
 			}
 		}
