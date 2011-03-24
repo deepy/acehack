@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 23 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -762,6 +762,7 @@ const char *action;
  *	struct obj *xxx:	object to do something with.
  *	(struct obj *) 0	error return: no object.
  *	&zeroobj		explicitly no object (as in w-).
+ *      &zeroobj                item on floor (as in e,).
 #ifdef GOLDOBJ
 !!!! test if gold can be used in unusual ways (eaten etc.)
 !!!! may be able to remove "usegold"
@@ -784,6 +785,7 @@ register const char *let,*word;
 	boolean usegold = FALSE;	/* can't use gold because its illegal */
 	boolean allowall = FALSE;
 	boolean allownone = FALSE;
+        boolean allowfloor = FALSE;
 	boolean specialnone = FALSE;
 	boolean useboulder = FALSE;
 	xchar foox = 0;
@@ -812,6 +814,7 @@ register const char *let,*word;
 	if(*let == ALL_CLASSES) let++, allowall = TRUE;
 	if(*let == ALLOW_NONE) let++, allownone = TRUE;
 	if(*let == SPECIAL_NONE) let++, specialnone = TRUE;
+        if(*let == ALLOW_FLOOR) let++, allowfloor = TRUE;
 	/* "ugly check" for reading fortune cookies, part 1 */
 	/* The normal 'ugly check' keeps the object on the inventory list.
 	 * We don't want to do that for shirts/cookies, so the check for
@@ -826,10 +829,11 @@ register const char *let,*word;
 	    useboulder = TRUE;
 
 	if(allownone) *bp++ = '-';
+        if(allowfloor) *bp++ = ',';
 #ifndef GOLDOBJ
 	if(allowgold) *bp++ = def_oc_syms[COIN_CLASS];
 #endif
-	if(bp > buf && bp[-1] == '-') *bp++ = ' ';
+	if(bp > buf && (bp[-1] == '-' || bp[-1] == ',')) *bp++ = ' ';
 	ap = altlets;
 
 	ilet = 'a';
@@ -962,9 +966,9 @@ register const char *let,*word;
 	*ap = '\0';
 
 #ifndef GOLDOBJ
-	if(!foo && !allowall && !allowgold && !allownone) {
+	if(!foo && !allowall && !allowgold && !allownone && !allowfloor) {
 #else
-	if(!foo && !allowall && !allownone) {
+	if(!foo && !allowall && !allownone && !allowfloor) {
 #endif
 		You("don't have anything %sto %s.",
 			foox ? "else " : "", word);
@@ -1008,6 +1012,9 @@ register const char *let,*word;
 			return(allownone || specialnone ?
                                &zeroobj : (struct obj *) 0);
 		}
+                if(ilet == ',') {
+                	return(allowfloor ? &zeroobj : (struct obj *) 0);
+                }
 		if(ilet == def_oc_syms[COIN_CLASS]) {
 			if (!usegold) {
 			    if (!strncmp(word, "rub on ", 7)) {

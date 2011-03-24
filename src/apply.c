@@ -8,9 +8,10 @@
 
 #ifdef OVLB
 
-static const char tools[] = { ALL_CLASSES, TOOL_CLASS, WEAPON_CLASS, 0 };
-static const char tools_too[] = { ALL_CLASSES, TOOL_CLASS, POTION_CLASS,
-				  WEAPON_CLASS, GEM_CLASS, 0 };
+static const char tools[] = { ALL_CLASSES, ALLOW_FLOOR, TOOL_CLASS,
+                              WEAPON_CLASS, 0 };
+static const char tools_too[] = { ALL_CLASSES, ALLOW_FLOOR, TOOL_CLASS,
+                                  POTION_CLASS, WEAPON_CLASS, GEM_CLASS, 0 };
 
 #ifdef TOURIST
 STATIC_DCL int FDECL(use_camera, (struct obj *));
@@ -2817,7 +2818,7 @@ doapply()
 {
 	struct obj *obj;
 	register int res = 1;
-	char class_list[MAXOCLASSES+2];
+	char class_list[MAXOCLASSES+3];
 
 	if(check_capacity((char *)0)) return (0);
 
@@ -2829,7 +2830,8 @@ doapply()
 		add_class(class_list, FOOD_CLASS);
 
 	obj = getobj(class_list, "use or apply");
-	if(!obj) return 0;
+	if (!obj) return 0;
+        if (obj == &zeroobj) return doloot();
 
 	if (obj->oartifact && !touch_artifact(obj, &youmonst))
 	    return 1;	/* evading your grasp costs a turn; just be

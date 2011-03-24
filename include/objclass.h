@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objclass.h 3.4	1996/06/16	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Oct 2010 by Alex Smith */
+/* Modified 23 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef OBJCLASS_H
@@ -158,9 +158,13 @@ extern NEARDATA struct objdescr obj_descr[];
 
 #define ALLOW_COUNT	(MAXOCLASSES+1) /* Can be used in the object class */
 #define ALL_CLASSES	(MAXOCLASSES+2) /* input to getobj().		   */
-#define ALLOW_NONE	(MAXOCLASSES+3) /*				   */
+#define ALLOW_NONE	(MAXOCLASSES+3) /* Allow - as an option.           */
 #define SPECIAL_NONE	(MAXOCLASSES+4) /* Don't offer - as an option, but
                                            special-case it anyway. */
+#define ALLOW_FLOOR     (MAXOCLASSES+5) /* Allow appropriate objects on the
+                                           floor. This returns &zeroobj and
+                                           leaves it up to the caller to
+                                           show a menu, upon pressing ,. */
 
 #define BURNING_OIL	(MAXOCLASSES+1) /* Can be used as input to explode. */
 #define MON_EXPLODE	(MAXOCLASSES+2) /* Exploding monster (e.g. gas spore) */
