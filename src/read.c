@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)read.c	3.4	2003/10/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 24 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -556,6 +556,8 @@ forget_levels(percent)
  * the following are always forgotten:
  *
  *	- felt ball & chain
+ *      - some object information
+ *      - some skills
  *
  * Other things are subject to flags:
  *
@@ -575,6 +577,10 @@ int howmuch;
 	forget_objects(howmuch & ALL_MAP ? 100 : rn2(25)+25);
 
 	if (howmuch & ALL_SPELLS) losespells();
+
+        /* Forget some skills. */
+        drain_weapon_skill(rnd(howmuch ? 5 : 3));
+
 	/*
 	 * Make sure that what was seen is restored correctly.  To do this,
 	 * we need to go blind for an instant --- turn off the display,

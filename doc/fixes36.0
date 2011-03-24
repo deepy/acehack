@@ -157,7 +157,9 @@ to forget the map or seen traps; instead, it affects a much larger
 proportion of objects.  Forgotten objects are now /called/ by their
 actual name; so forgetting what a potion of blindness does, for
 instance, would lead to "potion called potion of blindness" rather
-than "potion of blindness" in the inventory.
+than "potion of blindness" in the inventory.  It also causes the
+player to forget skills, and drains some of the training towards those
+skills.
 
 Travel now handles traps more sensibly: it will go slightly out of its
 way to avoid walking through a trap, but if it's necessary to go
