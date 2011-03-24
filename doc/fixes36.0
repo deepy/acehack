@@ -65,10 +65,10 @@ The game no longer crashes when trying to travel on a level with a
 very large number of boulders or with certain highly unusual
 placements of closed doors.
 
-The materials and/or descriptions of some objects are made of have
-been changed to make them react more consistently with what their
-names suggest (pearl rings are now made of bone; leather spellbooks
-are now "leather-bound" to signify they're really made of paper).
+The materials and/or descriptions of some objects have been changed to
+make them react more consistently with what their names suggest (pearl
+rings are now made of bone; leather spellbooks are now "leather-bound"
+to signify they're really made of paper).
 
 Wielded silver arrows now deal silver damage the same way wielded
 silver nonweapons do. (Even though bashing with arrows isn't
@@ -104,7 +104,8 @@ other settings are provided for slower machines.
 The control-X feature now shows a lot more information, including
 things like the player's intrinsics; none of the information there is
 anything that a spoilt player couldn't work out from their own message
-history, but actually doing so was often a pain.
+history, but actually doing so was often a pain, and required perusing
+a recording of the game or a good memory.
 
 It's now possible to read spellbooks of spells you know quite well
 already; doing so refreshes your knowledge, but wears out the
@@ -224,7 +225,8 @@ explicitly if the color option is turned on; this should avoid the
 problem where graphics can't be seen properly due to unusual terminal
 settings such as a white background.
 
-The default character used to represent traps is now ^ rather than ".
+The default character used to represent web traps is now ^ rather than
+".
 
 (tty interface on all platforms but DOS, OS/2, WIN32)
 IBMgraphics now sends signals to the terminal telling it to select a
@@ -303,7 +305,7 @@ safely pick up to determine their weight, like unidentified gray
 stones and cockatrice corpses). The weight of gauntlets of power was
 changed to 10 to prevent this leaking information that isn't readily
 available in vanilla NetHack. (Credits: this feature was inspired by
-Vulture's, although AceHack uses different code.)
+Vulture, although AceHack uses different code.)
 
 Formally identifying light sources, or seeing them flicker, now makes
 their remaining burn time visible (much like charges on formally
@@ -388,7 +390,7 @@ riding. (They're all forms of jump, if you think about it.)
 M: Now a synonym for #monster.
 Q: No longer prints a message about #quit.
 s: No longer wakes mimics (instead, upon detecting a mimic, an
-unseen-monster I glyph is placed on the square to mark its location)
+unseen-monster I glyph is placed on the square to mark its location).
 S: Now allows the user to quit, in addition to continuing to play.
 (The key sequence S!y to quit is chosen to be almost impossible to
 press by mistake, in order to hopefully prevent accidents; I had
