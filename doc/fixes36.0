@@ -207,6 +207,11 @@ In particular, it now does not cost a turn to swap your main and
 readied weapons (and as a result, it /does/ cost a turn to put a
 weapon straight into your readied-weapon slot, using the A command.)
 
+If the player cannot see themselves, they're shown as a remembered-
+invisible I, rather than not shown at all; this makes it rather
+easier to track the player's current location with certain sorts of
+cursor.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

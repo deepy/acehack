@@ -1,7 +1,7 @@
 /*	SCCS Id: @(#)display.c	3.4	2003/02/19	*/
 /* Copyright (c) Dean Luick, with acknowledgements to Kevin Darcy */
 /* and Dave Cohrs, 1990.					  */
-/* Modified 28 Dec 2010 by Alex Smith */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -673,12 +673,10 @@ newsym(x,y)
 	    return;
 	}
 	if (x == u.ux && y == u.uy) {
-	    if (senseself()) {
-		_map_location(x,y,0);	/* map *under* self */
-		display_self();
-	    } else
-		/* we can see what is there */
-		_map_location(x,y,1);
+            _map_location(x,y,0);	/* map *under* self */
+	    if (senseself()) display_self();
+            /* not map_invisible; the I is the player */
+            else show_glyph(u.ux, u.uy, GLYPH_INVISIBLE);
 	}
 	else {
 	    mon = m_at(x,y);
@@ -716,6 +714,7 @@ newsym(x,y)
 	    feel_location(u.ux, u.uy);		/* forces an update */
 
 	    if (senseself()) display_self();
+            else show_glyph(u.ux, u.uy, GLYPH_INVISIBLE);
 	}
 	else if ((mon = m_at(x,y))
 		&& ((see_it = (tp_sensemon(mon) || MATCH_WARN_OF_MON(mon)
