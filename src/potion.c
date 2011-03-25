@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)potion.c	3.4	2002/10/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -10,6 +10,8 @@ boolean notonhead = FALSE;
 
 static NEARDATA int nothing, unkn;
 static NEARDATA const char beverages[] = { POTION_CLASS, 0 };
+static NEARDATA const char beverages_and_fountains[] =
+	{ ALLOW_FLOOR, POTION_CLASS, 0};
 
 STATIC_DCL long FDECL(itimeout, (long));
 STATIC_DCL long FDECL(itimeout_incr, (long,int));
@@ -328,6 +330,7 @@ dodrink()
 {
 	register struct obj *otmp;
 	const char *potion_descr;
+        boolean is_terrain = FALSE;
 
 	if (Strangled) {
 		pline("If you can't breathe air, how can you drink liquid?");
@@ -335,30 +338,34 @@ dodrink()
 	}
 	/* Is there a fountain to drink from here? */
 	if (IS_FOUNTAIN(levl[u.ux][u.uy].typ) && !Levitation) {
-		if(yn("Drink from the fountain?") == 'y') {
-			drinkfountain();
-			return 1;
-		}
+          is_terrain = TRUE;
 	}
 #ifdef SINKS
 	/* Or a kitchen sink? */
 	if (IS_SINK(levl[u.ux][u.uy].typ)) {
-		if (yn("Drink from the sink?") == 'y') {
-			drinksink();
-			return 1;
-		}
+          is_terrain = TRUE;
 	}
 #endif
 
 	/* Or are you surrounded by water? */
 	if (Underwater) {
-		if (yn("Drink the water around you?") == 'y') {
-		    pline("Do you know what lives in this water!");
-			return 1;
-		}
+          is_terrain = TRUE;
 	}
 
-	otmp = getobj(beverages, "drink");
+	otmp = getobj(is_terrain ? beverages_and_fountains : beverages,
+                      "drink");
+        if(otmp == &zeroobj) {
+          if (IS_FOUNTAIN(levl[u.ux][u.uy].typ) && !Levitation)
+          {drinkfountain(); return 1;}
+#ifdef SINKS
+          if (IS_SINK(levl[u.ux][u.uy].typ) && !Levitation)
+          {drinkfountain(); return 1;}
+#endif
+          if (Underwater)
+          {pline("Do you know what lives in this water?!"); return 0;}
+          impossible("Quaffable terrain has disappeared?");
+          return 0;
+        }
 	if(!otmp) return(0);
 	otmp->in_use = TRUE;		/* you've opened the stopper */
 

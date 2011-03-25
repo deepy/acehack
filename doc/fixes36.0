@@ -405,6 +405,7 @@ G: A combined command for controlled teleportation, jumping, and
 riding. (They're all forms of jump, if you think about it.)
 ^I: Now a synonym for #adjust.
 M: Now a synonym for #monster.
+q: Allows , as an argument, to drink from sinks/fountains.
 Q: No longer prints a message about #quit.
 s: No longer wakes mimics (instead, upon detecting a mimic, an
 unseen-monster I glyph is placed on the square to mark its location).
