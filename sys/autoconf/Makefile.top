@@ -1,7 +1,7 @@
 #	NetHack Makefile.
 #       @configure_input@
 #	SCCS Id: @(#)Makefile.top	3.4	1995/01/05
-#	Modified by Alex Smith, 19 Aug 2010
+#	Modified by Alex Smith, 24 Mar 2010
 
 VPATH=@srcdir@
 srcdir=@srcdir@
@@ -83,7 +83,8 @@ CNF_SHARE_PROXYND = gltile64.png gltile32.png gltile16.png \
 # CNF_SHARE_DATND = $(CNF_SHARE_PROXYND)
 CNF_SHARE_DATND = @CNF_SHARE_DATND@
 
-CNF_SHARE_DATD = data oracles @OPTIONS_FILES@ quest.dat rumors
+CNF_SHARE_DATD = data oracles @OPTIONS_FILES@ quest.dat rumors logo.vt100 \
+                 modemenu
 CNF_SHARE_DAT = $(CNF_SHARE_DATD) $(CNF_SHARE_DATND)
 
 # Some versions of make use the SHELL environment variable as the shell
@@ -145,6 +146,12 @@ rumors: $(GAME)
 
 oracles: $(GAME)
 	( cd dat ; $(MAKE) oracles )
+
+logo.vt100: $(GAME)
+	( cd dat; $(MAKE) logo.vt100 )
+
+modemenu: $(GAME)
+	( cd dat; $(MAKE) modemenu )
 
 #	Note: options should have already been made with make, but...
 @OPTIONS_FILE@: $(GAME)

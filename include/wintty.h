@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.h	3.4	1996/02/18	*/
 /* Copyright (c) David Cohrs, 1991,1992				  */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 24 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef WINTTY_H
@@ -172,6 +172,7 @@ E void NDECL(win_tty_init);
 /* external declarations */
 E void FDECL(tty_init_nhwindows, (int *, char **));
 E void NDECL(tty_player_selection);
+E void NDECL(tty_game_mode_selection);
 E void NDECL(tty_askname);
 E void NDECL(tty_get_nh_event) ;
 E void FDECL(tty_exit_nhwindows, (const char *));

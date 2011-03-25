@@ -334,6 +334,11 @@ you won with the first character that the RNG produced, say as part of
 a streak, turn off the new "startscum" option and the stats and
 inventory will be hidden unless you choose to look at them.)
 
+In addition to the new character creation screen, a new main menu
+allows selection of the game mode (explore / debug / normal / tutorial
+/ solo), and viewing the high-score table and help, and changing
+options, without having to start a game.
+
 The game now highlights possible directions to, e.g., fire things in,
 by using a red background.  (Credits: this was kerio's idea.)
 Background colors are also used to signify other things, e.g. detected
@@ -347,7 +352,7 @@ is shown by changing their color (red for locked, green for unlocked,
 the usual brown for unsure).
 
 The last message shown is now always shown at the top of the screen in
-dark blue, to make it easier to figure out what juts happened when
+dark blue, to make it easier to figure out what just happened when
 moving quickly. (Control-P still works for reviewing messages, if you
 want to check further back.)
 

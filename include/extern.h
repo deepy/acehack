@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)extern.h	3.4	2003/03/10	*/
 /* Copyright (c) Steve Creps, 1988.				  */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef EXTERN_H
@@ -2039,6 +2039,7 @@ E void NDECL(timer_sanity_check);
 
 E void FDECL(topten, (int));
 E void FDECL(prscore, (int,char **));
+E void NDECL(prscore_interactive);
 E struct obj *FDECL(tt_oname, (struct obj *));
 
 /* ### track.c ### */
@@ -2307,6 +2308,7 @@ E void FDECL(unrestrict_weapon_skill, (int));
 E void FDECL(use_skill, (int,int));
 E void FDECL(add_weapon_skill, (int));
 E void FDECL(lose_weapon_skill, (int));
+E void FDECL(drain_weapon_skill, (int));
 E int FDECL(weapon_type, (struct obj *));
 E int NDECL(uwep_skill_type);
 E int FDECL(weapon_hit_bonus, (struct obj *));

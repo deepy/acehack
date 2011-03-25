@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)files.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 24 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -33,7 +33,7 @@ const
 extern int errno;
 #endif
 
-#if defined(UNIX) && defined(QT_GRAPHICS)
+#if defined(UNIX)
 #include <dirent.h>
 #endif
 
@@ -939,7 +939,7 @@ restore_saved_game()
 	return fd;
 }
 
-#if defined(UNIX) && defined(QT_GRAPHICS)
+#if defined(UNIX)
 /*ARGSUSED*/
 static char*
 plname_from_file(filename)
@@ -966,7 +966,7 @@ const char* filename;
 
     return result;
 #else
-# if defined(UNIX) && defined(QT_GRAPHICS)
+# if defined(UNIX)
     /* Name not stored in save file, so we have to extract it from
        the filename, which loses information
        (eg. "/", "_", and "." characters are lost. */
@@ -992,12 +992,12 @@ const char* filename;
     }
 #endif
 }
-#endif /* defined(UNIX) && defined(QT_GRAPHICS) */
+#endif /* defined(UNIX) */
 
 char**
 get_saved_games()
 {
-#if defined(UNIX) && defined(QT_GRAPHICS)
+#if defined(UNIX)
     int myuid=getuid();
     struct dirent **namelist;
     int n = scandir("save", &namelist, 0, alphasort);;

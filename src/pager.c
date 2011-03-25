@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pager.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Dec 2010 by Alex Smith */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file contains the command routines dowhatis() and dohelp() and */
@@ -476,8 +476,11 @@ do_look(quick)
     if (quick) {
 	from_screen = TRUE;	/* yes, we want to use the cursor */
     } else {
-	i = ynq("Specify unknown object by cursor?");
-	if (i == 'q') return 0;
+        i = 'n';
+        if (wiz1_level.dlevel > 0) { /* i.e. the game's actually started */
+          i = ynq("Specify unknown object by cursor?");
+          if (i == 'q') return 0;
+        }
 	from_screen = (i == 'y');
     }
 

@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)topten.c	3.4	2000/01/21	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -33,9 +34,9 @@ static long final_fpos;
 #define NAMSZ	10
 #define DTHSZ	100
 #define ROLESZ   3
-#define PERSMAX	        1000000 /* entries per name/uid per char. allowed */
+#define PERSMAX	        2000    /* entries per name/uid per char. allowed */
 #define POINTSMIN	1	/* must be > 0 */
-#define ENTRYMAX	1000000	/* must be >= 10 */
+#define ENTRYMAX	2000	/* must be >= 10 */
 
 #if !defined(MICRO) && !defined(MAC) && !defined(WIN32)
 #define PERS_IS_UID		/* delete for PERSMAX per name; now per uid */
@@ -356,7 +357,7 @@ int how;
 		topten_print("");
 		Sprintf(pbuf,
 	      "Since you were in %s mode, the score list will not be checked.",
-		    wizard ? "wizard" : "discover");
+		    wizard ? "debug" : "explore");
 		topten_print(pbuf);
 	    }
 	    goto showwin;
@@ -454,7 +455,7 @@ int how;
 #endif	/* UPDATE_RECORD_IN_PLACE */
 		if(!done_stopprint) if(rank0 > 0){
 		    if(rank0 <= 10)
-			topten_print("You made the top 1000000 list!");
+			topten_print("You made the top 10 of the score list!");
 		    else {
 			char pbuf[BUFSZ];
 			Sprintf(pbuf,
@@ -536,6 +537,8 @@ int how;
 	}
 }
 
+#define SCOREWIDTH (COLNO - 2)
+
 STATIC_OVL void
 outheader()
 {
@@ -544,7 +547,7 @@ outheader()
 
 	Strcpy(linebuf, " No  Points     Name");
 	bp = eos(linebuf);
-	while(bp < linebuf + COLNO - 9) *bp++ = ' ';
+	while(bp < linebuf + SCOREWIDTH - 9) *bp++ = ' ';
 	Strcpy(bp, "Hp [max]");
 	topten_print(linebuf);
 }
@@ -650,7 +653,7 @@ boolean so;
 	if (t1->hp <= 0) hpbuf[0] = '-', hpbuf[1] = '\0';
 	else Sprintf(hpbuf, "%d", t1->hp);
 	/* beginning of hp column after padding (not actually padded yet) */
-	hppos = COLNO - (sizeof("  Hp [max]")-1); /* sizeof(str) includes \0 */
+	hppos = SCOREWIDTH - (sizeof("  Hp [max]")-1); /* sizeof(str) includes \0 */
 	while (lngr >= hppos) {
 	    for(bp = eos(linebuf);
 		    !(*bp == ' ' && (bp-linebuf < hppos));
@@ -662,7 +665,7 @@ boolean so;
 	    Strcpy(linebuf3, bp+1);
 	    *bp = 0;
 	    if (so) {
-		while (bp < linebuf + (COLNO-1)) *bp++ = ' ';
+		while (bp < linebuf + (SCOREWIDTH-1)) *bp++ = ' ';
 		*bp = 0;
 		topten_print_bold(linebuf);
 	    } else
@@ -671,7 +674,7 @@ boolean so;
 	    lngr = strlen(linebuf);
 	}
 	/* beginning of hp column not including padding */
-	hppos = COLNO - 7 - (int)strlen(hpbuf);
+	hppos = SCOREWIDTH - 7 - (int)strlen(hpbuf);
 	bp = eos(linebuf);
 
 	if (bp <= linebuf + hppos) {
@@ -685,7 +688,7 @@ boolean so;
 
 	if (so) {
 	    bp = eos(linebuf);
-	    if (so >= COLNO) so = COLNO-1;
+	    if (so >= SCOREWIDTH) so = SCOREWIDTH-1;
 	    while (bp < linebuf + so) *bp++ = ' ';
 	    *bp = 0;
 	    topten_print_bold(linebuf);
@@ -754,9 +757,12 @@ char **argv;
 	register int i;
 	char pbuf[BUFSZ];
 	int uid = -1;
+        boolean interactive = FALSE;
 #ifndef PERS_IS_UID
 	const char *player0;
 #endif
+        static char* interactive_argv[] = {"","-s","all",0};
+        if (argc == -1) {argc = 3; argv = interactive_argv; interactive = TRUE;}
 
 	if (argc < 2 || strncmp(argv[1], "-s", 2)) {
 		raw_printf("prscore: bad arguments (%d)", argc);
@@ -780,7 +786,7 @@ char **argv;
 	/* If the score list isn't after a game, we never went through
 	 * initialization. */
 	if (wiz1_level.dlevel == 0) {
-		dlb_init();
+                if (!interactive) dlb_init();
 		init_dungeons();
 		init_done = TRUE;
 	}
@@ -832,10 +838,10 @@ char **argv;
 	(void) fclose(rfile);
 	if (init_done) {
 	    free_dungeons();
-	    dlb_cleanup();
+	    if (!interactive) dlb_cleanup();
 	}
 
-	if (match_found) {
+	if (match_found || interactive) {
 	    outheader();
 	    t1 = tt_head;
 	    for (rank = 1; t1->points != 0; rank++, t1 = t1->tt_next) {
@@ -879,6 +885,15 @@ char **argv;
 	    amii_rawprwin = WIN_ERR;
 	}
 #endif
+}
+                               
+void
+prscore_interactive() {
+  toptenwin = create_nhwindow(NHW_TEXT);
+  prscore(-1, 0);
+  display_nhwindow(toptenwin, 1);
+  destroy_nhwindow(toptenwin);
+  toptenwin = WIN_ERR;
 }
 
 STATIC_OVL int

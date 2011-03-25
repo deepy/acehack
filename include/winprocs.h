@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)winprocs.h 3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1992				  */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 24 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef WINPROCS_H
@@ -12,6 +12,7 @@ struct window_procs {
     unsigned long wincap2;	/* additional window port capability options supported */
     void FDECL((*win_init_nhwindows), (int *, char **));
     void NDECL((*win_player_selection));
+    void NDECL((*win_game_mode_selection));
     void NDECL((*win_askname));
     void NDECL((*win_get_nh_event)) ;
     void FDECL((*win_exit_nhwindows), (const char *));
@@ -80,6 +81,7 @@ extern NEARDATA struct window_procs windowprocs;
 
 #define init_nhwindows (*windowprocs.win_init_nhwindows)
 #define player_selection (*windowprocs.win_player_selection)
+#define game_mode_selection (*windowprocs.win_game_mode_selection)
 #define askname (*windowprocs.win_askname)
 #define get_nh_event (*windowprocs.win_get_nh_event)
 #define exit_nhwindows (*windowprocs.win_exit_nhwindows)

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 25 Dec 2010 by Alex Smith */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -54,6 +54,7 @@ struct window_procs tty_procs = {
     0L,
     tty_init_nhwindows,
     tty_player_selection,
+    tty_game_mode_selection,
     tty_askname,
     tty_get_nh_event,
     tty_exit_nhwindows,
@@ -320,6 +321,177 @@ char** argv;
     tty_display_nhwindow(BASE_WINDOW, FALSE);
 }
 
+/**
+   Runs before player selection, and is used to determine which game
+   mode to play in. If the choice is to continue or start a new game, it
+   sets the character name to determine which (currently unused name for
+   the player = new game, currently used name = continue that game);
+   otherwise, it implements the choice itself then either loops or
+   exits.
+*/
+void
+tty_game_mode_selection()
+{
+  dlb *fp;
+  int c;
+  char** saved;
+  char** sp;
+  int plname_in_saved = 0;
+
+  saved = get_saved_games();
+
+  if (*plname) {
+    for (sp = saved; *sp; sp++) {
+      /* Note that this means that public servers need to prevent two
+         users with the same name but different capitalisation. (If
+         they aren't, it's likely to cause problems anyway...) */
+      if (!strcmpi(plname, *sp)) {
+        plname_in_saved = 1;
+        /* Fix capitalisation of the name to match the saved game. */
+        strncpy(plname, *sp, sizeof(plname)-1);
+      }
+    }
+  }
+
+retry_mode_selection:
+  tty_clear_nhwindow(BASE_WINDOW);
+  curs(BASE_WINDOW,1,0);
+
+  fp = dlb_fopen("logo.vt100", RDBMODE);
+  if (!fp) {
+    panic("Cannot find data file 'logo.vt100'");
+  }
+  while ((c = dlb_fgetc(fp)) != EOF) {
+    /* TODO: Strip color if the options specify we can't show it on
+       this terminal. (Part of the reason the options setup is shown
+       on first load if there's no RC is so that color can be turned
+       off before it makes the game unplayable on such terminals.)
+       Converting the vt100 codes via termcap may also make sense. */
+    if (c == 1) { /* gray out if there's no game to continue */
+      if (!saved || !*saved) xputs("\033[31m");
+      else if (*plname && !plname_in_saved) xputs("\033[31m");
+      /* and bold if there is */
+      else xputs("\033[1m");
+    }
+    else if (c == 2) { /* gray out if a game must be continued */
+      if (*plname && plname_in_saved) xputs("\033[31m");
+    }
+    else xputc(c); /* low-level as codes are in the file itself */
+  }
+  dlb_fclose(fp);
+
+reread_char:
+  c = lowc(readchar());
+  switch (c) {
+  case 'c': /* continue game */
+    if (!saved || !*saved) goto reread_char;
+    if (*plname && !plname_in_saved) goto reread_char;
+    if (!saved[1]) {
+      /* only one game to continue */
+      (void) strncpy(plname, *saved, sizeof(plname)-1);
+    } else {
+      /* we'll have to ask which game to continue */
+      winid win;
+      anything any;
+      menu_item *selected = 0;
+      tty_clear_nhwindow(BASE_WINDOW);
+      curs(BASE_WINDOW,1,0);
+      win = create_nhwindow(NHW_MENU);
+      start_menu(win);
+      any.a_void = 0;
+      for (sp = saved; *sp; sp++) {
+        any.a_void = (void*) *sp;
+        add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, *sp, MENU_UNSELECTED);
+      }
+      end_menu(win, "Continue which saved game?");
+      c = select_menu(win, PICK_ONE, &selected);
+      destroy_nhwindow(win);
+      if (c != 1) {
+        free((genericptr_t) selected);
+        goto retry_mode_selection;
+      }
+      (void) strncpy(plname, (char*)selected[0].item.a_void, sizeof(plname)-1);
+      free((genericptr_t) selected);
+    }
+    break;
+  case 'n': case 't': case 'm': /* the new game options  */
+    /* if the name is forced by the -u option, don't give an option to
+       start a new game, as we're forced onto the existing game */
+    if (*plname && plname_in_saved) goto reread_char;
+    if (c == 'm') {
+      tty_clear_nhwindow(BASE_WINDOW);
+      curs(BASE_WINDOW,1,0);
+      fp = dlb_fopen("modemenu", RDBMODE);
+      if (!fp) {
+        panic("Cannot find data file 'modemenu'");
+      }
+      while ((c = dlb_fgetc(fp)) != EOF) xputc(c);
+      dlb_fclose(fp);
+      do {
+        c = lowc(readchar());
+        switch(c) {
+          /* -D, -X on command line are overriden by selecting a normal game
+             explicitly */
+        case 'n': wizard = FALSE; discover = FALSE; break;
+        case 't': break;
+        case 'd':
+#ifdef WIZARD
+          /* The rules here are a little complex:
+             - with no -u (local play, private server play), anyone
+               can enter debug mode;
+             - with -u set (generally public server play), only an
+               authorized user can enter debug mode.
+             Thus people can enter it freely in their own compiles,
+             but on public servers likely only the admin can enter it,
+             as only they can tweak the command line. (-D works too
+             to enter wizmode, whatever the -u option, as if it's
+             given the player has control over the command line anyway.) */
+          if (*plname && strcmpi(plname,WIZARD)) {
+            extern int wiz_error_flag; /* from unixmain.c */
+            tty_clear_nhwindow(BASE_WINDOW);
+            curs(BASE_WINDOW,1,0);
+            wiz_error_flag = TRUE;
+          } else {
+            wizard = TRUE;
+            c = 'n';
+            break;
+          }
+          /*FALLTHRU*/
+#endif /* otherwise fall through, as debug mode isn't compiled in */
+        case 'x': discover = TRUE; c = 'n'; break;
+        case 's': solo = TRUE; c = 'n'; break;
+        case '\033': goto retry_mode_selection;
+        default: continue;
+        }
+      } while (c != 'n' && c != 't');
+    }
+    if (c == 't') flags.tutorial = 1;
+    break;
+  case 's': /* show high score list */
+    prscore_interactive();
+    goto retry_mode_selection;
+  case 'o': /* options */
+    tty_clear_nhwindow(BASE_WINDOW);
+    curs(BASE_WINDOW,1,0);
+    doset();
+    goto retry_mode_selection;
+  case '?': /* help */
+    tty_clear_nhwindow(BASE_WINDOW);
+    curs(BASE_WINDOW,1,0);
+    dohelp();
+    tty_dismiss_nhwindow(NHW_MESSAGE); /* force a --More-- */
+    goto retry_mode_selection;
+  case 'q': case '\033': /* exit */
+    bail((char *)0);
+    /*NOTREACHED*/
+  default:
+    goto reread_char;
+  }
+
+  free_saved_games(saved);
+}
+
+
 struct player_selection_menu_option {
 	int x, y;
 	char accel;
@@ -366,6 +538,59 @@ tty_player_selection()
         int ch = 0;
         long scumcount = !!flags.startscum;
         const char *line1, *line2, *line3;
+
+        /* If in tutorial mode, narrow the character selection */
+        if (flags.tutorial) {
+            winid win;
+            anything any;
+            int n;
+            menu_item *selected = 0;
+            tty_clear_nhwindow(BASE_WINDOW);
+            tty_putstr(BASE_WINDOW, 0, "Choose a Character");
+            win = create_nhwindow(NHW_MENU);
+            start_menu(win);
+            any.a_int = 1;
+            add_menu(win, NO_GLYPH, &any, 'v', 0, ATR_NONE,
+                     "lawful female dwarf Valkyrie (uses melee and thrown weapons)",
+                     MENU_UNSELECTED);
+            any.a_int = 2;
+            add_menu(win, NO_GLYPH, &any, 'w', 0, ATR_NONE,
+                     "chaotic male elf Wizard      (relies mostly on spells)",
+                     MENU_UNSELECTED);
+            any.a_int = 3;
+            add_menu(win, NO_GLYPH, &any, 'R', 0, ATR_NONE,
+                     "neutral female human Ranger  (good with ranged combat)",
+                     MENU_UNSELECTED);
+            any.a_int = 4;
+            add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
+                     "quit", MENU_UNSELECTED);
+            end_menu(win, "What character do you want to try?");
+            n = select_menu(win, PICK_ONE, &selected);
+            destroy_nhwindow(win);
+            if (n != 1 || selected[0].item.a_int == 4) bail((char*) 0);
+            switch (selected[0].item.a_int) {
+            case 1:
+                flags.initrole = str2role("Valkyrie");
+                flags.initrace = str2race("dwarf");
+                flags.initgend = str2gend("female");
+                flags.initalign = str2align("lawful");
+                break;
+            case 2:
+                flags.initrole = str2role("Wizard");
+                flags.initrace = str2race("elf");
+                flags.initgend = str2gend("male");
+                flags.initalign = str2align("chaotic");
+                break;
+            case 3:
+                flags.initrole = str2role("Ranger");
+                flags.initrace = str2race("human");
+                flags.initgend = str2gend("female");
+                flags.initalign = str2align("neutral");
+                break;
+            default: panic("Impossible menu selection"); break;
+            }
+            free((genericptr_t) selected);
+        }
 
 	/* If there's some info in the RC, optimise it before using it */
 	rigid_role_checks();
@@ -432,6 +657,7 @@ tty_player_selection()
             struct player_selection_menu_option* p = player_selection_menu_options;
             int savestat, i;
             struct obj * otmp;
+            if (flags.tutorial) break;
             while (p->x) {
                 int color = CLR_GRAY;
                 curs(BASE_WINDOW, p->x, p->y);
@@ -1933,10 +2159,7 @@ boolean complain;
 		&& nh_CD
 #endif
 	    ) {
-		/* attempt to scroll text below map window if there's room */
-		wins[datawin]->offy = wins[WIN_STATUS]->offy+3;
-		if((int) wins[datawin]->offy + 12 > (int) ttyDisplay->rows)
-		    wins[datawin]->offy = 0;
+		wins[datawin]->offy = 0;
 	    }
 	    while (dlb_fgets(buf, BUFSZ, f)) {
 		if ((cr = index(buf, '\n')) != 0) *cr = 0;

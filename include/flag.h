@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)flag.h	3.4	2002/08/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 24 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you change the flag structure make sure you increment EDITLEVEL in   */
@@ -76,6 +76,8 @@ struct flag {
 	boolean  showscore;	/* show score */
 #endif
 	boolean  silent;	/* whether the bell rings or not */
+	boolean  solomode;      /* whether to ban bones loading */
+#define solo flags.solomode
 	boolean  sortpack;	/* sorted inventory */
 	boolean  soundok;	/* ok to tell about sounds heard */
 	boolean  sparkle;	/* show "resisting" special FX (Scott Bigham) */

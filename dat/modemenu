@@ -1,0 +1,24 @@
+Play in which game mode?
+
+t - Tutorial
+    Gain hints about controls and gameplay, in your choice of either a very
+    simple game to serve as an example, or a normal game eligible for scoring.
+
+x - Explore mode
+    A more forgiving version of the game, for experimentation; save files can
+    be loaded without deleting them, you resurrect infinite times upon death,
+    and you start with a free wand of wishing. Not eligible for scoring.
+
+n - Normal mode
+    The normal game. Death is permanent and deletes your save file.
+
+s - Solo mode
+    A version of the normal game slightly modified to prevent interaction
+    between players; all levels generated will be fresh, rather than copied
+    from the bones of previous games. You also do not see your character's
+    stats until you start playing.
+
+d - Debug mode
+    Gain free rein over everything that exists in the game world, for debugging
+    the game. The game may not be stable in this mode, due to the ability to
+    change game internals. Obviously not eligible for scoring.

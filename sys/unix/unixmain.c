@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)unixmain.c	3.4	1997/01/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* main.c - Unix NetHack */
@@ -41,7 +42,7 @@ extern void NDECL(init_linux_cons);
 
 static void NDECL(wd_message);
 #ifdef WIZARD
-static boolean wiz_error_flag = FALSE;
+boolean wiz_error_flag = FALSE;
 #endif
 
 int
@@ -151,13 +152,24 @@ char *argv[];
 #endif
 	initoptions();
 	init_nhwindows(&argc,argv);
-	exact_username = whoami();
 #ifdef _M_UNIX
 	init_sco_cons();
 #endif
 #ifdef __linux__
 	init_linux_cons();
 #endif
+	dlb_init();	              /* must be before game_mode_selection() */
+	display_gamewindows();        /* likewise */
+	process_options(argc, argv);  /* for -u */
+
+        /*
+         * Show splash screen, allow game mode selection.
+         */
+        game_mode_selection(); /* doesn't return unless game is played */
+
+        /* This must be after game mode selection, otherwise it can't
+           distinguish -u (forced username) from the user's login name. */
+	exact_username = whoami();
 
 	/*
 	 * It seems you really want to play.
@@ -168,7 +180,6 @@ char *argv[];
 	(void) signal(SIGXCPU, (SIG_RET_TYPE) hangup);
 #endif
 
-	process_options(argc, argv);	/* command line options */
 
 #ifdef DEF_PAGER
 	if(!(catmore = nh_getenv("HACKPAGER")) && !(catmore = nh_getenv("PAGER")))
@@ -215,8 +226,6 @@ char *argv[];
 	}
 #endif /* WIZARD */
 
-	dlb_init();	/* must be before newgame() */
-
 	/*
 	 * Initialization of the boundaries of the mazes
 	 * Both boundaries have to be even.
@@ -233,8 +242,6 @@ char *argv[];
 	 *  new game or before a level restore on a saved game.
 	 */
 	vision_init();
-
-	display_gamewindows();
 
 	if ((fd = restore_saved_game()) >= 0) {
 #ifdef WIZARD
@@ -306,35 +313,10 @@ char *argv[];
 		switch(argv[0][1]){
 		case 'D':
 #ifdef WIZARD
-			{
-			  char *user;
-			  int uid;
-			  struct passwd *pw = (struct passwd *)0;
-
-			  uid = getuid();
-			  user = getlogin();
-			  if (user) {
-			      pw = getpwnam(user);
-			      if (pw && (pw->pw_uid != uid)) pw = 0;
-			  }
-			  if (pw == 0) {
-			      user = nh_getenv("USER");
-			      if (user) {
-				  pw = getpwnam(user);
-				  if (pw && (pw->pw_uid != uid)) pw = 0;
-			      }
-			      if (pw == 0) {
-				  pw = getpwuid(uid);
-			      }
-			  }
-			  if (pw && !strcmp(pw->pw_name,WIZARD)) {
-			      wizard = TRUE;
-			      break;
-			  }
-			}
-			/* otherwise fall thru to discover */
-			wiz_error_flag = TRUE;
+                        wizard = TRUE;
+                        break;
 #endif
+                        /* else FALLTHRU */
 		case 'X':
 			discover = TRUE;
 			break;
@@ -511,11 +493,11 @@ wd_message()
 # else
 			WIZARD_NAME);
 # endif
-		pline("Entering discovery mode instead.");
+		pline("Entering explore mode instead.");
 	} else
 #endif
 	if (discover)
-		You("are in non-scoring discovery mode.");
+		You("are in non-scoring explore mode.");
 }
 
 /*
