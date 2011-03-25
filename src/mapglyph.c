@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -313,6 +313,12 @@ unsigned *ospecial;
       if (ttmp && ttmp->tseen) {
         color %= CLR_MAX;
         color += CLR_MAX*CLR_CYAN;
+      }
+      /* Brand squares with known stairs/ladders/portals as white. */
+      if (levl[x][y].styp == STAIRS || levl[x][y].styp == LADDER ||
+          (ttmp && ttmp->tseen && ttmp->ttyp == MAGIC_PORTAL)) {
+        color %= CLR_MAX;
+        color += CLR_MAX*CLR_GRAY;
       }
     }
 

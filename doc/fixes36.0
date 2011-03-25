@@ -345,7 +345,10 @@ Background colors are also used to signify other things, e.g. detected
 monsters, pets, peaceful monsters.  (Credits: This idea was inspired
 by Dungeon Crawl Stone Soup.) Likewise, squares which contain known
 traps are shown with a cyan background no matter what is actually on
-the square, to warn the player against stumbling into them.
+the square, to warn the player against stumbling into them, and
+squares containing known stairs, ladders, and portals are shown with a
+white background no matter what is actually on the square, so they are
+visible even with an item beneath them.
 
 The character memorises whether doors are locked or unlocked, and this
 is shown by changing their color (red for locked, green for unlocked,
