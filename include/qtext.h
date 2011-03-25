@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)qtext.h	3.4	1997/02/02	*/
 /* Copyright (c) Mike Stephenson 1991.				  */
-/* Modified 12 Sep 2009 by Alex Smith */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef QTEXT_H
@@ -117,8 +117,7 @@ struct	qtlists {
 
 /* Introductory messages */
 #define QT_T_WELCOME        201 /* at start of game */
-#define QT_T_CURSOR_NUMPAD  202 /* upon pressing ; with numpad */
-#define QT_T_CURSOR_VIKEYS  203 /* upon pressing ; with vikeys */
+#define QT_T_CURSOR         203 /* upon pressing ; */
 /* Looking at monsters */
 #define QT_T_LOOK_TAME      210 /* farlooking a pet */
 #define QT_T_LOOK_HOSTILE   211 /* farlooking a hostile */
@@ -140,13 +139,11 @@ struct	qtlists {
 #define QT_T_TRAP           242 /* adjacent to or farlooked trap */
 #define QT_T_L1UPSTAIRS     259 /* farlooked level 1 upstairs */
 /* Interface hints and reminders */
-#define QT_T_FARMOVE_VIKEYS 260 /* direction key five times in a row */
-#define QT_T_FARMOVE_NUMPAD 261 /* ditto */
+#define QT_T_FARMOVE        260 /* direction key five times in a row */
 #define QT_T_TRAVEL         262 /* thirty direction keys in a row */
-#define QT_T_DIAGONALS_VI   263 /* twenty orthogonals in a row */
-#define QT_T_DIAGONALS_NUM  264 /* twenty orthogonals in a row */
-#define QT_T_REPEAT_VIKEYS  265 /* s 5 times in a row */
-#define QT_T_REPEAT_NUMPAD  266 /* s 5 times in a row */
+#define QT_T_DIAGONALS      263 /* twenty orthogonals in a row */
+#define QT_T_AUTOEXPLORE    264 /* sixty direction keys in a row */
+#define QT_T_REPEAT         265 /* s 5 times in a row */
 #define QT_T_CHOOSEITEM     267 /* explaining [a-zA-Z?*] menus */
 #define QT_T_MASSUNEQUIP    268 /* R or T twice in a row */
 #define QT_T_CALLMONSTER    269 /* adjacent to two identical monsters */

@@ -1,6 +1,6 @@
 #	SCCS Id: @(#)quest.txt	3.4	2002/01/30
 #	Copyright (c) 1991 by M. Stephenson
-#       Modified 18 Oct 2010 by Alex Smith
+#       Modified 25 Mar 2011 by Alex Smith
 # NetHack may be freely redistributed.  See license for details.
 #
 #	The quest text file for AceHack 3.6
@@ -3544,51 +3544,28 @@ symbol means, or ; to find out what any object on the map is.
 Let's start by looking around a bit; close this message with the
 spacebar, then press ; so that you can look at nearby objects.
 %E
-# Time for the old numpad vs. vikeys Holy War. There's a separate
-# tutorial message for each.
-%Cm - 00202
-Tutorial: CURSOR MOVEMENT (with the number pad)
+# AceHack is always set to "vikeys mode" internally, although the
+# numbers can be used to move too. So we write both on the table.
+%Cm - 00203
+Tutorial: CURSOR MOVEMENT
 
 In order to specify what you want to look at, you have to be able to
 move the cursor. You may be used to thinking of four directions in
 which an object can move; but AceHack has eleven:
 
-north-west north north-east          upwards
-       7     8     9                    <
-
-           here
-  west 4     .     6 east
-          at self
-
-       1     2     3                    >
-south-west south south-east         downwards
+north-west north north-east  upwards   You can move with either the
+       7y   8k    9u            <      number keys or their letter
+                                       equivalents. (To remember the
+           here                        letters, hjkl are in a row,
+  west 4h    .    6l east              with j's descender going down,
+          at self                      k's ascender going up, and the
+                                       diagonals next to h on a
+       1b   2j    3n            >      QWERTY keyboard.)
+south-west south south-east downwards  
 
 In the case of looking at an object on-screen, we can only look
 sideways, not upwards or downwards, so only bother with the numbers
 for the time being. Use the numbers in order to move the cursor over
-the location to look at; then press the . button to select it. If you
-aren't sure what to look at, look at a monster (a letter on the map).
-%E
-%Cm - 00203
-Tutorial: CURSOR MOVEMENT (with vi-style controls)
-
-In order to specify what you want to look at, you have to be able to
-move the cursor. You may be used to thinking of four directions in
-which an object can move; but AceHack has eleven:
-
-north-west north north-east      upwards     Note: for orthogonal
-       y     k     u                <        movement, hjkl are in a
-                                             row on a QWERTY keyboard;
-           here                              j's descender goes down,
-  west h     .     l east                    k's ascender goes up. The
-          at self                            diagonals are the letters
-                                             diagonally adjacent to h,
-       b     j     n                >        in the corresponding
-south-west south south-east     downwards    directions.
-
-In the case of looking at an object on-screen, you can only look
-sideways, not upwards or downwards, so only bother with the letters
-for the time being. Use the letters in order to move the cursor over
 the location to look at; then press the . button to select it. If you
 aren't sure what to look at, look at a monster (a letter on the map).
 %E
@@ -3604,7 +3581,7 @@ with the corpses of enemy monsters to prevent itself becoming hungry,
 and back out of fights it thinks it will lose. Over time, as the pet
 gets more practice, it will get better at combat, and may grow into a
 larger animal; and to start with, your pet may well be better at
-combat than you are; a useful friend for an inexperienced character.
+combat than you are. Pets are shown with a blue background.
 
 Note that your pet can't follow you everywhere; if you go up or down
 stairs, your pet will only be able to follow if it's next to you at
@@ -3622,7 +3599,7 @@ That's a hostile monster, one of the huge number of threats facing you
 in the Mazes of Menace. Note that monsters are only displayed onscreen
 if your character can see them; therefore, it can be important to try
 to get the best view of what's ahead that you can, and be especially
-wary in dark corridors!
+wary in dark corridors! Hostile monsters have no colored background.
 
 There are several ways to deal with enemy monsters. Although often you
 can simply run away, that can leave you backed into a corner, and some
@@ -3646,19 +3623,19 @@ have more sense than that. Many monsters can be very dangerous when
 angered; so it's often a good idea to leave peaceful monsters be. If a
 peaceful monster is blocking your way, try waiting a few turns (press
 the . key in order to wait a turn) to see if they move out of the way.
+If a monster is peaceful, you can tell via its brown background.
 
 Amongst the factors that determine how a monster will react to you,
 one of the most important is alignment (Lawful, Neutral, or Chaotic);
 monsters which have a similar outlook on life to you are more likely
-to be non-aggressive. You can see your alignment in the status area
-near the bottom of the screen, or by pressing control-X; this also
-lets you know about the connected area of religion (sharing an
-alignment implies sharing a god). Note that although lawful behaviour
-tends to be good, and evil behaviour tends to be chaotic, legal and
-ethical do not always coincide.
+to be non-aggressive. You can see your alignment by pressing
+control-X; this also lets you know about the connected area of
+religion (sharing an alignment implies sharing a god). Note that
+although lawful behaviour tends to be good, and evil behaviour tends
+to be chaotic, legal and ethical do not always coincide.
 
 One useful form of interaction with certain peaceful and tame monsters
-is to chat to them using #chat; you'll see the outcome of the
+is to chat to them using the c command; you'll see the outcome of the
 conversation at the top of the screen.
 %E
 # Technically speaking, finding invisible monsters using s is a
@@ -3695,16 +3672,16 @@ that they're on (although your options may be set to show it in a more
 stylish way, to avoid it getting muddled with a wall). A closed door
 is a rather obvious obstacle to any adventurer, but there are several
 ways to deal with one. Probably the most obvious method of getting
-past a door is to try to open it; to do that, stand adjacent to the
-door, press o, and specify the direction that the door is in. Some
-doors are locked; in this case, you'll have to either pick the lock
-(by using the a command to use a lock-picking tool, if you have one),
-or kick the door down using control-D.
+past a door is to try to open it; to do that, just use the cursor
+movement keys to walk towards the door. Some doors are locked; in that
+case, you'll have to either pick the lock (by using the a command to
+use a lock-picking tool, if you have one), or kick the door down using
+control-D. You can also open, close, or unlock a door by pressing o.
 
 Open doors are less obviously obstacles, but they still hamper
 movement to some extent, as it's impossible to move diagonally into or
 out of an open doorway; you have to approach it straight. You can also
-close an open door by pressing c when standing adjacent to it; because
+close an open door by pressing o when standing adjacent to it; because
 most monsters don't know how to, or physically can't, open doors, this
 can be useful for shutting out monsters.
 %E
@@ -3730,12 +3707,12 @@ that borders them is just displayed with blank space. Corridors are
 generally dark; unless you illuminate them yourself somehow, you'll
 only be able to fully see the squares adjacent to you (as well as any
 lit squares in the distance, if there's no solid object in the way).
-Take extra care in corridors; you might suddenly end up next to a
-monster you couldn't previously see, due to being too far away!
+The color of squares shows whether they're lit, and whether they've
+been stepped on; the exact colors depend on where you are.
 %E
 # Given the first time the player walks to a location where they could
 # find a secret by searching. The mention of dead-ends is a non-
-# Guidebook
+# Guidebook spoiler.
 %Cm - 00232
 Tutorial: SECRET DOORS AND CORRIDORS
 
@@ -3775,7 +3752,10 @@ Be very careful when moving near water; falling in may cause your
 character severe problems, although it isn't normally instantly fatal
 unless you're so burdened you can't climb back out. It's often a good
 strategy to find an alternative route through this level, if there is
-one.
+one. In order to avoid accidentally falling into water due to typos,
+while your character can think straight and is on the ground you must
+press m before moving to jump into water. This protection won't always
+apply if your character is staggering aboutm though...
 %E
 # And it has even less to say about lava...
 %Cm - 00234
@@ -3783,25 +3763,24 @@ Tutorial: LAVA
 
 Lava, like water, is represented by the } character (or other custom
 character representing liquid); you can use the ; command to tell
-water and lava apart, or (if playing in colour) by looking at the
-colour difference. You need to be even more careful around lava than
+water and lava apart, or use the color difference (water is blue,
+lava is red). You need to be even more careful around lava than
 you are around water; few adventurers have the levels of magical
-protection needed to be able to swim through lava safely, so a typo
-near lava could be instantly fatal. Because AceHack is a turn-based
-game, there's no need to react to anything quickly in real-time; so
-take your time over your moves!
+protection needed to be able to swim through lava safely, so
+falling into lava while confused may well be instantly fatal.
+Because AceHack is a turn-based game, there's no need to react to
+anything quickly in real-time; so take your time over your moves!
 %E
 %Cm - 00235
 Tutorial: STAIRS
 
 The > and < characters represent flights of stairs (going down and up
 respectively); you can climb down stairs in order to go deeper in the
-dungeon. The commands for traversing a flight of stairs are the same
-as the characters representing the stairs themselves; and likewise,
-the same as the keys representing the vertical directions. Note that
-climbing up and down stairs can be difficult if you're holding too
-much equipment; for instance, excess weight may cause you to fall down
-the stairs, taking damage in the process.
+dungeon. You can use the > command to climb stairs you are standing on
+(< also works for stairs that go upwards, but > is the general command
+for interacting with terrain beneath you). Note that climbing up and
+down stairs can be difficult if you're holding too much equipment;
+travel light to avoid making a fool of yourself.
 
 If you can't see the stairs that let you move down from any given
 level, try looking underneath items; failing that, bear in mind the
@@ -3809,7 +3788,8 @@ possibility that there may be a secret door or corridor somewhere
 leading to another part of the current level. (Of course, the dungeon
 isn't infinitely deep; so it's possible you'll find the bottom level,
 which has no downstairs. But that isn't something to worry about just
-now.)
+now.) Once you find stairs, they are shown with a white background,
+which lets you see them even behind items or monsters.
 
 Note that the stairs that go up from level 1 lead out of the dungeon;
 the game will end if you use them.
@@ -3824,8 +3804,11 @@ want to drink from it, or dip something into it; in either case, this
 is accomplished by standing on the square of the fountain, and using
 one of the following commands:
 
-    q   Drink (quaff) from the fountain
- #dip   Dip something into the fountain
+    q,   Drink (quaff) from the fountain
+    >    Dip something into the fountain
+
+(In general, the > command lets you interact with any terrain beneath
+your feet, whether fountains or thrones or stairs.)
 
 Note that not all fountains are quite what they seem to be!
 %E
@@ -3834,9 +3817,10 @@ Tutorial: THRONES
 
 A backslash character (\) represents an opulent throne. If there's
 nothing else on the same square as the throne, you can sit on it by
-moving onto the same square and using the #sit command; if there are
+moving onto the same square and using the > command; if there are
 items on top of the throne, you'll need to clear them off first, say
-by picking them up and dropping them elsewhere.
+by picking them up and dropping them elsewhere. (The > command lets
+you interact with any terrain beneath you.)
 %E
 %Cm - 00238
 Tutorial: KITCHEN SINKS
@@ -3844,8 +3828,8 @@ Tutorial: KITCHEN SINKS
 The # character normally represents a corridor; but inside a room, it
 has a different use, representing a kitchen sink. Sinks don't have
 many obvious uses, although if you feel brave, you could try drinking
-from one by standing on the same square as the sink, and pressing q in
-order to 'quaff' from it.
+from one by standing on the same square as the sink, and pressing q,
+in order to 'quaff' from it.
 %E
 %Cm - 00239
 Tutorial: GRAVES
@@ -3878,18 +3862,17 @@ dedicated to; to do this, stand on the altar and press the : key.
 (Using : will tell you more information about the square you're on.)
 As a reminder: your %G is %d.
 
-One common use of an altar is to sacrifice the corpse of a monster to
-the appropriate deity; to do this, stand on the altar, with a corpse
-in your inventory or on the altar, and use the #offer command. As long
-as your %G is not offended by the sacrifice, this will generally
-have a pleasing effect; sometimes, your %G will give you gifts in
-return for your sacrifices.
+While on an altar to your own god, religious actions work better; you
+can perform religious actions, such as sacrificing corpses or prayer,
+with control-W. Sacrifices tend to make your god happier, and perhaps
+even bestow you with gifts, as long as they are not offensive; but a
+prayer is a request for help, often in emergencies, and using it too
+often will likely just annoy your %G. Sacrifices require an
+altar to work, but prayers for help can be done anywhere.
 
-Prayer (using #pray) is also more effective when standing on your own
-%G's altar; prayer is used to request help from the gods, usually
-in emergencies. Deities don't like being pestered too much, so try not
-to request divine intervention too often; most of the time, you'll
-want to save your prayers for when you're in mortal danger.
+As with other types of terrain, you can also use > to interact with
+an altar below you, sacrificing a corpse; it does the same thing as
+control-W, without having to go through the menu.
 %E
 %Cm - 00241
 Tutorial: DRAWBRIDGES
@@ -3898,21 +3881,23 @@ That's a drawbridge; while open, you can walk over it, but when shut,
 it will block your path. Drawbridges are basically just really large
 doors; but they tend to have a more complicated mechanism for opening
 and closing. You almost certainly don't want to be anywhere near a
-drawbridge if it gets destroyed!
+drawbridge if it gets destroyed! They are too large to open or close
+by hand, so you'll have to find some other mechanism for working them.
 %E
 %Cm - 00242
 Tutorial: TRAPS
 
 The ^ symbol represents a trap. Traps can have a variety of effects,
 but generally speaking you want to avoid them; you can look at a trap
-with ; to see what it does (or use ^ and a direction when next to it,
-if it's buried under items and you can't see the ^ as a result). Some
-traps can be dismantled using the #untrap command when adjacent to the
-trap; although scavenging the parts that make up a trap can be useful,
-it's entirely possible that your character will set the trap off by
-mistake when doing so, so be careful and make sure you aren't badly
-injured before you try. The #untrap command can also be used to check
-chests and doors for traps, although not with a perfect success rate.
+with ; to see what it does. Some traps can be dismantled using the ^
+command when adjacent to the trap; although scavenging the parts that
+make up a trap can be useful, it's entirely possible that your
+character will set the trap off by mistake when doing so, so be
+careful and make sure you aren't badly injured before you try. The ^ 
+command can also be used to check chests and doors for traps,
+although not with a perfect success rate, or to see what a trap hidden
+behind an item or monster is. (Previously discovered traps are shown
+with a cyan background even if an item or monster is on the square.)
 
 Walking round a trap is normally the best option; although if it's
 blocking your way and you can't dismantle it, there may be some more
@@ -3922,10 +3907,10 @@ functioning correctly when stepped on.
 %Cm - 00259
 Tutorial: ESCAPING THE DUNGEON
 
-That < is a flight of stairs going upwards (likewise, a > is a flight
-of stairs going downwards); to be precise, those are the stairs you
-used to enter the dungeon. If you go up those stairs (by using the <
-command), you'll walk straight out of the dungeon and end the game.
+That < is a ladder or stairs going upwards (likewise, a > is a ladder
+or stairs going downwards); that < in particular is the ladder you
+used to enter the dungeon. If you go up that ladder (by using the <
+or > command on it), you'll walk out of the dungeon and end the game.
 
 Leaving the dungeon via the stairs is known as 'escaping'; escaping
 the dungeon is not nearly as bad as death (especially if you get out
@@ -3943,30 +3928,7 @@ to play there again, you'll have to start a new game, with a new
 character, if you escape.
 %E
 %Cm - 00260
-Tutorial: FASTER MOVEMENT (with vi-style controls)
-
-Moving around one square at a time is useful for tactical reasons
-during combat; but it can get boring quickly when trying to explore a
-level. Therefore, there are some commands which cause you to continue
-moving in the same general direction until something happens:
-
-    g <direction>
-        Keep moving in the given direction until something interesting
-        happens, or the corridor forks.
-    G <direction> or control-<direction>
-        Keep moving in the given direction until something interesting
-        happens (not including a fork in the corridor).
-    M <direction> or   shift-<direction>
-        Keep moving in the given direction until no further progress
-        is possible (such as bumping into a monster or dead end).
-
-It's up to you to decide how aggressive you want to be in terms of
-automatically repeating moves; note that none of these save you time
-in-game, just your own time playing. Of course, you need not use these
-commands at all; you can just continue moving one square at a time.
-%E
-%Cm - 00261
-Tutorial: FASTER MOVEMENT (with the number pad)
+Tutorial: FASTER MOVEMENT
 
 Moving around one square at a time is useful for tactical reasons
 during combat; but it can get boring quickly when trying to explore a
@@ -3976,10 +3938,10 @@ moving in the same general direction until something happens:
     g <direction> or 5 <direction>
         Keep moving in the given direction until something interesting
         happens, or the corridor forks.
-    G <direction>
+    control-<direction letter> (does not work with numbers)
         Keep moving in the given direction until something interesting
         happens (not including a fork in the corridor).
-    M <direction>
+    shift-<direction letter> (does not work with numbers)
         Keep moving in the given direction until no further progress
         is possible (such as bumping into a monster or dead end).
 
@@ -4011,21 +3973,21 @@ Travelling will stop automatically if it comes across something
 interesting, such as an engraving or a monster.
 %E
 %Cm - 00263
-Tutorial: DIAGONAL MOVEMENT (with vi-style controls)
+Tutorial: DIAGONAL MOVEMENT
 
 It seems that you haven't been moving diagonally much recently; this
 is a reminder about what diagonal movement is all about. Here's the
 cursor movement diagram again, as a reminder:
 
-north-west north north-east      upwards     Note: for orthogonal
-       y     k     u                <        movement, hjkl are in a
-                                             row on a QWERTY keyboard;
-           here                              j's descender goes down,
-  west h     .     l east                    k's ascender goes up. The
-          at self                            diagonals are the letters
-                                             diagonally adjacent to h,
-       b     j     n                >        in the corresponding
-south-west south south-east     downwards    directions.
+north-west north north-east  upwards   You can move with either the
+       7y   8k    9u            <      number keys or their letter
+                                       equivalents. (To remember the
+           here                        letters, hjkl are in a row,
+  west 4h    .    6l east              with j's descender going down,
+          at self                      k's ascender going up, and the
+                                       diagonals next to h on a
+       1b   2j    3n            >      QWERTY keyboard.)
+south-west south south-east downwards  
 
 Moving diagonally can be an important tactic, as it's generally faster
 than moving orthogonally for moving quickly along diagonal corridors;
@@ -4034,30 +3996,25 @@ taking any extra time. It's especially important to use diagonal moves
 correctly when trying to outrun a monster.
 %E
 %Cm - 00264
-Tutorial: DIAGONAL MOVEMENT (with the number pad)
+Tutorial: AUTOEXPLORE
 
-It seems that you haven't been moving diagonally much recently; this
-is a reminder about what diagonal movement is all about. Here's the
-cursor movement diagram again, as a reminder:
+If you get fed up of exploring levels by yourself, you can allow an AI
+routine to explore for you, until something interesting happens. To do
+this, just press v. Note that automatically exploring an area won't go
+nearly as efficiently as doing everything by hand, as humans are still
+rather better than bots at playing AceHack.
 
-north-west north north-east      upwards
-       7     8     9                <
-
-           here
-  west 4     .     6 east
-          at self
-
-       1     2     3                >
-south-west south south-east     downwards
-
-Moving diagonally can be an important tactic, as it's generally faster
-than moving orthogonally for moving quickly along diagonal corridors;
-you can also use it to move round obstacles such as traps without
-taking any extra time. It's especially important to use diagonal moves
-correctly when trying to outrun a monster.
+The autoexplore will stop if something dangerous happens, like a
+monster appearing, something interesting happens, like coming across
+an engraving, or if you need to make a choice (for instance, if
+the explore reaches an item, you may want to choose to pick it up,
+or if it reaches a dead end, you might want to search there). If you
+press v again immediately after autoexplore stops, it'll assume you
+weren't interested in whatever it found (such as a locked door or
+item), and move on.
 %E
 %Cm - 00265
-Tutorial: REPEATING COMMANDS (with vi-style controls)
+Tutorial: REPEATING COMMANDS
 
 Getting bored of pressing s repeatedly to search that square? Not only
 can repeating a command be boring, it can also be dangerous; holding
@@ -4067,40 +4024,16 @@ it can sometimes get several free hits on you before you stop
 repeating and start fighting.
 
 There's a way to automatically repeat commands, however. You can type
-a number before more or less any command to automatically repeat the
-command that many times; for instance, 20s will search around you 20
-times, or until something interesting happens (such as finding what
-you were searching for, or until a monster turns up). This sort of
-mechanized repetition both saves you time, and reduces the chance of
-making a mistake due to distraction.
+# then a number before more or less any command to automatically
+repeat the command that many times; for instance, #20s will search
+around you 20 times, or until something interesting happens (such as
+finding what you were searching for, or until a monster turns up).
+This sort of mechanized repetition both saves you time, and reduces
+the chance of making a mistake due to distraction.
 
-It's also possible to repeat commands after the fact; pressing
-control-A will repeat whatever you just did, which can be useful when
-repeatedly trying to open a stuck door, for instance. Generally
-speaking, though, control-A is used less than repeat counts.
-%E
-%Cm - 00266
-Tutorial: REPEATING COMMANDS (with the numeric keypad)
-
-Getting bored of pressing s repeatedly to search that square? Not only
-can repeating a command be boring, it can also be dangerous; holding
-down a key, or pressing a button repeatedly without thinking, can both
-lead to you failing to react to a monster that turns up, meaning that
-it can sometimes get several free hits on you before you stop
-repeating and start fighting.
-
-There's a way to automatically repeat commands, however. You can type
-n and a number before more or less any command to automatically repeat
-the command that many times; for instance, n20s will search around you
-20 times, or until something interesting happens (such as finding what
-you were searching for, or until a monster turns up). This sort of
-mechanized repetition both saves you time, and reduces the chance of
-making a mistake due to distraction.
-
-It's also possible to repeat commands after the fact; pressing
-control-A will repeat whatever you just did, which can be useful when
-repeatedly trying to open a stuck door, for instance. Generally
-speaking, though, control-A is used less than repeat counts.
+Note that some commands treat a prefixed number differently; for
+instance, instead of dropping all your gold 50 times or one gold
+piece 50 times, #50d$ drops 50 gold pices at once.
 %E
 %Cm - 00267
 Tutorial: ITEM PROMPTS
@@ -4120,13 +4053,13 @@ the game thinks are likely choices (such as weapons for a wield
 command), and * will give you a list of all the items you have, even
 if it would apparently make no sense. (This lets you try out unusual
 tactics, such as throwing items which aren't normally thrown, or
-wielding things other than weapons.) You can choose the item you want
-to use from the resulting menu.
+wielding things other than weapons.)
 
-Sometimes, - is also accepted, meaning no item, or bare hands.
+Sometimes, - is also accepted, meaning no item, or bare hands; and
+sometimes , is available, meaning an item or terrain on the ground.
 %E
 %Cm - 00268
-Tutorial: UNEQUIPPING MULTIPLE ITEMS
+Tutorial: CHANGING EQUIPMENT
 
 Sometimes, you need to remove multiple pieces of armor in order to
 get at the armor underneath; for instance, you might have to take off
@@ -4135,12 +4068,11 @@ might want to take all your armor off at once so you can drop it to
 save weight, or remove both your rings so you can put two different
 rings on.
 
-The A command allows you to take off armor, remove rings and amulets,
-unwield weapons, empty your quiver, and unready a secondary weapon;
-therefore, if you need to do two or more of those actions at once for
-any reason, using A will often be simpler than typing in each of the
-commands manually. It can also be useful if you forget what the
-command is to perform a particular sort of unequip action.
+You can use the A command to take off or put on multiple pieces of
+equipment at once, or swap one piece of equipment for another. It
+also lets you equip things in places that cannot be done directly,
+such as readying a weapon in your offhand without having to swap it
+with your main weapon.
 %E
 %Cm - 00269
 Tutorial: NAMING MONSTERS
@@ -4158,7 +4090,8 @@ The C command lets you call a monster a particular name; the game's
 messages will from then on use that name to refer to the monster,
 rather than its species. You can't rename monsters that have a name
 already, though, unless it was you who gave them their name in the
-first place.
+first place. (The same command C can also be used to rename other
+things, like items, by the way.)
 %E
 %Cm - 00270
 Tutorial: DROPPING MULTIPLE ITEMS
@@ -4186,11 +4119,12 @@ though.)
 %Cm - 00271
 Tutorial: QUICK INVENTORY
 
-A quick interface tip: you can use i, rather than I, to show the whole
-inventory at once rather than going via sections. Note that the
-inventory list can get so long that it needs scrolling, unless you
-have an unusually large terminal; you can use < and > to scroll
-through the list, the same way that any other menu works.
+A quick interface tip: instead of using I to view your inventory a
+section at a time, the i command for using items also works quite well
+to see the whole list at once (and you can just use space or return to
+close the list without having to use any of them). The list may well
+get too long for your screen; in that case, use < and > to scroll
+through it (this works on all other menus, too).
 %E
 %Cm - 00272
 Tutorial: SECONDARY WEAPONS
@@ -4202,11 +4136,14 @@ keystrokes and on typos. There's a secondary weapon slot which you can
 put an item in to be able to wield it rapidly; to swap your wielded
 weapon and secondary weapon, press x. (This is how you fill your
 secondary weapon slot in the first place; by wielding a weapon and
-swapping it into the slot.)
+swapping it into the slot. You can also do this using the A command.)
+
+Note that swapping between your main and secondary slots takes no time
+(it's assumed you have the secondary weapon ready to hand), but
+getting a weapon out of your backpack does, so using A or w to
+manipulate your weapons will take time. Thus, it helps to have your
+weapons ready before you have to use them in combat!
 %E
-# The Guidebook doesn't actually mention ; then : (it does mention /
-# then :), but as this is purely interface, I don't consider it a
-# spoiler.
 %Cm - 00273
 Tutorial: LOOKING AT THINGS
 
@@ -4219,12 +4156,11 @@ tell things apart; but even so, some colour/symbol combinations are
 ambiguous; is a brown + a closed door or a brown spellbook, for
 instance?)
 
-Here's a quick tip about using the ; command; once you've placed the
-cursor on whatever you want to look at, you can press : rather than
-pressing . in order to view flavour text about whatever you're looking
-at; normally this will be a quote from literature, to give you a
-better idea of whatever what you're looking at actually is, although
-sometimes it's more of a factual description. Have fun!
+Note that you can move the cursor to multiple different things when
+using the ; command, to see their descriptions quickly, before finally
+pressing . to see a fuller description of one of them. (You can also
+use the / command to get a description of something by name, rather
+than map location.)
 %E
 %Cm - 00274
 Tutorial: THE QUIVER
@@ -4283,14 +4219,14 @@ $ gold         In order to see what items you have at the moment, use
 [ armor        will also show you a tutorial message explaining how to
 %% edible item  use the items in that section (different items can be
 ? scroll       used in different ways). As for items in the dungeon,
-/ wand         there are two possible ways to pick them up; if the
-= ring         autopickup option is on, you'll pick up items when you
-! potion       step on them, and if it's off, you'll need to press ,
-( tool         in order to pick up items on that square. You can turn
-" amulet       autopickup on or off by pressing @. (Note that you can
-* rock or gem  have no more than 52 stacks of items in your inventory;
-+ spellbook    so be selective about what you leave behind, and what
-` statue       you take with you; gold doesn't take up space, though.)
+/ wand         there are two possible ways to pick them up; some items
+= ring         are picked up automatically (unless you turn autopickup
+! potion       off), and for other items, you can use the , command in
+( tool         order to pick up items on that square. You can turn
+" amulet       autopickup on or off by pressing @.
+* rock or gem  To actually use items, you can use the i command, which
++ spellbook    gives a menu of possible uses. There are many other
+` statue       commands as shortcuts, too, but i subsumes all of them.
 %E
 %Cm - 00282
 Tutorial: OBJECTIVE
@@ -4321,12 +4257,12 @@ Tutorial: SAVING AND QUITTING
 Unlike many other games, in AceHack, death is final; you have to start
 a new game from the start (there's no way to save a game and load the
 save file more than once). However, if you need to take a break, you
-can save the game by pressing S; that will save and end the game. To
+can save the game by pressing Sy; that will save and end the game. To
 reload a save file, just run AceHack again (and if applicable, specify
 the same name that you specified last time); the game will load, but
 your save file will be deleted.
 
-If you really get fed up of a game, you can use #quit in order to give
+If you really get fed up of a game, you can use S!y in order to give
 up and end the game; quitting a game will end it permanently, though,
 because there's no way to go back to an earlier state in a game. So
 only do this when you want to abandon the game forever. Quitting does
@@ -4427,7 +4363,7 @@ instead, when the opposing monster has almost caught up to you, use
 your turn to wield a melee weapon (using w) rather than trying to get
 in a final shot.
 
-You can use the #enhance command to see which weapons (including
+You can use the control-E command to see which weapons (including
 projectile weapons) your character is good with ('basic' or better),
 which they need practice to use ('unskilled'), and which they can
 never learn to use effectively (unlisted).
@@ -4435,27 +4371,27 @@ never learn to use effectively (unlisted).
 # Yes, this /is/ in the Guidebook. And it should be mentioned in any
 # self-respecting AceHack tutorial.
 %Cm - 00293
-Tutorial: ENGRAVING "ELBERETH"
+Tutorial: ENGRAVING MAGIC HEPTAGRAMS
 
 As you go deeper into the dungeon, the monsters get more and more
 dangerous, meaning you'll have to get better at combat yourself; and
-if you aren't careful, you might easily be overwhelmed. However,
-there's a way to give yourself a bit of breathing space when you're
-being swarmed with monsters.
+if you aren't careful, you might easily be overwhelmed. But there's a
+way to give yourself some breathing space when swarmed with monsters.
 
 You can write on the floor using a wand or your fingers, using the E
-command (E- writes with your fingers); and there is one word that the
-vast majority of monsters fear, the word "Elbereth". Writing it on the
+command (E- writes with your fingers); and there is one symbol the
+vast majority of monsters fear, the magic heptagram. Writing it on the
 ground will therefore cause many monsters to flee from you in terror,
-giving you a breathing space to recover from your wounds.
+giving you a breathing space to recover from your wounds. You can also
+just press . as a shortcut for writing a heptagram with your fingers.
 
 However, there are several problems with this method, too. For one
 thing, writing in the dust with your fingers is not the most accurate
 method of inscription, so it's possible that one or more of the
 letters will be malformed. Also, engravings tend to get scuffed up a
-lot by movement; fighting from an Elbereth square will almost
-certainly wipe out the engraving and make it ineffective. Finally,
-despite the word's power, some monsters simply aren't scared of it.
+lot by movement; fighting from a heptagram will almost certainly wipe
+out the engraving and make it ineffective. Finally, despite the
+symbol's power, some monsters simply aren't scared of it.
 %E
 %Cm - 00294
 Tutorial: MORE ABOUT MELEE
@@ -4466,8 +4402,8 @@ than others; it helps to use a weapon your character has had lots of
 practice with.
 
 Your ability scores also have an effect on how effective melee can be.  
-Your Strength (St:) and Dexterity (Dx:) are shown at the bottom of the
-screen; higher ability scores are better, and different abilities
+Your Strength (St:) and Dexterity (Dx:) are shown when you press
+control-X; higher ability scores are better, and different abilities
 affect different things. Dexterity is imporant in being able to hit
 enemies; a good dexterity helps you aim better both with melee and
 with thrown and projectile weapons. Strength is also important; it
@@ -4514,7 +4450,7 @@ You can use the w command to hold an object in your hands (or w- to
 hold nothing); by far the most common use of this is to hold a weapon.
 The object in your hands is what you'll use to hit monsters with in
 melee, so it should be something that your character is skilled with
-attacking with; you can use the #enhance command to see which weapons
+attacking with; you can use the control-E command to see which weapons
 your character is good at using ('unskilled' means your character
 doesn't yet know how to use the weapon but can learn; if a weapon
 isn't mentioned, your character will never know how to use it).
@@ -4541,9 +4477,9 @@ free hand to be able to wear a shield, and likewise you can't wear two
 pieces of armor that fit on the same part of the body. Some armor is
 magical, and has either a magical bonus (such as +1) to defending you,
 or some other property; armor can also be inferior to normal, and have
-a penalty (such as -1). The manufacturer of armor is also relevant;
-elves are good at making armor, and dwarves are even better, but
-orcish armor tends to be rather low in quality.
+a penalty (such as -1). You can also use the A command to manipulate
+which equipment you're wearing and which you're merely carrying, to do
+things like multiple unequips, and of course you can also use i.
 
 Note that although anyone can wear armor, it tends to rather get in
 the way of spellcasting; metal armor in particular can mess up magic,
@@ -4561,10 +4497,10 @@ from hunger and starve to death. (If you're getting hungry, this will
 be shown near the bottom of the screen.) However, try not to eat when
 'satiated'; you can choke to death, as well as starving. You can eat
 things (either in your inventory, or on the floor) with the e
-command. Fresh food tends to be considerably healthier than food
-that's been left to rot; various types of food will spoil over time
-and become dangerous, even if they were safe to eat when they first
-appeared.
+command. (Use e, to eat items from the floor.) Fresh food tends to be
+considerably healthier than food that's been left to rot; various
+types of food will spoil over time and become dangerous, even if they
+were safe to eat when they first appeared.
 
 Note that killing monsters also often leaves a %% behind, which is the
 monster's corpse. Corpses can be eaten just the same way food can be
@@ -4579,7 +4515,7 @@ Tutorial: SCROLLS
 
 Scrolls (?) are magical items that store spells bound up on paper. By
 reading a scroll (using the r command), you can unleash the magic
-within; but it's rather wise to know what a scroll does, first;
+within, but it's rather wise to know what a scroll does, first;
 unexpected magical effects can be rather bad for your health. Anyone
 can use a scroll, regardless of if they know any magic or not.
 
@@ -4632,8 +4568,9 @@ hungry slightly more quickly (although some powerful rings need more
 power than others).
 
 You can put a ring on each ring finger, but only one on each hand; as
-a result, you can wear up to two rings. The put-on command, P, is used
-to put on a ring; you can remove one using R.
+a result, you can wear up to two rings. The equip command, W, is used
+to put on a ring; you can remove one using T. (You can also use A to
+manipulate your equipment, whether rings or armor or weapons.)
 
 Rings generally have an effect either on you, or on those around you;
 note that not all effects are beneficial, and so you should be careful
@@ -4663,7 +4600,7 @@ enchantment! Clear potions contain water; although water is normally
 nonmagical, it might also be holy or unholy water, and because all
 three look the same, it might be hard to tell them apart.
 
-Other things you can do with potions include using #dip to dip items
+Other things you can do with potions include using a to dip items
 into them, and using t to throw them at things. (Holy water is rather
 effective as a thrown weapon against undead, for instance; but
 splashing a potion against something normally gives a much weaker
@@ -4703,14 +4640,14 @@ be too.
 To put items into or take them out of a container in your inventory,
 you can use the a command to use the container (just like with any
 other tool); if the container is on the floor, you can likewise use
-the #loot command to do the same thing. Boxes and chests are often
+the am command to do the same thing. Boxes and chests are often
 locked or trapped; you could try using a lock-picking tool on them,
 kicking them (using control-D from an adjacent square) in the hope of
 breaking open the lock, or trying to force the lock with your wielded
-weapon using the #force command. If you're afraid of traps, the
-command #untrap can be used to search for traps on the container
-(although this is not guaranteed to succeed), and to try to deactivate
-them if you find them.
+weapon using the V, command. If you're afraid of traps, the command ^
+can be used to search for traps on the container (although this is
+not guaranteed to succeed), and to try to deactivate them if you find
+them.
 %E
 %Cm - 00310
 Tutorial: AMULETS
@@ -4719,9 +4656,10 @@ Amulets (") are like rings in more or less every respect; they have
 constant magical effects powered from your own body's food supply,
 amulets of the same appearance do the same thing in one game, but may
 differ from game to game, and you put them on and remove them with the
-P and R commands. Amulets are often slightly more powerful than rings,
-though; and you wear them around your neck, rather than on your ring
-fingers. (You can only wear one amulet at a time.)
+W and T commands (or indirectly by using A to adjust your equipment).
+Amulets are often slightly more powerful than rings, though; and you
+wear them around your neck, rather than on your ring fingers. (You
+can only wear one amulet at a time.)
 
 As usual, not all magical items are guaranteed to be beneficial; so be
 careful trying on amulets you don't recognise.
@@ -4739,19 +4677,19 @@ valuable gems are useful in increasing your score.
 
 Things you can do with gems and rocks include throwing them (using the
 t command; this works better with non-valuable gems such as ordinary
-rocks), and rubbing things on them using #rub. (Note that rocks do
-more damage as sling ammunition than as thrown weapons.) Mostly,
-though, what gems and rocks you do pick up are likely to be carried
-around rather than used.
+rocks), and rubbing things on them using V. (Note that rocks do more
+damage as sling ammunition than as thrown weapons.) Mostly, though,
+what gems and rocks you do pick up are likely to be carried around
+rather than used.
 %E
 %Cm - 00312
 Tutorial: STATUES AND BOULDERS
 
-The ` symbol represents stone objects like statues; your options may
-also display boulders using `, although 0 is also a common choice.
-Statues tend to be both useless and rather heavy, so make sure you
-turn autopickup off when walking over them (you can turn autopickup on
-and off using @); however, some statues may not be what they seem.
+The ` symbol represents stone objects like statues; boulders are the
+same sort of object, but are typically represented as 0 rather than
+as `. Statues tend to be both useless and rather heavy, so picking
+them up is a bad idea (and autopickup will not pick them up by
+default); however, some statues may not be what they seem.
 
 As opposed to statues, boulders are not only too heavy for almost
 anything to lift (although giants and similarly large creatures have
@@ -4789,24 +4727,20 @@ cheaper to cast, so they may be good spells to practice casting with.
 Tutorial: CALLING ITEMS
 
 With all the items around with unknown purposes, it can be very useful
-to keep notes on your beliefs about the function of various items. You
-are about to be given the chance to give a name to a certain
-appearance of item (probably because one was destroyed and you saw the
-effects of it); this will replace the appearance from now on, thus
-reminding you of what you wrote.
+to keep notes on your beliefs about the function of various items.
+Even though an item was just destroyed, you still saw what happened.
+You may want to give it a name; this will replace the appearance from
+now on, thus reminding you of what you wrote. To do this, use the C
+command, then select the sort of item from the menu.
 
 An example: suppose you saw an orange potion break, and got a glimpse
-of the sort of effects it had; the game might prompt you with "Call an
+of the sort of effects it had; you might press C and choose "orange
+potion (recently broken)", and the game might prompt you with "Call an
 orange potion:". This lets you rename orange potions; so, if for
 instance you suspected that the potion was dangerous, you could write
 "dangerous" at the prompt, and "orange potion" would from then on be
 known as "potion called dangerous". As two orange potions always have
 the same effect, you'd know to avoid quaffing those potions in future.
-
-If you have nothing to say about what you think the item in question
-does, you can just leave the prompt blank, to leave the item with its
-old name. (Also, note that you can use #name then n to call items
-yourself, rather than waiting for the game to prompt you.)
 %E
 # Artifacts are only mentioned in the artiwishing-conduct section of
 # the Guidebook, but a quick explanation of what they are will
@@ -4844,17 +4778,17 @@ function, knowledge of what an item does in one game will not help in
 the next. Therefore, one of the goals in each game is to try to
 determine which item does what.
 
-To avoid having to remember this information, you can use the #name
-commands to make notes about the items. If you have an idea of what
-one particular appearance of item does, you can use #name followed by
-n to produce an alternative name for the appearance; e.g. you could
+To avoid having to remember this information, you can use the C
+command to make notes about the items. If you have an idea of what
+one particular appearance of item does, you can use C followed by n
+to produce an alternative name for the appearance; e.g. you could
 change "orange potion" to "potion called dangerous" if you decided
 that all orange potions in the game were dangerous.
 
 You might also get information about one particular item; for
 instance, a curse on one orange potion does not mean that all others
 are cursed, but if you found out about it, you'd want to remember.
-Using #name followed by y lets you write on an individual item to make
+Using C followed by y lets you write on an individual item to make
 notes about it; this will not affect other items which look the same.
 %E
 %Cm - 00320
@@ -4891,7 +4825,7 @@ One of your abilities just increased! Demonstrating the use of an
 ability helps increase your abilities, making your character more
 powerful.
 
-There are six abilities, shown at the bottom of the screen:
+There are six abilities, shown via pressing control-X:
 
 Strength     (St:) Affects melee combat and carrying capacity.
 Dexterity    (Dx:) Affects your ability to aim at and hit things.
@@ -4947,8 +4881,8 @@ up items that you left behind, and to run away from problems on deeper
 levels, in favour of healing somewhere that's already been cleared
 out.
 
-The dungeon level (Dlvl:) you're on is shown in the bottom-left corner
-of your screen. (Some levels have names rather than numbers).
+The dungeon level and area (e.g. Dungeons:2) you're on is shown at
+the bottom of your screen. (Some areas don't use level numbers.)
 %E
 %Cm - 00325
 Tutorial: HEALTH
@@ -4966,9 +4900,9 @@ you end up critically low on HP, you'll probably want to find some way
 to accelerate the healing process; if you find a reliable way to do
 this, make sure you remember what it is, to help you in emergencies.
 
-Your Constitution (Co:) ability is also shown at the bottom of the
-screen; it reflects how naturally good you are at surviving injury. A
-high Constitution will help you to heal faster, and give you more hit
+Your Constitution (Co:) ability is shown upon pressing control-X; it
+reflects how naturally good you are at surviving injury. A high
+Constitution will help you to heal faster, and give you more hit
 points to start with; so improving your Constitution is a helpful way
 to survive better.
 %E
@@ -5042,9 +4976,8 @@ Tutorial: EXPERIENCE
 
 You just gained some experience! By far, killing monsters is the most
 common way to gain experience, although there are a few weirder
-methods (some experienced AceHack players have completed the game
-without a single kill, although this is incredibly difficult to
-achieve).
+methods (it is theoretically possible to complete the game without a
+single kill, although this is incredibly difficult to achieve).
 
 Accumulating experience is important, because it will eventually allow
 you to level up, giving you a boost in maximum health and magical
@@ -5081,10 +5014,9 @@ best saved for when you can't find any monsters around to kill and
 eat; food designed for people to eat is often especially nutritious
 and can get you out of starvation trouble quickly.
 
-Use the e command to eat food, from the floor or your inventory.
+Use the e command to eat food, from the floor or your inventory. (To
+select an item on the floor to eat, press e then comma.)
 %E
-# The Guidebook doesn't actually say what satiation does; but it's
-# rather easy to find out by experiment
 %Cm - 00331
 Tutorial: SATIATION
 
@@ -5122,9 +5054,9 @@ spell that will cure you. Also, although it's too late now, it's often
 possible to avoid the status in the first place; for instance, it's
 advisable not to eat monster corpses that will give you status
 effects (you can find out which these are by experimenting over the
-course of several games). Asking for divine intervention with #pray
-may save your life, too, in the most serious cases; but this should be
-treated as a last resort, as deities dislike being bothered too much.
+course of several games). Asking for divine intervention with control-
+W may save your life, too, in the most serious cases; but treat this
+as a last resort, as deities dislike being bothered too much.
 %E
 %Cm - 00333
 Tutorial: ENHANCING SKILLS
@@ -5132,7 +5064,7 @@ Tutorial: ENHANCING SKILLS
 Practicing a particular area of fighting, weaponry, or magic, will
 allow you to get better in it, to some extent. Your character now has
 enough practice to be able to 'enhance' a skill, becoming better at
-it; to do this, use the #enhance command.
+it; to do this, use the control-E command.
 
 Note that the total amount of skill enhancement you can manage depends
 on your experience level; as a result, if you somehow get enough
@@ -5142,7 +5074,7 @@ skill slots for some other skill. Likewise, if there's some skill you
 are planning to use in the future, it may be worth practicing it now,
 so that it's enhanced ready for you to be able to use it.
 
-Only skills listed in the #enhance list are enhanceable at all; most
+Only skills listed in the control-E list are enhanceable at all; most
 characters will have some skills they'll never be able to get good
 at. Similarly, the maximum competence you can gain in a skill (basic,
 skilled, expert, master, grand master) will depend on your class; for
@@ -5160,14 +5092,12 @@ possible that some things you took for granted, such as the ability to
 open doors, are no longer possible in this form.
 
 Some monsters have a special attack or ability; if you do, you'll have
-been told what it was, and you can use the #monster command to use it.
-Some female monsters can also lay eggs, which you can do with the #sit
-command. If you're stuck in monster form, you may as well try to make
-the most of it!
+been told what it was, and you can use the M command to use it. Some
+female monsters can also lay eggs, which you can do with the > command
+while on ordinary floor (to sit on the ground and lay eggs that way).
+If you're stuck in monster form, you may as well try to make the most
+of it!
 %E
-# Wands are shown in-game in the "plausible items" list for engraving;
-# so I think it's not a spoiler to mention that you can engrave with
-# them, although it /is/ a spoiler to mention what happens when you do.
 %Cm - 00335
 Tutorial: ENGRAVINGS
 
@@ -5197,22 +5127,22 @@ and have been advancing the cause of your religion (killing hostile
 monsters is generally a good way to do this), calling upon your
 %G (%d) may help.
 
-Prayer is accomplished by the #pray command; although you can't rely
-on divine intervention too often, it can get you out of problematic
+Prayer is accomplished by the control-W command; although you can't
+rely on divine intervention too often, it can get you out of trouble
 situations reliably, if you don't do it so much that your %G
 becomes annoyed. Care is needed; an annoyed deity can do all sorts of
 drastic things to you! If you do annoy your %G by mistake, or
 you want to please them so you can pray more quickly, you might want
-to find an altar dedicated to them and use #offer to sacrifice a
-recently killed monster; as long as the offer isn't offensive, you
-can gain standing in the eye of your %G this way.
+to find an altar dedicated to them and use > to sacrifice a recently
+killed monster; as long as the offer isn't offensive, you can gain
+standing in the eye of your %G this way.
 %E
 %Cm - 00337
 Tutorial: ENCUMBERANCE
 
 One problem that every adventurer seems to face is the problem of
 hauling all that treasure around. Your Strength ability (shown as St:
-at the bottom of the screen) is important in influencing how much you
+in the control-X screen) is important in influencing how much you
 can carry (and also has a large effect on the effectiveness of your
 fighting in melee); you generally want to be strong to be able to
 carry a lot of gear. (Constitution (Co:) is also relevant.)
@@ -5303,7 +5233,7 @@ particularly good with. Choosing an appropriate weapon can be quite a
 problem, especially if none of the weapons that you've learnt so far
 are particularly effective.
 
-You can use the #enhance command to see which weapons your character
+You can use the control-E command to see which weapons your character
 knows how to use, and which ones you can learn; any skill that's
 listed can be learnt, but you'll never be any good with weapons that
 aren't mentioned. If you do decide to learn a new weapon, make sure
@@ -5353,10 +5283,10 @@ your death, and try to do better next time!
 If you keep on dying, there's an easier mode you can play in to gain
 some practice, which doesn't count for the high score tables but in
 which death is not fatal, so you can keep on trying things out. To
-enter "explore mode", as it's called, type X whilst playing a game;
-that will convert the game into a non-scoring explore-mode game. Once
-you get the hang of playing, though, go back to normal play for your
-games after that; wins in explore-mode don't count.
+enter "explore mode", as it's called, type m at the main menu and
+choose to play an explore mode game. Once you get the hang of
+playing, though, go back to normal play for your games after that;
+wins in explore-mode don't count.
 %E
 %Cm - 00360
 Tutorial: SHOPPING
@@ -5371,10 +5301,11 @@ Apart from the square just inside the door (which doesn't count as
 part of the shop), items in the shop are the shopkeeper's property;
 you can pick them up to examine them, but the shopkeeper will get
 annoyed if you damage them. Once you're holding an item you want to
-buy, you can use the p command to pay for it, and it'll become yours.
-Similarly, you can drop items inside the shop, and if the shopkeeper
-is interested he or she will offer to pay for them (if you decline the
-offer, you can simply pick them back up again).
+buy, you can chat to them to pay for it (using the c command, or by
+walking into them), and it'll become yours. Similarly, you can drop
+items inside the shop, and if the shopkeeper is interested he or she
+will offer to pay for them (if you decline the offer, you can simply
+pick them back up again).
 
 Note that leaving autopickup on in a shop is generally a bad idea; you
 can use the @ command to turn autopickup on or off. (You don't want to
@@ -5390,16 +5321,14 @@ but paying first is a prudent strategy, as shopkeepers are used to
 having to take their produce back by force.)
 
 There are three commands that you may find useful in relation to
-unpaid items; you can use p to pay for an item, $ to check how much
+unpaid items; you can use c to pay for an item, $ to check how much
 money you owe the shopkeeper (or vice versa), and d to drop the item
-if you decide you don't want it after all.
+if you decide you don't want it after all. (Pressing a cursor
+movement command towards the shopkeeper can also be used to pay for
+items; c, the chat command, can be used to chat, and so pay, from a
+distance.)
 
-Note that as an alternative to picking up items to find out how much
-they cost, you can use the #chat command while standing on the item,
-to talk to the shopkeeper; this can help to reduce the chance that you
-damage an item that you can't afford to pay for.
-
-Your Charisma ability (shown as Ch: at the bottom of the screen) is
+Your Charisma ability (shown as Ch: in the control-X stats screen) is
 useful when shopping; a stronger personality and more attractive
 manner can help you to haggle better prices.
 %E
@@ -5416,15 +5345,16 @@ rewarding. (What adventurer wouldn't want to explore a working gem
 mine?)
 
 In general, levels only have two sets of stairs (one going up, one
-going down); but the entries to branches are different, having another
-set of stairs that leads to the branch. (The level before the Mines,
-for instance, has some stairs leading to the Mines, and some stairs
+going down); but the entries to branches are different, having an
+extra ladder that leads to the branch. (The level before the Mines,
+for instance, has a ladder leading to the Mines, and some stairs
 continuing along the main dungeon.) The ends of branches are also
 special; eventually, if you explore right the way to the bottom of the
-mines, you'll hit a dead end which has stairs up but no stairs down.
+mines, you'll hit a dead end which has a ladder up but no ladder down.
 Most players do choose to (immediately or eventually) explore side
 branches that they find, though; the riches to be found there are
-often similar or better to those in the main dungeon.
+often similar or better to those in the main dungeon. (The ladders
+that are used to enter them work exactly the same way as stairs.)
 %E
 %Cm - 00363
 Tutorial: SOKOBAN
@@ -5449,7 +5379,6 @@ until they're in your vision range, though; so exploring the levels
 can still be useful. There's no undoing moves; so think carefully
 before moving any of the boulders!
 %E
-# What the oracle does is not a Guidebook spoiler, but is obvious.
 %Cm - 00364
 Tutorial: THE ORACLE
 
@@ -5459,10 +5388,11 @@ in various other ways; for instance, the Oracle of Delphi has a
 specially designed room all to herself, from which she makes
 prophecies.
 
-You can chat to the Oracle using the #chat command; she'll be willing
-to give you advice in return for money. The Oracle's consultations are
-full of useful, if potentially obscure, information about the game;
-you can gain a lot of information that way.
+You can chat to the Oracle using the c command, or by walking into
+her; she'll be willing to give you advice in return for money. The
+Oracle's consultations are full of useful, if potentially obscure,
+information about the game; you can gain a lot of information that
+way.
 
 There are more 'special levels' deeper in the dungeon; but you'll have
 to figure out how those ones work for yourself.

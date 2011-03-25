@@ -762,10 +762,7 @@ dowhatis()
 int
 doquickwhatis()
 {
-  /*if(iflags.num_pad)
-    check_tutorial_message(QT_T_CURSOR_NUMPAD);
-    else */
-        check_tutorial_message(QT_T_CURSOR_VIKEYS);
+        check_tutorial_message(QT_T_CURSOR);
 	return do_look(TRUE);
 }
 

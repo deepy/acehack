@@ -1,5 +1,5 @@
 /*	SCCS Id: @(#)tutorial.c	3.4	2009/09/05	*/
-/*	Copyright 2009, Alex Smith		  */
+/*	Copyright 2009, 2011, Alex Smith		  */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -76,7 +76,7 @@ boolean from_farlook;
     if (check_tutorial_message(QT_T_POOLORMOAT)) return TRUE;
   if (l->typ == LAVAPOOL)
     if (check_tutorial_message(QT_T_LAVA)) return TRUE;
-  if (l->typ == STAIRS) {
+  if (l->typ == STAIRS || l->typ == LADDER) {
     /* In which direction? */
     if ((lx == xupstair   && ly == yupstair) ||
         (lx == xupladder  && ly == yupladder) ||
@@ -156,7 +156,6 @@ char c;
 {
   int i, r;
   char lc;
-  boolean travel = TRUE;
   boolean farmove = TRUE;
   boolean repeat = TRUE;
   boolean massunequip = TRUE;
@@ -177,36 +176,26 @@ char c;
   {
     c = check_tutorial_command_buffer[i];
     if (lc != c) repeat = FALSE;
-    if (c != 'y' && c != 'b' && c != 'G') travel = FALSE;
     if (c != 'y' && c != 'b') farmove = FALSE;
-    if (c != 'R' && c != 'T') massunequip = FALSE;
+    if (c != 'R' && c != 'T' && c != 'W' && c != 'P')
+      massunequip = FALSE;
     if (c == ';') look_reminder = FALSE;
     if (c == 'w') secondwield++;
     r++;
     if (r > check_tutorial_command_count) break;
-    if (moves > 125 && r > 5 && farmove) {
-/*      if (iflags.num_pad)
-        check_tutorial_command_message = QT_T_FARMOVE_NUMPAD;
-        else */
-        check_tutorial_command_message = QT_T_FARMOVE_VIKEYS;
+    if (moves > 125 && r > 5 && farmove &&
+        !pl_tutorial[QT_T_FARMOVE - QT_T_FIRST]) {
+        check_tutorial_command_message = QT_T_FARMOVE;
       break;
     }
-    if (moves > 125 && r > 30 && travel) {
-      check_tutorial_command_message = QT_T_TRAVEL;
+    if (moves > 80 && r > 20 && c == 'b' &&
+        !pl_tutorial[QT_T_DIAGONALS - QT_T_FIRST]) {
+        check_tutorial_command_message = QT_T_DIAGONALS;
       break;
     }
-    if (moves > 80 && r > 20 && c == 'b') {
-/*      if (iflags.num_pad)
-        check_tutorial_command_message = QT_T_DIAGONALS_NUM;
-        else */
-        check_tutorial_command_message = QT_T_DIAGONALS_VI;        
-      break;
-    }
-    if (repeat && r > 5 && c == 's') {
-/*      if (iflags.num_pad)
-        check_tutorial_command_message = QT_T_REPEAT_NUMPAD;
-        else */
-        check_tutorial_command_message = QT_T_REPEAT_VIKEYS;
+    if (repeat && r > 5 && c == 's' &&
+        !pl_tutorial[QT_T_REPEAT - QT_T_FIRST]) {
+        check_tutorial_command_message = QT_T_REPEAT;
       break;
     }
     if (moves > 45 && r >= 2 && massunequip) {
@@ -510,16 +499,20 @@ maybe_tutorial()
   if (time_since_combat > 5) {
     if (check_tutorial_command_message > 0)
       if (check_tutorial_message(check_tutorial_command_message)) return;
-    if (moves >= 10)
-      if (check_tutorial_message(QT_T_VIEWTUTORIAL)) return;
-    if (moves >= 30)
-      if (check_tutorial_message(QT_T_CHECK_ITEMS)) return;
-    if (moves >= 60)
-      if (check_tutorial_message(QT_T_OBJECTIVE)) return;
     if (moves >= 100)
+      if (check_tutorial_message(QT_T_VIEWTUTORIAL)) return;
+    if (moves >= 200)
+      if (check_tutorial_message(QT_T_CHECK_ITEMS)) return;
+    if (moves >= 300)
+      if (check_tutorial_message(QT_T_OBJECTIVE)) return;
+    if (moves >= 400)
       if (check_tutorial_message(QT_T_SAVELOAD)) return;
-    if (moves >= 150)
+    if (moves >= 500)
       if (check_tutorial_message(QT_T_MESSAGERECALL)) return;
+    if (moves >= 600)
+      if (check_tutorial_message(QT_T_TRAVEL)) return;
+    if (moves >= 700)
+      if (check_tutorial_message(QT_T_AUTOEXPLORE)) return;
   }
 }
 
