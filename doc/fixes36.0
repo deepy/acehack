@@ -77,6 +77,9 @@ monsters no matter how clumsily it makes contact.)
 
 Boulders generated via polymorph now block line of sight correctly.
 
+The game no longer goes into an infinite loop upon an input error at a
+--More-- prompt.  (Patch credits: from SporkHack, via UnNetHack.)
+
 Modified Features
 -----------------
 

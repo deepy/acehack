@@ -196,6 +196,7 @@ register const char *s;	/* chars allowed besides return */
 	    }
 	    tty_nhbell();
 	}
+	if (c == EOF) break; /* lost terminal or other error */
     }
 
 }
