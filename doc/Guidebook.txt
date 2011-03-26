@@ -2769,6 +2769,10 @@
             only;  ``X11''  interface always uses a timer based delay.  The
             default is on if configured into the program.)
 
+            extra  characters to the screen.  (Applies to ``tty'' interface
+            only; ``X11'' interface always uses a timer based  delay.   The
+            default is on if configured into the program.)
+
           tombstone
             Draw a tombstone graphic upon your death (default on).
 
@@ -2896,6 +2900,9 @@
           font_size_status
             NetHack should use this size font for the status window.
 
+          font_size_status
+            NetHack should use this size font for the status window.
+
           font_size_text
             NetHack should use this size font for text windows.
 
@@ -2961,6 +2968,8 @@
             NetHack  should display an opening splash screen when it starts
             up (default yes).
 
+            up (default yes).
+
           tiled_map
             NetHack should display a tiled map if it can.
 
@@ -3024,8 +3033,6 @@
           flush
             (default off, AMIGA NetHack only).
 
-          MACgraphics
-            (default on, Mac NetHack only).
 
           page_wait
             (default on, Mac NetHack only).
@@ -3533,8 +3540,6 @@
           with  the  game.   The Gods of the Dungeon sometimes make note of
           the names of the worst of these miscreants in this, the  list  of
           Dungeoneers:
-
-
 
 
 

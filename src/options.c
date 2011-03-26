@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)options.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 9 Aug 2010 by Alex Smith */
+/* Modified 26 Mar 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifdef OPTION_LISTS_ONLY	/* (AMIGA) external program for opt lists */
@@ -150,6 +150,7 @@ static struct Bool_Opt
 	{"page_wait", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 	{"perm_invent", &flags.perm_invent, FALSE, SET_IN_FILE},
+        {"pickup_thrown", &flags.pickup_thrown, TRUE, SET_IN_GAME}, /* AIS */
 	{"popup_dialog",  &iflags.wc_popup_dialog, FALSE, SET_IN_FILE},	/*WC*/
 	{"prayconfirm", &flags.prayconfirm, TRUE, SET_IN_FILE},
 	{"preload_tiles", &iflags.wc_preload_tiles, TRUE, SET_IN_FILE},	/*WC*/

@@ -2,7 +2,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /* Copyright (c) M. Stephenson, 1990, 1991.			  */
 /* Copyright (c) Dean Luick, 1990.				  */
-/* Modified 25 Mar 2011 by Alex Smith */
+/* Modified 26 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define MAKEDEFS_C	/* use to conditionally include file sections */
@@ -705,6 +705,7 @@ static const char *build_opts[] = {
 #  endif
 # endif
 #endif
+		"pickup thrown objects",
 #ifdef REDO
 		"redo command",
 #endif

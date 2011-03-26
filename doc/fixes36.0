@@ -320,6 +320,10 @@ identified wands). Likewise, attempting to zap an empty wand marks it
 as empty, and scrolls of charging also identify the number of charges
 in the thing they charge (as a side-effect).
 
+Autopickup now picks up thrown items by default (controllable via
+option), even if they aren't of a type that would normally be picked
+up.  (Patch credits: Roderick Schertler, via UnNetHack.)
+
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
 

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pickup.c	3.4	2003/07/27	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 27 Dec 2010 by Alex Smith */
+/* Modified 26 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -641,9 +641,11 @@ menu_item **pick_list;	/* list of objects and counts to pick up */
 
 
 #ifndef AUTOPICKUP_EXCEPTIONS
-	    if (!*otypes || index(otypes, curr->oclass))
+	    if (!*otypes || index(otypes, curr->oclass) ||
+	        (flags.pickup_thrown && curr->was_thrown))
 #else
 	    if ((!*otypes || index(otypes, curr->oclass) ||
+	         (flags.pickup_thrown && curr->was_thrown) ||
 		 is_autopickup_exception(curr, TRUE)) &&
 	    	 !is_autopickup_exception(curr, FALSE))
 #endif
@@ -653,9 +655,11 @@ menu_item **pick_list;	/* list of objects and counts to pick up */
 	    *pick_list = pi = (menu_item *) alloc(sizeof(menu_item) * n);
 	    for (n = 0, curr = olist; curr; curr = FOLLOW(curr, follow))
 #ifndef AUTOPICKUP_EXCEPTIONS
-		if (!*otypes || index(otypes, curr->oclass)) {
+		if (!*otypes || index(otypes, curr->oclass) ||
+		    (flags.pickup_thrown && curr->was_thrown)) {
 #else
 	    if ((!*otypes || index(otypes, curr->oclass) ||
+		       (flags.pickup_thrown && curr->was_thrown) ||
 		 is_autopickup_exception(curr, TRUE)) &&
 	    	 !is_autopickup_exception(curr, FALSE)) {
 #endif
@@ -1396,6 +1400,7 @@ boolean telekinesis;	/* not picking it up directly by hand */
 	    obj = splitobj(obj, count);
 
 	obj = pick_obj(obj);
+	obj->was_thrown = 0;
 
 	if (uwep && uwep == obj) mrg_to_wielded = TRUE;
 	nearload = near_capacity();
