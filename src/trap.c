@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)trap.c	3.4	2003/10/20	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 26 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2983,23 +2983,24 @@ register int n;
 }
 
 int
-dountrap()	/* disarm a trap */
+dountrap()	/* explain, disarm a trap */
 {
 	if (near_capacity() >= HVY_ENCUMBER) {
-	    pline("You're too strained to do that.");
-	    return 0;
+            pline("You're too strained to remove a trap.");
+	    return doidtrap();
 	}
 	if ((nohands(youmonst.data) && !webmaker(youmonst.data)) || !youmonst.data->mmove) {
-	    pline("And just how do you expect to do that?");
-	    return 0;
+            pline("Without movable hands, you can't remove a trap.");
+	    return doidtrap();
 	} else if (u.ustuck && sticks(youmonst.data)) {
-	    pline("You'll have to let go of %s first.", mon_nam(u.ustuck));
-	    return 0;
+	    pline("You'll have to let go of %s before you can remove a trap.",
+                  mon_nam(u.ustuck));
+	    return doidtrap();
 	}
 	if (u.ustuck || (welded(uwep) && bimanual(uwep))) {
-	    Your("%s seem to be too busy for that.",
+	    Your("%s seem to be too busy to remove a trap.",
 		 makeplural(body_part(HAND)));
-	    return 0;
+	    return doidtrap();
 	}
 	return untrap(FALSE);
 }
@@ -3409,11 +3410,14 @@ boolean force;
 	int ch;
 	struct trap *ttmp;
 	struct monst *mtmp;
-	boolean trap_skipped = FALSE;
-	boolean box_here = FALSE;
-	boolean deal_with_floor_trap = FALSE;
-	char the_trap[BUFSZ], qbuf[QBUFSZ];
-	int containercnt = 0;
+	char the_trap[BUFSZ];
+        int container_count = 0;
+        boolean generic_search = TRUE;
+        boolean zeroobj_means_door = FALSE;
+        winid win;
+        anything any;
+        int n;
+        menu_item *selected = 0;
 
         /* Specifying ^ as the first arg is special in getdir; it not
            specifies the command string, but triggers special help text
@@ -3423,141 +3427,167 @@ boolean force;
 	x = u.ux + u.dx;
 	y = u.uy + u.dy;
 
+        win = create_nhwindow(NHW_MENU);
+        start_menu(win);
+        any.a_void = 0;
+        add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
+                 "Known traps (select to disarm)", FALSE);
+        if (((ttmp = t_at(x,y))) && ttmp->tseen) {
+        	/* We use &zeroobj for both door and floor traps, which is
+                   safe as they aren't both legal on the same square. */
+        	any.a_void = &zeroobj;
+		Strcpy(the_trap, the(defsyms[trap_to_defsym(ttmp->ttyp)]
+                                     .explanation));
+                if (ttmp->madeby_u) {
+                  if (ttmp->ttyp == WEB) Strcpy(eos(the_trap)," woven");
+                  else if (ttmp->ttyp == HOLE || ttmp->ttyp == PIT)
+                    Strcpy(eos(the_trap)," dug");
+                  else Strcpy(eos(the_trap)," set");
+                  Strcpy(eos(the_trap)," by you");
+                }
+                add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                         the_trap, MENU_UNSELECTED);
+                generic_search = FALSE; /* a specific trap known */
+        } else if ((IS_DOOR(levl[x][y].typ) &&
+                    (levl[x][y].doormask != D_NODOOR) &&
+                    (levl[x][y].doormask != D_ISOPEN) &&
+                    (levl[x][y].doormask != D_BROKEN) &&
+                    (levl[x][y].fknown & FKNOWN_TRAPPED) &&
+                    (levl[x][y].flags & D_TRAPPED)) ||
+                   (((mtmp = m_at(x,y))) &&
+                    mtmp->m_ap_type == M_AP_FURNITURE &&
+                    (mtmp->mappearance == S_hcdoor ||
+                     mtmp->mappearance == S_vcdoor) &&
+                    !Protection_from_shape_changers)) {
+        	any.a_void = &zeroobj;
+                add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                         "An explosion trap on the closed door",
+                         MENU_UNSELECTED);
+                generic_search = FALSE; /* door known to be trapped */
+                zeroobj_means_door = TRUE;
+        } else {
+        	add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                         "(none known)", MENU_UNSELECTED);
+        }
+        any.a_void = 0;
+        add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
+                 "Trappable objects (select to search for traps)", FALSE);
 	for(otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere) {
-		if(Is_box(otmp) && !u.dx && !u.dy) {
-			box_here = TRUE;
-			containercnt++;
-			if (containercnt > 1) break;
+		if(Is_box(otmp)) {
+                    any.a_void = otmp;
+                    add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                             xname(otmp), MENU_UNSELECTED);
+                    container_count++;
 		}
 	}
+        if (generic_search) {
+		if (IS_DOOR(levl[x][y].typ) &&
+                   (levl[x][y].doormask != D_NODOOR) &&
+                   (levl[x][y].doormask != D_ISOPEN) &&
+                   (levl[x][y].doormask != D_BROKEN))
+                    zeroobj_means_door = TRUE;
+        	any.a_void = &zeroobj;
+                add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                         zeroobj_means_door ? "The closed door" :
+                         "The floor and ceiling", MENU_UNSELECTED);
+        } else if (!container_count) {
+        	add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                         "(none known)", MENU_UNSELECTED);
+        }
+        end_menu(win, "Trappable objects");
+        n = select_menu(win, PICK_ONE, &selected);
+        destroy_nhwindow(win);
+        otmp = 0;
+        if (n == 1) {
+		otmp = selected[0].item.a_void;
+                free((genericptr_t) selected);
+        }
+        if (!otmp) return 0;
 
-	if ((ttmp = t_at(x,y)) && ttmp->tseen) {
-		deal_with_floor_trap = TRUE;
+	if ((ttmp = t_at(x,y)) && ttmp->tseen && otmp == &zeroobj &&
+            !zeroobj_means_door) {
 		Strcpy(the_trap, the(defsyms[trap_to_defsym(ttmp->ttyp)].explanation));
-		if (box_here) {
-			if (ttmp->ttyp == PIT || ttmp->ttyp == SPIKED_PIT) {
-			    You_cant("do much about %s%s.",
-					the_trap, u.utrap ?
-					" that you're stuck in" :
-					" while standing on the edge of it");
-			    trap_skipped = TRUE;
-			    deal_with_floor_trap = FALSE;
-			} else {
-			    Sprintf(qbuf, "There %s and %s here. %s %s?",
-				(containercnt == 1) ? "is a container" : "are containers",
-				an(defsyms[trap_to_defsym(ttmp->ttyp)].explanation),
-				ttmp->ttyp == WEB ? "Remove" : "Disarm", the_trap);
-			    switch (ynq(qbuf)) {
-				case 'q': return(0);
-				case 'n': trap_skipped = TRUE;
-					  deal_with_floor_trap = FALSE;
-					  break;
-			    }
-			}
-		}
-		if (deal_with_floor_trap) {
-		    if (u.utrap) {
-			You("cannot deal with %s while trapped%s!", the_trap,
-				(x == u.ux && y == u.uy) ? " in it" : "");
-			return 1;
-		    }
-		    switch(ttmp->ttyp) {
-			case BEAR_TRAP:
-			case WEB:
-				return disarm_holdingtrap(ttmp);
-			case LANDMINE:
-				return disarm_landmine(ttmp);
-			case SQKY_BOARD:
-				return disarm_squeaky_board(ttmp);
-			case DART_TRAP:
-				return disarm_shooting_trap(ttmp, DART);
-			case ARROW_TRAP:
-				return disarm_shooting_trap(ttmp, ARROW);
-			case PIT:
-			case SPIKED_PIT:
-				if (!u.dx && !u.dy) {
-				    You("are already on the edge of the pit.");
-				    return 0;
-				}
-				if (!(mtmp = m_at(x,y))) {
-				    pline("Try filling the pit instead.");
-				    return 0;
-				}
-				return help_monster_out(mtmp, ttmp);
-			default:
-				You("cannot disable %s trap.", (u.dx || u.dy) ? "that" : "this");
-				return 0;
-		    }
-		}
+                if (u.utrap) {
+                    You("cannot deal with %s while trapped%s!", the_trap,
+                            (x == u.ux && y == u.uy) ? " in it" : "");
+                    return 1;
+                }
+                switch(ttmp->ttyp) {
+                    case BEAR_TRAP:
+                    case WEB:
+                            return disarm_holdingtrap(ttmp);
+                    case LANDMINE:
+                            return disarm_landmine(ttmp);
+                    case SQKY_BOARD:
+                            return disarm_squeaky_board(ttmp);
+                    case DART_TRAP:
+                            return disarm_shooting_trap(ttmp, DART);
+                    case ARROW_TRAP:
+                            return disarm_shooting_trap(ttmp, ARROW);
+                    case PIT:
+                    case SPIKED_PIT:
+                            if (!u.dx && !u.dy) {
+                                You("are already on the edge of the pit.");
+                                return 0;
+                            }
+                            if (!(mtmp = m_at(x,y))) {
+                                pline("Try filling the pit instead.");
+                                return 0;
+                            }
+                            return help_monster_out(mtmp, ttmp);
+                    default:
+                            You("cannot disable %s trap.", (u.dx || u.dy) ? "that" : "this");
+                            return 0;
+                }
 	} /* end if */
+        if (otmp == &zeroobj && !zeroobj_means_door) {
+            return dosearch();
+        }
 
-	if(!u.dx && !u.dy) {
-	    for(otmp = level.objects[x][y]; otmp; otmp = otmp->nexthere)
-		if(Is_box(otmp)) {
-		    Sprintf(qbuf, "There is %s here. Check it for traps?",
-			safe_qbuf("", sizeof("There is  here. Check it for traps?"),
-				doname(otmp), an(simple_typename(otmp->otyp)), "a box"));
-		    switch (ynq(qbuf)) {
-			case 'q': return(0);
-			case 'n': continue;
-		    }
-#ifdef STEED
-		    if (u.usteed && P_SKILL(P_RIDING) < P_BASIC) {
-			You("aren't skilled enough to reach from %s.",
-				mon_nam(u.usteed));
-			return(0);
-		    }
-#endif
-		    if((otmp->otrapped && (force || (!confused
-				&& rn2(MAXULEV + 1 - u.ulevel) < 10)))
-		       || (!force && confused && !rn2(3))) {
-			You("find a trap on %s!", the(xname(otmp)));
-			if (!confused) exercise(A_WIS, TRUE);
+	if (otmp != &zeroobj) {
+            if (u.usteed && P_SKILL(P_RIDING) < P_BASIC) {
+                You("aren't skilled enough to reach from %s.",
+                        mon_nam(u.usteed));
+                return(0);
+            }
+            if((otmp->otrapped && (force || (!confused
+                        && rn2(MAXULEV + 1 - u.ulevel) < 10)))
+               || (!force && confused && !rn2(3))) {
+                You("find a trap on %s!", the(xname(otmp)));
+                if (!confused) exercise(A_WIS, TRUE);
 
-			switch (ynq("Disarm it?")) {
-			    case 'q': return(1);
-			    case 'n': trap_skipped = TRUE;  continue;
-			}
+                if (yn("Disarm it?") != 'y') return 1;
 
-			if(otmp->otrapped) {
-			    exercise(A_DEX, TRUE);
-			    ch = ACURR(A_DEX) + u.ulevel;
-			    if (Role_if(PM_ROGUE)) ch *= 2;
-			    if(!force && (confused || Fumbling ||
-				rnd(75+level_difficulty()/2) > ch)) {
-				(void) chest_trap(otmp, FINGER, TRUE);
-			    } else {
-				You("disarm it!");
-				otmp->otrapped = 0;
-			    }
-			} else pline("That %s was not trapped.", xname(otmp));
-			return(1);
-		    } else {
-			You("find no traps on %s.", the(xname(otmp)));
-			return(1);
-		    }
-		}
-
-	    You(trap_skipped ? "find no other traps here."
-			     : "know of no traps here.");
+                if(otmp->otrapped) {
+                    exercise(A_DEX, TRUE);
+                    ch = ACURR(A_DEX) + u.ulevel;
+                    if (Role_if(PM_ROGUE)) ch *= 2;
+                    if(!force && (confused || Fumbling ||
+                        rnd(75+level_difficulty()/2) > ch)) {
+                        (void) chest_trap(otmp, FINGER, TRUE);
+                    } else {
+                        You("disarm it!");
+                        otmp->otrapped = 0;
+                    }
+                } else pline("It seems that %s was not trapped after all.",
+                             xname(otmp));
+                return(1);
+            } else {
+                You("find no traps on %s.", the(xname(otmp)));
+                return(1);
+            }
 	    return(0);
 	}
 
-	if ((mtmp = m_at(x,y))				&&
-		mtmp->m_ap_type == M_AP_FURNITURE	&&
-		(mtmp->mappearance == S_hcdoor ||
-			mtmp->mappearance == S_vcdoor)	&&
-		!Protection_from_shape_changers)	 {
-
+	if ((mtmp = m_at(x,y)) &&
+            mtmp->m_ap_type == M_AP_FURNITURE &&
+            zeroobj_means_door) {
 	    stumble_onto_mimic(mtmp);
 	    return(1);
 	}
 
 	if (!IS_DOOR(levl[x][y].typ)) {
-	    if ((ttmp = t_at(x,y)) && ttmp->tseen)
-		You("cannot disable that trap.");
-	    else
-		You("know of no traps there.");
+            impossible("Door trap is not on a door?");
 	    return(0);
 	}
 
@@ -3576,10 +3606,14 @@ boolean force;
 	if ((levl[x][y].doormask & D_TRAPPED
 	     && (force ||
 		 (!confused && rn2(MAXULEV - u.ulevel + 11) < 10)))
-	    || (!force && confused && !rn2(3))) {
-		You("find a trap on the door!");
-		exercise(A_WIS, TRUE);
-		if (ynq("Disarm it?") != 'y') return(1);
+	    || (!force && confused && !rn2(3))
+            || (levl[x][y].fknown & FKNOWN_TRAPPED)) {
+                if (!(levl[x][y].fknown & FKNOWN_TRAPPED)) {
+                    You("find a trap on the door!");
+                    exercise(A_WIS, TRUE);
+                    levl[x][y].fknown &= FKNOWN_TRAPPED;
+                    if (yn("Disarm it?") != 'y') return(1);
+                }
 		if (levl[x][y].doormask & D_TRAPPED) {
 		    ch = 15 + (Role_if(PM_ROGUE) ? u.ulevel*3 : u.ulevel);
 		    exercise(A_DEX, TRUE);
@@ -3596,7 +3630,8 @@ boolean force;
 			You("disarm it!");
 			levl[x][y].doormask &= ~D_TRAPPED;
 		    }
-		} else pline("This door was not trapped.");
+		} else pline("It seems that the door was not trapped "
+                             "after all.");
 		return(1);
 	} else {
 		You("find no traps on the door.");

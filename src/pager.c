@@ -772,7 +772,8 @@ doidtrap()
 	register struct trap *trap;
 	int x, y, tt;
 
-	if (!getdir("^Show remembered traps in which direction?",
+	if (!getdir("But you can still try to remember traps; remember "
+                    "in which direction?",
                     GETDIRH_NEXT, 1)) return 0;
 	x = u.ux + u.dx;
 	y = u.uy + u.dy;

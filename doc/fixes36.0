@@ -435,6 +435,8 @@ will show your intrinsics, but not your extrinsics.
 slides (redundantly with ^V).
 #: Now used to repeat commands (like the old numpad n), in addition to
 its use for entering extended commands.
+^: Now shows a menu of trappable objects, and both lets you know which
+traps you remember, and allows you to search for or disarm traps.
 
 The following commands still have their old meanings, or are mapped to
 a new command that encompasses their old meanings, but are now
