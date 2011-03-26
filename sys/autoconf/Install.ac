@@ -13,23 +13,34 @@
 
     Notes:
     
-    * You do _not_ need to have a copy of GNU autoconf to install AceHack.
+    * You do _not_ need to have a copy of GNU autoconf to install
+      AceHack.
+
+    * You probably want to give some options to ./configure; see step
+      2. (If you set the --with-group and --with-owner to your own
+      username, and the --prefix to a directory you own, you don't
+      need to become root to do the install, but can instead do it as
+      yourself.)
 
 2.  Various options that you probably want to set are --prefix to
-    install in a non-default location (say your own home directory);
-    --with-group and --with-owner to change the ownership of the game
-    (permissions are by default set up in a setgid style to allow a
-    secure high-score table that prevents cheating, with owner "root"
-    and group "games"); and --enable-wizmode to change the user who is
-    allowed to put the game into debug mode (if you're building
-    NetHack, you probably want to put your own username there).
+    install in a non-default location (say a subdirectory of your own
+    home directory); --with-group and --with-owner to change the
+    ownership of the game (permissions are by default set up in a
+    setgid style to allow a secure high-score table that prevents
+    cheating, with owner "root" and group "games"); and
+    --enable-wizmode to change the user who is allowed to put the game
+    into debug mode (although note that anyone can enter debug mode if
+    they can start the game from the command line; in AceHack, the
+    --enable-wizmode user is instead the only username that can enter
+    debug mode if the username is locked via the -u option, intended
+    to make public servers work better).
 
-3.  If you do not like the default set of optional features, then you can
-    use the --enable-FEATURE and/or --disable-FEATURE flags to configure
-    as required. Use configure --help to get a list of the optional feaures
-    available and their default settings.  However, it is not recommended
-    that you change from the defaults, as this will prevent your game being
-    gameplay-compatible with others'.
+3.  If you do not like the default set of optional features, then you
+    can use the --enable-FEATURE and/or --disable-FEATURE flags to
+    configure as required. Use configure --help to get a list of the
+    optional feaures available and their default settings.  However,
+    it is not recommended that you change from the defaults, as this
+    will prevent your game being gameplay-compatible with others'.
 
 4.  If the steps above fail for any reason, then your system is probably
     not supported by GNU autoconf and you should use the system-specific
