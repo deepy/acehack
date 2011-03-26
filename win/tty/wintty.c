@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 25 Mar 2011 by Alex Smith */
+/* Modified 26 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -65,6 +65,7 @@ struct window_procs tty_procs = {
     tty_display_nhwindow,
     tty_destroy_nhwindow,
     tty_curs,
+    tty_suppress_more,
     tty_putstr,
     tty_putstr_colored,
     tty_display_file,
@@ -1940,6 +1941,14 @@ const char *str;
 	} else
 	    return str;
 	return cbuf;
+}
+
+/* Semantics: prevents --More-- being shown after the current message,
+   if any, but does not prevent it after future messages. */
+void
+tty_suppress_more()
+{
+    if (ttyDisplay->toplin == 1) ttyDisplay->toplin = 2;
 }
 
 void

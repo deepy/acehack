@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pager.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 25 Mar 2011 by Alex Smith */
+/* Modified 26 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file contains the command routines dowhatis() and dohelp() and */
@@ -455,107 +455,22 @@ bad_data_file:	impossible("'data' file in wrong format");
 /* also used by getpos hack in do_name.c */
 const char what_is_an_unknown_object[] = "an unknown object";
 
-STATIC_OVL int
-do_look(quick)
-    boolean quick;	/* use cursor && don't search for "more info" */
+/* pline() out an explanation of the given sym */
+STATIC_OVL void
+dolook_explanation(sym, from_screen, verbose, nomore, cc)
+    int sym;
+    boolean from_screen, verbose, nomore;
+    coord cc;
 {
-    char    out_str[BUFSZ], look_buf[BUFSZ];
-    const char *x_str, *firstmatch = 0;
-    struct permonst *pm = 0;
-    int     i, ans = 0;
-    int     sym;		/* typed symbol or converted glyph */
-    int	    found;		/* count of matching syms found */
-    coord   cc;			/* screen pos of unknown glyph */
-    boolean save_verbose;	/* saved value of flags.verbose */
-    boolean from_screen;	/* question from the screen */
-    boolean need_to_look;	/* need to get explan. from glyph */
-    boolean hit_trap;		/* true if found trap explanation */
-    int skipped_venom;		/* non-zero if we ignored "splash of venom" */
-    static const char *mon_interior = "the interior of a monster";
-
-    if (quick) {
-	from_screen = TRUE;	/* yes, we want to use the cursor */
-    } else {
-        i = 'n';
-        if (wiz1_level.dlevel > 0) { /* i.e. the game's actually started */
-          i = ynq("Specify unknown object by cursor?");
-          if (i == 'q') return 0;
-        }
-	from_screen = (i == 'y');
-    }
-
-    if (from_screen) {
-	cc.x = u.ux;
-	cc.y = u.uy;
-	sym = 0;		/* gcc -Wall lint */
-    } else {
-	getlin("Specify what? (type the word)", out_str);
-	if (out_str[0] == '\0' || out_str[0] == '\033')
-	    return 0;
-
-	if (out_str[1]) {	/* user typed in a complete string */
-	    checkfile(out_str, pm, TRUE, TRUE);
-	    return 0;
-	}
-	sym = out_str[0];
-    }
-
-    /* Save the verbose flag, we change it later. */
-    save_verbose = flags.verbose;
-    flags.verbose = flags.verbose && !quick;
-    /*
-     * The user typed one letter, or we're identifying from the screen.
-     */
-    do {
-	/* Reset some variables. */
-	need_to_look = FALSE;
-	pm = (struct permonst *)0;
-	skipped_venom = 0;
-	found = 0;
-	out_str[0] = '\0';
-
-	if (from_screen) {
-	    int glyph;	/* glyph at selected position */
-
-	    if (flags.verbose)
-		pline("Please move the cursor to %s.",
-		       what_is_an_unknown_object);
-	    else
-		pline("Pick an object.");
-
-	    ans = getpos(&cc, quick, what_is_an_unknown_object);
-	    if (ans < 0 || cc.x < 0) {
-		flags.verbose = save_verbose;
-		return 0;	/* done */
-	    }
-	    flags.verbose = FALSE;	/* only print long question once */
-
-	    /* Convert the glyph at the selected position to a symbol. */
-	    glyph = glyph_at(cc.x,cc.y);
-	    if (glyph_is_cmap(glyph)) {
-		sym = showsyms[glyph_to_cmap(glyph)];
-	    } else if (glyph_is_trap(glyph)) {
-		sym = showsyms[trap_to_defsym(glyph_to_trap(glyph))];
-	    } else if (glyph_is_object(glyph)) {
-		sym = oc_syms[(int)objects[glyph_to_obj(glyph)].oc_class];
-		if (sym == '`' && iflags.bouldersym && (int)glyph_to_obj(glyph) == BOULDER)
-			sym = iflags.bouldersym;
-	    } else if (glyph_is_monster(glyph)) {
-		/* takes care of pets, detected, ridden, and regular mons */
-		sym = monsyms[(int)mons[glyph_to_mon(glyph)].mlet];
-	    } else if (glyph_is_swallow(glyph)) {
-		sym = showsyms[glyph_to_swallow(glyph)+S_sw_tl];
-	    } else if (glyph_is_invisible(glyph)) {
-		sym = DEF_INVISIBLE;
-	    } else if (glyph_is_warning(glyph)) {
-		sym = glyph_to_warning(glyph);
-	    	sym = warnsyms[sym];
-	    } else {
-		impossible("do_look:  bad glyph %d at (%d,%d)",
-						glyph, (int)cc.x, (int)cc.y);
-		sym = ' ';
-	    }
-	}
+        char look_buf[BUFSZ], out_str[BUFSZ];
+        const char *x_str, *firstmatch = 0;
+        struct permonst *pm = 0;
+        int i;
+        boolean found = FALSE;
+        boolean need_to_look = FALSE;   /* need to get explan. from glyph */
+        boolean hit_trap;		/* true if found trap explanation */
+        int skipped_venom = FALSE;      /* non-zero if we ignored "splash of venom" */
+        static const char *mon_interior = "the interior of a monster";
 
 	/*
 	 * Check all the possibilities, saving all explanations in a buffer.
@@ -734,17 +649,118 @@ do_look(quick)
 	if (found) {
 	    pline("%s", out_str);
 	    /* check the data file for information about this thing */
-	    if (found == 1 && ans != LOOK_QUICK && ans != LOOK_ONCE &&
-			(ans == LOOK_VERBOSE || (flags.help && !quick))) {
+	    if (found == 1 && verbose) {
 		char temp_buf[BUFSZ];
 		Strcpy(temp_buf, firstmatch);
-		checkfile(temp_buf, pm, FALSE, (boolean)(ans == LOOK_VERBOSE));
+                if (nomore) suppress_more();
+		checkfile(temp_buf, pm, FALSE, verbose);
 	    }
 	} else {
 	    pline("I've never heard of such things.");
 	}
 
-        if(quick) check_tutorial_farlook(cc.x, cc.y);
+}
+
+/* pline() out what's at the given location */
+void
+dolook_location(x,y,verbose)
+    int x, y;
+    boolean verbose;
+{
+    coord cc;
+    int glyph, sym;
+    cc.x = x;
+    cc.y = y;
+
+    /* Convert the glyph at the selected position to a symbol. */
+    glyph = glyph_at(cc.x,cc.y);
+    if (glyph_is_cmap(glyph)) {
+      sym = showsyms[glyph_to_cmap(glyph)];
+    } else if (glyph_is_trap(glyph)) {
+      sym = showsyms[trap_to_defsym(glyph_to_trap(glyph))];
+    } else if (glyph_is_object(glyph)) {
+      sym = oc_syms[(int)objects[glyph_to_obj(glyph)].oc_class];
+      if (sym == '`' && iflags.bouldersym && (int)glyph_to_obj(glyph) == BOULDER)
+        sym = iflags.bouldersym;
+    } else if (glyph_is_monster(glyph)) {
+      /* takes care of pets, detected, ridden, and regular mons */
+      sym = monsyms[(int)mons[glyph_to_mon(glyph)].mlet];
+    } else if (glyph_is_swallow(glyph)) {
+      sym = showsyms[glyph_to_swallow(glyph)+S_sw_tl];
+    } else if (glyph_is_invisible(glyph)) {
+      sym = DEF_INVISIBLE;
+    } else if (glyph_is_warning(glyph)) {
+      sym = glyph_to_warning(glyph);
+      sym = warnsyms[sym];
+    } else {
+      impossible("do_look:  bad glyph %d at (%d,%d)",
+                 glyph, (int)cc.x, (int)cc.y);
+      sym = ' ';
+    }
+    dolook_explanation(sym, TRUE, verbose, TRUE, cc);
+}
+
+STATIC_OVL int
+do_look(quick)
+    boolean quick;	/* use cursor && don't search for "more info" */
+{
+    char    out_str[BUFSZ];
+    int     ans = 0, sym;
+    coord   cc;			/* screen pos of unknown glyph */
+    boolean save_verbose;	/* saved value of flags.verbose */
+    boolean from_screen;	/* question from the screen */
+
+    if (quick) {
+	from_screen = TRUE;	/* yes, we want to use the cursor */
+    } else {
+        from_screen = FALSE;
+    }
+
+    if (from_screen) {
+	cc.x = u.ux;
+	cc.y = u.uy;
+	sym = 0;		/* gcc -Wall lint */
+    } else {
+	getlin("Specify what? (type the word)", out_str);
+	if (out_str[0] == '\0' || out_str[0] == '\033')
+	    return 0;
+
+	if (out_str[1]) {	/* user typed in a complete string */
+	    checkfile(out_str, 0, TRUE, TRUE);
+	    return 0;
+	}
+	sym = out_str[0];
+    }
+
+    /* Save the verbose flag, we change it later. */
+    save_verbose = flags.verbose;
+    flags.verbose = flags.verbose && !quick;
+    /*
+     * The user typed one letter, or we're identifying from the screen.
+     */
+    do {
+	/* Reset some variables. */
+	out_str[0] = '\0';
+
+	if (from_screen) {
+
+	    if (flags.verbose)
+		pline("Please move the cursor to %s.",
+		       what_is_an_unknown_object);
+	    else
+		pline("Pick an object.");
+
+	    ans = getpos(&cc, quick, what_is_an_unknown_object);
+	    if (ans < 0 || cc.x < 0) {
+		flags.verbose = save_verbose;
+		return 0;	/* done */
+	    }
+	    flags.verbose = FALSE;	/* only print long question once */
+            dolook_location(cc.x, cc.y, TRUE);
+            if(quick) check_tutorial_farlook(cc.x, cc.y);
+            continue;
+	}
+        dolook_explanation(sym, from_screen, TRUE, !from_screen, cc);
 
     } while (from_screen && !quick && ans != LOOK_ONCE);
 

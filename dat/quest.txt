@@ -1,6 +1,6 @@
 #	SCCS Id: @(#)quest.txt	3.4	2002/01/30
 #	Copyright (c) 1991 by M. Stephenson
-#       Modified 25 Mar 2011 by Alex Smith
+#       Modified 26 Mar 2011 by Alex Smith
 # NetHack may be freely redistributed.  See license for details.
 #
 #	The quest text file for AceHack 3.6
@@ -3538,7 +3538,7 @@ represent creatures (which could be friendly or hostile); and most
 punctuation marks represent either dungeon features (such as - and |
 for walls and doors, # for corridors, and . for the floor), or items
 (such as $ for gold). Eventually you'll know the symbols off by heart;
-while you're learning, you can press /n for a reminder of what any
+while you're learning, you can press / for a reminder of what any
 symbol means, or ; to find out what any object on the map is.
 
 Let's start by looking around a bit; close this message with the

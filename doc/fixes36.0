@@ -215,6 +215,10 @@ invisible I, rather than not shown at all; this makes it rather
 easier to track the player's current location with certain sorts of
 cursor.
 
+While moving the cursor for a location prompt (such as when farlooking
+or casting a location-targeted spell), farlook information is shown at
+the top of the screen.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

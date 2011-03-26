@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.h	3.4	1996/02/18	*/
 /* Copyright (c) David Cohrs, 1991,1992				  */
-/* Modified 24 Mar 2011 by Alex Smith */
+/* Modified 26 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef WINTTY_H
@@ -184,6 +184,7 @@ E void FDECL(tty_display_nhwindow, (winid, BOOLEAN_P));
 E void FDECL(tty_dismiss_nhwindow, (winid));
 E void FDECL(tty_destroy_nhwindow, (winid));
 E void FDECL(tty_curs, (winid,int,int));
+E void NDECL(tty_suppress_more);
 E void FDECL(tty_putstr, (winid, int, const char *));
 E void FDECL(tty_putstr_colored, (winid, int, int, const char *));
 E void FDECL(tty_display_file, (const char *, BOOLEAN_P));

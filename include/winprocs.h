@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)winprocs.h 3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1992				  */
-/* Modified 24 Mar 2011 by Alex Smith */
+/* Modified 26 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef WINPROCS_H
@@ -23,6 +23,7 @@ struct window_procs {
     void FDECL((*win_display_nhwindow), (winid, BOOLEAN_P));
     void FDECL((*win_destroy_nhwindow), (winid));
     void FDECL((*win_curs), (winid,int,int));
+    void NDECL((*win_suppress_more));
     void FDECL((*win_putstr), (winid, int, const char *));
     void FDECL((*win_putstr_colored), (winid, int, int, const char *));
     void FDECL((*win_display_file), (const char *, BOOLEAN_P));
@@ -92,6 +93,7 @@ extern NEARDATA struct window_procs windowprocs;
 #define display_nhwindow (*windowprocs.win_display_nhwindow)
 #define destroy_nhwindow (*windowprocs.win_destroy_nhwindow)
 #define curs (*windowprocs.win_curs)
+#define suppress_more (*windowprocs.win_suppress_more)
 #define putstr (*windowprocs.win_putstr)
 #define putstr_colored (*windowprocs.win_putstr_colored)
 #define display_file (*windowprocs.win_display_file)

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do_name.c	3.4	2003/01/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 26 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -177,6 +177,10 @@ const char *goal;
 #ifdef CLIPPING
 	cliparound(cx, cy);
 #endif
+        /* We want a pline() /without/ generating a --More--. */
+        suppress_more();
+        dolook_location(cx, cy, FALSE);
+        suppress_more();
 	curs(WIN_MAP,cx,cy);
 	flush_screen(0);
     }
