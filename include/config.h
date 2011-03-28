@@ -211,7 +211,7 @@
  * otherwise it will be the current directory.
  */
 # ifndef HACKDIR
-#  define HACKDIR "/home/ais523/research/my-nethack/build/playfield"
+#  define HACKDIR "'you need to run AceHack via the shelldir to set directories correctly'"
 # endif
 
 /*
