@@ -1490,7 +1490,7 @@ int final;
 struct ext_func_tab extcmdlist[] = {
   {"adjust", "adjust inventory letters", doorganize, TRUE, 1, C('i'), M('a'), 0, 0},
   {"annotate", "name current level", donamelevel, TRUE, 5, C('f'), 0, 0, 0},
-  {"apply", "use a tool or ignite a potion", doapply, FALSE, 12, 'a', 0, 0, 0},
+  {"apply", "use a tool or dip into a potion", doapply, FALSE, 12, 'a', 0, 0, 0},
   {"autoexplore", "travel somewhere interesting", doautoexplore, FALSE,
    11, 'v', 0, 0, 0},
   {"autopickup", "toggle the autopickup option", dotogglepickup, TRUE, 10,
@@ -1512,12 +1512,12 @@ struct ext_func_tab extcmdlist[] = {
   {"eastfar", "move east as far as possible", 0, FALSE, 22, 'L', 0, 0, 'L'},
   {"eastfarcareful", "move east until something interesting happens",
    0, FALSE, 23, C('l'), 0, 0, C('l')},
-  {"eat", "eat an item", doeat, FALSE, 10, 'e', 0, 0, 0},
+  {"eat", "eat an item from inventory or the floor", doeat, FALSE, 10, 'e', 0, 0, 0},
   {"engrave", "write on the floor", doengrave, FALSE, 11, 'E', 0, 0, 0},
   {"enhance", "advance or check weapons skills", enhance_weapon_skill,
    TRUE, 1, C('e'), M('e'), 0, 0},
   {"equip", "wear or put on equipment", dowear, FALSE, 10, 'W', 'P', 0, 0},
-  {"equipment", "show equipped items, and remove them or equip new ones",
+  {"equipment", "show equipped items, and maybe remove them or equip new ones",
    doddoremarm, FALSE, 10, 'A', '*', 0, 0},
   {"farlook", "say what is on a distant square", doquickwhatis, TRUE, 10,
    ';', 0, 0, 0},
@@ -1528,10 +1528,13 @@ struct ext_func_tab extcmdlist[] = {
   {"fire", "throw your quivered item", dofire, FALSE, 11, 'f', 0, 0, 0},
   {"force", "force a lock", doforce, FALSE, 1, M('f'), 0, 0, 0},
   {"goup", "move up stairs or a ladder", doup, FALSE, 10, '<', 0, 0, 0},
+  {"godown", "move down stairs or a ladder", dodown, FALSE, 11, 0, 0, 0, 0},
   {"help", "open the in-game help", dohelp, TRUE, 10, '?', 0, 0, 0},
+  {"heptagram", "draw a heptagram with fingers or athame", dosearch, FALSE, 11, '.', 0, 0},
   {"inventory", "list, describe or use items", ddoinv, TRUE, 10, 'i', 0, 0, 0},
-  {"invoke", "invoke an object's powers", doinvoke, TRUE, 1, 'V', 0, 0, 0},
-  {"jump", "jump or teleport to a location, or ride a steed", dojump, FALSE, 1, 'G', M('j'), 0, 0},
+  {"invoke", "invoke an object's powers, or break, ignite, or rub on it",
+   doinvoke, TRUE, 1, 'V', 0, 0, 0},
+  {"jump", "jump or teleport to a location, or ride or dismount a steed", dojump, FALSE, 1, 'G', M('j'), 0, 0},
   {"kick", "kick an adjacent object or monster", dokick, FALSE, 10, C('d'), 0, 0, 0},
   {"lookhere", "describe the current square", dolook, TRUE, 10, ':', 0, 0, 0},
   {"loot", "loot a box on the floor", doloot, FALSE, 1, 0, 0, 0, 0},
@@ -1560,7 +1563,7 @@ struct ext_func_tab extcmdlist[] = {
   {"pickup", "pick up one or more items", dopickup, FALSE, 10, ',', 0, 0, 0},
   {"pray", "pray to the gods for help", dopray, TRUE, 1, M('p'), 0, 0, 0},
   {"quaff", "drink a potion or other liquid", dodrink, FALSE, 11, 'q', 0, 0, 0},
-  {"quit", "exit without saving current game", done2, TRUE, 1, M('q'), 0, 0, 0},
+  {"quit", "exit the game and delete its savefile", done2, TRUE, 1, M('q'), 0, 0, 0},
   {"quiver", "ready an item for firing", dowieldquiver, FALSE, 10, 'Q', 0, 0, 0},
   {"read", "read text written on an item", doread, FALSE, 11, 'r', 0, 0, 0},
   {"redo", "repeat the previous command", 0, TRUE, 20, C('a'), 0, 0, DOAGAIN},
@@ -1572,7 +1575,7 @@ struct ext_func_tab extcmdlist[] = {
 #endif
   {"rub", "rub a lamp or a stone", dorub, FALSE, 1, M('r'), 0, 0, 0},
   {"save", "quicksave or abandon the game", dosave, TRUE, 10, 'S', 0, 0, 0},
-  {"search", "wait 1 turn, searching around you", dosearch, TRUE, 13, 's', '.', 0, 0},
+  {"search", "wait 1 turn, searching around you", dosearch, TRUE, 13, 's', 0, 0},
   {"sit", "sit down", dosit, FALSE, 1, M('s'), 0, 0, 0},
   {"south", "move, attack, or interact south", 0, FALSE, 21, 'j', '2', 0, 'j'},
   {"southfar", "move south as far as possible", 0, FALSE, 22, 'J', 0, 0, 'J'},
@@ -2063,8 +2066,8 @@ reparse_direction:
                   /* F, m, g are meaningless with vertical movement */
                   if (cmd[0] == 'F') {
                     pline("But there can't be a monster lurking above or below you!");
-                    pline("(With an appropriate weapon, use the a command "
-                          "to attack terrain.)");
+                    pline("(With an appropriate weapon, use the %s command "
+                          "to attack terrain.)", key_for_cmd("#apply"));
                   } else pline("That doesn't make any sense...");
                   cmd[0] = '\033';
                 }

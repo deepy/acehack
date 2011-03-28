@@ -460,11 +460,13 @@ p (use c), P (use W), R (use T), * (use A).
 
 (Credits for the idea of merging W/P and R/T go to dtsund.)
 
-The following commands were deleted: !vV)[="(
+The following commands were deleted: !vV)[="(GM
 v is now available as #versionshort (and V as #versionhistory);
 something similar to ! should likely be provided by your operating
 system (you can also use ^Z on systems that support it); and the
-remaining equipment commands are all special cases of A.
+remaining equipment commands are all special cases of A. Instead of
+using G or M, just use g, or control-letter or shift-letter if you
+really need exactly the same functionality.
 
 Command customization:
 

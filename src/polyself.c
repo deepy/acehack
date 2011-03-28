@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)polyself.c	3.4	2003/01/08	*/
 /*	Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 28 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -498,6 +498,7 @@ int	mntmp;
 	if (flags.verbose) {
 	    static const char use_thec[] = "Use the command %s to %s.";
 	    char* monsterc = key_for_cmd("#monster");
+            char* terrainc;
 #ifdef YOUMONST_SPELL
 	    if (attacktype(youmonst.data, AT_MAGC))
 		pline(use_thec,monsterc,"cast monster spells outside combat");
@@ -524,8 +525,9 @@ int	mntmp;
 		pline(use_thec,monsterc,"emit a mental blast");
 	    if (youmonst.data->msound == MS_SHRIEK) /* worthless, actually */
 		pline(use_thec,monsterc,"shriek");
+            terrainc = key_for_cmd("#sit");
 	    if (lays_eggs(youmonst.data) && flags.female)
-		pline(use_thec,"sit","lay an egg");
+		pline(use_thec,terrainc,"lay an egg (on ordinary ground)");
 	}
 	/* you now know what an egg of your type looks like */
 	if (lays_eggs(youmonst.data)) {
