@@ -1618,12 +1618,12 @@ struct ext_func_tab extcmdlist[] = {
   {"unequip", "take off or remove equipment", dotakeoff, FALSE, 10, 'T', 'R', 0, 0},
   {"untrap", "describe or defuse a remembered trap", dountrap, FALSE, 1,
    '^', M('u'), 0, 0},
-  {"versionshort", "list the version number of NetHack",
+  {"versionshort", "list the version number of AceHack",
    doversion, TRUE, 10, 0, 0, 0, 0},
-  {"versionhistory", "list the history of NetHack",
+  {"versionhistory", "list the history of AceHack",
    dohistory, TRUE, 11, M('v'), 0, 0, 0},
-  {"versionoptions", "list compile time options for this version of NetHack",
-   doextversion, TRUE, 1, M('v'), 0, 0, 0},
+  {"versionoptions", "list compile time options for this version of AceHack",
+   doextversion, TRUE, 1, 0, 0, 0, 0},
   {"west", "move, attack, or interact west", 0, FALSE, 21, 'h', '4', 0, 'h'},
   {"westfar", "move west as far as possible", 0, FALSE, 22, 'H', 0, 0, 'H'},
   {"westfarcareful", "move west until something interesting happens",
@@ -1728,6 +1728,60 @@ char* cmd;
     a++;
   }
   return cmd;
+}
+
+/* Rebinds key c to command s (as a #command string without the #).
+   Silently fails if the command in question doesn't exist. */
+void
+rebind_key(c,s)
+char c;
+char* s;
+{
+  struct ext_func_tab *tlist;
+  /* Reject attempts to rebind #, so that all commands are always typable */
+  if (c == '#') return;
+  /* First find the command (if any) using c, and unbind it */
+  for (tlist = extcmdlist; tlist->ef_txt; tlist++) {
+    if ((c & 0xff) == (tlist->binding1 & 0xff)) {
+      tlist->binding1 = tlist->binding2;
+      tlist->binding2 = tlist->binding3;
+      tlist->binding3 = 0;
+    } else if ((c & 0xff) == (tlist->binding2 & 0xff)) {
+      tlist->binding2 = tlist->binding3;
+      tlist->binding3 = 0;
+    } else if ((c & 0xff) == (tlist->binding3 & 0xff)) {
+      tlist->binding3 = 0;
+    }
+  }
+  /* Now find the command named #s, and bind that
+     binding1 is the most "important" binding, so we should remove
+     binding3 first if there's a conflict, and insert the new binding
+     at binding1 so that it's displayed in help text, and it's removed
+     last if further bindings are done in the config file or via O. */
+  for (tlist = extcmdlist; tlist->ef_txt; tlist++) {
+    if (!strcmp(tlist->ef_txt, s)) {
+      tlist->binding3 = tlist->binding2;
+      tlist->binding2 = tlist->binding1;
+      tlist->binding1 = c;
+    }
+  }
+}
+
+/* Rebind a key based on a config file specification:
+   a:#apply
+   ^E:#enhance
+   M-d:#dip
+   Silently fails on bad syntax
+*/
+void
+rebind_key_from_string(s)
+char* s;
+{
+  char* r = strstr(s, ":#");
+  if (!r || r-s < 1 || r-s > 3) return;
+  else if (r-s == 1) rebind_key(s[0], s+3);
+  else if (r-s == 2 && *s == '^') rebind_key(C(s[1]), s+4);
+  else if (r-s == 3 && *s == 'M' && s[1] == '-') rebind_key(M(s[1]), s+5);
 }
 
 /*

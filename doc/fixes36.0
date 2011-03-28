@@ -133,8 +133,9 @@ numpad to move, you'll need to use ^D or #kick to kick).  All commands
 are now available as extended commands; and likewise, all
 (non-wizmode) commands but "enter explore mode" are now available as
 non-extended commands, either by adding new commands or generalising
-old ones.  (A specific list of what has changed command-wise is given
-in the "Change Detail" section at the end.)
+old ones.  (A specific list of what has changed command-wise, and how
+to customize commands, is given in the "Change Detail" section at the
+end.)
 
 Many monsters have changed colour (ghosts and shades have even changed
 sym, to W) in order to make it easier for the player to tell them
@@ -464,6 +465,22 @@ v is now available as #versionshort (and V as #versionhistory);
 something similar to ! should likely be provided by your operating
 system (you can also use ^Z on systems that support it); and the
 remaining equipment commands are all special cases of A.
+
+Command customization:
+
+A new config file option REBIND= allows the rebinding of commands.
+Each command in the game has a representation as an extended command
+(e.g. the command bound to 'h' and '4' by default is called #west),
+and you can choose which keys are bound to which commands (apart from
+# itself, which is necessary so that it's always possible to, e.g.,
+save or quit the game; however, you are allowed to bind additional
+keys to #repeat). The syntax is to write REBIND=key:#command (with no
+spaces), where the key in question is a single character, or ^
+followed by a capital letter to represent control-letter, or M-
+followed by an arbitrary character to represent combinations involving
+the Meta modifier (which may not work on all keyboards). See qwertz.nh
+in the doc/ folder for an example rebinding (that swaps z and y,
+common for vi-keys play on German keyboards).
 
 Color changes:
 

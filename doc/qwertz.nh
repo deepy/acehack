@@ -1,0 +1,9 @@
+# A sample options file fragment for QWERTZ-based keyboards
+# This just swaps the 'y' and 'z' characters
+
+REBIND=y:#zap
+REBIND=z:#northwest
+REBIND=Y:#cast
+REBIND=Z:#northwestfar
+REBIND=^Y:#suspend
+REBIND=^Z:#northwestfarcareful
