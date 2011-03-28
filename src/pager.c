@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pager.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Mar 2011 by Alex Smith */
+/* Modified 28 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file contains the command routines dowhatis() and dohelp() and */
@@ -638,12 +638,18 @@ dolook_explanation(sym, from_screen, verbose, nomore, cc)
 		    (void)strncat(out_str, temp_buf, BUFSZ-strlen(out_str)-1);
 		    found = 1;	/* we have something to look up */
 		}
-		if (monbuf[0]) {
+		if (monbuf[0] && !verbose) {
 		    Sprintf(temp_buf, " [seen: %s]", monbuf);
 		    (void)strncat(out_str, temp_buf, BUFSZ-strlen(out_str)-1);
 		}
+                if (!verbose && *firstmatch) {
+                    /* 70 guarantees answer + --More-- fits onto an
+                       80 col screen */
+                    strncpy(out_str, firstmatch, 70);
+                }
 	    }
 	}
+        if (!verbose) out_str[70] = '\0';
 
 	/* Finally, print out our explanation. */
 	if (found) {
