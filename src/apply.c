@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Mar 2011 by Alex Smith */
+/* Modified 28 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1244,6 +1244,14 @@ int magic; /* 0=Physical, otherwise skill level */
 
         if (!magic && m_at(cc.x, cc.y) && distu(cc.x, cc.y) <= 2) {
                 return mount_steed(m_at(cc.x, cc.y), FALSE);
+        }
+        if (!magic && u.usteed && cc.x == u.ux && cc.y == u.uy) {
+                dismount_steed(DISMOUNT_BYCHOICE);
+                return 0;
+        }
+        if (cc.x == u.ux && cc.y == u.uy) {
+                pline("You jump on the spot for a bit.");
+                return 0;
         }
 
 	if (!magic && (nolimbs(youmonst.data) || slithy(youmonst.data))) {
