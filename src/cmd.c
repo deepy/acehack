@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 28 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1391,15 +1391,6 @@ int final;
 	putstr(en_win, 0, "Voluntary challenges:");
 	putstr(en_win, 0, "");
 
-	if (!u.uconduct.startscums)
-            enl_msg(You_, "did not view", "did not view",
-                    " your character before playing");
-        else {
-	    Sprintf(buf, " from %ld character%s to play with",
-		    u.uconduct.startscums, plur(u.uconduct.startscums));
-	    enl_msg(You_, "chose", "chose", buf);
-        }
-
 	if (!u.uconduct.food)
 	    enl_msg(You_, "have gone", "went", " without food");
 	    /* But beverages are okay */
@@ -1427,6 +1418,14 @@ int final;
 	    Sprintf(buf, "wrote or read %ld time%s",
 		    u.uconduct.literate, plur(u.uconduct.literate));
 	    you_have_X(buf);
+	}
+
+	if (!u.uconduct.heptagrams)
+	    enl_msg(You_, "have never drawn", "never drew", " a magic heptagram");
+	else {
+	    Sprintf(buf, " a magic heptagram %ld time%s",
+		    u.uconduct.heptagrams, plur(u.uconduct.heptagrams));
+	    enl_msg(You_, "have never drawn", "never drew", buf);
 	}
 
 	ngenocided = num_genocides();
@@ -1465,6 +1464,9 @@ int final;
 		enl_msg(You_, "have not wished", "did not wish",
 			" for any artifacts");
 	}
+
+        if (solo)
+            enl_msg(You_, "are", "were", " playing solo");
 
 	/* Pop up the window and wait for a key */
 	display_nhwindow(en_win, TRUE);

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)bones.c	3.4	2003/09/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985,1993. */
-/* Modified 26 Mar 2010 by Alex Smith */
+/* Modified 28 Mar 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -393,6 +393,7 @@ getbones()
 #endif
 		) return(0);
 	if(no_bones_level(&u.uz)) return(0);
+        if(solo) return(0);
 	fd = open_bonesfile(&u.uz, &bonesid);
 	if (fd < 0) return(0);
 

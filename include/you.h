@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)you.h	3.4	2000/05/21	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Oct 2010 by Alex Smith */
+/* Modified 28 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef YOU_H
@@ -68,10 +68,12 @@ struct u_conduct {		/* number of times... */
 	long	literate;	/* read something (other than BotD) */
 	long	polypiles;	/* polymorphed an object */
 	long	polyselfs;	/* transformed yourself */
-	long    startscums;     /* viewed a character's stats at creation */
+	long    heptagrams;     /* drew magic hepagrams */
 	long	wishes;		/* used a wish */
 	long	wisharti;	/* wished for an artifact */
 				/* genocides already listed at end of game */
+        long    padding[10];    /* for adding new conducts without breaking
+                                   save compat */
 };
 
 /*** Unified structure containing role information ***/

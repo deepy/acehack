@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 26 Mar 2011 by Alex Smith */
+/* Modified 28 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -537,7 +537,7 @@ tty_player_selection()
 	char obuf[BUFSZ];
         boolean reroll = FALSE, xallowed = TRUE;
         int ch = 0;
-        long scumcount = !!flags.startscum;
+        long scumcount = flags.startscum && !solo;
         const char *line1, *line2, *line3;
 
         /* If in tutorial mode, narrow the character selection */
@@ -754,9 +754,12 @@ tty_player_selection()
                     tty_putstr_colored(BASE_WINDOW, attr, color, obuf);
                     objects[otmp->otyp].oc_name_known = save_ocknown;
                     otmp = otmp->nobj;
-                } else if (i == 2 && scumcount == 0) {
+                } else if (i == 2 && scumcount == 0 && !solo) {
                     tty_putstr(BASE_WINDOW, 0,
                                "(press i to view inventory and stats)");
+                } else if (i == 2 && solo) {
+                    tty_putstr(BASE_WINDOW, 0,
+                               "(not viewable in solo mode)");
                 }
                 cl_end();
             }
@@ -778,7 +781,8 @@ tty_player_selection()
             ch = readchar();
             if (ch == 'q' || ch == 'Q') bail((char *)0);
             if (ch == '#') reroll = TRUE;
-            if (ch == 'i' && scumcount == 0) scumcount = 1;
+            if (ch == 'i' && scumcount == 0 && !solo)
+                scumcount = 1;
             if (ch == '*') {
                 flags.initrole = randrole();
                 flags.initrace = randrace(flags.initrole);
@@ -826,7 +830,6 @@ tty_player_selection()
         } while(ch != '.' || !xallowed);
 
 	/* Success! */
-        u.uconduct.startscums = scumcount;
 	tty_display_nhwindow(BASE_WINDOW, FALSE);
 }
 

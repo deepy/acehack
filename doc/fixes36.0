@@ -266,6 +266,13 @@ General New Features
 A new tutorial mode provides hints on the game and its controls as
 it's played.
 
+A new "solo mode" lets the player play without interference from other
+player's games (although mail can still be sent unless that is also
+disabled in the options), meaning that bones files are not loaded
+(although can still be left). It also prevents viewing a character's
+stats before play starts, meaning that startscumming will be visible
+in the logfile.
+
 The menucolors patch has been added, allowing customisable colouring
 of menus based on regular expressions.  (Patch credits: Pasi Kallinnen
 via UnNethack.)  AceHack-specific additions include a default set of
@@ -278,9 +285,6 @@ the square before, and whether it's lit; dark areas of a room are now
 shown coloured rather than as blank space (unless color is turned
 off).  (Patch credits: based on the darkroom patch by Clive Crous, via
 UnNetHack.)
-
-A new conduct "startscumless" counts the number of times you looked at
-a character's stats before choosing to play with it.
 
 Objects in shops now have visible price tags, that are shown when you
 step on them.  (Patch credits: a marginally modified version of a
@@ -344,11 +348,8 @@ aspects of the monster (blue=tame, brown=peaceful, magenta=detected).
 
 There is a new character creation screen, that allows you to view a
 character's stats and inventory before you start playing, and to
-choose a different one if you don't like it.  (This breaks
-"startscumless" conduct just by existing; if you want to prove that
-you won with the first character that the RNG produced, say as part of
-a streak, turn off the new "startscum" option and the stats and
-inventory will be hidden unless you choose to look at them.)
+choose a different one if you don't like it.  (If you don't want to
+startscum, and want to prove you didn't, play in solo mode.)
 
 In addition to the new character creation screen, a new main menu
 allows selection of the game mode (explore / debug / normal / tutorial
