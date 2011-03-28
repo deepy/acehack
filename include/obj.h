@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)obj.h	3.4	2002/01/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Mar 2011 by Alex Smith */
+/* Modified 28 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef OBJ_H
@@ -95,10 +95,11 @@ struct obj {
 	Bitfield(was_thrown,1);	/* thrown by the hero since last picked up */
 	/* 5 free bits */
 
-	int	corpsenm;	/* type of corpse is mons[corpsenm] */
+	long	corpsenm;	/* type of corpse is mons[corpsenm] */
 #define leashmon  corpsenm	/* gets m_id of attached pet */
 #define spestudied corpsenm	/* # of times a spellbook has been studied */
 #define fromsink  corpsenm	/* a potion from a sink */
+#define lastused  corpsenm      /* most recent use time for autousable tools */
 	unsigned oeaten;	/* nutrition left in food, if partly eaten */
 	long age;		/* creation date */
 

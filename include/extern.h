@@ -177,6 +177,7 @@ E int FDECL(movecmd, (CHAR_P));
 E int FDECL(movecmdui, (CHAR_P));
 E void FDECL(setnextgetdir, (int));
 E void FDECL(setnextgetdirdxdy, (int,int));
+E boolean NDECL(isnextgetdirset);
 E int FDECL(getdir, (const char *,int,int));
 E void NDECL(confdir);
 E int FDECL(isok, (int,int));

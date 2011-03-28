@@ -234,8 +234,10 @@ pick_lock(pick) /* pick a lock with a given object */
 	struct rm	*door;
 	struct obj	*otmp;
 	char qbuf[QBUFSZ];
+        boolean is_automatic = isnextgetdirset();
 
 	picktyp = pick->otyp;
+        pick->lastused = monstermoves; /* so 'o' knows which item to use */
 
 	/* check whether we're resuming an interrupted previous attempt */
 	if (xlock.usedtime && picktyp == xlock.picktyp) {
@@ -414,7 +416,8 @@ pick_lock(pick) /* pick a lock with a given object */
 		    Sprintf(qbuf,"%sock it?",
 			(door->doormask & D_LOCKED) ? "Unl" : "L" );
 
-		    c = yn(qbuf);
+		    if (is_automatic) c = 'y';
+                    else c = yn(qbuf);
 		    if(c == 'n') return(0);
 
 		    switch(picktyp) {
@@ -512,6 +515,8 @@ doopen()		/* try to open a door */
 	coord cc;
 	register struct rm *door;
 	struct monst *mtmp;
+        struct obj *otmp;
+        boolean is_automatic = isnextgetdirset();
 
 	if (nohands(youmonst.data)) {
 	    You_cant("open anything -- you have no hands!");
@@ -523,7 +528,7 @@ doopen()		/* try to open a door */
 	    return 0;
 	}
 
-	if(!get_adjacent_loc("Open or close a door in which direction?",
+	if(!get_adjacent_loc("Open/close/unlock a door in which direction?",
                              (char *)0, u.ux, u.uy, &cc)) return(0);
 
 	if((cc.x == u.ux) && (cc.y == u.uy)) return(0);
@@ -553,6 +558,38 @@ doopen()		/* try to open a door */
         if (door->doormask & D_ISOPEN) {
           setnextgetdirdxdy(cc.x-u.ux, cc.y-u.uy);
           return doclose();
+        }
+
+        if (door->doormask == D_LOCKED &&
+            door->fknown & FKNOWN_LOCKED &&
+            !is_automatic) {
+          struct obj *bestpick = 0;
+          /* 'o' command on a door the player knows is locked should try
+             to unlock it, otherwise tries to open it and fails (next
+             case) */
+          for (otmp = invent; otmp; otmp = otmp->nobj) {
+            if (otmp->otyp == LOCK_PICK ||
+#ifdef TOURIST
+                otmp->otyp == CREDIT_CARD ||
+#endif
+                otmp->otyp == SKELETON_KEY) {
+              if (!bestpick || otmp->lastused > bestpick->lastused)
+                bestpick = otmp;
+            }
+          }
+          if (!bestpick) {
+            pline("You have nothing to unlock that with.");
+          } else if(!bestpick->lastused) {
+            pline("Use an unlocking tool manually so I know which one "
+                  "you want to use.");
+          } else {
+            int turncount;
+            setnextgetdirdxdy(cc.x-u.ux, cc.y-u.uy);
+            turncount = pick_lock(bestpick);
+            setnextgetdir(0); /* paranoia against lack of hands */
+            return turncount;
+          }
+          return 0;
         }
 
 	if (!(door->doormask & D_CLOSED)) {

@@ -1554,8 +1554,7 @@ struct ext_func_tab extcmdlist[] = {
   {"northwestfarcareful", "move northwest until something interesting happens",
    0, FALSE, 23, C('y'), 0, 0, C('y')},
   {"offer", "offer a sacrifice to the gods", dosacrifice, FALSE, 1, M('o'), 0, 0, 0},
-  {"open", "open or close a door or container on the ground", doopen,
-   FALSE, 11, 'o', M('l'), 0, 0},
+  {"open", "open, close, or unlock a door", doopen, FALSE, 11, 'o', M('l'), 0, 0},
   {"options", "change game options", doset, TRUE, 10, 'O', 0, 0, 0},
   {"overview", "show an overview of the dungeon", dooverview, TRUE, 5, C('o'), 0, 0, 0},
   {"pickup", "pick up one or more items", dopickup, FALSE, 10, ',', 0, 0, 0},
@@ -2352,6 +2351,12 @@ int dx,dy;
     if (dx  > 0 && dy == 0) setnextgetdir('l');
     if (dx  > 0 && dy  < 0) setnextgetdir('u');
     if (dx  > 0 && dy  > 0) setnextgetdir('n');
+}
+
+boolean
+isnextgetdirset()
+{
+    return !!nextgetdir;
 }
 
 /* Gets a direction from the player.

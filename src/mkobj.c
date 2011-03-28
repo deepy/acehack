@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mkobj.c	3.4	2002/10/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 9 Aug 2010 by Alex Smith */
+/* Modified 28 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -382,6 +382,7 @@ boolean artif;
 	otmp->otyp = otyp;
 	otmp->where = OBJ_FREE;
 	otmp->dknown = index(dknowns, let) ? 0 : 1;
+        otmp->lastused = 0;
 	if ((otmp->otyp >= ELVEN_SHIELD && otmp->otyp <= ORCISH_SHIELD) ||
 			otmp->otyp == SHIELD_OF_REFLECTION)
 		otmp->dknown = 0;

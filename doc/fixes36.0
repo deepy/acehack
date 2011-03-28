@@ -417,6 +417,8 @@ G: A combined command for controlled teleportation, jumping, and
 riding. (They're all forms of jump, if you think about it.)
 ^I: Now a synonym for #adjust.
 M: Now a synonym for #monster.
+o: Now both opens and closes doors; and unlocks known locked doors
+with the most recently used unlocking tool in inventory.
 q: Allows , as an argument, to drink from sinks/fountains.
 Q: No longer prints a message about #quit.
 s: No longer wakes mimics (instead, upon detecting a mimic, an
