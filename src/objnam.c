@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -315,6 +315,9 @@ boolean ignore_oquan;
 	register const char *actualn = OBJ_NAME(*ocl);
 	register const char *dn = OBJ_DESCR(*ocl);
 	register const char *un = ocl->oc_uname;
+
+        if (!dn) dn = actualn;
+        if (!actualn) actualn = dn;
 
 	buf = nextobuf() + PREFIX;	/* leave room for "17 -3 " */
 	if (Role_if(PM_SAMURAI) && Japanese_item_name(typ))
