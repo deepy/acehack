@@ -220,6 +220,10 @@ While moving the cursor for a location prompt (such as when farlooking
 or casting a location-targeted spell), farlook information is shown at
 the top of the screen.
 
+The player is now prompted upon attempting to eat something that the
+character would know is dangerous even without magical aid (such as an
+old or poisonous corpse).
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
@@ -416,6 +420,7 @@ what to do.  (Credits: nethack.alt.org for the idea, although the code
 is mine.)  They also allow naming of recently destroyed items (so that
 players aren't prompted in the middle of something else to name them),
 and calling items by appearance,
+e: Allows , as an argument to eat from the floor.
 ^E: Now a synonym for #enhance.
 G: A combined command for controlled teleportation, jumping, and
 riding. (They're all forms of jump, if you think about it.)
