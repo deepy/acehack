@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)extern.h	3.4	2003/03/10	*/
 /* Copyright (c) Steve Creps, 1988.				  */
-/* Modified 29 Mar 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef EXTERN_H
@@ -1460,6 +1460,7 @@ E boolean FDECL(add_menu_coloring, (char *));
 /* ### pager.c ### */
 
 E void FDECL(dolook_location, (int, int, BOOLEAN_P));
+E void FDECL(checkfile, (char *,struct permonst *,int,BOOLEAN_P,BOOLEAN_P));
 E int NDECL(dowhatis);
 E int NDECL(doquickwhatis);
 E int NDECL(doidtrap);

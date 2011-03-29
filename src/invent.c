@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Mar 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2497,8 +2497,10 @@ dotypeinv()
 	check_tutorial_oclass(this_type);
 	if (query_objlist((char *) 0, invent,
 		    (flags.invlet_constant ? USE_INVLET : 0)|INVORDER_SORT,
-		    &pick_list, PICK_NONE, this_type_only) > 0)
-	    free((genericptr_t)pick_list);
+                    &pick_list, PICK_ONE, this_type_only) > 0) {
+            checkfile("", 0, pick_list[0].item.a_obj->otyp, FALSE, TRUE);
+            free((genericptr_t)pick_list);
+        }
 	return 0;
 }
 

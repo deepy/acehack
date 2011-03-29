@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pager.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Mar 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file contains the command routines dowhatis() and dohelp() and */
@@ -12,9 +12,7 @@
 
 STATIC_DCL boolean FDECL(is_swallow_sym, (int));
 STATIC_DCL int FDECL(append_str, (char *, const char *));
-STATIC_DCL struct permonst * FDECL(lookat, (int, int, char *, char *));
-STATIC_DCL void FDECL(checkfile,
-		      (char *,struct permonst *,BOOLEAN_P,BOOLEAN_P));
+STATIC_DCL struct permonst * FDECL(lookat, (int, int, char *, char *, int *));
 STATIC_DCL int FDECL(do_look, (BOOLEAN_P));
 STATIC_DCL boolean FDECL(help_menu, (int *));
 #ifdef PORT_HELP
@@ -57,15 +55,17 @@ append_str(buf, new_str)
  * If not hallucinating and the glyph is a monster, also monster data.
  */
 STATIC_OVL struct permonst *
-lookat(x, y, buf, monbuf)
+lookat(x, y, buf, monbuf, otypp)
     int x, y;
     char *buf, *monbuf;
+    int *otypp;
 {
     register struct monst *mtmp = (struct monst *) 0;
     struct permonst *pm = (struct permonst *) 0;
     int glyph;
 
     buf[0] = monbuf[0] = 0;
+    *otypp = STRANGE_OBJECT;
     glyph = glyph_at(x,y);
     if (u.ux == x && u.uy == y && senseself()) {
 	char race[QBUFSZ];
@@ -243,11 +243,14 @@ lookat(x, y, buf, monbuf)
 		    otmp->quan = 2L; /* to force pluralization */
 		else if (otmp->otyp == SLIME_MOLD)
 		    otmp->spe = current_fruit;	/* give the fruit a type */
+                *otypp = otmp->otyp;
 		Strcpy(buf, distant_name(otmp, xname));
 		dealloc_obj(otmp);
 	    }
-	} else
+	} else {
+            *otypp = otmp->otyp;
 	    Strcpy(buf, distant_name(otmp, xname));
+        }
 
 	if (levl[x][y].typ == STONE || levl[x][y].typ == SCORR)
 	    Strcat(buf, " embedded in stone");
@@ -300,10 +303,11 @@ lookat(x, y, buf, monbuf)
  *	 lcase() for data.base lookup so that we can have a clean key.
  *	 Therefore, we create a copy of inp _just_ for data.base lookup.
  */
-STATIC_OVL void
-checkfile(inp, pm, user_typed_name, without_asking)
+void
+checkfile(inp, pm, otyp, user_typed_name, without_asking)
     char *inp;
     struct permonst *pm;
+    int otyp;
     boolean user_typed_name, without_asking;
 {
     dlb *fp;
@@ -311,7 +315,29 @@ checkfile(inp, pm, user_typed_name, without_asking)
     char *ep, *dbase_str;
     long txt_offset;
     int chk_skip;
+    boolean second_pass = FALSE;
     boolean found_in_file = FALSE, skipping_entry = FALSE;
+    winid datawin = 0; /* doesn't actually need init, but compilers can't tell */
+
+checkfile_again:
+
+    if (otyp != STRANGE_OBJECT) {
+      /* We check the object's appearance, then (if IDed) its
+         actual type, on the two passes. If unIDed, just its
+         appearance. The second pass only starts for an IDed
+         object. */
+      struct obj *otmp;
+      int save_oc_name_known = objects[otyp].oc_name_known;
+      objects[otyp].oc_name_known = second_pass;
+      otmp = mksobj(otyp, FALSE, FALSE);
+      if (otmp->otyp == COIN_CLASS) otmp->quan = 2L;
+      if (otmp->otyp == SLIME_MOLD) otmp->spe = current_fruit;
+      inp = xname(otmp);
+      objects[otyp].oc_name_known = save_oc_name_known;
+    }
+
+    found_in_file = FALSE;
+    skipping_entry = FALSE;
 
     fp = dlb_fopen(DATAFILE, "r");
     if (!fp) {
@@ -408,6 +434,8 @@ checkfile(inp, pm, user_typed_name, without_asking)
 	}
     }
 
+    if(second_pass && !found_in_file) goto recheck_failed;
+
     if(found_in_file) {
 	long entry_offset;
 	int  entry_count;
@@ -423,26 +451,35 @@ bad_data_file:	impossible("'data' file in wrong format");
 		return;
 	}
 
-	if (user_typed_name || without_asking || yn("More info?") == 'y') {
-	    winid datawin;
-
+	if (user_typed_name || without_asking ||
+            second_pass || yn("More info?") == 'y') {
 	    if (dlb_fseek(fp, txt_offset + entry_offset, SEEK_SET) < 0) {
 		pline("? Seek error on 'data' file!");
 		(void) dlb_fclose(fp);
+                if(second_pass) destroy_nhwindow(datawin);
 		return;
 	    }
-	    datawin = create_nhwindow(NHW_MENU);
+	    if (!second_pass) datawin = create_nhwindow(NHW_MENU);
 	    for (i = 0; i < entry_count; i++) {
 		if (!dlb_fgets(buf, BUFSZ, fp)) goto bad_data_file;
 		if ((ep = index(buf, '\n')) != 0) *ep = 0;
 		if (index(buf+1, '\t') != 0) (void) tabexpand(buf+1);
 		putstr(datawin, 0, buf+1);
 	    }
+            if (!second_pass && otyp != STRANGE_OBJECT &&
+                objects[otyp].oc_name_known) {
+                second_pass = TRUE;
+                (void) dlb_fclose(fp);
+                goto checkfile_again;
+            }
+        recheck_failed:
 	    display_nhwindow(datawin, FALSE);
 	    destroy_nhwindow(datawin);
 	}
     } else if (user_typed_name)
 	pline("I don't have any information on those things.");
+    else if (!second_pass && otyp != STRANGE_OBJECT)
+        pline("No help information for that item was found.");
 
     (void) dlb_fclose(fp);
 }
@@ -466,7 +503,7 @@ dolook_explanation(sym, from_screen, verbose, nomore, cc)
         char look_buf[BUFSZ], out_str[BUFSZ];
         const char *x_str, *firstmatch = 0;
         struct permonst *pm = 0;
-        int i;
+        int i, otyp = 0;
         boolean found = FALSE;
         boolean need_to_look = FALSE;   /* need to get explan. from glyph */
         boolean hit_trap;		/* true if found trap explanation */
@@ -632,7 +669,7 @@ dolook_explanation(sym, from_screen, verbose, nomore, cc)
 		char monbuf[BUFSZ];
 		char temp_buf[BUFSZ];
 
-		pm = lookat(cc.x, cc.y, look_buf, monbuf);
+		pm = lookat(cc.x, cc.y, look_buf, monbuf, &otyp);
 		firstmatch = look_buf;
 		if (*firstmatch) {
 		    Sprintf(temp_buf, " (%s)", firstmatch);
@@ -660,7 +697,7 @@ dolook_explanation(sym, from_screen, verbose, nomore, cc)
 		char temp_buf[BUFSZ];
 		Strcpy(temp_buf, firstmatch);
                 if (nomore) suppress_more();
-		checkfile(temp_buf, pm, FALSE, verbose);
+		checkfile(temp_buf, pm, otyp, FALSE, verbose);
 	    }
 	} else {
 	    pline("I've never heard of such things.");
@@ -733,7 +770,7 @@ do_look(quick)
 	    return 0;
 
 	if (out_str[1]) {	/* user typed in a complete string */
-	    checkfile(out_str, 0, TRUE, TRUE);
+	    checkfile(out_str, 0, STRANGE_OBJECT, TRUE, TRUE);
 	    return 0;
 	}
 	sym = out_str[0];
