@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Mar 2011 by Alex Smith */
+/* Modified 29 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1517,7 +1517,7 @@ struct ext_func_tab extcmdlist[] = {
   {"enhance", "advance or check weapons skills", enhance_weapon_skill,
    TRUE, 1, C('e'), M('e'), 0, 0},
   {"equip", "wear or put on equipment", dowear, FALSE, 10, 'W', 'P', 0, 0},
-  {"equipment", "show equipped items, and maybe remove them or equip new ones",
+  {"equipment", "show, equip or unequip equipped items",
    doddoremarm, FALSE, 10, 'A', '*', 0, 0},
   {"farlook", "say what is on a distant square", doquickwhatis, TRUE, 10,
    ';', 0, 0, 0},
@@ -1534,7 +1534,7 @@ struct ext_func_tab extcmdlist[] = {
   {"inventory", "list, describe or use items", ddoinv, TRUE, 10, 'i', 0, 0, 0},
   {"invoke", "invoke an object's powers, or break, ignite, or rub on it",
    doinvoke, TRUE, 1, 'V', 0, 0, 0},
-  {"jump", "jump or teleport to a location, or ride or dismount a steed", dojump, FALSE, 1, 'G', M('j'), 0, 0},
+  {"jump", "jump or teleport to a location, or ride/dismount a steed", dojump, FALSE, 1, 'G', M('j'), 0, 0},
   {"kick", "kick an adjacent object or monster", dokick, FALSE, 10, C('d'), 0, 0, 0},
   {"lookhere", "describe the current square", dolook, TRUE, 10, ':', 0, 0, 0},
   {"loot", "loot a box on the floor", doloot, FALSE, 1, 0, 0, 0, 0},
@@ -1596,7 +1596,7 @@ struct ext_func_tab extcmdlist[] = {
   {"stats", "show your statistics and intrinsics", doattributes, TRUE,
    8, C('x'), 0, 0, 0},
 #ifdef SUSPEND
-  {"suspend", "pause and background NetHack so you can use other programs",
+  {"suspend", "pause and background AceHack so you can use other programs",
    dosuspend, TRUE, 5, C('z'), 0, 0, 0},
 #endif
   {"swapweapons", "exchange wielded and alternate weapon", doswapweapon, FALSE, 12,
@@ -1731,6 +1731,35 @@ char* cmd;
     a++;
   }
   return cmd;
+}
+
+/* Unlike key_for_cmd, this doesn't use the leading #, because it's
+   likely to be called with varying data rather than a literal. */
+const char*
+desc_for_cmd(cmd)
+const char* cmd;
+{
+  struct ext_func_tab *a = extcmdlist;
+  while (a->ef_txt) {
+    if (!strcmp(a->ef_txt,cmd))
+      return a->ef_desc;
+    a++;
+  }
+  return 0;
+}
+
+const char*
+cmd_for_key(c)
+char c;
+{
+  struct ext_func_tab *tlist;
+  for (tlist = extcmdlist; tlist->ef_txt; tlist++) {
+    if ((c & 0xff) == (tlist->binding1 & 0xff) ||
+        (c & 0xff) == (tlist->binding2 & 0xff) ||
+        (c & 0xff) == (tlist->binding3 & 0xff))
+      return tlist->ef_txt;
+  }
+  return 0;
 }
 
 /* Rebinds key c to command s (as a #command string without the #).

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pager.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Mar 2011 by Alex Smith */
+/* Modified 29 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file contains the command routines dowhatis() and dohelp() and */
@@ -8,6 +8,7 @@
 
 #include "hack.h"
 #include "dlb.h"
+#include <ctype.h>
 
 STATIC_DCL boolean FDECL(is_swallow_sym, (int));
 STATIC_DCL int FDECL(append_str, (char *, const char *));
@@ -822,56 +823,11 @@ doidtrap()
 	return 0;
 }
 
-char *
-dowhatdoes_core(q, cbuf)
-char q;
-char *cbuf;
-{
-	dlb *fp;
-	char bufr[BUFSZ];
-	register char *buf = &bufr[6], *ep, ctrl, meta;
-
-	fp = dlb_fopen(CMDHELPFILE, "r");
-	if (!fp) {
-		pline("Cannot open data file!");
-		return 0;
-	}
-
-  	ctrl = ((q <= '\033') ? (q - 1 + 'A') : 0);
-	meta = ((0x80 & q) ? (0x7f & q) : 0);
-	while(dlb_fgets(buf,BUFSZ-6,fp)) {
-	    if ((ctrl && *buf=='^' && *(buf+1)==ctrl) ||
-		(meta && *buf=='M' && *(buf+1)=='-' && *(buf+2)==meta) ||
-		*buf==q) {
-		ep = index(buf, '\n');
-		if(ep) *ep = 0;
-		if (ctrl && buf[2] == '\t'){
-			buf = bufr + 1;
-			(void) strncpy(buf, "^?      ", 8);
-			buf[1] = ctrl;
-		} else if (meta && buf[3] == '\t'){
-			buf = bufr + 2;
-			(void) strncpy(buf, "M-?     ", 8);
-			buf[2] = meta;
-		} else if(buf[1] == '\t'){
-			buf = bufr;
-			buf[0] = q;
-			(void) strncpy(buf+1, "       ", 7);
-		}
-		(void) dlb_fclose(fp);
-		Strcpy(cbuf, buf);
-		return cbuf;
-	    }
-	}
-	(void) dlb_fclose(fp);
-	return (char *)0;
-}
-
 int
 dowhatdoes()
 {
-	char bufr[BUFSZ];
-	char q, *reslt;
+	char q;
+        const char *reslt;
 
 #if defined(UNIX) || defined(VMS)
 	introff();
@@ -880,9 +836,31 @@ dowhatdoes()
 #if defined(UNIX) || defined(VMS)
 	intron();
 #endif
-	reslt = dowhatdoes_core(q, bufr);
-	if (reslt)
-		pline("%s", reslt);
+	reslt = cmd_for_key(q);
+	if (reslt) {
+                char buf[8] = {q, 0};
+                char *bp = buf;
+                if (!isprint(q)) {
+                    if ((unsigned char)q > 128) {
+                        buf[0] = 'M';
+                        buf[1] = '-';
+                        buf[2] = ((unsigned char)q)-128;
+                        buf[3] = 0;
+                        bp = buf+2;
+                    }
+                    if (!isprint(*bp)) {
+                        bp[0] = '^';
+                        bp[1] = q + 64;
+                        bp[2] = 0;
+                        bp++;
+                    }
+                    if (!isprint(*bp)) {
+                        *bp = '?';
+                    }
+                }
+		pline("%s (#%s)  %s", buf, reslt,
+                      desc_for_cmd(reslt));
+        }
 	else
 		pline("I've never heard of such commands.");
 	return 0;
