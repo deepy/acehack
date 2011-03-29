@@ -86,8 +86,9 @@ boolean disturbed;
     (glyphtype == 1 ? CLR_##l1 : glyphtype == 2 ? CLR_##u1 : CLR_##w)
   if (Is_knox(&u.uz)) /* Ludios */
     COLORSET(YELLOW,BROWN,BRIGHT_GREEN,RED,YELLOW);
-  else if (In_quest(&u.uz)) /* Quest */
-    COLORSET(GREEN,BLUE,BROWN,CYAN,NONE);
+/* Just use defaults for the Quest for now, it's hard to find a good scheme  
+  else if (In_quest(&u.uz))
+    COLORSET(GREEN,BLUE,BROWN,CYAN,NONE); */
   else if (In_endgame(&u.uz)) /* Planes; the only walls are on Astral */
     COLORSET(WHITE,RED,YELLOW,BROWN,WHITE);
   else if (In_mines(&u.uz)) /* Mines */
