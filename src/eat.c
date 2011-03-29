@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)eat.c	3.4	2003/02/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Oct 2010 by Alex Smith */
+/* Modified 29 Mar 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -69,11 +69,11 @@ STATIC_DCL boolean force_save_hs;
 
 #else
 
-STATIC_OVL NEARDATA const char comestibles[] = { SPECIAL_NONE, FOOD_CLASS, 0 };
+STATIC_OVL NEARDATA const char comestibles[] = { ALLOW_FLOOR, FOOD_CLASS, 0 };
 
 /* Gold must come first for getobj(). */
 STATIC_OVL NEARDATA const char allobj[] = {
-        SPECIAL_NONE, COIN_CLASS, WEAPON_CLASS, ARMOR_CLASS, POTION_CLASS,
+        ALLOW_FLOOR, COIN_CLASS, WEAPON_CLASS, ARMOR_CLASS, POTION_CLASS,
         SCROLL_CLASS, WAND_CLASS, RING_CLASS, AMULET_CLASS, FOOD_CLASS,
         TOOL_CLASS, GEM_CLASS, ROCK_CLASS, BALL_CLASS, CHAIN_CLASS,
         SPBOOK_CLASS, 0 };
@@ -2408,6 +2408,22 @@ floorfood(verb,corpsecheck)	/* get food from floor or pack */
 	char qbuf[QBUFSZ];
 	char c;
 	boolean feeding = (!strcmp(verb, "eat"));
+        int classoffset = 1;
+        int foodcount = 0;
+
+        /* show , as an option only if there's actually food on the floor */
+	for (otmp = level.objects[u.ux][u.uy]; otmp; otmp = otmp->nexthere)
+            if(corpsecheck ?
+            (otmp->otyp==CORPSE && (corpsecheck == 1 || tinnable(otmp))) :
+                feeding ? (otmp->oclass != COIN_CLASS && is_edible(otmp)) :
+                                            otmp->oclass==FOOD_CLASS)
+                classoffset = 0, foodcount++;
+        
+        if (feeding && metallivorous(youmonst.data) &&
+            ((t_at(u.ux, u.uy) && t_at(u.ux, u.uy)->tseen &&
+              t_at(u.ux, u.uy)->ttyp == BEAR_TRAP) ||
+             (g_at(u.ux, u.uy) != 0 &&
+              youmonst.data != &mons[PM_RUST_MONSTER]))) classoffset = 0;
 
 	/* if we can't touch floor objects then use invent food only */
 	if (!can_reach_floor() ||
@@ -2416,8 +2432,23 @@ floorfood(verb,corpsecheck)	/* get food from floor or pack */
 #endif
 		((is_pool(u.ux, u.uy) || is_lava(u.ux, u.uy)) &&
 		    (Wwalking || is_clinger(youmonst.data) ||
-			(Flying && !Breathless))))
-	    goto skipfloor;
+                       (Flying && !Breathless)))) {
+            classoffset = 1; /* don't show ',' as an option */
+        }
+
+        /* allobj uses getobj's ugly checks to list only edibles. */
+	otmp = getobj(feeding ? (const char *)allobj + classoffset:
+				(const char *)comestibles + classoffset, verb);
+        if (otmp != &zeroobj) {
+            if (corpsecheck && otmp)
+	        if (otmp->otyp != CORPSE || (corpsecheck == 2 && !tinnable(otmp))) {
+                    You_cant("%s that!", verb);
+                    return (struct obj *)0;
+	        }
+            return otmp;
+        }
+
+        /* Everything below here is for eating from the floor */
 
 	if (feeding && metallivorous(youmonst.data)) {
 	    struct obj *gold;
@@ -2464,30 +2495,15 @@ floorfood(verb,corpsecheck)	/* get food from floor or pack */
 				otense(otmp, "are"),
 				doname(otmp), verb,
 				(otmp->quan == 1L) ? "it" : "one");
-			if((c = yn_function(qbuf,ynqchars,'n')) == 'y')
+			if(foodcount == 1 ||
+                           (c = yn_function(qbuf,ynqchars,'n')) == 'y')
 				return(otmp);
 			else if(c == 'q')
 				return((struct obj *) 0);
 		}
 	}
 
- skipfloor:
-	/* We cannot use ALL_CLASSES since that causes getobj() to skip its
-	 * "ugly checks" and we need to check for inedible items.
-	 */
-	otmp = getobj(feeding ? (const char *)allobj :
-				(const char *)comestibles, verb);
-        if (otmp == &zeroobj) {
-            pline("Self-loathing is one thing, but it would be ridiculous "
-                  "to %s yourself...", verb);
-            return NULL;
-        }
-	if (corpsecheck && otmp)
-	    if (otmp->otyp != CORPSE || (corpsecheck == 2 && !tinnable(otmp))) {
-		You_cant("%s that!", verb);
-		return (struct obj *)0;
-	    }
-	return otmp;
+        return NULL;
 }
 
 /* Side effects of vomiting */
