@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do_name.c	3.4	2003/01/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Mar 2011 by Alex Smith */
+/* Modified 29 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -445,6 +445,45 @@ static NEARDATA const char callable[] = {
 	SCROLL_CLASS, POTION_CLASS, WAND_CLASS, RING_CLASS, AMULET_CLASS,
 	GEM_CLASS, SPBOOK_CLASS, ARMOR_CLASS, TOOL_CLASS, 0 };
 
+static int recently_broken_otyp = STRANGE_OBJECT;
+static char recently_broken_xname[BUFSZ] = "";
+
+static void
+docall_inner(otyp)
+int otyp;
+{
+  char buf[BUFSZ], qbuf[QBUFSZ];
+  register char **str1;
+  char* ot = obj_typename(otyp);
+  strcpy(qbuf, "Call ");
+  if (strstr(ot, " boots") || strstr(ot, " gloves"))
+    strncpy(qbuf+5, ot, QBUFSZ-7);
+  else strncpy(qbuf+5, an(ot), QBUFSZ-7);
+  qbuf[QBUFSZ-2] = '\0';
+  strcpy(eos(qbuf), ":");
+  getlin(qbuf, buf);
+  if(!*buf || *buf == '\033')
+    return;
+
+  /* clear old name */
+  str1 = &(objects[otyp].oc_uname);
+  if(*str1) free((genericptr_t)*str1);
+
+  /* strip leading and trailing spaces; uncalls item if all spaces */
+  (void)mungspaces(buf);
+  if (!*buf) {
+    if (*str1) {	/* had name, so possibly remove from disco[] */
+      /* strip name first, for the update_inventory() call
+         from undiscover_object() */
+      *str1 = (char *)0;
+      undiscover_object(otyp);
+    }
+  } else {
+    *str1 = strcpy((char *) alloc((unsigned)strlen(buf)+1), buf);
+    discover_object(otyp, FALSE, TRUE); /* possibly add to disco[] */
+  }
+}
+
 int
 ddocall()
 {
@@ -455,6 +494,8 @@ ddocall()
         int n;
         anything any;
         menu_item *selected = 0;
+        char buf[BUFSZ];
+        char classes[MAXOCLASSES], *s;
         win = create_nhwindow(NHW_MENU);
         start_menu(win);
         any.a_int = 'y';
@@ -466,6 +507,16 @@ ddocall()
         any.a_int = 'C';
         add_menu(win, NO_GLYPH, &any, 'C', 0, ATR_NONE,
                  "Change the name you call a monster by", MENU_UNSELECTED);
+        if (recently_broken_otyp != STRANGE_OBJECT) {
+                any.a_int = 'V';
+                sprintf(buf,"Name items like %s",
+                        an(recently_broken_xname));
+                add_menu(win, NO_GLYPH, &any, 'V', 0, ATR_NONE,
+                         buf, MENU_UNSELECTED);
+        }
+        any.a_int = 'A';
+        add_menu(win, NO_GLYPH, &any, 'A', 0, ATR_NONE,
+                 "Name an item type by appearance", MENU_UNSELECTED);
         any.a_int = 'q';
         add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
                  "Cancel", MENU_UNSELECTED);
@@ -483,25 +534,83 @@ ddocall()
 		obj = getobj(allowall, "name");
 		if(obj) do_oname(obj);
 		break;
-	case 'n' :
+	case 'n':
 #ifdef REDO
 		savech(ch);
 #endif
 		obj = getobj(callable, "call");
 		if (obj) {
-			/* behave as if examining it in inventory;
-			   this might set dknown if it was picked up
-			   while blind and the hero can now see */
-			(void) xname(obj);
-
-			if (!obj->dknown) {
-				You("would never recognize another one.");
-				return 0;
-			}
-			docall(obj);
-		}
+                        (void) xname(obj);
+                        /* behave as if examining it in inventory;
+                           this might set dknown if it was picked up
+                           while blind and the hero can now see */
+                        if (!obj->dknown) {
+                                You("would never recognize another one.");
+                                return 0;
+                        }
+                        docall_inner(obj->otyp);
+                }
 		break;
+        case 'V': docall_inner(recently_broken_otyp); break;
         case 'C': return do_mname();
+        case 'A':
+                Strcpy(classes, flags.inv_order);
+                win = create_nhwindow(NHW_MENU);
+                start_menu(win);
+                /* This leaks information unless we put things in a
+                   consistent order. It's probably simplest to
+                   alphabetise. */
+                for (s = classes; *s; s++) {
+                    int alphaorder[NUM_OBJECTS];
+                    int aop = 0;
+                    int i;
+                    if (*s != RING_CLASS &&
+                        *s != AMULET_CLASS &&
+                        *s != SCROLL_CLASS &&
+                        *s != POTION_CLASS &&
+                        *s != WAND_CLASS &&
+                        *s != SPBOOK_CLASS &&
+                        *s != ARMOR_CLASS) continue;
+                    for (n = bases[(int)*s];
+                         n < NUM_OBJECTS && objects[n].oc_class == *s;
+                         n++) {
+                        if (!objects[n].oc_name_known &&
+                            !objects[n].oc_unique &&
+                            n != FAKE_AMULET_OF_YENDOR) {
+                            if (*s != ARMOR_CLASS ||
+                                (n >= HELMET && n <= HELM_OF_TELEPATHY) ||
+                                (n >= LEATHER_GLOVES &&
+                                 n <= GAUNTLETS_OF_DEXTERITY) ||
+                                (n >= CLOAK_OF_PROTECTION &&
+                                 n <= CLOAK_OF_DISPLACEMENT) ||
+                                (n >= SPEED_BOOTS &&
+                                 n <= LEVITATION_BOOTS))
+                                alphaorder[aop++] = n;
+                        }
+                    }
+                    for (n = 0; n < aop; n++) {
+                        for (i = n+1; i < aop; i++) {
+                            if(strcmp(OBJ_DESCR(objects[alphaorder[i]]),
+                                      OBJ_DESCR(objects[alphaorder[n]])) < 0) {
+                                int t = alphaorder[i];
+                                alphaorder[i] = alphaorder[n];
+                                alphaorder[n] = t;
+                            }
+                        }
+                    }
+                    for (i = 0; i < aop; i++) {
+                          any.a_int = alphaorder[i];
+                          add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                                   obj_typename(alphaorder[i]),
+                                   MENU_UNSELECTED);
+                    }
+                }
+                end_menu(win, "Name items with which appearance?");
+                n = select_menu(win, PICK_ONE, &selected);
+                destroy_nhwindow(win);
+                if (n == 1) docall_inner(selected[0].item.a_int);
+                if (n == 1) free((genericptr_t) selected);
+                break;
         default: break;
 	}
 	return 0;
@@ -511,9 +620,8 @@ void
 docall(obj)
 register struct obj *obj;
 {
-	char buf[BUFSZ], qbuf[QBUFSZ];
+	char buf[BUFSZ];
 	struct obj otemp;
-	register char **str1;
 
 	if (!obj->dknown) return; /* probably blind */
 	check_tutorial_message(QT_T_CALLITEM);
@@ -523,31 +631,16 @@ register struct obj *obj;
 	otemp.oxlth = 0;
 	if (objects[otemp.otyp].oc_class == POTION_CLASS && otemp.fromsink)
 	    /* kludge, meaning it's sink water */
-	    Sprintf(qbuf,"Call a stream of %s fluid:",
+	    Sprintf(buf,"(Use %s then V to name a stream of %s fluid.)",
+                    key_for_cmd("#name"),
 		    OBJ_DESCR(objects[otemp.otyp]));
 	else
-	    Sprintf(qbuf, "Call %s:", an(xname(&otemp)));
-	getlin(qbuf, buf);
-	if(!*buf || *buf == '\033')
-		return;
-
-	/* clear old name */
-	str1 = &(objects[obj->otyp].oc_uname);
-	if(*str1) free((genericptr_t)*str1);
-
-	/* strip leading and trailing spaces; uncalls item if all spaces */
-	(void)mungspaces(buf);
-	if (!*buf) {
-	    if (*str1) {	/* had name, so possibly remove from disco[] */
-		/* strip name first, for the update_inventory() call
-		   from undiscover_object() */
-		*str1 = (char *)0;
-		undiscover_object(obj->otyp);
-	    }
-	} else {
-	    *str1 = strcpy((char *) alloc((unsigned)strlen(buf)+1), buf);
-	    discover_object(obj->otyp, FALSE, TRUE); /* possibly add to disco[] */
-	}
+	    Sprintf(buf, "(Use %s then V to name %s.)",
+                    key_for_cmd("#name"),
+                    an(xname(&otemp)));
+        pline("%s",buf);
+        recently_broken_otyp = otemp.otyp;
+        strcpy(recently_broken_xname, xname(&otemp));
 }
 
 #endif /*OVLB*/
