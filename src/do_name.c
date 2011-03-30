@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do_name.c	3.4	2003/01/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Mar 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -514,9 +514,12 @@ ddocall()
                 add_menu(win, NO_GLYPH, &any, 'V', 0, ATR_NONE,
                          buf, MENU_UNSELECTED);
         }
-        any.a_int = 'A';
-        add_menu(win, NO_GLYPH, &any, 'A', 0, ATR_NONE,
+        any.a_int = 'a';
+        add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
                  "Name an item type by appearance", MENU_UNSELECTED);
+        any.a_int = 'f';
+        add_menu(win, NO_GLYPH, &any, 'f', 0, ATR_NONE,
+                 "Give a name to the current level", MENU_UNSELECTED);
         any.a_int = 'q';
         add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
                  "Cancel", MENU_UNSELECTED);
@@ -553,7 +556,8 @@ ddocall()
 		break;
         case 'V': docall_inner(recently_broken_otyp); break;
         case 'C': return do_mname();
-        case 'A':
+        case 'f': return donamelevel();
+        case 'a':
                 Strcpy(classes, flags.inv_order);
                 win = create_nhwindow(NHW_MENU);
                 start_menu(win);
