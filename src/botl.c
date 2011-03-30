@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)botl.c	3.4	1996/07/15	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Sep 2010 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -327,6 +327,12 @@ bot2()
     if(ACURR(A_INT) > AMAX(A_INT)) draw_status("In+", &spos, CLR_GREEN);
     if(ACURR(A_WIS) > AMAX(A_WIS)) draw_status("Wi+", &spos, CLR_GREEN);
     if(ACURR(A_CHA) > AMAX(A_CHA)) draw_status("Ch+", &spos, CLR_GREEN);
+    if(heptagram_count(u.ux, u.uy)) {
+      int hc = heptagram_count(u.ux, u.uy);
+      char bf[20];
+      Sprintf(bf, "Hept:%d", hc);
+      draw_status(bf, &spos, CLR_GREEN);
+    }
     if(Levitation)     draw_status("Lev", &spos, CLR_BROWN);
     if(unweapon)       draw_status("Unarmed", &spos, CLR_MAGENTA);
     if(ACURR(A_STR) < AMAX(A_STR)) draw_status("St-", &spos, CLR_MAGENTA);
@@ -339,7 +345,7 @@ bot2()
       draw_status(enc_stat[cap], &spos, CLR_MAGENTA);
     if(u.utrap)       draw_status("Trap", &spos, u.utraptype == TT_LAVA ?
                                   CLR_BRIGHT_MAGENTA : CLR_RED);
-    if(strcmp(hu_stat[u.uhs], "        ")) {
+    if(strcmp(hu_stat[u.uhs], "")) {
       draw_status(hu_stat[u.uhs], &spos,
                   u.uhs==HUNGRY||u.uhs==SATIATED ? CLR_RED :
                   u.uhs>=FAINTING ? CLR_BRIGHT_MAGENTA : CLR_ORANGE);

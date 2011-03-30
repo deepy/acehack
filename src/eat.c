@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)eat.c	3.4	2003/02/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Mar 2010 by Alex Smith */
+/* Modified 30 Mar 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -82,12 +82,12 @@ STATIC_OVL boolean force_save_hs = FALSE;
 
 const char *hu_stat[] = {
 	"Satiated",
-	"        ",
-	"Hungry  ",
-	"Weak    ",
+	"",
+	"Hungry",
+	"Weak",
 	"Fainting",
-	"Fainted ",
-	"Starved "
+	"Fainted",
+	"Starved"
 };
 
 #endif /* OVLB */

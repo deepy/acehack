@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)engrave.c	3.4	2001/11/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -103,6 +103,11 @@ unsigned seed;		/* for semi-controlled randomization */
 		    *s = ' ';
 		    continue;
 		}
+                /* use a special flag for erased heptagrams */
+                if (*s <= 9) {
+                    *s = 9;
+                    continue;
+                }
 
 		if (!use_rubout)
 		    i = SIZE(rubouts);
@@ -220,7 +225,6 @@ xchar x, y;
 	return((struct engr *) 0);
 }
 
-#ifdef ELBERETH
 /* Decide whether a particular string is engraved at a specified
  * location; a case-insensitive substring match used.
  * Ignore headstones, in case the player names herself "Elbereth".
@@ -235,7 +239,36 @@ sengr_at(s, x, y)
 	return (ep && ep->engr_type != HEADSTONE &&
 		ep->engr_time <= moves && strstri(ep->engr_txt, s) != 0);
 }
-#endif /* ELBERETH */
+
+int
+heptagram_count(x, y)
+{
+	struct engr *ep = engr_at(x,y);
+        int c = 0;
+        if (ep && ep->engr_time <= moves) {
+            char* p = ep->engr_txt;
+            for(;;) {
+                p = strstr(p, "\x1\x2\x3\x4\x5\x6\x7\x8");
+                if (!p) break;
+                p++;
+                c++;
+            }
+        }
+        return c;
+}
+STATIC_OVL int
+corrupted_heptagram_count(x, y)
+{
+	struct engr *ep = engr_at(x,y);
+        int c = -8 * heptagram_count(x, y);
+        if (ep && ep->engr_time <= moves) {
+            char* p = ep->engr_txt;
+            for(;*p;p++) {
+              if (*p <= 9) c++;
+            }
+        }
+        return c / 8;
+}
 
 #endif /* OVL0 */
 #ifdef OVL2
@@ -290,7 +323,7 @@ register int x,y;
 	    case DUST:
 		if(!Blind) {
 			sensed = 1;
-			pline("%s is written here in the %s.", Something,
+			pline("%s is drawn here in the %s.", Something,
 				is_ice(x,y) ? "frost" : "dust");
 		}
 		break;
@@ -306,7 +339,7 @@ register int x,y;
 	    case BURN:
 		if (!Blind || can_reach_floor()) {
 			sensed = 1;
-			pline("Some text has been %s into the %s here.",
+			pline("Something has been %s into the %s here.",
 				is_ice(x,y) ? "melted" : "burned",
 				surface(x,y));
 		}
@@ -325,7 +358,7 @@ register int x,y;
 		 */
 		if(!Blind) {
 			sensed = 1;
-			You("see a message scrawled in blood here.");
+			You("see something scrawled in blood here.");
 		}
 		break;
 	    default:
@@ -336,15 +369,31 @@ register int x,y;
 	    if (sensed) {
 	    	char *et;
 	    	unsigned maxelen = BUFSZ - sizeof("You feel the words: \"\". ");
-	    	if (strlen(ep->engr_txt) > maxelen) {
-	    		(void) strncpy(buf,  ep->engr_txt, (int)maxelen);
-			buf[maxelen] = '\0';
-			et = buf;
-		} else
-			et = ep->engr_txt;
-		You("%s: \"%s\".",
-		      (Blind) ? "feel the words" : "read",  et);
-		if(flags.run > 1) nomul(0);
+                (void) strncpy(buf,  ep->engr_txt, (int)maxelen);
+                buf[maxelen] = '\0';
+                /* Characters from \x1 to \x9 represent heptagrams,
+                   and so should be omitted. */
+                for (et = buf; *et; et++)
+                  if (*et <= 9) *et = ' ';
+                for (et = buf; *et == ' '; et++) {}
+                if (*et) {
+		  You("%s: \"%s\".",
+		        (Blind) ? "feel the words" : "read", et);
+                }
+                if (heptagram_count(x, y)) {
+                  You("%s%s %d magic heptagram%s.",
+                      *et ? "also " : "",
+                      (Blind) ? "feel" : "see",
+                      heptagram_count(x, y),
+                      heptagram_count(x, y) > 1 ? "s" : "");
+                }
+                if (corrupted_heptagram_count(x, y)) {
+                  You("%s the broken remains of %d magic heptagram%s.",
+                      (Blind) ? "feel" : "see",
+                      corrupted_heptagram_count(x, y),
+                      corrupted_heptagram_count(x, y) > 1 ? "s" : "");
+                }
+		if (flags.run > 1) nomul(0);
                 if (moves > 5) check_tutorial_message(QT_T_ENGRAVING);
 	    }
 	}
@@ -371,8 +420,6 @@ register xchar e_type;
 	ep->engr_y = y;
 	ep->engr_txt = (char *)(ep + 1);
 	Strcpy(ep->engr_txt, s);
-	/* engraving Elbereth shows wisdom */
-	if (!in_mklev && !strcmp(s, "Elbereth")) exercise(A_WIS, TRUE);
 	ep->engr_time = e_time;
 	ep->engr_type = e_type > 0 ? e_type : rnd(N_ENGRAVE-1);
 	ep->engr_lth = strlen(s) + 1;
@@ -435,8 +482,9 @@ static NEARDATA const char styluses[] =
  */
 
 /* return 1 if action took 1 (or more) moves, 0 if error or aborted */
-int
-doengrave()
+STATIC_OVL int
+doengrave_core(hept)
+boolean hept;
 {
 	boolean dengr = FALSE;	/* TRUE if we wipe out the current engraving */
 	boolean doblind = FALSE;/* TRUE if engraving blinds the player */
@@ -503,8 +551,13 @@ doengrave()
 	 * Edited by GAN 10/20/86 so as not to change weapon wielded.
 	 */
 
-	otmp = getobj(styluses, "write with");
-	if(!otmp) return(0);		/* otmp == zeroobj if fingers */
+        if (!hept) {
+	    otmp = getobj(styluses, "write with");
+	    if(!otmp) return(0);		/* otmp == zeroobj if fingers */
+        } else {
+            /* TODO: search for athames */
+            otmp = &zeroobj;
+        }
 
 	if (otmp == &zeroobj) writer = makeplural(body_part(FINGER));
 	else writer = xname(otmp);
@@ -883,26 +936,57 @@ doengrave()
 	/* Special effects should have deleted the current engraving (if
 	 * possible) by now.
 	 */
-
-	if (oep) {
-	    register char c = 'n';
+	{
+	    register char c = 'r';
 
 	    /* Give player the choice to add to engraving. */
+            if (hept) {
+              c = 'h';
+	    } else if (type == HEADSTONE) {
+              /* no choice, only append */
+              c = 'a';
+	    } else if ( !oep || ((type == oep->engr_type) && (!Blind ||
+		 (oep->engr_type == BURN) || (oep->engr_type == ENGRAVE))) ) {
+              winid win;
+              int n;
+              anything any;
+              menu_item *selected = 0;
 
-	    if (type == HEADSTONE) {
-		/* no choice, only append */
-		c = 'y';
-	    } else if ( (type == oep->engr_type) && (!Blind ||
-		 (oep->engr_type == BURN) || (oep->engr_type == ENGRAVE)) ) {
-		c = yn_function("Do you want to add to the current engraving?",
-				ynqchars, 'y');
-		if (c == 'q') {
-                    pline("%s",Never_mind);
-		    return(0);
-		}
+              /* Deliberately breaking key compat with 3.4.3 here, so that
+                 people trying to engrave Elbereth will notice things have
+                 changed. */
+              win = create_nhwindow(NHW_MENU);
+              start_menu(win);
+              any.a_int = 'a';
+              add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
+                       oep ? "Add text to the end of the current engraving"
+                       : "Write ordinary text", MENU_UNSELECTED);
+              if (oep) {
+                any.a_int = 'r';
+                add_menu(win, NO_GLYPH, &any, 'r', 0, ATR_NONE,
+                         "Replace the current engraving with text",
+                         MENU_UNSELECTED);
+              }
+              any.a_int = 'h';
+              add_menu(win, NO_GLYPH, &any, 'h', 0, ATR_NONE,
+                       "Draw a magic heptagram", MENU_UNSELECTED);
+              any.a_int = 'q';
+              add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
+                       "Don't engrave anything after all", MENU_UNSELECTED);
+              end_menu(win, "How do you want to engrave?");
+              n = select_menu(win, PICK_ONE, &selected);
+              destroy_nhwindow(win);
+              if (n == 1) {
+                c = selected[0].item.a_int;
+                free((genericptr_t) selected);
+              } else c = 'q';
+              if (c == 'q') {
+                pline("%s",Never_mind);
+                return(0);
+              }
 	    }
 
-	    if (c == 'n' || Blind) {
+	    if (oep && (c == 'r' || Blind)) {
 
 		if( (oep->engr_type == DUST) || (oep->engr_type == ENGR_BLOOD) ||
 		    (oep->engr_type == MARK) ) {
@@ -925,12 +1009,13 @@ doengrave()
 			   "engraved in", surface(u.ux,u.uy));
 			return(1);
 		    } else
-			if ( (type != oep->engr_type) || (c == 'n') ) {
+			if ( (type != oep->engr_type) || (c == 'r') ) {
 			    if (!Blind || can_reach_floor())
 				You("will overwrite the current message.");
 			    eow = TRUE;
 			}
 	    }
+            hept = c == 'h';
 	}
 
 	eloc = surface(u.ux,u.uy);
@@ -968,16 +1053,22 @@ doengrave()
 		break;
 	}
 
-	/* Tell adventurer what is going on */
-	if (otmp != &zeroobj)
+	/* Tell adventurer what is going on, except for heptagrams */
+        if (!hept) {
+          if (otmp != &zeroobj)
 	    You("%s the %s with %s.", everb, eloc, doname(otmp));
-	else
+          else
 	    You("%s the %s with your %s.", everb, eloc,
 		makeplural(body_part(FINGER)));
+        }
 
 	/* Prompt for engraving! */
-	Sprintf(qbuf,"What do you want to %s the %s here?", everb, eloc);
-	getlin(qbuf, ebuf);
+        if (!hept) {
+          Sprintf(qbuf,"What do you want to %s the %s here?", everb, eloc);
+          getlin(qbuf, ebuf);
+        } else {
+          Strcpy(ebuf, "\x1\x2\x3\x4\x5\x6\x7\x8"); /* heptagram */
+        }
 
 	/* Count the actual # of chars engraved not including spaces */
 	len = strlen(ebuf);
@@ -997,7 +1088,8 @@ doengrave()
 
 	/* A single `x' is the traditional signature of an illiterate person */
 	if (len != 1 || (!index(ebuf, 'x') && !index(ebuf, 'X')))
-	    u.uconduct.literate++;
+	    if (!hept) u.uconduct.literate++;
+        if (hept) u.uconduct.heptagrams++;
 
 	/* Mix up engraving if surface or state of mind is unsound.
 	   Note: this won't add or remove any spaces. */
@@ -1006,8 +1098,7 @@ doengrave()
 	    if (((type == DUST || type == ENGR_BLOOD) && !rn2(25)) ||
 		    (Blind && !rn2(11)) || (Confusion && !rn2(7)) ||
 		    (Stunned && !rn2(4)) || (Hallucination && !rn2(2)))
-		*sp = ' ' + rnd(96 - 2);	/* ASCII '!' thru '~'
-						   (excludes ' ' and DEL) */
+		*sp = hept ? 9 : ' ' + rnd(96 - 2);
 	}
 
 	/* Previous engraving is overwritten */
@@ -1096,7 +1187,10 @@ doengrave()
 	    if (!maxelen && *sp) {
 		*sp = (char)0;
 		if (multi) nomovemsg = "You cannot write any more.";
-		You("only are able to write \"%s\"", ebuf);
+                if (!hept)
+                  You("only are able to write \"%s\".", ebuf);
+                else
+                  You("are unable to finish your heptagram.");
 	    }
 	}
 
@@ -1116,6 +1210,18 @@ doengrave()
 	}
 
 	return(1);
+}
+
+int
+doengrave()
+{
+  return doengrave_core(FALSE);
+}
+
+int
+doheptagram()
+{
+  return doengrave_core(TRUE);
 }
 
 void

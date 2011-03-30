@@ -2,7 +2,7 @@
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
 /* Copyright (c) M. Stephenson, 1990, 1991.			  */
 /* Copyright (c) Dean Luick, 1990.				  */
-/* Modified 26 Mar 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define MAKEDEFS_C	/* use to conditionally include file sections */
@@ -654,9 +654,6 @@ static const char *build_opts[] = {
 		"debug mode",
 #endif
 		"dungeon map overview patch",
-#ifdef ELBERETH
-		"Elbereth",
-#endif
 #ifdef EXP_ON_BOTL
 		"experience points on status line",
 #endif
@@ -665,6 +662,9 @@ static const char *build_opts[] = {
 #endif
 #ifdef GOLDOBJ
 		"gold object in inventories",
+#endif
+#ifdef ELBERETH
+		"heptagrams",
 #endif
 #ifdef INSURANCE
 		"insurance files for recovering from crashes",

@@ -224,6 +224,13 @@ The player is now prompted upon attempting to eat something that the
 character would know is dangerous even without magical aid (such as an
 old or poisonous corpse).
 
+Instead of using engravings of the word "Elbereth" to protect against
+hostile monsters, instead a special engraving type, the "magic
+heptagram", is provided, which does the same thing and has the same
+properties, but is easier on the interface. (To draw it, use E-h, or
+simply press .). Unlike writing Elbereth, heptagrams do not exercise
+wisdom.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
@@ -421,6 +428,7 @@ is mine.)  They also allow naming of recently destroyed items (so that
 players aren't prompted in the middle of something else to name them),
 and calling items by appearance,
 e: Allows , as an argument to eat from the floor.
+E: Allows drawing heptagrams as well as text.
 ^E: Now a synonym for #enhance.
 G: A combined command for controlled teleportation, jumping, and
 riding. (They're all forms of jump, if you think about it.)
@@ -470,6 +478,7 @@ something on the map).
 >: Now interacts with any sort of terrain on the square, to go down or
 up stairs, dip into fountains/water, sacrifice on altars, or sit on
 other sorts of terrain.
+.: Now draws a magic heptagram. (You can use s to wait one turn.)
 
 The following commands still have their old meanings, or are mapped to
 a new command that encompasses their old meanings, but are now

@@ -1430,7 +1430,7 @@ int final;
 	else {
 	    Sprintf(buf, " a magic heptagram %ld time%s",
 		    u.uconduct.heptagrams, plur(u.uconduct.heptagrams));
-	    enl_msg(You_, "have never drawn", "never drew", buf);
+	    enl_msg(You_, "have drawn", "drew", buf);
 	}
 
 	ngenocided = num_genocides();
@@ -1535,7 +1535,8 @@ struct ext_func_tab extcmdlist[] = {
   {"goup", "move up stairs or a ladder", doup, FALSE, 10, '<', 0, 0, 0},
   {"godown", "move down stairs or a ladder", dodown, FALSE, 11, 0, 0, 0, 0},
   {"help", "open the in-game help", dohelp, TRUE, 10, '?', 0, 0, 0},
-  {"heptagram", "draw a heptagram with fingers or athame", dosearch, FALSE, 11, '.', 0, 0},
+  {"heptagram", "draw a heptagram with fingers or athame",
+   doheptagram, FALSE, 11, '.', 0, 0},
   {"inventory", "list, describe or use items", ddoinv, TRUE, 10, 'i', 0, 0, 0},
   {"invoke", "use artifact powers, or break/ignite/rub on an item",
    doinvoke, TRUE, 1, 'V', 0, 0, 0},

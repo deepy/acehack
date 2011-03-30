@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)monmove.c	3.4	2002/04/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 27 Dec 2010 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -148,7 +148,8 @@ struct monst *mtmp;
 
 	return (boolean)(sobj_at(SCR_SCARE_MONSTER, x, y)
 #ifdef ELBERETH
-			 || sengr_at("Elbereth", x, y)
+                         /* A heptagram's represented by \x1 .. \x8. */
+			 || sengr_at("\x1\x2\x3\x4\x5\x6\x7\x8", x, y)
 #endif
 			 || (mtmp->data->mlet == S_VAMPIRE
 			     && IS_ALTAR(levl[x][y].typ)));
