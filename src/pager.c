@@ -925,24 +925,21 @@ dowhatdoes()
 
 /* data for help_menu() */
 static const char *help_menu_items[] = {
-/* 0*/	"Long description of the game and commands.",
-/* 1*/	"List of game commands.",
+/* 0*/	"Quick command reference, and description of the game.",
+/* 1*/	"Complete list of game commands.",
 /* 2*/	"Concise history of NetHack and AceHack.",
 /* 3*/	"Info on a character in the game display.",
 /* 4*/	"Info on what a given key does.",
-/* 5*/	"List of game options.",
-/* 6*/	"Longer explanation of game options.",
-/* 7*/	"List of extended commands.",
-/* 8*/	"The NetHack license (used by AceHack).",
-/* 9*/  "Redisplay tutorial messages.",
-/*10*/  "Show brief version information.",
-#define TUTHLP_SLOT 9
+/* 5*/	"The NetHack license (used by AceHack).",
+/* 6*/  "Redisplay tutorial messages.",
+/* 7*/  "Show brief version information.",
+#define TUTHLP_SLOT 6
 #ifdef PORT_HELP
 	"%s-specific help and commands.",
 #define PORT_HELP_ID 100
-#define WIZHLP_SLOT 12
+#define WIZHLP_SLOT 9
 #else
-#define WIZHLP_SLOT 11
+#define WIZHLP_SLOT 8
 #endif
 #ifdef WIZARD
 	"List of wizard-mode commands.",
@@ -1004,18 +1001,15 @@ dohelp()
 	if (help_menu(&sel)) {
 		switch (sel) {
 			case  0:  display_file(HELP, TRUE);  break;
-			case  1:  display_file(SHELP, TRUE);  break;
+                	case  1:  (void) doextlist();  break;
 			case  2:  (void) dohistory();  break;
 			case  3:  (void) dowhatis();  break;
 			case  4:  (void) dowhatdoes();  break;
-			case  5:  option_help();  break;
-			case  6:  display_file(OPTIONFILE, TRUE);  break;
-			case  7:  (void) doextlist();  break;
-			case  8:  display_file(LICENSE, TRUE);  break;
-			case  9:  tutorial_redisplay();  break;
-                        case 10:  (void) doversion(); break;
+			case  5:  display_file(LICENSE, TRUE);  break;
+			case  6:  tutorial_redisplay();  break;
+                        case  7:  (void) doversion(); break;
 #ifdef WIZARD
-			/* handle slot 11 or 12 */
+			/* handle slot 8 or 9 */
 			default: display_file(DEBUGHELP, TRUE);  break;
 #endif
 #ifdef PORT_HELP

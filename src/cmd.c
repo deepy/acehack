@@ -309,21 +309,25 @@ doextcmd()	/* here after # - now read a full-word command */
 }
 
 int
-doextlist()	/* here after #? - now list all full-word commands */
+doextlist()	/* here after #? - now list all commands */
 {
 	register const struct ext_func_tab *efp;
-	char	 buf[BUFSZ];
+	char	 buf[BUFSZ], kbuf[BUFSZ];
 	winid datawin;
 
 	datawin = create_nhwindow(NHW_TEXT);
 	putstr(datawin, 0, "");
-	putstr(datawin, 0, "            Extended Commands List");
+	putstr(datawin, 0, "            Commands List");
 	putstr(datawin, 0, "");
-	putstr(datawin, 0, "    Press '#', then type:");
+	putstr(datawin, 0,
+" This is a full list of commands available to have keys bound to them.");
 	putstr(datawin, 0, "");
 
 	for(efp = extcmdlist; efp->ef_txt; efp++) {
-		Sprintf(buf, "    %-15s - %s.", efp->ef_txt, efp->ef_desc);
+                Sprintf(kbuf, "#%s", efp->ef_txt);
+		Sprintf(buf, "%2s%21s - %s.",
+                        key_for_cmd(kbuf) == kbuf ? "" :
+                        key_for_cmd(kbuf), kbuf, efp->ef_desc);
 		putstr(datawin, 0, buf);
 	}
 	display_nhwindow(datawin, FALSE);
@@ -332,7 +336,7 @@ doextlist()	/* here after #? - now list all full-word commands */
 }
 
 #ifdef TTY_GRAPHICS
-#define MAX_EXT_CMD 40		/* Change if we ever have > 40 ext cmds */
+#define MAX_EXT_CMD 90		/* Change if we ever have > 90 ext cmds */
 /*
  * This is currently used only by the tty port and is
  * controlled via runtime option 'extmenu'
@@ -1485,7 +1489,7 @@ int final;
 # endif /* NHSTDC */
 #endif
 #ifndef C
-#define C(c)		(0x1f & (c))
+#define C(c)		(0x1f & ((unsigned char)c))
 #endif
 
 struct ext_func_tab extcmdlist[] = {
@@ -1533,9 +1537,9 @@ struct ext_func_tab extcmdlist[] = {
   {"help", "open the in-game help", dohelp, TRUE, 10, '?', 0, 0, 0},
   {"heptagram", "draw a heptagram with fingers or athame", dosearch, FALSE, 11, '.', 0, 0},
   {"inventory", "list, describe or use items", ddoinv, TRUE, 10, 'i', 0, 0, 0},
-  {"invoke", "invoke an object's powers, or break, ignite, or rub on it",
+  {"invoke", "use artifact powers, or break/ignite/rub on an item",
    doinvoke, TRUE, 1, 'V', 0, 0, 0},
-  {"jump", "jump or teleport to a location, or ride/dismount a steed", dojump, FALSE, 1, 'G', M('j'), 0, 0},
+  {"jump", "jump, teleport, ride, or dismount", dojump, FALSE, 1, 'G', M('j'), 0, 0},
   {"kick", "kick an adjacent object or monster", dokick, FALSE, 10, C('d'), 0, 0, 0},
   {"lookhere", "describe the current square", dolook, TRUE, 10, ':', 0, 0, 0},
   {"loot", "loot a box on the floor", doloot, FALSE, 1, 0, 0, 0, 0},
@@ -1569,7 +1573,7 @@ struct ext_func_tab extcmdlist[] = {
   {"read", "read text written on an item", doread, FALSE, 11, 'r', 0, 0, 0},
   {"redo", "repeat the previous command", 0, TRUE, 20, C('a'), 0, 0, DOAGAIN},
   {"redraw", "redraw the screen", doredraw, TRUE, 10, C('r'), 0, 0, 0},
-  {"repeat", "do a command more than once or run a command by name", doextcmd,
+  {"repeat", "run a command more than once or by name", doextcmd,
    TRUE, 11, '#', 0, 0, 0},
 #ifdef STEED
   {"ride", "ride (or stop riding) a monster", doride, FALSE, 2, 0, 0, 0, 0},
@@ -1597,7 +1601,7 @@ struct ext_func_tab extcmdlist[] = {
   {"stats", "show your statistics and intrinsics", doattributes, TRUE,
    8, C('x'), 0, 0, 0},
 #ifdef SUSPEND
-  {"suspend", "pause and background AceHack so you can use other programs",
+  {"suspend", "pause and background AceHack",
    dosuspend, TRUE, 5, C('z'), 0, 0, 0},
 #endif
   {"swapweapons", "exchange wielded and alternate weapon", doswapweapon, FALSE, 12,
@@ -1626,8 +1630,7 @@ struct ext_func_tab extcmdlist[] = {
    doversion, TRUE, 10, 0, 0, 0, 0},
   {"versionhistory", "list the history of AceHack",
    dohistory, TRUE, 11, M('v'), 0, 0, 0},
-  {"versionoptions", "list compile time options for this version of AceHack",
-   doextversion, TRUE, 1, 0, 0, 0, 0},
+  {"versionoptions", "list compile time options", doextversion, TRUE, 1, 0, 0, 0, 0},
   {"west", "move, attack, or interact west", 0, FALSE, 21, 'h', '4', 0, 'h'},
   {"westfar", "move west as far as possible", 0, FALSE, 22, 'H', 0, 0, 'H'},
   {"westfarcareful", "move west until something interesting happens",
@@ -1707,7 +1710,8 @@ static const struct ext_func_tab debug_extcmdlist[] = {
 	{(char *)0, (char *)0, donull, TRUE}
 };
 
-#define unctrl(c)	((c) <= C('z') ? (0x60 | (c)) : (c))
+#define unctrl(c)	((unsigned char)(c) <= (unsigned char)C('z') && \
+                         c != 0 ? (0x60 | (c)) : (c))
 #define unmeta(c)	(0x7f & (c))
 
 char*
@@ -1724,9 +1728,12 @@ char* cmd;
       if (isprint(a->binding3)) {*buf=a->binding3; return buf;}
       buf[0] = '^';
       buf[2] = 0;
-      if (isprint(unctrl(a->binding1))) {buf[1]=unctrl(a->binding1); return buf;}
-      if (isprint(unctrl(a->binding2))) {buf[1]=unctrl(a->binding2); return buf;}
-      if (isprint(unctrl(a->binding3))) {buf[1]=unctrl(a->binding3); return buf;}
+      if (isprint(unctrl(a->binding1)))
+        {buf[1]=highc(unctrl(a->binding1)); return buf;}
+      if (isprint(unctrl(a->binding2)))
+        {buf[1]=highc(unctrl(a->binding2)); return buf;}
+      if (isprint(unctrl(a->binding3)))
+        {buf[1]=highc(unctrl(a->binding3)); return buf;}
       return cmd;
     }
     a++;
