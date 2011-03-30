@@ -10,6 +10,8 @@
 #include "dlb.h"
 #include <ctype.h>
 
+/* #define DEBUG */ /* uncomment for debugging */
+
 STATIC_DCL boolean FDECL(is_swallow_sym, (int));
 STATIC_DCL int FDECL(append_str, (char *, const char *));
 STATIC_DCL struct permonst * FDECL(lookat, (int, int, char *, char *, int *));
@@ -327,6 +329,7 @@ checkfile_again:
          appearance. The second pass only starts for an IDed
          object. */
       struct obj *otmp;
+      char* oldinp = inp;
       int save_oc_name_known = objects[otyp].oc_name_known;
       objects[otyp].oc_name_known = second_pass;
       otmp = mksobj(otyp, FALSE, FALSE);
@@ -334,6 +337,10 @@ checkfile_again:
       if (otmp->otyp == SLIME_MOLD) otmp->spe = current_fruit;
       inp = xname(otmp);
       objects[otyp].oc_name_known = save_oc_name_known;
+      if (second_pass && !strcmp(oldinp,inp)) {
+        fp = dlb_fopen(DATAFILE, "r");
+        goto recheck_failed;
+      }
     }
 
     found_in_file = FALSE;
@@ -479,10 +486,23 @@ bad_data_file:	impossible("'data' file in wrong format");
     } else if (user_typed_name)
 	pline("I don't have any information on those things.");
     else if (!second_pass && otyp != STRANGE_OBJECT)
-        pline("No help information for that item was found.");
+        pline("No help information for %s was found.",an(inp));
 
     (void) dlb_fclose(fp);
 }
+
+#ifdef DEBUG
+/* debug command: identifies and queries descriptions of all objects */
+int
+wiz_debug_cmd() {
+  int i;
+  for (i = 1; i < NUM_OBJECTS; i++) {
+    objects[i].oc_name_known = TRUE;
+    checkfile("", 0, i, FALSE, TRUE);
+  }
+  return 0;
+}
+#endif
 
 /* getpos() return values */
 #define LOOK_TRADITIONAL	0	/* '.' -- ask about "more info?" */

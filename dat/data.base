@@ -41,6 +41,9 @@ alchemy smock
 	acids and poisons, both of which are occupational hazards for them; it also
 	provides minimal protection against blows, and occasionally blocks certain
 	types of special attacks used by monsters.
+aluminum wand
+	A lightweight bar of a mithril-like metal, that can be zapped to release a
+	magical effect, although only a limited number of times.
 amber
 	This material, made from hardened sap, is valued as a gemstone, although
 	relatively soft as gemstones go. It is quite valuable, although not as much so
@@ -139,6 +142,9 @@ bag of tricks
 	out, although not to put monsters back in the bag. Trying to do this while the
 	bag is on the floor will instead result in being bitten; and the bag will
 	eventually run out of magical power.
+balsa wand
+	An unusually light stick of wood, that can be zapped to release a magical
+	effect,	although only a limited number of times.
 bamboo arrow
 	A bamboo projectile with a fledged tail and pointed iron tip, designed to be
 	fired from a bow (throwing it by hand will only do minimal damage). It
@@ -191,7 +197,7 @@ black dragon scale mail
 	A hugely protective suit of armour made magically from the scales of a dead
 	black dragon; armour made from dragons protects better than any other. It also
 	protects its wearer from disintegration attacks.
-black dragon scales
+*black dragon scales
 	Some scales taken from the dead body of a black dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also protects its wearer from disintegration attacks.
@@ -222,7 +228,7 @@ blue dragon scale mail
 	blue dragon; armour made from dragons protects better than any other. It also
 	gives almost perfect protection from the effects of electricity and lightning,
 	although it protects only the wearer, not his or her equipment.
-blue dragon scales
+*blue dragon scales
 	Some scales taken from the dead body of a blue dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also gives almost perfect protection from the effects of
@@ -261,6 +267,9 @@ brass lantern
 	means.
 brass ring
 	A piece of brass bent into a circle, designed to be worn on a finger.
+brass wand
+	A resonant bar of brass, that can be zapped to release a magical effect,
+	although only a limited number of times.
 brilliant blue potion
 	A glass vial containing a brightly glowing blue liquid.
 broad pick
@@ -287,7 +296,7 @@ brown potion
 	A glass vial containing an ugly brown liquid.
 bubbly potion
 	A glass vial containing a white froth made out of bubbles.
-buckled boots
+*buckled boots
 	Stylish boots with an ornate buckle.
 bugle
 	A long horn made of brass, which can be blown into to play music; the note
@@ -398,7 +407,7 @@ club
 coarse mantelet
 	A cloak coarsely made of blackened cloth, designed to be worn above body
 	armour.
-combat boots
+*combat boots
 	Boots in a style commonly worn by soldiers.
 concave amulet
 	An irregularly shaped and weirdly dented piece of iron, connected to a chain
@@ -410,6 +419,9 @@ copper ring
 copper spellbook
 	A book, bound in carved yet tarnishing copper. Reading it is dangerous, but a
 	sufficiently skilled reader can learn a spell from it.
+copper wand
+	Some springy strands of copper woven into a much thicker wire, that can be
+	zapped to release a magical effect, although only a limited number of times.
 coral ring
 	A circular piece of coral, designed to be worn on a finger.
 cornuthaum
@@ -494,8 +506,14 @@ crystal plate mail
 	working just as well as its iron equivalent, but without causing spellcasters
 	any problems. It also blocks many special attacks of monsters with a good
 	success rate; however, its glass construction is incredibly heavy.
+crystal wand
+	A cylinder of the purest sparkling glass, that can be zapped to release a
+	magical effect, although only a limited number of times.
 curved sword
 	An iron melee weapon with a curved slashing blade.
+curved wand
+	An oddly misshapen magical wand, that can be zapped to release a magical
+	effect, although only a limited number of times.
 cyan potion
 	A glass vial containing a bright greenish-blue liquid.
 cyan spellbook
@@ -604,6 +622,9 @@ dwarvish spear
 	manufacture; it works as well as a human-manufactured spear or short sword
 	against larger enemies, but unusually for spears, it has no problems against
 	smaller enemies.
+ebony wand
+	An unusually black stick of wood, that can be zapped to release a magical
+	effect, although only a limited number of times.
 effervescent potion
 	A glass vial containing gray liquid whose surface is constantly and rapidly
 	fizzing.
@@ -619,7 +640,7 @@ elven arrow
 	metal, and is of a better quality than a typical human-made arrow; elves are
 	more deadly with it, and have a better rate of fire, when also using an elven
 	bow.
-elven boots
+*elven boots
 	These minimally protective leather boots are well-crafted by elves to make
 	almost no sound when walking, allowing their wearer to sneak past sleeping
 	monsters without waking them. As with most armour of elven manufacture, they
@@ -659,7 +680,7 @@ elven spear
 	Its high-quality elvish manufacture makes it more effective against smaller
 	enemies than a typical spear or short sword (although still not as effective
 	as against larger enemies), and just as effective against larger enemies.
-elvish mithril-coat
+elven mithril-coat
 	A coat of armour manufactured from mithril by elves; its mithril construction
 	makes it immune to rust and corrosion, and very light, whilst still providing
 	very good protection against attack, as good as chain mail; elves are unused
@@ -702,7 +723,7 @@ fauchard
 fedora
 	A stylish cloth hat, which may look fancy but which is useless at protecting
 	the head from anything unless magically enchanted.
-fencing gloves
+*fencing gloves
 	The sort of gloves worn by duelists.
 figurine
 	When placed on the ground in the correct manner, this tiny magical statue
@@ -740,6 +761,9 @@ forked polearm
 	A very long iron spear with a forked end, requiring two hands to hold. Its
 	length prevents it doing more than minimal damage against adjacent enemies,
 	but it can be used to attack enemies slightly further away.
+forked wand
+	A magic wand that splits into three points at the end, that can be zapped to
+	release a magical effect, although only a limited number of times.
 fortune cookie
 	A hard biscuit with a slip of paper inside, which might contain useful advice
 	but might be useless, or even lying. It is slightly less nutritious than an
@@ -749,23 +773,23 @@ frost horn
 	your choice, dealing huge amounts of damage to monsters that do not resist
 	it. However, this will only work a limited number of times before requiring
 	magical recharging. When out of magic, it acts like an ordinary horn.
-fumble boots
+*fumble boots
 	These minimally protective leather boots have an insidious enchantment, making
 	their wearer occasionally noisily trip, slip, or otherwise fail to walk
 	normally.
 garnet
 	This gemstone is somewhat valuable, a little more so than an amethyst, despite
 	not being hard enough to scratch into solid rock.
-gauntlets of dexterity
+*gauntlets of dexterity
 	These leather gloves make their wearer more adept at aiming, archery,
 	accuracy, and similar tasks that need a dexterity or a steady hand; however,
 	these benefits are only seen if the gloves are enchanted, with higher
 	enchantments giving larger benefits.
-gauntlets of fumbling
+*gauntlets of fumbling
 	These dubiously enchanted leather gloves make their wearer tend to drop things
 	and similarly fumble, although they still provide minimal protection for the
 	hands.
-gauntlets of power
+*gauntlets of power
 	Beneath their unassuming exterior, these gloves are actually gauntlets made of
 	iron (and thus interfere with spellcasting); despite providing only minimal
 	protection to the hands, they are enchanted to provide an enormous boost to
@@ -777,9 +801,15 @@ glaive
 glass orb
 	A large and heavy sphere made of glass, with some sort of magical mist
 	swirling inside it; it is fragile and easily broken.
+glass wand
+	A thick cylinder of glass, that can be zapped to release a magical effect,
+	although only a limited number of times.
 glittering spellbook
 	A book, that glitters strangely as if hugely valuable. Reading it is
 	dangerous, but a sufficiently skilled reader can learn a spell from it.
+gold piece
+	The major coin used in the Yendorian economy. Each gold piece is worth 1
+	zorkmid.
 gold ring
 	A glittering circle of gold, designed to be worn on a finger.
 gold spellbook
@@ -804,7 +834,7 @@ gray dragon scale mail
 	protects its wearer from a wide range of magical attacks that do not damage
 	directly, as well as damage from pure magic (as opposed to, say, a fireball
 	conjured using magic).
-gray dragon scales
+*gray dragon scales
 	Some scales taken from the dead body of a gray dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also protects its wearer from a wide range of magical attacks
@@ -821,7 +851,7 @@ green dragon scale mail
 	green dragon; armour made from dragons protects better than any other. It also
 	gives its wearer almost perfect protection from the effects of all forms of
 	poison.
-green dragon scales
+*green dragon scales
 	Some scales taken from the dead body of a green dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also gives its wearer almost perfect protection from the effects
@@ -839,7 +869,7 @@ halberd
 	katana, and is slightly better against larger enemies.
 hard hat
 	A well-made reinforced iron hat, designed to protect the head from blows.
-hard shoes
+*hard shoes
 	Reinforced shoes made of iron; their metallic nature interferes with
 	spellcasting.
 harp
@@ -885,9 +915,12 @@ helmet
 hexagonal amulet
 	An elegant iron hexagon, connected to a chain so that it can be worn around a
 	person's neck.
-high boots
+hexagonal wand
+	A long and thin hexagonal prism, that can be zapped to release a magical
+	effect, although only a limited number of times.
+*high boots
 	They give the feet a moderate level of protection from attack.
-hiking boots
+*hiking boots
 	Boots designed for supporting the feet on long walks.
 hilted polearm
 	A very long iron spear with a hilt, requiring two hands to hold. Its length
@@ -921,14 +954,20 @@ indigo spellbook
 	A book, where every page is an incredible dark purple, with the writing in
 	bright green. Reading it is dangerous, but a sufficiently skilled reader can
 	learn a spell from it.
+iridium wand
+	An iridium bar painted with rainbow colors, that can be zapped to release a
+	magical effect, although only a limited number of times.
 iron chain
 	This length of chain, made of iron, has no obvious beneficial uses to an
 	adventurer. It looks like it was designed for punishing a prisoner.
 iron hook
 	This is an iron hook at the end of an iron chain.
+iron wand
+	A stick that looks like it was once a bar of a prison cell window, that can be
+	zapped to release a magical effect, although only a limited number of times.
 iron ring
 	A simple circle of iron, designed to be worn on a finger.
-iron shoes
+*iron shoes
 	The solid nature of these shoes gives the feet moderate protection from
 	attack.
 iron skull cap
@@ -938,7 +977,7 @@ ivory ring
 jacinth
 	This gem is extremely valuable (almost as valuable as a ruby, and more than a
 	sapphire), and hard enough to scratch into solid rock without damaging itself.
-jackboots
+*jackboots
 	Knee-high leather boots that cover the entire lower leg.
 jade
 	Although not hard enough to scratch into rock, and less valuable than most
@@ -957,11 +996,14 @@ javelin
 jet
 	This relatively soft gemstone is somewhat valuable, more so than most other
 	similarly soft gemstones, but less so than all hard gemstones.
-jumping boots
+jeweled wand
+	A stick of corundum, lavishly decorated with much more valuable gems. It can
+	be zapped to release a magical effect, although only a limited number of times.
+*jumping boots
 	These minimally protective leather boots allow the wearer to jump incredibly
 	far in a burst of energy, letting them cross small streams or jump over pits
 	and similar traps.
-jungle boots
+*jungle boots
 	Boots designed for walking through the muddy soil of a jungle.
 k-ration
 	The standard-issue food for the Yendorian Army, K-rations are moderately
@@ -978,7 +1020,7 @@ kelp frond
 key
 	A small piece of iron cut into a specific irregular pattern, designed to be
 	recognised by a lock and open it.
-kicking boots
+*kicking boots
 	These minimally protective boots have a hidden hard layer of metal inside,
 	allowing their wearer to kick things with huge and magically-enhanced force,
 	doing substantial damage to monsters or sending objects flying a surprisingly
@@ -1030,7 +1072,7 @@ leather cloak
 leather drum
 	The loud bang of this non-magical drum might scare nearby monsters into
 	running away.
-leather gloves
+*leather gloves
 	These are just ordinary leather gloves, providing minimal protection for the
 	hands.
 leather hat
@@ -1040,7 +1082,7 @@ leather hat
 leather jacket
 	An ordinary leather jacket, which could be worn as a substitute for body
 	armour but which would only give minimal levels of protection.
-leather spellbook
+leather-bound spellbook
 	A book with hardened leather covers, which look like they might once have been
 	part of a coat of armour. Reading it is dangerous, but a sufficiently skilled
 	reader can learn a spell from it.
@@ -1050,10 +1092,7 @@ lembas wafer
 	wafer can serve as a complete meal. Elves prepare them to a secret recipe
 	using organic vegan ingredients. It is about as nutritious as a human-made
 	food ration (or sixteen apples), but considerably lighter.
-lenses
-	Small pieces of glass designed to cover the eyes, protecting them from direct
-	physical attack and making reading slightly easier.
-levitation boots
+*levitation boots
 	These minimally protective leather boots are enchanted to, once worn, lift
 	their user into the air until they are removed; although this makes it easy to
 	cross water or pass most pits or holes, it makes it impossible to reach the
@@ -1095,7 +1134,10 @@ long sword
 	against smaller enemies.
 looking glass
 	A small and unusually reflective, although somewhat fragile, piece of glass.
-low boots
+long wand
+	A magic wand almost as long as a spear, that can be zapped to release a
+	magical effect, although only a limited number of times.
+*low boots
 	They give only minimal protection for the feet.
 lucern hammer
 	It is about as effective as a short sword, except that its bonus is against
@@ -1146,6 +1188,12 @@ magic marker
 magic whistle
 	This whistle is magical, teleporting pets next to you when used; this sort of
 	device never runs out of magic.
+maple wand
+	A stick made of maple wood, that can be zapped to release a magical effect,
+	although only a limited number of times.
+marble wand
+	A long and thin block of marble, that can be zapped to release a magical
+	effect, although only a limited number of times.
 meat ring
 	A small piece of meat bent into a ring, which can be eaten but has only
 	minimal nutritional content.
@@ -1174,7 +1222,7 @@ mottled spellbook
 	A book, with strange artistic patterns daubed onto the cover, resembling plant
 	life. Reading it is dangerous, but a sufficiently skilled reader can learn a
 	spell from it.
-mud boots
+*mud boots
 	Boots designed for protecting the feet from small puddles or shallow mud.
 mummy wrapping
 	The bandages that formerly wrapped a mummified body. For some reason, unlike
@@ -1185,6 +1233,9 @@ mummy wrapping
 	used by monsters.
 murky potion
 	A glass vial containing brown liquid that resembles mud.
+oak wand
+	A heavy oaken stake unsuited for combat, that can be zapped to release a
+	magical effect, although only a limited number of times.
 obsidian
 	This is one of the least valuable sorts of gemstone, being little more than an
 	unusually valuable sort of naturally occuring glass, and thus not hard enough
@@ -1210,7 +1261,7 @@ oilskin sack
 	items inside is still relevant, though. In addition, its oiled waterproof
 	surface prevents water leaking into the bag, making items stored inside the
 	bag immune to water damage.
-old gloves
+*old gloves
 	A tattered and worn-out pair of gloves.
 opal
 	It is small, round, and considered somewhat valuable as a gemstone, more so
@@ -1230,7 +1281,7 @@ orange dragon scale mail
 	orange dragon; armour made from dragons protects better than any other. It
 	also makes its wearer never need sleep, and likewise immune to any effects
 	that would make him or her sleep.
-orange dragon scales
+*orange dragon scales
 	Some scales taken from the dead body of a orange dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also makes its wearer never need sleep, and likewise immune to
@@ -1295,12 +1346,15 @@ ornamental cope
 oval amulet
 	A rounded iron ellipse, connected to a chain so that it can be worn around a
 	person's neck.
-padded gloves
+*padded gloves
 	Comfortable gloves with a padded interior.
 pancake
 	A thin but tasty food made from eggs and flour, often flavoured using sugar
 	and lemon juice. It contains a lot of energy, and is around four times as
 	filling as an apple (with four pancakes being as filling as a food ration).
+pair of lenses
+	Small pieces of glass designed to cover the eyes, protecting them from direct
+	physical attack and making reading slightly easier.
 papyrus spellbook
 	A worryingly intricate book made from compressed reeds, giving off a strong
 	and palpable magical aura.
@@ -1328,6 +1382,9 @@ pick-axe
 piece of cloth
 	A plain piece of cloth, which could be wrapped around the body in order to
 	serve as a cloak above body armour.
+pine wand
+	A branch of a pine tree, that can be zapped to release a magical effect,
+	although only a limited number of times.
 pink potion
 	A glass vial containing a shockingly pink liquid.
 pink spellbook
@@ -1345,6 +1402,9 @@ plate mail
 	blocking many special attacks of monsters with a good success rate. That
 	quantity of metal so close to the body, though, makes spellcasting almost
 	impossible.
+platinum wand
+	A runed cylinder made of platinum, that can be zapped to release a magical
+	effect, although only a limited number of times.
 plumed helmet
 	A fancy iron helmet with a plume.
 pole cleaver
@@ -1502,7 +1562,7 @@ red dragon scale mail
 	red dragon; armour made from dragons protects better than any other. It also
 	gives almost perfect protection from the effects of fire, heat, and flames,
 	although it protects only the wearer, not his or her items.
-red dragon scales
+*red dragon scales
 	Some scales taken from the dead body of a red dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also gives almost perfect protection from the effects of fire,
@@ -1520,9 +1580,9 @@ red-eyed shield
 	held in the offhand; it sometimes deflects attacks. Holding a shield makes it
 	harder to do the gestures associated with spellcasting, no matter what
 	material it is made from.
-riding boots
+*riding boots
 	Long boots designed for use when riding a horse.
-riding gloves
+*riding gloves
 	Gloves which look designed for using to ride a horse.
 ring mail
 	A flexible shirt made by linking together many rings of iron, in a similar way
@@ -1639,6 +1699,7 @@ robe
 	blocking certain types of special attacks used by monsters almost all the
 	time.
 rock
+rock stone
 	This common brownish stone is just a lump of rock, and not particularly
 	useful; it might serve as sling ammunition or as a projectile in emergencies,
 	although would not be particularly effective for either purpose.
@@ -1679,6 +1740,9 @@ runed spear
 	A moderately long piece of wood, with a tip sharpened to a point and hardened
 	by fire, with runes carved into it. It can be thrown by hand or used as a
 	melee weapon.
+runed wand
+	A stick carved with ominous runes, that can be zapped to release a magical
+	effect, although only a limited number of times.
 runesword
 	This iron sword has an alien appearance, being about as powerful as a short
 	sword against larger enemies, but with a bonus against smaller enemies.
@@ -1712,8 +1776,8 @@ scimitar
 	smaller and larger enemies.
 scroll labeled *
 	A rolled up piece of paper with magical writing on it; the only clue to its
-	purpose to someone who does not recognise it is the writing, saying "*",
-	written on one side.
+	purpose to someone who does not recognise it is the label written on one
+	side.
 scroll of amnesia
 	This scroll partially wipes its reader's memory, potentially causing them to
 	forget item descriptions, maps, and/or spells.
@@ -1812,6 +1876,9 @@ short sword
 	for use as a weapon to hold in the off-hand with a more powerful weapon in the
 	main hand. It does moderate amounts of damage, with a bonus against larger
 	enemies.
+short wand
+	What looks like a magician's wand, but is unusually short; it can be zapped to
+	release a magical effect, although only a limited number of times.
 shuriken
 	This weapon, manufactured by dishonourable samurai, can be deadly, with about
 	twice the stopping power of a thrown dagger.
@@ -1835,11 +1902,14 @@ silver dragon scale mail
 	silver dragon; armour made from dragons protects better than any other. Its
 	shiny reflective surface reflects most visible ray and gaze attacks back at
 	the monster that used them.
-silver dragon scales
+*silver dragon scales
 	Some scales taken from the dead body of a silver dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. Its shiny reflective surface reflects most visible ray and gaze
 	attacks back at the monster that used them.
+silver wand
+	A shiny stick of silver, that can be zapped to release a magical effect,
+	although only a limited number of times.
 silver ring
 	A pretty circle of silver, designed to be worn on a finger.
 silver saber
@@ -1886,14 +1956,14 @@ small shield
 	associated with spellcasting, no matter what material it is made from.
 smoky potion
 	A glass vial that seems to contain liquid smoke.
-snow boots
+*snow boots
 	Boots with a broad base, designed to prevent their wearer sinking into snow or
 	slipping on ice.
 spear
 	A moderately long pointed piece of iron, which can be thrown by hand or used
 	as a melee weapon, doing about as much damage as a short sword. It works
 	better against larger enemies.
-speed boots
+*speed boots
 	Whilst wearing these minimally protective leather boots, the wearer thinks,
 	acts, and moves much faster, allowing them to attempt more attacks in the same
 	space of time, or outrun many enemies; the boots even benefit wearers who are
@@ -1906,6 +1976,18 @@ spellbook of cancellation
 	This powerful matter spell completely removes magical effects or abilities
 	from items or monsters in a chosen direction. Many monsters are capable of
 	resisting such effects, though, at least some of the time.
+spellbook of cause fear
+	This enchantment spell causes monsters to want to run away rather than
+	fight. It is not infallible, though, even against monsters that seem to be
+	affected.
+spellbook of charm monster
+	This enchantment spell makes nearby monsters friendly to the caster, although
+	not with a perfect chance of success. It is more likely to work with more
+	powerful casters and with less magic-resistant monsters. If it does work, the
+	effect is permanent unless something is done to abuse the affected monsters.
+spellbook of clairvoyance
+	This divination spell maps a small area around the caster, showing what the
+	local terrain is like.
 spellbook of cone of cold
 	This attack spell shoots a ray of frost in a chosen direction; more skilled
 	casters will instead create a freezing explosion at a certain nearby location.
@@ -1928,6 +2010,12 @@ spellbook of cure blindness
 	This healing spell instantly cures all forms of blindness that might be
 	affecting its caster, although it cannot remove a blindfold or similar piece
 	of equipment that might prevent sight.
+spellbook of cure sickness
+	This healing spell instantly cures all forms of sickness and illness affecting
+	its caster.
+spellbook of detect food
+	This divination spell alerts its caster to the locations and identities of
+	nearby items of food.
 spellbook of detect monsters
 	This divination spell alerts its caster to the locations and identities of
 	monsters on the current level. Although for most casters such an insight only
@@ -2064,6 +2152,10 @@ spetum
 spherical amulet
 	A pendulum-like iron sphere, connected to a chain so that it can be worn
 	around a person's neck.
+spiked wand
+	This wand is made of iron. It is decorated with iron, and menaces with spikes
+	of iron. It can be zapped to release a magical effect, although only a limited
+	number of times.
 splint mail
 	A suit of body armour made out of vertical strips of iron riveted together,
 	providing extremely good protection against attack, almost as good as plate
@@ -2094,6 +2186,9 @@ stamped scroll
 	Some statues might not be what they seem, either.
 steel ring
 	A simple circle of steel, designed to be worn on a finger.
+steel wand
+	A hefty steel bar, that can be zapped to release a magical effect, although
+	only a limited number of times.
 stethoscope
 	A device made from steel that amplifies sounds coming from a particular area;
 	it is very quick to use (being usable at the same time as any other action
@@ -2109,7 +2204,7 @@ stiletto
 stout spear
 	A moderately long, and unusually wide, pointed piece of iron, which can be
 	thrown by hand or used as a melee weapon.
-studded leather armour
+studded leather armor
 	Armour made from hardened leather, with a huge number of small studs embedded
 	in it to turn aside weapons. It provides moderately good protection to the
 	body, about as good as ring mail and almost as good as scale mail, whilst also
@@ -2162,6 +2257,9 @@ tin opener
 	for attacking small metal cylinders in an attempt to get at the contents
 	inside. When held in the hand, it works even better than a dagger for opening
 	tins of food.
+tin wand
+	A hollow cylinder made of tin, that can be zapped to release a magical effect,
+	although only a limited number of times.
 tin whistle
 	This particular whistle is just an ordinary non-magical one, although it will
 	attract the attention of nearby monsters when used, useful to let nearby pets
@@ -2232,6 +2330,9 @@ unicorn horn
 	against smaller enemies, although it has no bonus against larger enemies.
 unlabeled scroll
 	A rolled up piece of paper. It has no writing on it.
+uranium wand
+	A worryingly glowing metal stick, that can be zapped to release a magical
+	effect, although only a limited number of times.
 uruk-hai shield
 	This particular shield pattern is the mark of the Uruk-hai, a fearsome race of
 	orcs.
@@ -2261,15 +2362,108 @@ vulgar polearm
 	A simple but very long iron spear, requiring two hands to hold. Its length
 	prevents it doing more than minimal damage against adjacent enemies, but it
 	can be used to attack enemies slightly further away.
-walking shoes
+*walking shoes
 	Comfortable leather shoes designed for walking in.
+wand of cancellation
+	Zapping it at a monster or item removes its magical abilities, although some
+	items and monsters may completely or partially resist. It also removes some
+	other sorts of lingering magical effects, such as enchantments and curses.
+wand of create monster
+	Zapping it creates one, or occasionally more, monsters. Unfortunately, they
+	are quite likely to be hostile, and so the wand is mostly only good if you're
+	looking for a fight.
+wand of cold
+	Zapping it produces a ray of cold that freezes all it touches. The ray is
+	capable of bouncing off walls, but has only a limited range.
+wand of death
+	This dreaded wand's zaps produce rays that kill all they touch, although they
+	have no effect on monsters that are dead already. The ray is capable of
+	bouncing off walls, but has only a limited range.
+wand of digging
+	Zapping it at a wall or floor creates a tunnel big enough to walk through. If
+	you take out the ground beneath your feet, you'd better expect to fall...
+wand of enlightenment
+	Zapping it informs the one who zapped it of their own magical powers, and of
+	their god's opinion of them.
+wand of fire
+	Zapping it produces a ray of fire that burns all it touches. The ray is
+	capable of bouncing off walls, but has only a limited range.
+wand of light
+	Zapping it permanently lights up the area near where it was zapped.
+wand of lightning
+	Zapping it produces a ray of lightning, that bounces off walls, but has only a
+	limited range. In addition to electrifying things it hits, the ray is bright
+	enough to cause temporary blindness.
+wand of magic missile
+	Zapping it at a monster barrages it with magically produced bullets that never
+	miss. The damage output is somewhat underwhelming, though. The ray produced by
+	this wand is capable of bouncing off walls, although it has only a limited
+	range.
+wand of make invisible
+	Zapping it at a person or monster causes it to turn invisible, permanently. I
+	suppose you could use it on yourself, but you would then have trouble being
+	seen.
+wand of nothing
+	Although zapping it seems to have a magical effect, it isn't one that
+	accomplishes anything.
+wand of opening
+	Zapping it at a lock causes it to instantly unlock, whether the lock is on a
+	door, a container, or something else. It might be able to open other things,
+	too.
+wand of polymorph
+	Zapping it at a monster or item causes it to change into a different type of
+	monster or item, although items tend to change into similar sorts of item.
+	This sort of magic is relatively uncontrolled, and sometimes works in
+	unintended ways, perhaps damaging or destroying its target, or accidentally
+	making an item into a monster.
+wand of probing
+	Zapping it at a monster reveals some information about it, such as its current
+	hitpoint count and inventory. It can determine the inventory of containers,
+	too.
+wand of secret door detection
+	Zapping it alerts the one who zapped it to the location of concealed dungeon
+	features, such as secret doors, traps, and portals, nearby.
+wand of sleep
+	Zapping it produces a soporific ray that causes monsters it hits to fall
+	asleep. The ray can bounce off walls, but has only a limited range.
+wand of slow monster
+	Zapping it at a monster causes it to slow down, acting in slow motion, and
+	thus make it easier to run from and perform fewer attacks. Many monsters can
+	resist the effects, though, with varying chances of doing so.
+wand of speed monster
+	Zapping it at a monster causes it to permanently speed up; and it can also be
+	aimed at its user. This sort of permanent speed boost does not add together
+	with other sorts, though; only the most powerful speeding effect will have any
+	effect.
+wand of striking
+	Zapping it causes it to attack everything in a chosen direction, doing
+	moderate damage to creatures and huge damage to many sorts of inanimate
+	object.
+wand of teleportation
+	Anything it is zapped at is instantly teleported to a different square on the
+	same level. Although you can aim this wand at yourself, some unusual
+	environments make it impossible for a person to teleport deliberately. The
+	square on which the teleport ends will be random, unless separate magic is
+	used to be able to control it.
+wand of undead turning
+	Zapping it causes undead monsters in a chosen direction to either flee in
+	fear, or possibly even be destroyed completely. This sort of magic often has
+	unintended side effects on things other than undead that were once alive.
+wand of wishing
+	This incredibly valuable wand, which can only be recharged once and which can
+	hold at most three charges at a time, grants anyone who zaps it the ability to
+	wish for an item, or stack of similar items, of their choice. Almost anything
+	can be requested, although the wand may find it difficult or impossible to
+	make certain artifacts. Other properties of the items, such as enchantments,
+	may also be specified, but might not be received, and likewise the resulting
+	stack may be smaller than desired.
 war hammer
 	A heavy iron hammer designed specifically for use as a weapon, either wielded
 	in melee or thrown by hand. It is about as effective as a short sword against
 	smaller enemies, but has a penalty rather than a bonus against larger enemies,
 	against which it is no better than an axe and only slightly better than a
 	dagger.
-water walking boots
+*water walking boots
 	These minimally protective leather boots can walk on water as if it were dry
 	land, and so are very useful for crossing lakes and rivers.
 wax candle
@@ -2283,7 +2477,7 @@ white dragon scale mail
 	white dragon; armour made from dragons protects better than any other. It also
 	gives almost perfect protection from the effects of cold and ice, although it
 	protects only the wearer, not his or her items.
-white dragon scales
+*white dragon scales
 	Some scales taken from the dead body of a white dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also gives almost perfect protection from the effects of cold
@@ -2333,7 +2527,7 @@ yellow dragon scale mail
 	also gives its wearer almost perfect protection from the effects of acid and
 	corrosive liquids, although it protects only the wearer, not his or her
 	equipment.
-yellow dragon scales
+*yellow dragon scales
 	Some scales taken from the dead body of a yellow dragon; wearing it provides
 	moderately good protection to the body, about as much as studded leather or
 	ring mail. It also gives its wearer almost perfect protection from the effects
@@ -2358,6 +2552,9 @@ yumi
 	This bow is of top-quality samurai manufacture; although it is normally no
 	more powerful than a standard bow, samurai are particularly familiar with how
 	to gain the best from such a bow.
+zinc wand
+	A plain cylinder of zinc, that can be zapped to release a magical effect,
+	although only a limited number of times.
 
 # Spellchecker words
 # LocalWords:  orcish shuriken yumi dwarvish athame crysknife swordsmithing de
