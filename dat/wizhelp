@@ -1,23 +1,31 @@
-Debug-Mode Quick Reference:
+New commands in debug mode:
 
-^E  ==  detect secret doors and traps.
-^F  ==  do magic mapping.
-^G  ==  create monster.
-^I  ==  identify items in pack.
-^O  ==  tell locations of special levels.
-^T  ==  do intra-level teleport.
-^V  ==  do trans-level teleport.
-^W  ==  make wish.
-^X  ==  show attributes including intrinsic attributes.
+Note that these commands are accessible only via #repeat (#), which allows
+arbitrary commands to be entered.  Note also that careless use of debug mode
+features can easily crash the game; debug-mode bugs are low priority, and the
+amount of power that debug mode gives you includes the ability to do things
+that are impossible in normal play, and that the game does not allow for.  (In
+fact, at least one of the commands is designed to crash the game.)
 
-#levelchange == change experience level
-#lightsources == show mobile light sources
-#monpolycontrol == control monster polymorphs
-#panic == panic test
-#polyself == polymorph self
-#seenv == show seen vectors
-#stats == show memory statistics
-#timeout == look at timeout queue
-#vision == show vision array
-#wmode == show wall modes
+#detect           Detect secret doors and traps
+#genesis          Create a monster
+#identify         Identify your inventory
+#levelchange      Change your experience level
+#lightsources     Show mobile light sources
+#map              Magic-map the current level
+#monpolycontrol   Control what polymorphing monsters polymorph into
+#panic            Test panic routines, crashing the game in the process
+#polyself         Polymorph the player character
+#seenv            Show seen vectors
+#stats            Show memory statistics
+#timeout          Show timeout queue
+#vision           Show vision array
+#where            Show the dungeon layout
+#wish             Create an item
+#wmode            Show wall modes
 
+Additionally, for historical reasons, #tutorial allows you to level-teleport
+while in debug mode (they used to have the same keybinding, control-V).
+
+Also note that many other commands are enhanced to give you extra power in
+debug mode, notably control-X.

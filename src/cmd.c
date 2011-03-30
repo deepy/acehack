@@ -1700,8 +1700,7 @@ static const struct ext_func_tab debug_extcmdlist[] = {
 	{"wizdebug", "(debug mode) wizard debug command", wiz_debug_cmd, TRUE},
 #endif
 	{"wmode", "(debug mode) show wall modes", wiz_show_wmodes, TRUE},
-        {"detect", "(debug mode) (debug mode) detect secret doors/traps",
-         wiz_detect, TRUE},
+        {"detect", "(debug mode) detect secret doors/traps", wiz_detect, TRUE},
         {"map", "(debug mode) map this level", wiz_map, TRUE},
         {"genesis", "(debug mode) create a monster", wiz_genesis, TRUE},
         {"identify", "(debug mode) identify inventory", wiz_identify, TRUE},

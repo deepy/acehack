@@ -942,7 +942,7 @@ static const char *help_menu_items[] = {
 #define WIZHLP_SLOT 8
 #endif
 #ifdef WIZARD
-	"List of wizard-mode commands.",
+	"List of debug-mode commands.",
 #endif
 	"",
 	(char *)0
