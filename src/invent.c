@@ -757,6 +757,8 @@ const char *action;
            !strcmp(action, "equip");
 }
 
+static struct obj *nextgetobj = 0;
+
 /*
  * getobj returns:
  *	struct obj *xxx:	object to do something with.
@@ -792,6 +794,8 @@ register const char *let,*word;
 	long cnt;
 	boolean prezero = FALSE;
 	long dummymask;
+
+        if(nextgetobj) return nextgetobj;
 
 	if(*let == ALLOW_COUNT) let++, allowcnt = 1;
 #ifndef GOLDOBJ
@@ -1681,7 +1685,8 @@ itemactions(obj)
 struct obj *obj;
 {
 	winid win;
-        int n, ch = '.';
+        int n;
+        int NDECL((*feedback_fn)) = 0;
         anything any;
         menu_item *selected = 0;
 
@@ -1693,7 +1698,7 @@ struct obj *obj;
         /* (a)pply: tools, eucalyptus, cream pie, oil, hooks/whips
            Exceptions: applying stones is on V; breaking wands is on V;
            equipment-tools are on W; tin openers are on w. */
-        any.a_int = 'a';
+        any.a_void = (genericptr_t)doapply;
         /* Rather a mess for 'a', as it means so many different things
            with so many different objects */
         if (obj->otyp == CREAM_PIE)
@@ -1759,9 +1764,11 @@ struct obj *obj;
                  obj->otyp == BRASS_LANTERN)
           add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
                    "Light or extinguish this light source", MENU_UNSELECTED);
-        else if (obj->otyp == POT_OIL)
+        else if (obj->oclass == POTION_CLASS) {
+          any.a_void = (genericptr_t) dodip;
           add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
-                   "Ignite or extinguish this oil", MENU_UNSELECTED);
+                   "Dip something into this potion", MENU_UNSELECTED);
+        }
 #ifdef TOURIST
         else if (obj->otyp == EXPENSIVE_CAMERA)
           add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
@@ -1796,17 +1803,17 @@ struct obj *obj;
           add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
                    "Dig with this digging tool", MENU_UNSELECTED);
         /* c: pay for unpaid items */
-        any.a_int = 'c';
+        any.a_void = (genericptr_t)dotalk;
         if ((mtmp = shop_keeper(*in_rooms(u.ux, u.uy, SHOPBASE))) &&
             inhishop(mtmp) && obj->unpaid)
           add_menu(win, NO_GLYPH, &any, 'c', 0, ATR_NONE,
                    "Buy this unpaid item", MENU_UNSELECTED);
         /* d: drop item, works on everything */
-        any.a_int = 'd';
+        any.a_void = (genericptr_t)dodrop;
         add_menu(win, NO_GLYPH, &any, 'd', 0, ATR_NONE,
                  "Drop this item", MENU_UNSELECTED);
         /* e: eat item; eat.c provides is_edible to check */
-        any.a_int = 'e';
+        any.a_void = (genericptr_t)doeat;
         if (obj->otyp == TIN && uwep && uwep->otyp == TIN_OPENER)
           add_menu(win, NO_GLYPH, &any, 'e', 0, ATR_NONE,
                    "Open and eat this tin with your tin opener", MENU_UNSELECTED);
@@ -1817,7 +1824,7 @@ struct obj *obj;
           add_menu(win, NO_GLYPH, &any, 'e', 0, ATR_NONE,
                    "Eat this item", MENU_UNSELECTED);
         /* E: engrave with item */
-        any.a_int = 'E';
+        any.a_void = (genericptr_t)doengrave;
         if (obj->otyp == TOWEL)
           add_menu(win, NO_GLYPH, &any, 'E', 0, ATR_NONE,
                    "Wipe the floor with this towel", MENU_UNSELECTED);
@@ -1829,22 +1836,22 @@ struct obj *obj;
           add_menu(win, NO_GLYPH, &any, 'E', 0, ATR_NONE,
                    "Write on the floor with this object", MENU_UNSELECTED);
         /* I: describe item, works on everything */
-        any.a_int = 'I';
+        any.a_void = (genericptr_t)dotypeinv;
         add_menu(win, NO_GLYPH, &any, 'I', 0, ATR_NONE,
                  "Describe this item", MENU_UNSELECTED);
         /* q: drink item; strangely, this one seems to have no exceptions */
-        any.a_int = 'q';
+        any.a_void = (genericptr_t)dodrink;
         if (obj->oclass == POTION_CLASS)
         add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
                  "Quaff this potion", MENU_UNSELECTED);
         /* Q: quiver throwable item
            (Why are weapons not designed for throwing included, I wonder?) */
-        any.a_int = 'Q';
+        any.a_void= (genericptr_t)dowieldquiver;
         if (obj->oclass == GEM_CLASS || obj->oclass == WEAPON_CLASS)
           add_menu(win, NO_GLYPH, &any, 'Q', 0, ATR_NONE,
                    "Quiver this item for easy throwing", MENU_UNSELECTED);
         /* r: read item */
-        any.a_int = 'r';
+        any.a_void = (genericptr_t)doread;
         if (obj->otyp == FORTUNE_COOKIE)
           add_menu(win, NO_GLYPH, &any, 'r', 0, ATR_NONE,
                    "Read the message inside this cookie", MENU_UNSELECTED);
@@ -1858,16 +1865,16 @@ struct obj *obj;
           add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
                    "Study this spellbook", MENU_UNSELECTED);
         /* t: throw item, works on everything */
-        any.a_int = 't';
+        any.a_void = (genericptr_t)dothrow;
         add_menu(win, NO_GLYPH, &any, 't', 0, ATR_NONE,
                  "Throw this item", MENU_UNSELECTED);
         /* T: unequip worn item */
-        any.a_int = 'T'; 
+        any.a_void = (genericptr_t)dotakeoff; 
         if ((obj->owornmask & (W_ARMOR | W_RING | W_AMUL | W_TOOL)))
           add_menu(win, NO_GLYPH, &any, 'T', 0, ATR_NONE,
                    "Unequip this equipment", MENU_UNSELECTED);
         /* V: invoke, rub, or break */
-        any.a_int = 'V';
+        any.a_void = (genericptr_t)doinvoke;
         if (obj->oclass == WAND_CLASS)
           add_menu(win, NO_GLYPH, &any, 'V', 0, ATR_NONE,
                    "Break this wand", MENU_UNSELECTED);
@@ -1885,10 +1892,13 @@ struct obj *obj;
                  obj->otyp == MIRROR) /* wtf NetHack devteam? */
           add_menu(win, NO_GLYPH, &any, 'V', 0, ATR_NONE,
                    "Try to invoke a unique power of this object", MENU_UNSELECTED);
+        else if (obj->otyp == POT_OIL)
+          add_menu(win, NO_GLYPH, &any, 'V', 0, ATR_NONE,
+                   "Ignite or extinguish this oil", MENU_UNSELECTED);
         /* w: hold in hands, works on everything but with different
            advice text; not mentioned for things that are already
            wielded */
-        any.a_int = 'w';
+        any.a_void = (genericptr_t)dowield;
         if (obj == uwep) {}
         else if (obj->oclass == WEAPON_CLASS || obj->otyp == PICK_AXE ||
                  obj->oclass == UNICORN_HORN)
@@ -1901,7 +1911,7 @@ struct obj *obj;
           add_menu(win, NO_GLYPH, &any, 'w', 0, ATR_NONE,
                    "Hold this item in your hands", MENU_UNSELECTED);
         /* W: Equip this item */
-        any.a_int = 'W';
+        any.a_void = (genericptr_t)dowear;
         if (obj->oclass == ARMOR_CLASS)
           add_menu(win, NO_GLYPH, &any, 'W', 0, ATR_NONE,
                    "Wear this armor", MENU_UNSELECTED);
@@ -1918,7 +1928,7 @@ struct obj *obj;
           add_menu(win, NO_GLYPH, &any, 'W', 0, ATR_NONE,
                    "Put these lenses on", MENU_UNSELECTED);
         /* x: Swap main and readied weapon */
-        any.a_int = 'x';
+        any.a_void = (genericptr_t)doswapweapon;
         if (obj == uwep && uswapwep)
           add_menu(win, NO_GLYPH, &any, 'x', 0, ATR_NONE,
                    "Swap this with your alternate weapon", MENU_UNSELECTED);
@@ -1929,21 +1939,19 @@ struct obj *obj;
           add_menu(win, NO_GLYPH, &any, 'x', 0, ATR_NONE,
                    "Swap this with your main weapon", MENU_UNSELECTED);
         /* z: Zap wand */
-        any.a_int = 'z';
+        any.a_void = (genericptr_t)dozap;
         if (obj->oclass == WAND_CLASS)
           add_menu(win, NO_GLYPH, &any, 'z', 0, ATR_NONE,
                    "Zap this wand to release its magic", MENU_UNSELECTED);
-        /* >: Sacrifice object
-           Potentially this could lead to issues if the menu ends up on
-           multiple pages, but I don't think that's possible */
-        any.a_int = '>';
+        /* S: Sacrifice object (should be > but that causes problems) */
+        any.a_void = (genericptr_t)doterrain;
         if (IS_ALTAR(levl[u.ux][u.uy].typ) && !u.uswallow) {
           if (obj->otyp == CORPSE)
-            add_menu(win, NO_GLYPH, &any, '>', 0, ATR_NONE,
+            add_menu(win, NO_GLYPH, &any, 'S', 0, ATR_NONE,
                      "Sacrifice this corpse at this altar", MENU_UNSELECTED);
           else if (obj->otyp == AMULET_OF_YENDOR ||
                    obj->otyp == FAKE_AMULET_OF_YENDOR)
-            add_menu(win, NO_GLYPH, &any, '>', 0, ATR_NONE,
+            add_menu(win, NO_GLYPH, &any, 'S', 0, ATR_NONE,
                      "Sacrifice this amulet at this altar", MENU_UNSELECTED);
         }
 
@@ -1952,10 +1960,31 @@ struct obj *obj;
         
         n = select_menu(win, PICK_ONE, &selected);
         destroy_nhwindow(win);
-        if (n == 1) ch = selected[0].item.a_int;
+        if (n == 1) feedback_fn = (int NDECL((*)))selected[0].item.a_void;
         if (n == 1) free((genericptr_t) selected);
 
-        return 0;
+        if (!feedback_fn) return 0;
+
+        /* dodip() is special, because it takes the item to dip first, and
+           the item to dip /into/ second. */
+        if (feedback_fn == dodip) {
+          setnextdodipinto(obj);
+          return dodip();
+        }
+        /* dotypeinv() means that we want the item described. Just do it
+           directly rather than fighting with a multiselect menu. */
+        if (feedback_fn == dotypeinv) {
+          checkfile("", 0, obj->otyp, FALSE, TRUE);
+          return 0;
+        }
+        /* In most cases, we can just set getobj's result directly.
+           (This works even for commands that take no arguments, because
+           they don't call getobj at all. */
+        nextgetobj = obj;
+        n = (*feedback_fn)();
+        nextgetobj = 0;
+
+        return n;
 }
 
 /*
