@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Mar 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -81,6 +81,7 @@ extern int NDECL(dodrink); /**/
 extern int NDECL(dodip); /**/
 extern int NDECL(dosacrifice); /**/
 extern int NDECL(dopray); /**/
+extern int NDECL(doworship); /**/
 extern int NDECL(doturn); /**/
 extern int NDECL(doredraw); /**/
 extern int NDECL(doread); /**/
@@ -1637,7 +1638,7 @@ struct ext_func_tab extcmdlist[] = {
   {"wipe", "wipe off your face", dowipe, FALSE, 1, M('w'), 0, 0, 0},
 #if defined(WIZARD)
 #endif
-  {"worship", "communicate with the gods", dopray, TRUE, 10, C('w'), 0, 0, 0},
+  {"worship", "communicate with the gods", doworship, TRUE, 10, C('w'), 0, 0, 0},
   {"xplore", "enter discovery mode", enter_explore_mode, TRUE, 10, 0, 0, 0, 0},
   {"zap", "zap a wand to use its magic", dozap, FALSE, 10, 'z', 0, 0, 0},
   {"?", "get this list of extended commands", doextlist, TRUE, 0, 0, 0, 0, 0},

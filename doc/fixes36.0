@@ -447,6 +447,7 @@ old V was moved to #versionhistory, or the ? menu.)
 ^V: New command, to review tutorial slides.
 W, P: These commands have been merged; either will allow armor or
 accessories to be worn, with P now being deprecated.
+^W: Shows a menu, allowing #offer, #pray, or #turn.
 x: No longer costs a turn.
 X: Now a synonym for #twoweapon.  (Credits: Another nethack.alt.org
 idea.)  The old meaning of X, "enter explore mode", was moved to

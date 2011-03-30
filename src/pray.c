@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pray.c	3.4	2003/03/23	*/
 /* Copyright (c) Benson I. Margulies, Mike Stephenson, Steve Linhart, 1989. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1591,6 +1591,51 @@ dopray()
     }
 
     return(1);
+}
+
+/* Menu for religious commands */
+int
+doworship()
+{
+    winid win;
+    int n;
+    anything any;
+    menu_item *selected = 0;
+    char buf[BUFSZ];
+    int targetgoda = a_align(u.ux, u.uy);
+    const char* targetgodn;
+    if (!on_altar()) targetgoda = u.ualign.type;
+    targetgodn = align_gname(targetgoda);
+
+    win = create_nhwindow(NHW_MENU);
+    start_menu(win);
+    any.a_int = 'o';
+    Sprintf(buf, "Sacrifice a corpse to %s", targetgodn);
+    add_menu(win, NO_GLYPH, &any, 'o', 0, ATR_NONE, buf, MENU_UNSELECTED);
+    any.a_int = 'p';
+    Sprintf(buf, "Pray to %s for aid", targetgodn);
+    add_menu(win, NO_GLYPH, &any, 'p', 0, ATR_NONE, buf, MENU_UNSELECTED);
+    if (Role_if(PM_PRIEST) || Role_if(PM_KNIGHT)) {
+        any.a_int = 't';
+        Sprintf(buf, "Use divine power to turn undead");
+        add_menu(win, NO_GLYPH, &any, 't', 0, ATR_NONE, buf, MENU_UNSELECTED);
+    }
+    any.a_int = 'q';
+    Sprintf(buf, "Cancel");
+    add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE, buf, MENU_UNSELECTED);
+    end_menu(win, "Perform which religious action?");
+    n = select_menu(win, PICK_ONE, &selected);
+    destroy_nhwindow(win);
+    if (n == 1) {
+        n = selected[0].item.a_int;
+        free((genericptr_t) selected);
+    } else n = 'q';
+    switch(n) {
+    case 'o': return dosacrifice();
+    case 'p': return dopray();
+    case 't': return doturn();
+    default: return 0;
+    }
 }
 
 STATIC_PTR int

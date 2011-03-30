@@ -1623,6 +1623,7 @@ E int NDECL(in_trouble);
 E int NDECL(dosacrifice);
 E boolean FDECL(can_pray, (BOOLEAN_P));
 E int NDECL(dopray);
+E int NDECL(doworship);
 E const char *NDECL(u_gname);
 E int NDECL(doturn);
 E const char *NDECL(a_gname);
