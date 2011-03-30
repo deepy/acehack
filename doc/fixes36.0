@@ -424,6 +424,8 @@ e: Allows , as an argument to eat from the floor.
 ^E: Now a synonym for #enhance.
 G: A combined command for controlled teleportation, jumping, and
 riding. (They're all forms of jump, if you think about it.)
+I: Now also describes items if they are selected from the list shown,
+in addition to just listing parts of the inventory.
 ^I: Now a synonym for #adjust.
 M: Now a synonym for #monster.
 o: Now both opens and closes doors; and unlocks known locked doors
@@ -460,6 +462,10 @@ slides (redundantly with ^V).
 its use for entering extended commands.
 ^: Now shows a menu of trappable objects, and both lets you know which
 traps you remember, and allows you to search for or disarm traps.
+;: Describes items that are selected while farlooking (in addition to
+the additional info while targeting mentioned earlier).
+/: Now only describes strings typed in by the user (use ; to describe
+something on the map).
 
 The following commands still have their old meanings, or are mapped to
 a new command that encompasses their old meanings, but are now
