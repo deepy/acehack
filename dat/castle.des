@@ -133,7 +133,7 @@ OBJECT:object[3],random,(55,11)
 CONTAINER:'(',"chest",place[0]
 OBJECT:'/',"wishing",contained
 # Prevent monsters from eating it.  (@'s never eat objects)
-ENGRAVING:place[0],burn,"Elbereth"
+ENGRAVING:place[0],burn,""
 # The treasure of the lord
 OBJECT:'(',"chest",(37,08)
 # Traps
