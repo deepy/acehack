@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)artifact.c 3.4	2003/08/11	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1180,7 +1180,7 @@ doinvoke()
 {
     register struct obj *obj;
 
-    obj = getobj(invoke_types, "invoke, break or rub");
+    obj = getobj(invoke_types, "invoke, break, rub or ignite");
     if (!obj) return 0;
     if (obj->oartifact && !touch_artifact(obj, &youmonst)) return 1;
     return arti_invoke(obj);
@@ -1199,6 +1199,8 @@ arti_invoke(obj)
             return dorub_inner(obj);
 	else if(obj->otyp == CRYSTAL_BALL)
 	    use_crystal_ball(obj);
+        else if(obj->otyp == POT_OIL)
+            light_cocktail(obj);
 	else
           pline("%s",nothing_happens);
 	return 1;

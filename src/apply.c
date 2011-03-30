@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Mar 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -9,9 +9,9 @@
 #ifdef OVLB
 
 static const char tools[] = { ALL_CLASSES, ALLOW_FLOOR, TOOL_CLASS,
-                              WEAPON_CLASS, 0 };
+                              POTION_CLASS, WEAPON_CLASS, 0, 0 };
 static const char tools_too[] = { ALL_CLASSES, ALLOW_FLOOR, TOOL_CLASS,
-                                  POTION_CLASS, WEAPON_CLASS, GEM_CLASS, 0 };
+                                  POTION_CLASS, WEAPON_CLASS, GEM_CLASS, 0, 0 };
 
 #ifdef TOURIST
 STATIC_DCL int FDECL(use_camera, (struct obj *));
@@ -27,7 +27,6 @@ STATIC_DCL void FDECL(use_bell, (struct obj **));
 STATIC_DCL void FDECL(use_candelabrum, (struct obj *));
 STATIC_DCL void FDECL(use_candle, (struct obj **));
 STATIC_DCL void FDECL(use_lamp, (struct obj *));
-STATIC_DCL void FDECL(light_cocktail, (struct obj *));
 STATIC_DCL void FDECL(use_tinning_kit, (struct obj *));
 STATIC_DCL void FDECL(use_figurine, (struct obj **));
 STATIC_DCL void FDECL(use_grease, (struct obj *));
@@ -1116,7 +1115,7 @@ struct obj *obj;
 	}
 }
 
-STATIC_OVL void
+void
 light_cocktail(obj)
 	struct obj *obj;	/* obj is a potion of oil */
 {
@@ -2830,7 +2829,7 @@ doapply()
 
 	if(check_capacity((char *)0)) return (0);
 
-	if (carrying(POT_OIL) || uhave_graystone())
+	if (uhave_graystone())
 		Strcpy(class_list, tools_too);
 	else
 		Strcpy(class_list, tools);
@@ -2848,6 +2847,11 @@ doapply()
 	if (obj->oclass == WAND_CLASS) {
             pline("To break wands, use the %s command.", key_for_cmd("#invoke"));
 	    return 0;
+        }
+        if (obj->oclass == POTION_CLASS) {
+          /* dodip with reversed arguments */
+          setnextdodipinto(obj);
+          return dodip();
         }
 
 	switch(obj->otyp){
@@ -2955,9 +2959,6 @@ doapply()
 	case MAGIC_LAMP:
 	case BRASS_LANTERN:
 		use_lamp(obj);
-		break;
-	case POT_OIL:
-		light_cocktail(obj);
 		break;
 #ifdef TOURIST
 	case EXPENSIVE_CAMERA:

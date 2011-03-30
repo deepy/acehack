@@ -414,9 +414,10 @@ default, letters now have vikeys meanings by default.  So either the
 numpad or the letter keys can be used to move. For command repeat,
 type # before the repeat count.
 a: No longer breaks wands (use V).  Use a, to loot containers on the
-ground.  (Credits: The use of , this way was inspired by Slash'EM,
-although the code is mine. Certain other commands have the same
-change, using , to indicate floor items.)
+ground.  a can also be used to dip into potions.  (Credits: The use of
+, this way was inspired by Slash'EM, although the code is
+mine. Certain other commands have the same change, using , to indicate
+floor items.)
 A: Now allows equipping items to arbitrary slots, as well as
 unequipping them from those slots.
 c, #chat: c now means #chat (the old meaning of c, "close door", has
@@ -450,8 +451,10 @@ T, R: These commands have been merged; either will allow armor or
 accessories to be removed, with R now being deprecated.
 v: Now does autoexplore. (The old v was moved to #versionshort, or the
 ? menu.)
-V: A new command that merges #rub, #invoke, and wand-breaking.  (The
-old V was moved to #versionhistory, or the ? menu.)
+V: A new command that merges #rub, #invoke, and wand-breaking; it can
+also be used to ignite a potion of oil (as a would mean dipping into
+the potion of oil).  (The old V was moved to #versionhistory, or the ?
+menu.)
 ^V: New command, to review tutorial slides.
 W, P: These commands have been merged; either will allow armor or
 accessories to be worn, with P now being deprecated.
