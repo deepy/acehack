@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mthrowu.c	3.4	2003/05/09	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -365,7 +365,7 @@ m_throw(mon, x, y, dx, dy, range, obj, verbose)
 			int dam, hitv;
 			case EGG:
 			    if (!touch_petrifies(&mons[singleobj->corpsenm])) {
-				impossible("monster throwing egg type %d",
+				impossible("monster throwing egg type %ld",
 					singleobj->corpsenm);
 				hitu = 0;
 				break;
