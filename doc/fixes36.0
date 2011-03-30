@@ -467,6 +467,9 @@ traps you remember, and allows you to search for or disarm traps.
 the additional info while targeting mentioned earlier).
 /: Now only describes strings typed in by the user (use ; to describe
 something on the map).
+>: Now interacts with any sort of terrain on the square, to go down or
+up stairs, dip into fountains/water, sacrifice on altars, or sit on
+other sorts of terrain.
 
 The following commands still have their old meanings, or are mapped to
 a new command that encompasses their old meanings, but are now

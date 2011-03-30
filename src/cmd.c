@@ -1604,8 +1604,8 @@ struct ext_func_tab extcmdlist[] = {
    'x', 0, 0, 0},
   {"teleport", "use intrinsic or magical teleportation ability", dotele, TRUE, 11,
    C('t'), 0, 0, 0},
-  {"terrain", "use stairs or a ladder, or otherwise interact with terrain",
-   dodown, FALSE, 13, '>', 0, 0, 0},
+  {"terrain", "interact with the terrain below your feet",
+   doterrain, FALSE, 13, '>', 0, 0, 0},
   {"throw", "throw an item", dothrow, FALSE, 14, 't', 0, 0, 0},
   {"travel", "walk until a given square is reached", dotravel, TRUE,
    12, '_', 0, 0, 0},
@@ -2375,6 +2375,9 @@ char sym;
               (sym & 0xff) != (tlist->binding3 & 0xff)) continue;
           if(tlist->ef_funct == doup) return movecmd('<');
           if(tlist->ef_funct == dodown) return movecmd('>');
+          /* doterrain's meant to replace >, so should also be considered
+             as aiming downwards */
+          if(tlist->ef_funct == doterrain) return movecmd('>');
           if (!tlist->replacewithkey) return 0;
           return movecmd(tlist->replacewithkey);
         }

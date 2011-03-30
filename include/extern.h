@@ -317,6 +317,7 @@ E void FDECL(obj_no_longer_held, (struct obj *));
 E int NDECL(doddrop);
 E int NDECL(dodown);
 E int NDECL(doup);
+E int NDECL(doterrain);
 #ifdef INSURANCE
 E void NDECL(save_currentstate);
 #endif
@@ -1609,6 +1610,7 @@ E void FDECL(strange_feeling, (struct obj *,const char *));
 E void FDECL(potionhit, (struct monst *,struct obj *,BOOLEAN_P));
 E void FDECL(potionbreathe, (struct obj *));
 E boolean FDECL(get_wet, (struct obj *));
+E void FDECL(setnextdodipinto, (struct obj *));
 E int NDECL(dodip);
 E void FDECL(djinni_from_bottle, (struct obj *));
 E struct monst *FDECL(split_mon, (struct monst *,struct monst *));

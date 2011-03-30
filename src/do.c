@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -889,6 +889,66 @@ doup()
 	prev_level(TRUE);
 	at_ladder = FALSE;
 	return(1);
+}
+
+/* Perform a context-sensitive command on the local terrain:
+   upstairs         doup()
+   downstairs       dodown()
+   water/fountain   dodip()
+   altar            dosacrifice()
+   throne/floor     dosit() */
+int
+doterrain()
+{
+	struct trap *ttmp = t_at(u.ux, u.uy);
+	if (Levitation) return dodown(); /* end levitation or error out */
+        if (ttmp && (ttmp->ttyp == TRAPDOOR || ttmp->ttyp == HOLE))
+          return dodown();
+	switch (levl[u.ux][u.uy].typ) {
+          /* 0..15: impassable terrain, use default #sit */
+        case POOL:
+        case MOAT:
+        case WATER:
+        case FOUNTAIN:
+          setnextdodipinto(&zeroobj);
+          return dodip();
+          /* DRAWBRIDGE_UP: impassable */
+        case LAVAPOOL:
+          pline("It seems a little unwise to mess with the lava.");
+          return 0;
+          /* IRONBARS: impassable */
+        case DOOR:
+          pline("You can't do much with a door while standing in the doorway.");
+          return 0;
+        case CORR:
+        case ROOM:
+        case THRONE:
+        case ICE:
+        case DRAWBRIDGE_DOWN:
+          return dosit();
+        case STAIRS:
+        case LADDER:
+          /* If you can't go up, go down. */
+          if(    (u.ux != xupstair || u.uy != yupstair)
+              && (!xupladder || u.ux != xupladder || u.uy != yupladder)
+              && (!sstairs.sx || u.ux != sstairs.sx || u.uy != sstairs.sy
+			|| !sstairs.up)) return dodown();
+          else return doup();
+        case SINK:
+          pline("Use %s then , to quaff from the sink.", key_for_cmd("#quaff"));
+          return 0;
+        case GRAVE:
+          pline("Use %s with a digging tool to dig up the grave.",
+                key_for_cmd("#apply"));
+        case ALTAR:
+          return dosacrifice();
+        case AIR:
+        case CLOUD:
+          pline("You can't see an obvious way to move up or down here.");
+          return 0;
+        default: /* impassable terrain */
+          return dosit();
+        }
 }
 
 d_level save_dlevel = {0, 0};

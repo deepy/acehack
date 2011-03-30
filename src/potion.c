@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)potion.c	3.4	2002/10/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 25 Mar 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1536,6 +1536,15 @@ register struct obj *obj;
 	return FALSE;
 }
 
+static struct obj *dodipinto = 0;
+
+void
+setnextdodipinto(o)
+struct obj *o;
+{
+	dodipinto = o;
+}
+
 int
 dodip()
 {
@@ -1545,23 +1554,36 @@ dodip()
 	uchar here;
 	char allowall[2];
 	short mixture;
-	char qbuf[QBUFSZ], Your_buf[BUFSZ];
+	char qbuf[QBUFSZ], buf[BUFSZ], Your_buf[BUFSZ];
+        struct obj *ddi = dodipinto;
+
+        dodipinto = 0;
+        Sprintf(buf, "dip");
+	here = levl[u.ux][u.uy].typ;
+        if (ddi == &zeroobj) {
+          if (IS_FOUNTAIN(here))
+            Sprintf(buf, "dip into the fountain");
+          else if (is_pool(u.ux,u.uy))
+            Sprintf(buf, "dip into the %s", waterbody_name(u.ux,u.uy));
+          else ddi = 0;
+        } else if (ddi) {
+          Sprintf(buf, "dip into %s", yname(ddi));
+        }
 
 	allowall[0] = ALL_CLASSES; allowall[1] = '\0';
-	if(!(obj = getobj(allowall, "dip")))
+	if(!(obj = getobj(allowall, buf)))
 		return(0);
 
-	here = levl[u.ux][u.uy].typ;
 	/* Is there a fountain to dip into here? */
 	if (IS_FOUNTAIN(here)) {
-		if(yn("Dip it into the fountain?") == 'y') {
+		if(ddi == &zeroobj || yn("Dip it into the fountain?") == 'y') {
 			dipfountain(obj);
 			return(1);
 		}
 	} else if (is_pool(u.ux,u.uy)) {
 		tmp = waterbody_name(u.ux,u.uy);
 		Sprintf(qbuf, "Dip it into the %s?", tmp);
-		if (yn(qbuf) == 'y') {
+		if (ddi == &zeroobj || yn(qbuf) == 'y') {
 		    if (Levitation) {
 			floating_above(tmp);
 #ifdef STEED
@@ -1577,7 +1599,8 @@ dodip()
 		}
 	}
 
-	if(!(potion = getobj(beverages, "dip into")))
+        potion = ddi;
+	if (!potion && !(potion = getobj(beverages, "dip into")))
 		return(0);
 	if (potion == obj && potion->quan == 1L) {
 		pline("That is a potion bottle, not a Klein bottle!");

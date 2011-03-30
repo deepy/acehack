@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)polyself.c	3.4	2003/01/08	*/
 /*	Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
-/* Modified 28 Mar 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -525,7 +525,7 @@ int	mntmp;
 		pline(use_thec,monsterc,"emit a mental blast");
 	    if (youmonst.data->msound == MS_SHRIEK) /* worthless, actually */
 		pline(use_thec,monsterc,"shriek");
-            terrainc = key_for_cmd("#sit");
+            terrainc = key_for_cmd("#terrain");
 	    if (lays_eggs(youmonst.data) && flags.female)
 		pline(use_thec,terrainc,"lay an egg (on ordinary ground)");
 	}
