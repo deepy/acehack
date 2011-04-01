@@ -233,6 +233,9 @@ properties, but is easier on the interface. (To draw it, use E-h, or
 simply press .). Unlike writing Elbereth, heptagrams do not exercise
 wisdom.
 
+Dropping containers onto altars BCUs the items inside, if not blind
+and not hallucinating.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
