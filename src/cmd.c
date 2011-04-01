@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 1 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1535,7 +1535,7 @@ struct ext_func_tab extcmdlist[] = {
   {"goup", "move up stairs or a ladder", doup, FALSE, 10, '<', 0, 0, 0},
   {"godown", "move down stairs or a ladder", dodown, FALSE, 11, 0, 0, 0, 0},
   {"help", "open the in-game help", dohelp, TRUE, 10, '?', 0, 0, 0},
-  {"heptagram", "draw a heptagram with fingers or athame",
+  {"heptagram", "draw or repair a heptagram with fingers",
    doheptagram, FALSE, 11, '.', 0, 0},
   {"inventory", "list, describe or use items", ddoinv, TRUE, 10, 'i', 0, 0, 0},
   {"invoke", "use artifact powers, or break/ignite/rub on an item",

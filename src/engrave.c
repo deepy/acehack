@@ -494,6 +494,7 @@ boolean hept;
 	boolean ptext = TRUE;	/* TRUE if we must prompt for engrave text */
 	boolean teleengr =FALSE;/* TRUE if we move the old engraving */
 	boolean zapwand = FALSE;/* TRUE if we remove a wand charge */
+        boolean fixhept = FALSE;/* TRUE if we fix a corrupted heptagram */
 	xchar type = DUST;	/* Type of engraving made */
 	char buf[BUFSZ];	/* Buffer for final/poly engraving text */
 	char ebuf[BUFSZ];	/* Buffer for initial engraving text */
@@ -1203,7 +1204,34 @@ boolean hept;
 	/* Add to existing engraving */
 	if (oep) Strcpy(buf, oep->engr_txt);
 
-	(void) strncat(buf, ebuf, (BUFSZ - (int)strlen(buf) - 1));
+        /* If heptagramming, look for a corrupted heptagram in buf, and
+           fix it */
+        if (hept) {
+            char* r;
+            char i = 1;
+            boolean j = FALSE;
+            for (r = buf; *r; r++) {
+                /* Note: not if..else; the first case might make the
+                   second case true */
+                if (*r != i && *r != 9) {i = 1; j = FALSE;}
+                if (*r == i || *r == 9) i++;
+                if (*r == 9) j = TRUE;
+                if (i == 9 && j) {
+                    fixhept = TRUE;
+                    r[ 0] = ebuf[7];
+                    r[-1] = ebuf[6];
+                    r[-2] = ebuf[5];
+                    r[-3] = ebuf[4];
+                    r[-4] = ebuf[3];
+                    r[-5] = ebuf[2];
+                    r[-6] = ebuf[1];
+                    r[-7] = ebuf[0];
+                    break;
+                } else if (i == 9) {i = (*r == 1 ? 2 : 1); j = FALSE;}
+            }
+        }
+        if (!fixhept)
+	    (void) strncat(buf, ebuf, (BUFSZ - (int)strlen(buf) - 1));
 
 	make_engr_at(u.ux, u.uy, buf, (moves - multi), type);
 
