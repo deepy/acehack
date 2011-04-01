@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 28 Mar 2011 by Alex Smith */
+/* Modified 1 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -338,6 +338,7 @@ tty_game_mode_selection()
   char** saved;
   char** sp;
   int plname_in_saved = 0;
+  int plname_was_explicit = !!*plname;
 
   saved = get_saved_games();
 
@@ -419,6 +420,19 @@ reread_char:
     /* if the name is forced by the -u option, don't give an option to
        start a new game, as we're forced onto the existing game */
     if (*plname && plname_in_saved) goto reread_char;
+    tty_clear_nhwindow(BASE_WINDOW);
+    curs(BASE_WINDOW,1,0);
+    if (!*plname) {
+      tty_askname();
+      for (sp = saved; *sp; sp++) {
+        if (!strcmpi(plname, *sp)) {
+          pline("A game is running with that name already.");
+          tty_dismiss_nhwindow(NHW_MESSAGE); /* force a --More-- */
+          *plname = 0;
+          goto retry_mode_selection;
+        }
+      }
+    }
     if (c == 'm') {
       tty_clear_nhwindow(BASE_WINDOW);
       curs(BASE_WINDOW,1,0);
@@ -447,7 +461,7 @@ reread_char:
              as only they can tweak the command line. (-D works too
              to enter wizmode, whatever the -u option, as if it's
              given the player has control over the command line anyway.) */
-          if (*plname && strcmpi(plname,WIZARD)) {
+          if (plname_was_explicit && strcmpi(plname,WIZARD)) {
             extern int wiz_error_flag; /* from unixmain.c */
             tty_clear_nhwindow(BASE_WINDOW);
             curs(BASE_WINDOW,1,0);
