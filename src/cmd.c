@@ -2480,20 +2480,22 @@ int loop;
         }
 
 getdir_again:
-        set_getdir_type(how);
-        for (dist = 0; dist < 80; dist++) {
-            redraw_glyph(u.ux+dist,u.uy     );
-            redraw_glyph(u.ux-dist,u.uy     );
-            redraw_glyph(u.ux     ,u.uy+dist);
-            redraw_glyph(u.ux     ,u.uy-dist);
-            if (!gridbug) {
-              redraw_glyph(u.ux+dist,u.uy+dist);
-              redraw_glyph(u.ux-dist,u.uy+dist);
-              redraw_glyph(u.ux+dist,u.uy-dist);
-              redraw_glyph(u.ux-dist,u.uy-dist);
+        if (iflags.targethighlight) {
+            set_getdir_type(how);
+            for (dist = 0; dist < 80; dist++) {
+                redraw_glyph(u.ux+dist,u.uy     );
+                redraw_glyph(u.ux-dist,u.uy     );
+                redraw_glyph(u.ux     ,u.uy+dist);
+                redraw_glyph(u.ux     ,u.uy-dist);
+                if (!gridbug) {
+                  redraw_glyph(u.ux+dist,u.uy+dist);
+                  redraw_glyph(u.ux-dist,u.uy+dist);
+                  redraw_glyph(u.ux+dist,u.uy-dist);
+                  redraw_glyph(u.ux-dist,u.uy-dist);
+                }
             }
+            flush_screen(1);
         }
-        flush_screen(1);
 
 #ifdef REDO
 	if(in_doagain || *readchar_queue)
@@ -2508,20 +2510,22 @@ getdir_again:
 	savech(dirsym);
 #endif
 
-        set_getdir_type(GETDIRH_NONE);
-        for (dist = 0; dist < 80; dist++) {
-            redraw_glyph(u.ux+dist,u.uy     );
-            redraw_glyph(u.ux-dist,u.uy     );
-            redraw_glyph(u.ux     ,u.uy+dist);
-            redraw_glyph(u.ux     ,u.uy-dist);
-            if (!gridbug) {
-              redraw_glyph(u.ux+dist,u.uy+dist);
-              redraw_glyph(u.ux-dist,u.uy+dist);
-              redraw_glyph(u.ux+dist,u.uy-dist);
-              redraw_glyph(u.ux-dist,u.uy-dist);
+        if (iflags.targethighlight) {
+            set_getdir_type(GETDIRH_NONE);
+            for (dist = 0; dist < 80; dist++) {
+                redraw_glyph(u.ux+dist,u.uy     );
+                redraw_glyph(u.ux-dist,u.uy     );
+                redraw_glyph(u.ux     ,u.uy+dist);
+                redraw_glyph(u.ux     ,u.uy-dist);
+                if (!gridbug) {
+                  redraw_glyph(u.ux+dist,u.uy+dist);
+                  redraw_glyph(u.ux-dist,u.uy+dist);
+                  redraw_glyph(u.ux+dist,u.uy-dist);
+                  redraw_glyph(u.ux-dist,u.uy-dist);
+                }
             }
+            flush_screen(1);
         }
-        flush_screen(1);
 
 	if(dirsym == '.' || dirsym == 's')
 		u.dx = u.dy = u.dz = 0;
