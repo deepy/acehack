@@ -101,8 +101,8 @@ true, autopickup [and exceptions to it] to a sane set of settings).
 
 runmode, timed_delay, and sparkle are now one combined option,
 "animation".  If you have a fast computer, it's likely that the only
-setting for it that actually shows visible animation is "timed"; the
-other settings are provided for slower machines.
+settings for it that actually show visible animation are "timed" and
+"nosparkle"; the other settings are provided for slower machines.
 
 The control-X feature now shows a lot more information, including
 things like the player's intrinsics; none of the information there is

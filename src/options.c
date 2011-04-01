@@ -310,7 +310,7 @@ static struct Comp_Opt
 	{ "role",     "your starting role (e.g., Barbarian, Valkyrie)",
 						PL_CSIZ, SET_IN_FILE },
 	{ "animation", "how to show animations like running and breath weapons",
-						sizeof "nodelay", SET_IN_GAME },
+						sizeof "nosparkle", SET_IN_GAME },
 	{ "scores",   "the parts of the score list you wish to see",
 						32, SET_IN_FILE },
 	{ "scroll_amount", "amount to scroll map when scroll_margin is reached",
@@ -501,8 +501,8 @@ const char *ev;
 void
 synch_runmode_options() {
         if (iflags.runmode == RUN_TPORT) {flags.sparkle = FALSE; flags.nap = FALSE;}
-        if (iflags.runmode == RUN_LEAP) {flags.sparkle = TRUE; flags.nap = FALSE;}
-        if (iflags.runmode == RUN_STEP) {flags.sparkle = TRUE; flags.nap = FALSE;}
+        if (iflags.runmode == RUN_LEAP) {flags.sparkle = FALSE; flags.nap = FALSE;}
+        if (iflags.runmode == RUN_STEP) {flags.sparkle = FALSE; flags.nap = TRUE;}
         if (iflags.runmode == RUN_CRAWL) {flags.sparkle = TRUE; flags.nap = TRUE;}
 }
 
@@ -1266,7 +1266,7 @@ boolean tinitial, tfrom_file;
 			iflags.runmode = RUN_TPORT;
 		    else if (!strncmpi(op, "fast", strlen(op)))
 			iflags.runmode = RUN_LEAP;
-		    else if (!strncmpi(op, "nodelay", strlen(op)))
+		    else if (!strncmpi(op, "nosparkle", strlen(op)))
 			iflags.runmode = RUN_STEP;
 		    else if (!strncmpi(op, "timed", strlen(op)))
 			iflags.runmode = RUN_CRAWL;
@@ -2435,7 +2435,7 @@ static NEARDATA const char *burdentype[] = {
 
 // Now used for all animation (runmode, timed_delay, sparkle).
 static NEARDATA const char *runmodes[] = {
-	"instant", "fast", "nodelay", "timed"
+	"instant", "fast", "nosparkle", "timed"
 };
 
 #ifdef SORTLOOT
