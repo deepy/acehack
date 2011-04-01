@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)engrave.c	3.4	2001/11/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 1 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -945,8 +945,8 @@ boolean hept;
 	    } else if (type == HEADSTONE) {
               /* no choice, only append */
               c = 'a';
-	    } else if ( !oep || ((type == oep->engr_type) && (!Blind ||
-		 (oep->engr_type == BURN) || (oep->engr_type == ENGRAVE))) ) {
+	    } else if ( !oep || (!Blind ||
+		 (oep->engr_type == BURN) || (oep->engr_type == ENGRAVE)) ) {
               winid win;
               int n;
               anything any;
@@ -957,19 +957,26 @@ boolean hept;
                  changed. */
               win = create_nhwindow(NHW_MENU);
               start_menu(win);
-              any.a_int = 'a';
-              add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
-                       oep ? "Add text to the end of the current engraving"
-                       : "Write ordinary text", MENU_UNSELECTED);
+              if (!oep || type == oep->engr_type) {
+                any.a_int = 'a';
+                add_menu(win, NO_GLYPH, &any, 'a', 0, ATR_NONE,
+                         oep ? "Add text to the end of the current engraving"
+                         : "Write ordinary text", MENU_UNSELECTED);
+                any.a_int = 'h';
+                add_menu(win, NO_GLYPH, &any, 'h', 0, ATR_NONE,
+                         "Draw a magic heptagram", MENU_UNSELECTED);
+              } else {
+                any.a_int = 'h';
+                add_menu(win, NO_GLYPH, &any, 'h', 0, ATR_NONE,
+                         "Replace the engraving with a magic heptagram",
+                         MENU_UNSELECTED);
+              }
               if (oep) {
                 any.a_int = 'r';
                 add_menu(win, NO_GLYPH, &any, 'r', 0, ATR_NONE,
                          "Replace the current engraving with text",
                          MENU_UNSELECTED);
               }
-              any.a_int = 'h';
-              add_menu(win, NO_GLYPH, &any, 'h', 0, ATR_NONE,
-                       "Draw a magic heptagram", MENU_UNSELECTED);
               any.a_int = 'q';
               add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
                        "Don't engrave anything after all", MENU_UNSELECTED);
@@ -986,8 +993,7 @@ boolean hept;
               }
 	    }
 
-	    if (oep && (c == 'r' || Blind)) {
-
+	    if (oep && (c == 'r' || Blind || type != oep->engr_type)) {
 		if( (oep->engr_type == DUST) || (oep->engr_type == ENGR_BLOOD) ||
 		    (oep->engr_type == MARK) ) {
 		    if (!Blind) {
