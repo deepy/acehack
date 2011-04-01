@@ -224,6 +224,8 @@ The player is now prompted upon attempting to eat something that the
 character would know is dangerous even without magical aid (such as an
 old or poisonous corpse).
 
+Rubbing a lamp no longer requires wielding it.
+
 Instead of using engravings of the word "Elbereth" to protect against
 hostile monsters, instead a special engraving type, the "magic
 heptagram", is provided, which does the same thing and has the same

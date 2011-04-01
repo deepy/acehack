@@ -1192,7 +1192,8 @@ arti_invoke(obj)
 {
     register const struct artifact *oart = get_artifact(obj);
 
-    if(!oart || !oart->inv_prop) {
+    if(!oart || !oart->inv_prop || obj->otyp == OIL_LAMP ||
+       obj->otyp == MAGIC_LAMP) {
         if(obj->oclass == WAND_CLASS)
             return do_break_wand(obj);
         else if(obj->oclass == GEM_CLASS || obj->oclass == TOOL_CLASS)
