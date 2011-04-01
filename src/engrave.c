@@ -388,7 +388,7 @@ register int x,y;
                       heptagram_count(x, y) > 1 ? "s" : "");
                 }
                 if (corrupted_heptagram_count(x, y)) {
-                  You("%s the broken remains of %d magic heptagram%s.",
+                  You("%s %d broken heptagram%s.",
                       (Blind) ? "feel" : "see",
                       corrupted_heptagram_count(x, y),
                       corrupted_heptagram_count(x, y) > 1 ? "s" : "");
@@ -1255,7 +1255,27 @@ doengrave()
 int
 doheptagram()
 {
-  return doengrave_core(TRUE);
+  if (IS_ALTAR(levl[u.ux][u.uy].typ)) {
+    pline ("You can't draw a heptagram on the altar.");
+    return 1; /* skip a turn, so that this can be used for waiting */
+  } else if (heptagram_count(u.ux, u.uy)) {
+    struct engr *oep = engr_at(u.ux, u.uy);
+    if (!oep) {impossible("Heptagram is not engraved?"); return 0;}
+    switch(oep->engr_type) {
+    case DUST:
+    case ENGR_BLOOD:
+      return doengrave_core(TRUE); /* add to it or replace it with an addable */
+    case HEADSTONE:
+    case ENGRAVE:
+    case MARK: /* semiperm */
+      /* very literal, as this may not be what the player wants */
+      pline("You wait rather than disturb the semi-permanent heptagram.");
+      return 1;
+    case BURN: /* permanent */
+      /* wait silently, as it's completely safe */
+      return 1;
+    }
+  } return doengrave_core(TRUE);
 }
 
 void
