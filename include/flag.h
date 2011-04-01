@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)flag.h	3.4	2002/08/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Mar 2011 by Alex Smith */
+/* Modified 1 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you change the flag structure make sure you increment EDITLEVEL in   */
@@ -191,6 +191,7 @@ struct instance_flags {
 #ifdef MENU_COLOR
 	boolean use_menu_color;	/* use color in menus; only if wc_color */
 #endif
+        boolean targethighlight;/* highlight directions when targeting */
 #ifdef MFLOPPY
 	boolean  checkspace;	/* check disk space before writing files */
 				/* (in iflags to allow restore after moving

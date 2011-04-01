@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)options.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Mar 2010 by Alex Smith */
+/* Modified 1 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifdef OPTION_LISTS_ONLY	/* (AMIGA) external program for opt lists */
@@ -186,6 +186,7 @@ static struct Bool_Opt
 	{"standout", &flags.standout, TRUE, SET_IN_FILE},
 	{"startscum", &flags.startscum, TRUE, SET_IN_FILE},
 	{"splash_screen",     &iflags.wc_splash_screen, TRUE, SET_IN_FILE},	/*WC*/
+        {"targethighlight", &iflags.targethighlight, FALSE, SET_IN_FILE},
 	{"tiled_map",     &iflags.wc_tiled_map, PREFER_TILED, SET_IN_FILE},	/*WC*/
 	{"time", &flags.time, TRUE, SET_IN_FILE},
 #ifdef TIMED_DELAY

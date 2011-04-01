@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 25 Mar 2011 by Alex Smith */
+/* Modified 1 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -341,7 +341,7 @@ unsigned *ospecial;
     /* Do any background marking that getdir might want. For the time being,
        keep it simple: the lines extend to the edge of the map for RANGE or
        BOUNCE, and one character for NEXT. */
-    if (getdirh != GETDIRH_NONE) {
+    if (getdirh != GETDIRH_NONE && iflags.targethighlight) {
       /* Grid bugs don't understand the concept of diagonals, even for
          merely highlighting on the map. */
       boolean gridbug = u.umonnum == PM_GRID_BUG;

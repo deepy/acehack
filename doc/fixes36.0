@@ -369,7 +369,10 @@ allows selection of the game mode (explore / debug / normal / tutorial
 options, without having to start a game.
 
 The game now highlights possible directions to, e.g., fire things in,
-by using a red background.  (Credits: this was kerio's idea.)
+by using a red background, if the "targethighlight" option (off by
+default) is turned on in your options file.  (Credits: this was
+kerio's idea.)
+
 Background colors are also used to signify other things, e.g. detected
 monsters, pets, peaceful monsters.  (Credits: This idea was inspired
 by Dungeon Crawl Stone Soup.) Likewise, squares which contain known
