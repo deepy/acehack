@@ -1,9 +1,9 @@
-[0;33;40m                      _oo\.[0;40m                   AceHack (c) 2009-2011 Alex Smith
-[0;33;40m                  _o#MMM9MMHb\.[0;40m                 and many other contributors.
-[0;33;40m             ._o#M#"]M*' `HM?*HHb\_[0;40m           Based on NetHack (c) 1985-2003
-[0;33;40m         .,dHH*"" ,HH'    `*Mb ``"#M#o_[0;40m         Stichting Mathematisch Centrum
-[0;33;40m     .,dHH*''   .dM*        `HH\    ""#M#o_[0;40m     and M. Stephenson.
-[0;33;40m    JMH########MMH#############MMH########MM.[0;40m See credits, licence for details.
+[0;33;40m                      _oo\.[0;37;40m                   AceHack (c) 2009-2011 Alex Smith
+[0;33;40m                  _o#MMM9MMHb\.[0;37;40m                 and many other contributors.
+[0;33;40m             ._o#M#"]M*' `HM?*HHb\_[0;37;40m           Based on NetHack (c) 1985-2003
+[0;33;40m         .,dHH*"" ,HH'    `*Mb ``"#M#o_[0;37;40m         Stichting Mathematisch Centrum
+[0;33;40m     .,dHH*''   .dM*        `HH\    ""#M#o_[0;37;40m     and M. Stephenson.
+[0;33;40m    JMH########MMH#############MMH########MM.[0;37;40m See credits, licence for details.
 [0;33;40m   .MM[36;1;40mdMMb   [0;33;40m.dM'              `9M\[36;1;40mMMM   [0;33;40m.M[36;1;40mMMM
 [0;33;40m   |M[36;1;40mAMMMMA [0;33;40m?M*'[36;1;40m _o###o.  ####### [0;33;40m`[36;1;40mMMM   [0;33;40mJM[36;1;40mMMM     o##o      _o###o.  ##    ,##[0;33;40m
 [0;33;40m   M[36;1;40mdMMP9MMb[0;33;40mH' [36;1;40m.#MA*""*#  MM^^^^^  MMM[0;33;40m   MT[36;1;40mMMM    dMMMMb   .#MA*""*#  MM _oMM*"
@@ -11,14 +11,14 @@
 [0;33;40m  H[36;1;40mHMMboodMMH  MML        MM"""""  MMM[0;33;40m*MMP [36;1;40mMMM[0;33;40m| [36;1;40m dMG__9Mb  MML        MMHMMb.
 [0;33;40m ,[36;1;40moMMH""""HMML `MHo.__.o  MM_____  MMM [0;33;40m|MH\[36;1;40mMMM[0;33;40mb [36;1;40mJMM****MMk `MHo.__.o  MM `*MMb_
 [36;1;40m JMM*'[0;33;40mP`M|[36;1;40m`*MMk  `*MMM*"  MMMMMMM  MMM [0;33;40mMP`M[36;1;40mMMM[0;33;40mM,[36;1;40mMMP    *MM   `*MMM*"  MM    *MM
-[0;33;40m.MLHH'  HH                            |M| `*M?ML[0;40m
-[0;33;40mJMM*'   |M|                           HH    `HMM.[0;40m  c - Continue game
-[0;33;40mMMb_     HH                          |M|    .,MM|[0;40m  n - New game   
-[0;33;40m`HMMM#o_ |M,                         dM .,dHMMM?[0;40m   t - Tutorial   
-[0;33;40m  `HH:"#M#Mb.                       ,MHHH*'$M*'[0;40m    m - Other modes
-[0;33;40m   `*Mb  `TMMHb\.               _o#MMM"  ,HH'[0;40m
-[0;33;40m     `HH\  Mb``*HH#o_      .,d#M#"",M| .dM*[0;40m        s - High scores
-[0;33;40m       ?Mb.|M.    ""#M#o,dHH*''    JM ,HH'[0;40m         o - Options
-[0;33;40m        `*M$ML     _o#MH#MHb\.    .M[HH'[0;40m           ? - Help
-[0;33;40m          `HMM._o#M#""    ``*HHb\.JMM*'[0;40m            q - Exit
-[0;33;40m            *MMMMM############HMMMMH'[0;40m
+[0;33;40m.MLHH'  HH                            |M| `*M?ML[0;37;40m
+[0;33;40mJMM*'   |M|                           HH    `HMM.[0;37;40m  c - Continue game
+[0;33;40mMMb_     HH                          |M|    .,MM|[0;37;40m  n - New game   
+[0;33;40m`HMMM#o_ |M,                         dM .,dHMMM?[0;37;40m   t - Tutorial   
+[0;33;40m  `HH:"#M#Mb.                       ,MHHH*'$M*'[0;37;40m    m - Other modes
+[0;33;40m   `*Mb  `TMMHb\.               _o#MMM"  ,HH'[0;37;40m
+[0;33;40m     `HH\  Mb``*HH#o_      .,d#M#"",M| .dM*[0;37;40m        s - High scores
+[0;33;40m       ?Mb.|M.    ""#M#o,dHH*''    JM ,HH'[0;37;40m         o - Options
+[0;33;40m        `*M$ML     _o#MH#MHb\.    .M[HH'[0;37;40m           ? - Help
+[0;33;40m          `HMM._o#M#""    ``*HHb\.JMM*'[0;37;40m            q - Exit
+[0;33;40m            *MMMMM############HMMMMH'[0;37;40m
