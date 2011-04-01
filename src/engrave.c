@@ -510,9 +510,6 @@ boolean hept;
 	struct obj *otmp;	/* Object selected with which to engrave */
 	char *writer;
 
-	multi = 0;		/* moves consumed */
-	nomovemsg = (char *)0;	/* occupation end message */
-
 	buf[0] = (char)0;
 	ebuf[0] = (char)0;
 	post_engr_text[0] = (char)0;
@@ -1073,6 +1070,8 @@ boolean hept;
         if (!hept) {
           Sprintf(qbuf,"What do you want to %s the %s here?", everb, eloc);
           getlin(qbuf, ebuf);
+          multi = 0; /* don't repeat non-heptagrams */
+          nomovemsg = (char*) 0;
         } else {
           Strcpy(ebuf, "\x1\x2\x3\x4\x5\x6\x7\x8"); /* heptagram */
         }
@@ -1119,16 +1118,23 @@ boolean hept;
 	 */
 	switch(type){
 	    default:
-		multi = -(len/10);
-		if (multi) nomovemsg = "You finish your weird engraving.";
-		break;
+                if (len/10) {
+                    multi = -(len/10);
+                    nomovemsg = "You finish your weird engraving.";
+                }
+                break;
 	    case DUST:
-		multi = -(len/10);
-		if (multi) nomovemsg = "You finish writing in the dust.";
+                if (len/10) {
+                    multi = -(len/10);
+                    nomovemsg = "You finish writing in the dust.";
+                }
 		break;
 	    case HEADSTONE:
 	    case ENGRAVE:
-		multi = -(len/10);
+                if (len/10) {
+                    multi = -(len/10);
+                    nomovemsg = "You finish engraving.";
+                }
 		if ((otmp->oclass == WEAPON_CLASS) &&
 		    ((otmp->otyp != ATHAME) || otmp->cursed)) {
 		    multi = -len;
@@ -1157,17 +1163,21 @@ boolean hept;
 		    if ( (otmp->oclass == RING_CLASS) ||
 			 (otmp->oclass == GEM_CLASS) )
 			multi = -len;
-		if (multi) nomovemsg = "You finish engraving.";
+		
 		break;
 	    case BURN:
-		multi = -(len/10);
-		if (multi)
+                if (len/10) {
+		    multi = -(len/10);
 		    nomovemsg = is_ice(u.ux,u.uy) ?
 			"You finish melting your message into the ice.":
 			"You finish burning your message into the floor.";
+                }
 		break;
 	    case MARK:
-		multi = -(len/10);
+                if (len/10) {
+		    multi = -(len/10);
+		    nomovemsg = "You finish defacing the dungeon.";
+                }
 		if ((otmp->oclass == TOOL_CLASS) &&
 		    (otmp->otyp == MAGIC_MARKER)) {
 		    maxelen = (otmp->spe) * 2; /* one charge / 2 letters */
@@ -1175,15 +1185,17 @@ boolean hept;
 			Your("marker dries out.");
 			otmp->spe = 0;
 			multi = -(maxelen/10);
+                        if (!multi) nomovemsg = (char*)0;
 		    } else
 			if (len > 1) otmp->spe -= len >> 1;
 			else otmp->spe -= 1; /* Prevent infinite grafitti */
 		}
-		if (multi) nomovemsg = "You finish defacing the dungeon.";
 		break;
 	    case ENGR_BLOOD:
-		multi = -(len/10);
-		if (multi) nomovemsg = "You finish scrawling.";
+                if (len/10) {
+		    multi = -(len/10);
+		    if (multi) nomovemsg = "You finish scrawling.";
+                }
 		break;
 	}
 
@@ -1233,7 +1245,8 @@ boolean hept;
         if (!fixhept)
 	    (void) strncat(buf, ebuf, (BUFSZ - (int)strlen(buf) - 1));
 
-	make_engr_at(u.ux, u.uy, buf, (moves - multi), type);
+	make_engr_at(u.ux, u.uy, buf,
+                     (moves - (multi < 0 ? multi : 0)), type);
 
 	if (post_engr_text[0]) pline("%s",post_engr_text);
 
