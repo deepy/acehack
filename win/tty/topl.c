@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)topl.c	3.4	1996/10/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 25 Dec 2010 by Alex Smith */
+/* Modified Apr 1 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -146,6 +146,11 @@ void
 fade_topl()
 {
   home();
+  char topline_saved = 0;
+  if(strlen(toplines) > CO-2) {
+    topline_saved = toplines[CO-2];
+    toplines[CO-2] = 0;
+  }
   if(*toplines & 0x80) {
     tty_start_fade();
     g_putch((int)*toplines);
@@ -161,6 +166,7 @@ fade_topl()
   }
   cl_end();
   tty_end_fade();
+  if (topline_saved) toplines[CO-2] = topline_saved;
 }
 
 STATIC_OVL void
