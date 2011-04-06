@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)topl.c	3.4	1996/10/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified Apr 1 2011 by Alex Smith */
+/* Modified 6 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -145,8 +145,9 @@ redotoplin(str)
 void
 fade_topl()
 {
-  home();
   char topline_saved = 0;
+  char *tp;
+  home();
   if(strlen(toplines) > CO-2) {
     topline_saved = toplines[CO-2];
     toplines[CO-2] = 0;
@@ -158,12 +159,13 @@ fade_topl()
     tty_end_fade();
     end_glyphout(); /* this doesn't work correctly during a fade */
     tty_start_fade();
-    putsyms(toplines+1);
+    tp = toplines+1;
   } else {
     end_glyphout();
     tty_start_fade();
-    putsyms(toplines);
+    tp = toplines;
   }
+  for (; *tp; tp++) topl_putsym(*tp == '\n' ? ' ' : *tp);
   cl_end();
   tty_end_fade();
   if (topline_saved) toplines[CO-2] = topline_saved;
