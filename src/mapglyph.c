@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 1 Apr 2011 by Alex Smith */
+/* Modified 6 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -187,6 +187,7 @@ unsigned *ospecial;
         {
             cmap_color(offset);
             /* The vibrating square has color rules of its own... */
+#ifdef TEXTCOLOR
             if (iflags.use_color && glyph == cmap_to_glyph(S_room) &&
                 x == inv_pos.x && y == inv_pos.y && Invocation_lev(&u.uz))
                 color = CLR_BRIGHT_GREEN;
@@ -211,6 +212,7 @@ unsigned *ospecial;
             else color = dungeon_specific_color(
               glyph, levl[x][y].stepped_on, color, x, y);
         }
+#endif
     } else if ((offset = (glyph - GLYPH_OBJ_OFF)) >= 0) {	/* object */
 	if (offset == BOULDER && iflags.bouldersym) ch = iflags.bouldersym;
 	else ch = oc_syms[(int)objects[offset].oc_class];
@@ -309,20 +311,23 @@ unsigned *ospecial;
 	}
     }
 
+#ifdef TEXTCOLOR
     {
-      /* Brand squares known to be trapped as cyan. */
+      /* Brand squares known to be trapped as cyan, if there's no existing
+         branding. */
       struct trap *ttmp = t_at(x,y);
-      if (ttmp && ttmp->tseen) {
-        color %= CLR_MAX;
+      if (ttmp && ttmp->tseen && color < CLR_MAX) {
         color += CLR_MAX*CLR_CYAN;
       }
-      /* Brand squares with known stairs/ladders/portals as white. */
-      if (levl[x][y].styp == STAIRS || levl[x][y].styp == LADDER ||
-          (ttmp && ttmp->tseen && ttmp->ttyp == MAGIC_PORTAL)) {
-        color %= CLR_MAX;
+      /* Brand squares with known stairs/ladders/portals as white, if there's
+         no existing branding. */
+      if ((levl[x][y].styp == STAIRS || levl[x][y].styp == LADDER ||
+           (ttmp && ttmp->tseen && ttmp->ttyp == MAGIC_PORTAL)) &&
+          color < CLR_MAX) {
         color += CLR_MAX*CLR_GRAY;
       }
     }
+#endif
 
 #ifdef TEXTCOLOR
     /* Turn off color if no color defined, or rogue level w/o PC graphics. */
