@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 1 Apr 2011 by Alex Smith */
+/* Modified 6 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -263,18 +263,16 @@ doaltarobj(obj)  /* obj is an object dropped on an altar */
             int bcucount = 0;
             struct obj *otmp;
             for (otmp = obj->cobj; otmp; otmp = otmp->nobj) {
-                if (!otmp->bknown && (otmp->blessed || otmp->cursed))
+                if (otmp->blessed || otmp->cursed)
                     bcucount++;
                 if (!Hallucination) otmp->bknown = 1;
             }
             if (bcucount == 1) {
-                pline("You see a colored flash from inside %s.",
+                pline("Looking inside %s, you see a colored flash.",
                       the(xname(obj)));
-                You("memorise the timing.");
             } else if (bcucount > 1) {
-                pline("You see colored flashes from inside %s.",
+                pline("Looking inside %s, you see colored flashes.",
                       the(xname(obj)));
-                You("memorise the sequence.");
             }
         }
 }
