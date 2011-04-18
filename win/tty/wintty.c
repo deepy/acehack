@@ -342,7 +342,7 @@ tty_game_mode_selection()
 
   saved = get_saved_games();
 
-  if (*plname) {
+  if (*plname && saved) {
     for (sp = saved; *sp; sp++) {
       /* Note that this means that public servers need to prevent two
          users with the same name but different capitalisation. (If
@@ -424,14 +424,15 @@ reread_char:
     curs(BASE_WINDOW,1,0);
     if (!*plname) {
       tty_askname();
-      for (sp = saved; *sp; sp++) {
-        if (!strcmpi(plname, *sp)) {
-          pline("A game is running with that name already.");
-          tty_dismiss_nhwindow(NHW_MESSAGE); /* force a --More-- */
-          *plname = 0;
-          goto retry_mode_selection;
+      if (saved)
+        for (sp = saved; *sp; sp++) {
+          if (!strcmpi(plname, *sp)) {
+            pline("A game is running with that name already.");
+            tty_dismiss_nhwindow(NHW_MESSAGE); /* force a --More-- */
+            *plname = 0;
+            goto retry_mode_selection;
+          }
         }
-      }
     }
     if (c == 'm') {
       tty_clear_nhwindow(BASE_WINDOW);
@@ -503,7 +504,7 @@ reread_char:
     goto reread_char;
   }
 
-  free_saved_games(saved);
+  if (saved) free_saved_games(saved);
 }
 
 
