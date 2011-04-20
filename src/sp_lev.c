@@ -2463,6 +2463,7 @@ dlb *fd;
 	while(n--) {
 		Fread((genericptr_t)&tmplad, 1, sizeof(tmplad), fd);
 
+                xi = 0;
                 do {
                     x = tmplad.x;  y = tmplad.y;
                     get_location(&x, &y, DRY);
