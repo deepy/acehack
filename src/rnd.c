@@ -1,5 +1,7 @@
 /*	SCCS Id: @(#)rnd.c	3.4	1996/02/07	*/
+/* Modified 20 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
+
 
 #include "hack.h"
 
@@ -16,13 +18,15 @@ extern int NDECL(rand);
 # endif
 #endif /* LINT */
 
+#define DEBUG 1 /* impossible() rather than crash on invalid RNGing */
+
 #ifdef OVL0
 
 int
 rn2(x)		/* 0 <= rn2(x) < x */
 register int x;
 {
-#ifdef DEBUG
+#if DEBUG
 	if (x <= 0) {
 		impossible("rn2(%d) attempted", x);
 		return(0);
