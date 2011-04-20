@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mthrowu.c	3.4	2003/05/09	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 20 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -33,6 +33,13 @@ STATIC_OVL NEARDATA const char *breathwep[] = {
 				"strange breath #8",
 				"strange breath #9"
 };
+
+STATIC_OVL int ai_use_at_range(n)
+int n;
+{
+  if (n <= 0) return 1;
+  return !rn2(n);
+}
 
 /* hero is hit by something other than a monster */
 int
@@ -548,7 +555,7 @@ struct monst *mtmp;
 	 */
 	if (!lined_up(mtmp) ||
 		(URETREATING(x,y) &&
-			rn2(BOLT_LIM - distmin(x,y,mtmp->mux,mtmp->muy))))
+			!ai_use_at_range(BOLT_LIM - distmin(x,y,mtmp->mux,mtmp->muy))))
 	    return;
 
 	skill = objects[otmp->otyp].oc_skill;
@@ -866,7 +873,7 @@ register struct attack *mattk;
 			otmp = mksobj(ACID_VENOM, TRUE, FALSE);
 			break;
 		}
-		if(!rn2(BOLT_LIM-distmin(mtmp->mx,mtmp->my,mtmp->mux,mtmp->muy))) {
+		if(ai_use_at_range(BOLT_LIM-distmin(mtmp->mx,mtmp->my,mtmp->mux,mtmp->muy))) {
 		    if (canseemon(mtmp))
 			pline("%s spits venom!", Monnam(mtmp));
 		    m_throw(mtmp, mtmp->mx, mtmp->my, sgn(tbx), sgn(tby),
@@ -907,7 +914,7 @@ register struct attack *mattk;
 			otmp = mksobj(ACID_VENOM, TRUE, FALSE);
 			break;
 		}
-		if(!rn2(BOLT_LIM-distmin(mtmp->mx,mtmp->my,mtmp->mux,mtmp->muy))) {
+		if(ai_use_at_range(BOLT_LIM-distmin(mtmp->mx,mtmp->my,mtmp->mux,mtmp->muy))) {
 		    if (canseemon(mtmp)) {
 			pline("%s spits venom!", Monnam(mtmp));
 		    nomul(0);
