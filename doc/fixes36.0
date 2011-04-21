@@ -301,7 +301,9 @@ colours depend on which branch you're in, whether you've stepped on
 the square before, and whether it's lit; dark areas of a room are now
 shown coloured rather than as blank space (unless color is turned
 off).  (Patch credits: based on the darkroom patch by Clive Crous, via
-UnNetHack.)
+UnNetHack.) An option "floorcolor" controls complex floor coloring;
+turning it off leaves the floor as just white or blue (corresponding
+to the white and black in vanilla NetHack).
 
 Objects in shops now have visible price tags, that are shown when you
 step on them.  (Patch credits: a marginally modified version of a

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)options.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 1 Apr 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifdef OPTION_LISTS_ONLY	/* (AMIGA) external program for opt lists */
@@ -94,6 +94,7 @@ static struct Bool_Opt
 #endif
 	{"female", &flags.female, FALSE, SET_IN_FILE},
 	{"fixinv", &flags.invlet_constant, TRUE, SET_IN_FILE},
+        {"floorcolor", &iflags.floorcolor, TRUE, SET_IN_GAME},
 #ifdef AMIFLUSH
 	{"flush", &flags.amiflush, FALSE, SET_IN_FILE},
 #else
@@ -2413,6 +2414,9 @@ goodfruit:
 			    }
 # endif
 			}
+                        else if ((boolopt[i].addr) == &iflags.floorcolor) {
+                            need_redraw = TRUE;
+                        }
 #endif
 
 			return;

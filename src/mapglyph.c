@@ -76,7 +76,7 @@ boolean disturbed;
   case S_tuwall: case S_tdwall: case S_tlwall: case S_trwall:
   case S_vwall: case S_hwall: case S_crwall: glyphtype = 3; break;
   }
-  if (glyphtype == 0) return defcolor;
+  if (glyphtype <= (iflags.floorcolor ? 0 : 2)) return defcolor;
   /* There are five custom colors per branch:
      lit undisturbed, dark undisturbed, lit disturbed, dark disturbed, wall */
 #define CLR_NONE NO_COLOR
