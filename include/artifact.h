@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)artifact.h 3.4	1995/05/31	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef ARTIFACT_H
@@ -34,7 +35,7 @@
 #define SPFX_DBONUS 0x1F00000L	/* attack bonus mask */
 #define SPFX_XRAY   0x2000000L	/* gives X-RAY vision to player */
 #define SPFX_REFLECT 0x4000000L /* Reflection */
-#define SPFX_AGGR   0x0800000UL /* aggravates monsters */
+#define SPFX_AGGR   0x8000000UL /* aggravates monsters */
 
 struct artifact {
 	short	    otyp;
