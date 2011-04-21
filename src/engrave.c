@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)engrave.c	3.4	2001/11/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 1 Apr 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -314,7 +314,9 @@ register int x,y;
 	register struct engr *ep = engr_at(x,y);
 	register int	sensed = 0;
 	char buf[BUFSZ];
-	
+        char buf2[BUFSZ];
+	*buf2 = 0;
+        
 	/* Sensing an engraving does not require sight,
 	 * nor does it necessarily imply comprehension (literacy).
 	 */
@@ -323,7 +325,7 @@ register int x,y;
 	    case DUST:
 		if(!Blind) {
 			sensed = 1;
-			pline("%s is drawn here in the %s.", Something,
+			Sprintf(buf2, "%s is drawn here in the %s.", Something,
 				is_ice(x,y) ? "frost" : "dust");
 		}
 		break;
@@ -331,7 +333,7 @@ register int x,y;
 	    case HEADSTONE:
 		if (!Blind || can_reach_floor()) {
 			sensed = 1;
-			pline("%s is engraved here on the %s.",
+			Sprintf(buf2, "%s is engraved here on the %s.",
 				Something,
 				surface(x,y));
 		}
@@ -339,7 +341,7 @@ register int x,y;
 	    case BURN:
 		if (!Blind || can_reach_floor()) {
 			sensed = 1;
-			pline("Something has been %s into the %s here.",
+			Sprintf(buf2, "Something has been %s into the %s here.",
 				is_ice(x,y) ? "melted" : "burned",
 				surface(x,y));
 		}
@@ -347,7 +349,7 @@ register int x,y;
 	    case MARK:
 		if(!Blind) {
 			sensed = 1;
-			pline("There's some graffiti on the %s here.",
+			Sprintf(buf2, "There's some graffiti on the %s here.",
 				surface(x,y));
 		}
 		break;
@@ -358,7 +360,7 @@ register int x,y;
 		 */
 		if(!Blind) {
 			sensed = 1;
-			You("see something scrawled in blood here.");
+			Sprintf(buf2, "see something scrawled in blood here.");
 		}
 		break;
 	    default:
@@ -377,9 +379,12 @@ register int x,y;
                   if (*et <= 9) *et = ' ';
                 for (et = buf; *et == ' '; et++) {}
                 if (*et) {
+                  pline("%s",buf2);
 		  You("%s: \"%s\".",
 		        (Blind) ? "feel the words" : "read", et);
-                }
+                } else if (!flags.run) {
+                  pline("%s",buf2);
+                } else return; /* nothing but heptagrams, while running */
                 if (heptagram_count(x, y)) {
                   You("%s%s %d magic heptagram%s.",
                       *et ? "also " : "",
