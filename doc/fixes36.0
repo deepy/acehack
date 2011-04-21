@@ -80,6 +80,8 @@ Boulders generated via polymorph now block line of sight correctly.
 The game no longer goes into an infinite loop upon an input error at a
 --More-- prompt.  (Patch credits: from SporkHack, via UnNetHack.)
 
+The game will now try to recover from some sorts of trickery.
+
 Modified Features
 -----------------
 

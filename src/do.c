@@ -1192,6 +1192,7 @@ boolean at_stairs, falling, portal;
 
 	if (!(level_info[new_ledger].flags & LFILE_EXISTS)) {
 		/* entering this level for first time; make it now */
+        remake_level:
 		if (level_info[new_ledger].flags & (FORGOTTEN|VISITED)) {
 		    impossible("goto_level: returning to discarded level?");
 		    level_info[new_ledger].flags &= ~(FORGOTTEN|VISITED);
@@ -1204,10 +1205,8 @@ boolean at_stairs, falling, portal;
 		if (fd < 0) {
 			pline("%s", whynot);
 			pline("Probably someone removed it.");
-			killer = whynot;
-			done(TRICKED);
-			/* we'll reach here if running in wizard mode */
-			error("Cannot continue this game.");
+                        pline("Attempting to continue, but it might not work...");
+                        goto remake_level;
 		}
 		minit();	/* ZEROCOMP */
 		getlev(fd, hackpid, new_ledger, FALSE);

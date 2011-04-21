@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)save.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Dec 2010 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -277,12 +277,11 @@ dosave0()
 #endif
 		ofd = open_levelfile(ltmp, whynot);
 		if (ofd < 0) {
-		    HUP pline("%s", whynot);
-		    (void) close(fd);
-		    (void) delete_savefile();
-		    HUP killer = whynot;
-		    HUP done(TRICKED);
-		    return(0);
+                  pline("A level file was missing during an attempt to save...");
+                  pline("The game will regenerate the level the next time you"
+                        "visit it.");
+                  level_info[ltmp].flags &= ~LFILE_EXISTS;
+                  continue;
 		}
 		minit();	/* ZEROCOMP */
 		getlev(ofd, hackpid, ltmp, FALSE);
