@@ -2640,14 +2640,6 @@ doset()
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, MENU_UNSELECTED);
 
 #endif /* AUTOPICKUP_EXCEPTIONS */
-#ifdef PREFIXES_IN_USE
-	any.a_void = 0;
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", MENU_UNSELECTED);
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
-		 "Variable playground locations:", MENU_UNSELECTED);
-	for (i = 0; i < PREFIX_COUNT; i++)
-		doset_add_menu(tmpwin, fqn_prefix_names[i], 0);
-#endif
 	end_menu(tmpwin, "Set what options?");
 	need_redraw = FALSE;
 	if ((pick_cnt = select_menu(tmpwin, PICK_ANY, &pick_list)) > 0) {
