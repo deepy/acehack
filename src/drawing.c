@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)drawing.c	3.4	1999/12/02	*/
 /* Copyright (c) NetHack Development Team 1992.			  */
-/* Modified 18 Sep 2010 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -228,10 +228,10 @@ const struct symdef defsyms[MAXPCHARS] = {
 	{'.', "dark part of a room",C(CLR_BLUE)},	/* dark room */
 /*20*/	{'#', "corridor",	C(CLR_BLUE)},	/* dark corr */
 	{'#', "lit corridor",	C(CLR_GRAY)},	/* lit corr */
-	{'<', "staircase up",	C(CLR_GRAY)},	/* upstair */
-	{'>', "staircase down",	C(CLR_GRAY)},	/* dnstair */
-	{'<', "ladder up",	C(CLR_BROWN)},	/* upladder */
-	{'>', "ladder down",	C(CLR_BROWN)},	/* dnladder */
+	{'<', "staircase up",	C(CLR_WHITE)},	/* upstair */
+	{'>', "staircase down",	C(CLR_WHITE)},	/* dnstair */
+	{'<', "ladder up",	C(CLR_YELLOW)},	/* upladder */
+	{'>', "ladder down",	C(CLR_YELLOW)},	/* dnladder */
 	{'_', "altar",		C(CLR_GRAY)},	/* altar */
 	{'|', "grave",      C(CLR_GRAY)},   /* grave */
 	{'\\', "opulent throne",C(HI_GOLD)},	/* throne */
