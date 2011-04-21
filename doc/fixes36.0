@@ -491,7 +491,8 @@ something on the map).
 >: Now interacts with any sort of terrain on the square, to go down or
 up stairs, dip into fountains/water, sacrifice on altars, or sit on
 other sorts of terrain.
-.: Now draws a magic heptagram. (You can use s to wait one turn.)
+.: Now draws a magic heptagram. (You can use s to wait one turn, or
+#wait if you really need to wait one turn without searching.)
 
 The following commands still have their old meanings, or are mapped to
 a new command that encompasses their old meanings, but are now

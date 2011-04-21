@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 1 Apr 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -294,14 +294,35 @@ STATIC_PTR int
 doextcmd()	/* here after # - now read a full-word command */
 {
 	int idx, retval;
+        static char save_cm_ext[BUFSZ];
 
 	/* keep repeating until we don't run help or quit */
 	do {
 	    idx = get_ext_cmd();
 	    if (idx < 0) return 0;	/* quit */
 
+            /* Make #20#wait, etc., and redo work correctly */
+            {
+                char *r;
+                /* Note that this depends on # being unrebindable. */
+                save_cm = save_cm_ext;
+                Sprintf(save_cm, "#%s", extcmdlist[idx].ef_txt);
+#ifdef REDO
+                savech(0);
+                /* We have to duplicate some characters; ungetc()
+                   obviously doesn't work inside key replay, so
+                   we instead double the characters that would be
+                   ungetted. */
+                savech('#');
+                savech('#');
+                for (r = save_cm+1; *r; r++) savech(*r);
+                savech('\n');
+#endif
+            }
+
             if (extcmdlist[idx].ef_funct == 0)
               return -REPARSE_AS_KEY - extcmdlist[idx].replacewithkey;
+
 	    retval = (*extcmdlist[idx].ef_funct)();
 	} while (extcmdlist[idx].ef_funct == doextlist);
 
@@ -2249,6 +2270,33 @@ reparse:
             pline("That's not a direction!");
             flags.move = FALSE;
             return;
+        } else if (*cmd == '#' && cmd[1]) {
+            /* command repeat on extended commands; note that a literal #
+               is correct here (# can't be rebound to anything but extended
+               commands, and the command memory will be modified to start
+               with #) */
+	    register const struct ext_func_tab *tlist;
+	    int res, NDECL((*func));
+
+            for (tlist = extcmdlist; tlist->ef_txt; tlist++) {
+                func = ((struct ext_func_tab *)tlist)->ef_funct;
+                if (!strcmp(cmd+1, tlist->ef_txt)) {
+		    res = (*func)();		/* perform the command */
+                    if (func == doextcmd && res < -REPARSE_AS_KEY &&
+                        res > -REPARSE_AS_KEY-256) { /* bouncing a key onto us */
+                        *cmd = (int)(-REPARSE_AS_KEY - res);
+                        inreparse = TRUE;
+                        goto reparse;
+                    }
+                    if (!res) {
+                      flags.move = FALSE;
+                      multi = 0;
+                    }
+                    return;
+                }
+            }
+            bad_command = TRUE;
+            multi = 0;
 	/* handle all other commands */
 	} else {
 	    register const struct ext_func_tab *tlist;
@@ -2765,6 +2813,9 @@ parse()
 		} else {	/* not a digit */
                     if (multi == 0 && !prezero) {
                         /* TODO: This almost certainly breaks on tiles. */
+# ifdef REDO
+                        if (!in_doagain)
+# endif                      
                         ungetc(foo, stdin);
                         foo = ecl_extcmd->binding1;
                     }
