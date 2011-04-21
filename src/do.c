@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 6 Apr 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -782,6 +782,10 @@ dodown()
 		    (u.ux == sstairs.sx && u.uy == sstairs.sy && !sstairs.up)),
 		ladder_down = (u.ux == xdnladder && u.uy == ydnladder);
 
+        /* these might not be set if arriving here indirectly */
+        u.dx = u.dy = 0;
+        u.dz = 1;
+
 #ifdef STEED
 	if (u.usteed && !u.usteed->mcanmove) {
 		pline("%s won't move!", Monnam(u.usteed));
@@ -909,11 +913,12 @@ doup()
 }
 
 /* Perform a context-sensitive command on the local terrain:
-   upstairs         doup()
-   downstairs       dodown()
-   water/fountain   dodip()
-   altar            dosacrifice()
-   throne/floor     dosit() */
+   upstairs           doup()
+   downstairs         dodown()
+   water/fountain     dodip()
+   altar              dosacrifice()
+   autodig with pick  dodown(), which autodigs
+   throne/floor       dosit() */
 int
 doterrain()
 {
@@ -939,8 +944,11 @@ doterrain()
           return 0;
         case CORR:
         case ROOM:
-        case THRONE:
         case ICE:
+          if (flags.autodig && !flags.nopick &&
+              uwep && is_pick(uwep)) return dodown();
+          /* otherwise fall through */
+        case THRONE:
         case DRAWBRIDGE_DOWN:
           return dosit();
         case STAIRS:
