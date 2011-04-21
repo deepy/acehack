@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mhitm.c	3.4	2003/01/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -204,6 +204,8 @@ mattackm(magr, mdef)
 		    res[NATTK];	/* results of all attacks */
     struct attack   *mattk, alt_attk;
     struct permonst *pa, *pd;
+
+    if (mdef == &youmonst) return mattacku(magr) ? MM_AGR_DIED : 0;
 
     if (!magr || !mdef) return(MM_MISS);		/* mike@genat */
     if (!magr->mcanmove || magr->msleeping) return(MM_MISS);
