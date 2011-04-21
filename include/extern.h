@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)extern.h	3.4	2003/03/10	*/
 /* Copyright (c) Steve Creps, 1988.				  */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef EXTERN_H
@@ -577,6 +577,7 @@ E void FDECL(done_in_by, (struct monst *));
 E void VDECL(panic, (const char *,...)) PRINTF_F(1,2);
 #if !defined(MAKEDEFS_C) && !defined(LEV_LEX_C)
 E void FDECL(done, (int));
+E void FDECL((*putstr_or_dump), (winid, int, const char*));
 E void FDECL(container_contents, (struct obj *,BOOLEAN_P,BOOLEAN_P));
 E void FDECL(terminate, (int));
 E int NDECL(num_genocides);
@@ -659,6 +660,7 @@ E int FDECL(open_bonesfile, (d_level*,char **));
 E int FDECL(delete_bonesfile, (d_level*));
 E void NDECL(compress_bonesfile);
 E void NDECL(set_savefile_name);
+E void NDECL(set_dumpfile_name);
 #ifdef INSURANCE
 E void FDECL(save_savefile_name, (int));
 #endif

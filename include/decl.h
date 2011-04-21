@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)decl.h	3.4	2001/12/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 5 Sep 2009 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef DECL_H
@@ -23,6 +23,11 @@ E char *catmore;
 E char SAVEF[];
 #ifdef MICRO
 E char SAVEP[];
+#endif
+
+E char DUMPF[];
+#ifdef MICRO
+E char DUMPP[];
 #endif
 
 E NEARDATA int bases[MAXOCLASSES];
@@ -363,7 +368,8 @@ E const char * const monexplain[], invisexplain[], * const objexplain[], * const
 #define LOCKPREFIX	6
 #define CONFIGPREFIX	7
 #define TROUBLEPREFIX	8
-#define PREFIX_COUNT	9
+#define DUMPPREFIX      9
+#define PREFIX_COUNT	10
 /* used in files.c; xxconf.h can override if needed */
 # ifndef FQN_MAX_FILENAME
 #define FQN_MAX_FILENAME 512

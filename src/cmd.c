@@ -825,7 +825,7 @@ const char *start, *middle, *end;
 	char buf[BUFSZ];
 
 	Sprintf(buf, "%s%s%s.", start, middle, end);
-	putstr(en_win, 0, buf);
+	putstr_or_dump(en_win, 0, buf);
 }
 
 /* format increased damage or chance to hit */
@@ -872,9 +872,11 @@ int final;	/* 0 => still in progress; 1 => over, survived; 2 => dead */
 	int ltmp;
 	char buf[BUFSZ];
 
-	en_win = create_nhwindow(NHW_MENU);
-	putstr(en_win, 0, final ? "Final Attributes:" : "Current Attributes:");
-	putstr(en_win, 0, "");
+        if (!putstr_or_dump) putstr_or_dump = putstr;
+
+	if (putstr_or_dump == putstr) en_win = create_nhwindow(NHW_MENU);
+	putstr_or_dump(en_win, 0, final ? "Final attributes:" : "Current attributes:");
+	putstr_or_dump(en_win, 0, "");
 
 #ifdef ELBERETH
 	if (u.uevent.uhand_of_elbereth) {
@@ -1160,9 +1162,14 @@ int final;	/* 0 => still in progress; 1 => over, survived; 2 => dead */
 	if (p) enl_msg(You_, "have been killed ", p, buf);
     }
 
+    if (putstr_or_dump == putstr) {
 	display_nhwindow(en_win, TRUE);
 	destroy_nhwindow(en_win);
-	return;
+    } else {
+      putstr_or_dump(0, 0, "-----------------------------------"
+                     "-----------------------------------");
+    }
+    return;
 }
 
 STATIC_OVL void
@@ -1412,10 +1419,12 @@ int final;
 	char buf[BUFSZ];
 	int ngenocided;
 
+        if (!putstr_or_dump) putstr_or_dump = putstr;
+
 	/* Create the conduct window */
-	en_win = create_nhwindow(NHW_MENU);
-	putstr(en_win, 0, "Voluntary challenges:");
-	putstr(en_win, 0, "");
+	if (putstr_or_dump == putstr) en_win = create_nhwindow(NHW_MENU);
+	putstr_or_dump(en_win, 0, "Voluntary challenges:");
+	putstr_or_dump(en_win, 0, "");
 
 	if (!u.uconduct.food)
 	    enl_msg(You_, "have gone", "went", " without food");
@@ -1494,9 +1503,13 @@ int final;
         if (solo)
             enl_msg(You_, "are", "were", " playing solo");
 
-	/* Pop up the window and wait for a key */
-	display_nhwindow(en_win, TRUE);
-	destroy_nhwindow(en_win);
+        if (putstr_or_dump == putstr) {
+            display_nhwindow(en_win, TRUE);
+            destroy_nhwindow(en_win);
+        } else {
+          putstr_or_dump(0, 0, "-----------------------------------"
+                         "-----------------------------------");
+        }
 }
 
 #endif /* OVLB */

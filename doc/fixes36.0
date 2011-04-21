@@ -354,6 +354,9 @@ Autopickup now picks up thrown items by default (controllable via
 option), even if they aren't of a type that would normally be picked
 up.  (Patch credits: Roderick Schertler, via UnNetHack.)
 
+Dumplogs are saved in a directory, allowing players to review the ends
+of their previous games.
+
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
 

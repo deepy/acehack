@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2068,6 +2068,8 @@ struct obj *obj;
  * Internal function used by display_inventory and getobj that can display
  * inventory and return a count as well as a letter. If out_cnt is not null,
  * any count returned from the menu selection is placed here.
+ * Also used indirectly from yqypi (and thus disclose), so is conditionalised
+ * to generate dumplogs.
  */
 static char
 display_pickinv(lets, want_reply, out_cnt)
@@ -2087,6 +2089,14 @@ long* out_cnt;
 	static winid local_win = WIN_ERR;	/* window for partial menus */
 	anything any;
 	menu_item *selected;
+        char buf[BUFSZ];
+
+        if (!putstr_or_dump) putstr_or_dump = putstr;
+
+        if (putstr_or_dump != putstr) {
+          putstr_or_dump(0,0,"Possessions:");
+          putstr_or_dump(0,0,"");
+        }
 
 	/* overriden by global flag */
 	if (flags.perm_invent) {
@@ -2108,7 +2118,8 @@ long* out_cnt;
 	an issue if empty checks are done before hand and the call
 	to here is short circuited away.
 	*/
-	if (!invent && !(flags.perm_invent && !lets && !want_reply)) {
+	if (!invent && !(flags.perm_invent && !lets && !want_reply) &&
+            putstr_or_dump == putstr) {
 #ifndef GOLDOBJ
 	    pline("Not carrying anything%s.", u.ugold ? " except gold" : "");
 #else
@@ -2120,7 +2131,7 @@ long* out_cnt;
 	/* oxymoron? temporarily assign permanent inventory letters */
 	if (!flags.invlet_constant) reassign();
 
-	if (lets && strlen(lets) == 1) {
+	if (lets && strlen(lets) == 1 && putstr_or_dump == putstr) {
 	    /* when only one item of interest, use pline instead of menus;
 	       we actually use a fake message-line menu in order to allow
 	       the user to perform selection at the --More-- prompt for tty */
@@ -2164,7 +2175,7 @@ long* out_cnt;
 	  }
 #endif /* SORTLOOT */
 
-	start_menu(win);
+	if (putstr_or_dump == putstr) start_menu(win);
 nextclass:
 	classcount = 0;
 	any.a_void = 0;		/* set all bits to zero */
@@ -2175,25 +2186,23 @@ nextclass:
 	  if (!flags.sortpack || otmp->oclass == *invlet) {
 	    if (flags.sortpack && !classcount) {
 	      any.a_void = 0;             /* zero */
-	      add_menu(win, NO_GLYPH, &any, 0, 0, ATR_INVERSE,
-		       let_to_name(*invlet, FALSE), MENU_UNSELECTED);
-#ifdef DUMP_LOG
-	      if (want_dump)
-		dump("  ", let_to_name(*invlet, FALSE));
-#endif
+              if (putstr_or_dump == putstr) {
+                add_menu(win, NO_GLYPH, &any, 0, 0, ATR_INVERSE,
+                         let_to_name(*invlet, FALSE), MENU_UNSELECTED);
+              } else {
+                putstr_or_dump(win, 0, let_to_name(*invlet, FALSE));
+              }
 	      classcount++;
 	    }
 	    any.a_char = ilet;
-	    add_menu_colored(win, obj_to_glyph(otmp), &any, ilet,
-                             0, ATR_NONE, default_item_color(otmp),
-                             doname_w(otmp), MENU_UNSELECTED);
-#ifdef DUMP_LOG
-	    if (want_dump) {
-	      char letbuf[7];
-	      sprintf(letbuf, "  %c - ", ilet);
-	      dump(letbuf, doname_w(otmp));
-	    }
-#endif
+            if (putstr_or_dump == putstr) {
+              add_menu_colored(win, obj_to_glyph(otmp), &any, ilet,
+                               0, ATR_NONE, default_item_color(otmp),
+                               doname_w(otmp), MENU_UNSELECTED);
+            } else {
+              Sprintf(buf, "  %c - %s", ilet, doname_w(otmp));
+              putstr_or_dump(win, 0, buf);
+            }
 	  }
 	}
 #else /* SORTLOOT */
@@ -2203,15 +2212,24 @@ nextclass:
 			if (!flags.sortpack || otmp->oclass == *invlet) {
 			    if (flags.sortpack && !classcount) {
 				any.a_void = 0;		/* zero */
-				add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
-				    let_to_name(*invlet, FALSE), MENU_UNSELECTED);
+                                if (putstr_or_dump == putstr) {
+                                  add_menu(win, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
+                                           let_to_name(*invlet, FALSE), MENU_UNSELECTED);
+                                } else {
+                                  putstr_or_dump(win, 0, let_to_name(*invlet, FALSE));
+                                }
 				classcount++;
 			    }
 			    any.a_char = ilet;
-			    add_menu_colored(win, obj_to_glyph(otmp),
-                                             &any, ilet, 0, ATR_NONE,
-                                             default_item_color(otmp),
-                                             doname_w(otmp), MENU_UNSELECTED);
+                            if (putstr_or_dump == putstr) {
+                              add_menu_colored(win, obj_to_glyph(otmp),
+                                               &any, ilet, 0, ATR_NONE,
+                                               default_item_color(otmp),
+                                               doname_w(otmp), MENU_UNSELECTED);
+                            } else {
+                              Sprintf(buf, "  %c - %s", ilet, doname_w(otmp));
+                              putstr_or_dump(win, 0, buf);              
+                            }
 			}
 		}
 	}
@@ -2228,16 +2246,21 @@ nextclass:
 #ifdef SORTLOOT
 	free(oarray);
 #endif
-	end_menu(win, (char *) 0);
-
-	n = select_menu(win, want_reply ? PICK_ONE : PICK_NONE, &selected);
-	if (n > 0) {
+        if (putstr_or_dump == putstr) {
+          end_menu(win, (char *) 0);
+          
+          n = select_menu(win, want_reply ? PICK_ONE : PICK_NONE, &selected);
+          if (n > 0) {
 	    ret = selected[0].item.a_char;
 	    if (out_cnt) *out_cnt = selected[0].count;
 	    free((genericptr_t)selected);
-	} else
+          } else
 	    ret = !n ? '\0' : '\033';	/* cancelled */
-
+        } else {
+          ret = 0;
+          putstr_or_dump(win, 0, "-----------------------------------"
+                         "-----------------------------------");
+        }
 	return ret;
 }
 

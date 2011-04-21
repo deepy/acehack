@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)files.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Mar 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -82,16 +82,23 @@ char lock[PL_NSIZ+25];		/* long enough for username+-+name+.99 */
 #define SAVESIZE	(PL_NSIZ + 22)	/* [.save]<uid>player.e;1 */
 # else
 #  if defined(WIN32)
-#define SAVESIZE	(PL_NSIZ + 40)	/* username-player.NetHack-saved-game */
+#define SAVESIZE	(PL_NSIZ + 40)	/* username-player.AceHack-saved-game */
 #  else
 #define SAVESIZE	FILENAME	/* from macconf.h or pcconf.h */
 #  endif
 # endif
 #endif
 
+#define DUMPSIZE (SAVESIZE + 13) /* dumps/99999player-1234567890.e */
+
 char SAVEF[SAVESIZE];	/* holds relative path of save file from playground */
 #ifdef MICRO
 char SAVEP[SAVESIZE];	/* holds path of directory for save file */
+#endif
+
+char DUMPF[DUMPSIZE];	/* holds relative path of save file from playground */
+#ifdef MICRO
+char DUMPP[DUMPSIZE];	/* holds path of directory for save file */
 #endif
 
 #ifdef HOLD_LOCKFILE_OPEN
@@ -99,7 +106,7 @@ struct level_ftrack {
 int init;
 int fd;					/* file descriptor for level file     */
 int oflag;				/* open flags                         */
-boolean nethack_thinks_it_is_open;	/* Does NetHack think it's open?       */
+boolean nethack_thinks_it_is_open;	/* Does AceHack think it's open?      */
 } lftrack;
 # if defined(WIN32)
 #include <share.h>
@@ -815,10 +822,54 @@ set_savefile_name()
 	Sprintf(fnamebuf, "%s-%s", get_username(0), plname);
 	(void)fname_encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-.",
 				'%', fnamebuf, encodedfnamebuf, BUFSZ);
-	Sprintf(SAVEF, "%s.NetHack-saved-game", encodedfnamebuf);
+	Sprintf(SAVEF, "%s.AceHack-saved-game", encodedfnamebuf);
 #  else
 	Sprintf(SAVEF, "save/%d%s", (int)getuid(), plname);
 	regularize(SAVEF+5);	/* avoid . or / in name */
+#  endif /* WIN32 */
+# endif	/* MICRO */
+#endif /* VMS   */
+}
+
+void
+set_dumpfile_name()
+{
+#if defined(WIN32)
+	char fnamebuf[BUFSZ], encodedfnamebuf[BUFSZ];
+#endif
+#ifdef VMS
+	Sprintf(DUMPF, "[.dumps]%d%s-%lu", getuid(), plname, (long)u.ubirthday);
+	regularize(DUMPF+7);
+	Strcat(DUMPF, ";1");
+#else
+# if defined(MICRO)
+	Strcpy(DUMPF, DUMPP);
+#  ifdef AMIGA
+	strncat(DUMPF, bbs_id, PATHLEN);
+#  endif
+	{
+		int i = strlen(DUMPP);
+#  ifdef AMIGA
+		/* plname has to share space with DUMPP and ".sav" */
+		(void)strncat(DUMPF, plname, FILENAME - i - 4);
+#  else
+		(void)strncat(DUMPF, plname, 8);
+#  endif
+		regularize(DUMPF+i);
+	}
+        Sprintf(eos(DUMPF), "-%lu", (long)u.ubirthday);
+	Strcat(DUMPF, ".txt");
+# else
+#  if defined(WIN32)
+	/* Obtain the name of the logged on user and incorporate
+	 * it into the name. */
+	Sprintf(fnamebuf, "%s-%s", get_username(0), plname);
+	(void)fname_encode("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-.",
+				'%', fnamebuf, encodedfnamebuf, BUFSZ);
+	Sprintf(DUMPF, "%s-%lu.AceHack-dumplog", (long)u.ubirthday, encodedfnamebuf);
+#  else
+	Sprintf(DUMPF, "dumps/%d%s-%lu", (int)getuid(), plname, (long)u.ubirthday);
+	regularize(DUMPF+6);	/* avoid . or / in name */
 #  endif /* WIN32 */
 # endif	/* MICRO */
 #endif /* VMS   */
@@ -1466,13 +1517,13 @@ const char *configfile =
 
 #ifdef MSDOS
 /* conflict with speed-dial under windows
- * for XXX.cnf file so support of NetHack.cnf
+ * for XXX.cnf file so support of AceHack.cnf
  * is for backward compatibility only.
  * Preferred name (and first tried) is now defaults.nh but
  * the game will try the old name if there
  * is no defaults.nh.
  */
-const char *backward_compat_configfile = "nethack.cnf"; 
+const char *backward_compat_configfile = "acehack.cnf"; 
 #endif
 
 #ifndef MFLOPPY
@@ -1496,7 +1547,7 @@ const char *filename;
 		if (access(filename, 4) == -1) {
 			/* 4 is R_OK on newer systems */
 			/* nasty sneaky attempt to read file through
-			 * NetHack's setuid permissions -- this is the only
+			 * AceHack's setuid permissions -- this is the only
 			 * place a file name may be wholly under the player's
 			 * control
 			 */
@@ -1544,9 +1595,9 @@ const char *filename;
 
 	envp = nh_getenv("HOME");
 	if (!envp)
-		Strcpy(tmp_config, "NetHack.cnf");
+		Strcpy(tmp_config, "AceHack.cnf");
 	else
-		Sprintf(tmp_config, "%s%s", envp, "NetHack.cnf");
+		Sprintf(tmp_config, "%s%s", envp, "AceHack.cnf");
 	if ((fp = fopenp(tmp_config, "r")) != (FILE *)0)
 		return(fp);
 # else	/* should be only UNIX left */
@@ -1560,10 +1611,10 @@ const char *filename;
 # if defined(__APPLE__)
 	/* try an alternative */
 	if (envp) {
-		Sprintf(tmp_config, "%s/%s", envp, "Library/Preferences/NetHack Defaults");
+		Sprintf(tmp_config, "%s/%s", envp, "Library/Preferences/AceHack Defaults");
 		if ((fp = fopenp(tmp_config, "r")) != (FILE *)0)
 			return(fp);
-		Sprintf(tmp_config, "%s/%s", envp, "Library/Preferences/NetHack Defaults.txt");
+		Sprintf(tmp_config, "%s/%s", envp, "Library/Preferences/AceHack Defaults.txt");
 		if ((fp = fopenp(tmp_config, "r")) != (FILE *)0)
 			return(fp);
 	}
@@ -1571,7 +1622,7 @@ const char *filename;
 	if (errno != ENOENT) {
 	    char *details;
 
-	    /* e.g., problems when setuid NetHack can't search home
+	    /* e.g., problems when setuid AceHack can't search home
 	     * directory restricted to user */
 
 #if defined (NHSTDC) && !defined(NOTSTDC)
@@ -1729,6 +1780,8 @@ char		*tmp_levels;
 		adjust_prefix(bufp, LEVELPREFIX);
 	} else if (match_varname(buf, "SAVEDIR", 4)) {
 		adjust_prefix(bufp, SAVEPREFIX);
+	} else if (match_varname(buf, "DUMPDIR", 5)) {
+		adjust_prefix(bufp, DUMPPREFIX);
 	} else if (match_varname(buf, "BONESDIR", 5)) {
 		adjust_prefix(bufp, BONESPREFIX);
 	} else if (match_varname(buf, "DATADIR", 4)) {
@@ -1777,6 +1830,8 @@ char		*tmp_levels;
 
 		(void) strncpy(SAVEP, bufp, SAVESIZE-1);
 		append_slash(SAVEP);
+		(void) strncpy(DUMPP, bufp, DUMPSIZE-1);
+		append_slash(DUMPP);
 # endif /* MICRO */
 #endif /*NOCWD_ASSUMPTIONS*/
 
@@ -2062,7 +2117,7 @@ fopen_wizkit_file()
 	if (access(wizkit, 4) == -1) {
 		/* 4 is R_OK on newer systems */
 		/* nasty sneaky attempt to read file through
-		 * NetHack's setuid permissions -- this is a
+		 * AceHack's setuid permissions -- this is a
 		 * place a file name may be wholly under the player's
 		 * control
 		 */
@@ -2104,7 +2159,7 @@ fopen_wizkit_file()
 	if ((fp = fopenp(tmp_wizkit, "r")) != (FILE *)0)
 		return(fp);
 	else if (errno != ENOENT) {
-		/* e.g., problems when setuid NetHack can't search home
+		/* e.g., problems when setuid AceHack can't search home
 		 * directory restricted to user */
 		raw_printf("Couldn't open default wizkit file %s (%d).",
 					tmp_wizkit, errno);
