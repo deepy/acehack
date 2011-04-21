@@ -1653,6 +1653,7 @@ struct ext_func_tab extcmdlist[] = {
   {"versionhistory", "list the history of AceHack",
    dohistory, TRUE, 11, M('v'), 0, 0, 0},
   {"versionoptions", "list compile time options", doextversion, TRUE, 1, 0, 0, 0, 0},
+  {"wait", "do nothing for one turn", donull, FALSE, 15, 0, 0, 0, 0},
   {"west", "move, attack, or interact west", 0, FALSE, 21, 'h', '4', 0, 'h'},
   {"westfar", "move west as far as possible", 0, FALSE, 22, 'H', 0, 0, 'H'},
   {"westfarcareful", "move west until something interesting happens",
