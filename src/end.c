@@ -1116,7 +1116,7 @@ die:
 	/* finish_paybill should be called after disclosure but before bones */
 	if (bones_ok && taken) finish_paybill();
 
-	if (bones_ok) {
+	if (bones_ok && !discover) {
 #ifdef WIZARD
 	    if (!wizard || yn("Save bones?") == 'y')
 #endif
