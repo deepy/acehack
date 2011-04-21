@@ -669,6 +669,7 @@ E void NDECL(set_error_savefile);
 #endif
 E int NDECL(create_savefile);
 E int NDECL(open_savefile);
+E boolean NDECL(verify_savefile);
 E int NDECL(delete_savefile);
 E int NDECL(restore_saved_game);
 E void FDECL(compress, (const char *));

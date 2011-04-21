@@ -956,6 +956,29 @@ open_savefile()
 	return fd;
 }
 
+/* check for savefile existence */
+boolean
+verify_savefile()
+{
+  char buf[SAVESIZE+80];
+  int fd;
+  set_savefile_name();
+  strcpy(buf, fqname(SAVEF, SAVEPREFIX, 0));
+#ifdef MAC
+  fd = macopen(buf, O_RDONLY | O_BINARY, SAVE_TYPE);
+#else
+  fd = open(buf, O_RDONLY | O_BINARY, 0);
+#endif
+  if (fd > -1) {close(fd); return TRUE;}
+  Strcat(buf, COMPRESS_EXTENSION);
+#ifdef MAC
+  fd = macopen(buf, O_RDONLY | O_BINARY, SAVE_TYPE);
+#else
+  fd = open(buf, O_RDONLY | O_BINARY, 0);
+#endif
+  if (fd > -1) {close(fd); return TRUE;}
+  return FALSE;
+}
 
 /* delete savefile */
 int

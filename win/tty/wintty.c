@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 1 Apr 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -342,7 +342,7 @@ tty_game_mode_selection()
 
   saved = get_saved_games();
 
-  if (*plname && saved) {
+  if (*plname && saved && *saved) {
     for (sp = saved; *sp; sp++) {
       /* Note that this means that public servers need to prevent two
          users with the same name but different capitalisation. (If
@@ -353,6 +353,10 @@ tty_game_mode_selection()
         strncpy(plname, *sp, sizeof(plname)-1);
       }
     }
+  } else if (*plname) {
+    set_savefile_name();
+    /* Let's just try to open the savefile directly to see if it exists */
+    plname_in_saved = verify_savefile();
   }
 
 retry_mode_selection:
@@ -370,7 +374,7 @@ retry_mode_selection:
        off before it makes the game unplayable on such terminals.)
        Converting the vt100 codes via termcap may also make sense. */
     if (c == 1) { /* gray out if there's no game to continue */
-      if (!saved || !*saved) xputs("\033[31m");
+      if (!*plname && (!saved || !*saved)) xputs("\033[31m");
       else if (*plname && !plname_in_saved) xputs("\033[31m");
       /* and bold if there is */
       else xputs("\033[1m");
@@ -386,6 +390,7 @@ reread_char:
   c = lowc(readchar());
   switch (c) {
   case 'c': /* continue game */
+    if (*plname && plname_in_saved) break; /* just load by name */
     if (!saved || !*saved) goto reread_char;
     if (*plname && !plname_in_saved) goto reread_char;
     if (!saved[1]) {
@@ -416,7 +421,7 @@ reread_char:
       free((genericptr_t) selected);
     }
     break;
-  case 'n': case 't': case 'm': /* the new game options  */
+  case 'n': case 't': case 'm': /* the new game options */
     /* if the name is forced by the -u option, don't give an option to
        start a new game, as we're forced onto the existing game */
     if (*plname && plname_in_saved) goto reread_char;
