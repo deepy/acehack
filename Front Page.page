@@ -1,12 +1,14 @@
-# Welcome to Gitit!
+**AceHack** is a variant of the computer game [NetHack](http://nethack.org), aimed to keep similar (although not necessarily identical) gameplay to the original game, while improving its interface.
 
-This is the front page of your new gitit wiki.  You can edit this
-page by clicking on the "edit" tab at the top of the screen.
-For instructions on how to make a link to another wiki page, see [the
-Help page](Help#wiki-links). To create a new wiki page, just create a
-link to it and follow the link.
+You may be interested in the following links:
 
-Help is always available through the "Help" link in the sidebar.
-More details on installing and configurating gitit are available
-in the [Gitit User's Guide]().
+- [Manually-updated log of differences between NetHack and AceHack](http://patch-tag.com/r/ais523/acehack/snapshot/current/content/raw/doc/fixes36.0)
+- [Automatically generated list of recent changes to AceHack](https://patch-tag.com/r/ais523/acehack/snapshots/all/history)
+- [acehack.rawrnix.com](http://acehack.rawrnix.com) - public AceHack server (telnet to it to play online)
+
+This wiki also contains information relevant to the development of AceHack:
+
+- The [TODO]() page lists things that will likely be in AceHack eventually;
+- The [Ideas]() page contains ideas for future changes;
+- The [Bugs]() page contains bugs in AceHack that should ideally be fixed (many of which are also in NetHack).
 
