@@ -1,0 +1,155 @@
+AceHack almost certainly has bugs. At the moment, many are inherited from vanilla NetHack, although some bugs specific to AceHack have been found, too.
+
+If you find a bug, or have more information on the causes of a bug (or just a more accurate description of what causes it), feel free to add it to the appropriate location on this page.
+
+# AceHack-specific bugs
+
+Bugs will be removed from this list as soon as they are fixed in the repository and on public servers, so this list will typically be empty. 
+
+- Monster generation on dungeon level 1 often seems rather out-of-depth. The bug always seems to clear itself up upon going to dungeon level 2, though.
+
+# Vanilla NetHack bugs also in AceHack
+
+To avoid a huge amount of duplicated information, this list only contains vanilla NetHack bugs which AceHack development has looked into and determined more information about, but not fixed. (Often, though, just what the bug definition means is really hard to figure out. If you figure out what the entries on the vanilla NetHack buglist mean, and it isn't obvious, list it here; likewise, if you figure out what causes a bug without an obvious cause listed.) 
+
+C343-4 On the Rogue level, tunnelling through rock doesn't leave a passage.
+:   Tests failed to reproduce this, so the bug must be deeper than the description implies.
+C343-19 Dipping acid in a fountain may not destroy the acid.
+:   The obvious cause of this bug is that vanilla NetHack doesn't track what happens to objects that take water damage; in the case of acid, this leads to bugs, as water damage destroys it. However, even after fixing that aspect of things, the bug still happens intermittently, so something else must be wrong here too.
+C343-38 Dismounting and kicking a monster that jumps may result in landing on the wrong side of a wall.
+:   Kicking a monster makes them mnexto() you, then tries to flavour the resulting movement. In very confined spaces, mnexto() may not be able to find a space next to you after all. This applies to many monsters with speed >= 12 with a chance of 1/3 or 1/4 depending on how well you kicked, and the bug occurs whether it's flavoured as "jumps" or "slides" or "floats" or whatever. (A subsidiary bug here: it can also be flavoured as "teleports", yet trigger on a no-tele level.)
+C343-40 Monster thrusting one of multiple wielded daggers gives misleading message.
+:   The interface isn't clear that wielding 6 daggers, or whatever, nevertheless means that you only attack with one.
+C343-62 Riding into a magic portal gives an extra, useless message.
+:   Tests failed to reproduce this, so it's presumably intermittent.
+C343-65 A monster that "shrieks in pain" may not awaken others nearby.
+:   This is missing a wake_nearby call in the two relevant locations in potion.c.
+C343-69 Attempting to add more candles than needed to a candelabrum with at least one candle gives an incorrect message.
+:   Could not reproduce in testing; the message appears correct, as does the arithmetic on candle counts.
+C343-74 Entering a long running, uninterruptible command after stoning starts will kill you.
+:   Not fixed in AceHack because I couldn't figure out what the intended behaviour was meant to be anyway.
+C343-77 Some messages referring to monsters that look like horses refer to claws.
+:   polyself.c lists claws as a horse's manipulatory appendages. Horses don't actually have manipulatory appendages, so this is a kind-of tricky one... Centaurs should probably get simply "hand" here; for unicorns and warhorses, etc., it's less clear.
+C343-113 When flying down a hole or a ladder, the messages are inaccurate.
+:   Doing this with a ladder actually produces no message at all. (But that may itself be the bug.)
+C343-129 Cancelling objects in or near a shop doorway may make the shopkeeper think you are a thief.
+:   The error's in zap.c, around line 794; it checks to see if you're in the shop, rather than whether the object is.
+C343-149 Polymorphed spellbooks don't behave as intended.
+:   It's not entirely clear what the intention was, but a discussion in #nethack confirmed that the current behaviour makes no sense. (It can be approximated as keeping the old read count of the spellbook, plus one, but ignoring the count when reading the book to learn a spell that wasn't previously known. The last bit is the problematic one.) Possible fix: a spellbook which would end up with a read count at or over max after polying always shudders and disappears.
+C343-151 Monsters can teleport to or be created outside of legal area in special levels.
+:   This happens in Sokoban sometimes, but I'm not sure why.
+C343-200 In the quest, it's possible to accidently skip the locate level.
+:   Via random level teleportation. (Is this so bad an occurence, though? And if it is, why is *deliberately* skipping the locate level allowed?)
+C343-219 Hero can die due to "burned by burning" or "drowned by drowning."
+:   A lot of similar combinations are possible by messing around with delayed_killer by stacking many delayed instadeaths on top of each other.
+C343-220 Eating a Rider corpse doesn't work quite right.
+:   If you start eating it, die as a result, and lifesave, you can finish it safely. (The same thing happens to some other sort of corpses, like rotten ones, but not nearly as obviously.)
+C343-231 Time is distorted while sinking into lava.
+:   Because lava sinking is checked once per player input (inexplicably), as opposed to once per player turn or once per time-consuming action. There's even a big comment above the relevant code talking about this...
+C343-246 Engraving with an empty wand handles time wrong.
+:   If you cancel the engraving or are levitating, no time is spent. AceHack has a partial fix for this, but probably not all aspects of the bug.
+C343-256 Very very very long messages can cause a crash.
+:   Where "very very very long" can be as short as "128 characters" in some situations and some platforms (e.g. #name-y prompt (Cy prompt in AceHack) on UNIX/glibc).
+C343-283 Long walks take a non-optimial path.
+:   Although it's not clear what causes this bug, it's actually been observed finding *infinitely* long paths on occasion (including twice at the \/dev\/null 2010 tournament).
+C343-301 Nymphs can steal things they can't pick up.
+:   They can steal Rider corpses from gelatinous cubes. (Then put them into bags and polymorph the bags, destroying them permanently, and several similar tricks.)
+C343-317 Bones data can contain odd characters from player's dogname, catname, or fruit options; this can cause odd terminal-dependent behavior.
+:   NetHack fails to sanitise characters taken from options.
+C343-337 It's possible to create an object of 0 gold pieces.
+:   With at least one gold piece in inventory, type "d4294967296$". (Doing it twice crashes the game, as it tries to average the age of two 0-gold-pieces objects, weighted on their stack sizes, leading to a division by zero.)
+C343-371 Stethoscopes can sometimes be used more often than intended.
+:   You can rewind the stethoscope use timer by saving and reloading the game.
+C343-395 Spelling errors at the genocide prompt may have unintended consequences.
+:   (AceHack considers this a bug even if the vanilla NetHack devteam doesn't.) The parser has weird error handling, so that, say, "master mindflayer" is parsed as "master" which is parsed as "monk".
+SC343-10 Player can raise HP and Pw by dancing with vampires.
+:   HP lost to level drain goes down by a fixed amount, HP gained to level gain via polyself goes up by a factor. Mixing the two gives arbitrarily high max HP (likewise Pw).
+
+# Bugs on the vanilla NetHack buglist fixed in AceHack, or not considered bugs there
+
+Although the following bugs have been fixed (either specifically, or coincidentally when other changes have been made), they are still listed here in order to serve as a reference for people interested in NetHack development.
+
+Bugs that only trigger in debug mode are not considered bugs in AceHack, as debug mode is not meant to be stable. Although fixing them is a low priority, patches to fix them will likely be accepted anyway.
+
+C341-1 Monsters affected by stinking cloud always get angry at the hero even if the hero did not create the cloud.
+:   This was actually fixed in NetHack 3.4.1, except when loading a NetHack 3.4.0 bones file. As AceHack's bones files are not compatible with NetHack's, the bug thus fixed itself.
+C341-4 opthelp does not list use_inverse
+:   AceHack is redoing the options system; opthelp is currently not treated as a reliable file, and will likely eventually be removed or repurposed.
+C343-2 Wielded silver arrows don't cause silver damage on some silver-haters.
+:   There are separate codepaths for weapon silver damage and nonweapon silver damage. Wielded arrows manage to miss both of them, so silver arrows don't apply silver damage in vanilla NetHack.
+C343-5 In wizard mode, level teleport in the endgame can cause a crash if confused.
+:   Debug mode bug.
+C343-7 When a steed pushes a boulder into a pool, the message misuses "you".
+:   The message claims that it's you who pushed the boulder, rather than the steed.
+C343-8 Plural of Nazgul is Nazgul - not Nazguls.
+:   makeplural (objnam.c) needed an extra special case for this.
+C343-11 If you ask for help ('?') at a "what direction" prompt, you don't get to enter a direction afterward if the cmdassist option is set.
+:   The getdir function that handles this doesn't contain a loop in vanilla NetHack. AceHack adds a loop, not exiting the function until either a direction is pressed, or Esc is used to deliberately cancel.
+C343-15 You can get a message that an invisible monster looks much better.
+:   This happens when an invisible monster lifesaves when the player doesn't have see invisible; the relevant function in mon.c checks to see whether the monster's location is visible, rather than whether the monster is visible.
+C343-18 Scaring a mimicing mimic gives an incorrect "turns to flee" message.
+:   AceHack replaces the message when mimics are involved. (The original message in monflee (monmove.c) was a bit awkward in some cases, like mimics.)
+C343-24 Documented default for option "null" is "off"; default is actually "on".
+:   As an option which people are unlikely to change anyway, it's been made undocumented in Ace.
+C343-30 Cursed scroll of destroy armor on cursed armor doesn't always interact correctly.
+:   The incorrect interaction is: if the armour gives an enchantment-dependent boost to an ability (such as a helm of brilliance or gauntlets of dexterity), the ability score is permanently increased by 1 to offset the item's deduction of 1 point of enchantment, because the ability score modifier is dead-reckoned rather than recalculated and doing this makes the two get out of synch.
+C343-50 A sleeping steed may answer a #chat.
+:   dochat (sounds.c) checks to see if you're talking to a steed before it checks to see if the monster is asleep.
+C343-54 "Ulch" cannibalism message grammar is poor
+:   "Ulch - that meat was tainted cannibal!", eat.c:1261 in vanilla NetHack.
+C343-55 "Ulch" messages have inconsistent capitalization.
+:   Punctuation, too. For instance, in vanilla: eat.c:1261: "Ulch - that %s was tainted%s!" and potion.c:423: "Ulch!  This makes you feel mediocre!". They've been changed to the second template in AceHack.
+C343-61 Using a WIZKIT including the quest artifact will crash the game at startup.
+:   Debug mode bug. It's actually worse in AceHack than in vanilla NetHack; the startup order is changed for unrelated reasons, and as a result artifacts can't be used in WIZKITs at all, and making them work would be very difficult.
+C343-68 Incorrect message may be given when a spellcasting monster summons other monsters.
+:   This happens if multiple monsters are summoned, but the player can only see one; the message implies that more can be seen. (There are some relevant comments in NetHack's mcastu.c.) AceHack simply replaces the message.
+C343-88 Polymorphing a statue into a boulder can leave an incorrect display.
+:   It neglects to call block_point on the resulting square, which has to be done manually for boulders. As a result, the boulder doesn't block LOS until it's moved.
+C343-97 \^-R and \^-L don't work in numberpad mode
+:   The relevant code was completely replaced in AceHack, and numberpad mode no longer exists as a separate mode.
+C343-100 Game may crash if thrown potion hits bars before a monster.
+:   Because the potion is destroyed, and thus impossible to reference by the time it hits the monster, and vanilla NetHack doesn't check for this.
+C343-109 There is a grammar error in the Tourist leader's greeting.
+:   Tourist message 15: "Is it really you, %s!"
+C343-111 Grammar of some graveyard sounds messages is wrong in some cases.
+:   "The hair on the back of your neck stands up." (sounds.c:175) and the similar hallucinatory message are grammatically incorrect if the hero is polyselfed into a form whose hair-equivalent is a plural noun. As the message doesn't make a whole lot of sense with body part equivalents anyway, the RNG is skewed to always generate "unnaturally quiet" if the hero doesn't have literal hair.
+C343-120 There is no warning when hitting floating eyes.
+:   The vanilla NetHack devteam don't consider this a bug, but AceHack does. (AceHack's fix is not to produce a warning, but rather to make the floating eye's passive defence more effective at defending, but not dangerous to the player.)
+C343-123 Plural of "mother-in-law" is incorrect.
+:   makeplural (objnam.c) was missing a special case for words containing "-in-".
+C343-160 Name "leather spellbook" is misleading.
+:   It's been changed to "leather-bound spellbook" in AceHack, to avoid the misleading implication that it isn't made of paper.
+C343-178 Wisdom is mishandled when rumors are used for random graffiti.
+:   In vanilla NetHack, you get wisdom exercised upon polymorphing an engraving into "Elbereth". Heptagrams don't exercise wisdom in AceHack, though, and nor does the word "Elbereth", which no longer has an effect, so this doesn't happen.
+C343-218 Applying a wielded cream pie can crash the game.
+:   Because the game neglects to reset the "wielded" pointer when you apply it, leading to a dangling pointer.
+C343-248 You can't put candles in a candelabrum while underwater.
+:   Because you can't light candles underwater, the normal meaning of a on a candle, and the game checks in the wrong order
+C343-258 Grammar error in samurai quest: "wakarimasu?" instead of "wakarimasu ka?"
+:   In Samurai quest messages 18 and 24.
+C343-259 "Dr. Dolittle" is spelled incorrectly.
+:   In two places: a comment in the list of hallu monsters, and in the list of zoo messages.
+C343-305 Attacking with an applied polearm ignores the "confirm" option.
+:   Although potentially problematic in vanilla NetHack, AceHack has a visual clue to the peacefulness or tameness of monsters, which would almost certainly be noticed while confirming the target (the cursor has to be moved by hand), so it's unlikely this would be done by mistake. A confirmation is thus less important.
+C343-318 Opening or closing the castle drawbridge using music takes no time.
+:   This was a deliberate design decision in the original code, but it seems the vanilla devteam changed their minds. I'm fine to change with them; the time has been increased to 1 action (although a case could be made for 1 turn, 1 action is more forgiving, and I prefer to lean on the side of forgiving).
+C343-324 Cutting a long worm in two will crash the game if the cut takes the worm to 1 HP or if long worms had become extinct.
+:   The game wasn't checking to see if the worm was alive before cloning it, nor that the clone succeeded before using it.
+C343-338 Wizard-mode command sanity_check misses nested containers and migrating monsters.
+:   Debug mode bug.
+C343-370 Travel (_) command can get stuck trying to plot a path past an interesting dungeon feature, for example, a trap or fountain.
+:   The AI for travel has been greatly expanded to cover cases such as this one. (In AceHack, traps are considered as closed doors for routing purposes, in order to route past them more sensibly, but many other changes were needed.)
+C343-374 When ploymorphed into a grid bug, attempting to move in an illegal direction is handled ungracefully.
+:   The relevant code was rewritten in AceHack, but amusingly had the same bug for a different reason. There's now a YAFM for the situation.
+C343-386 Pearl rings can rust.
+:   Fixed by flagging them as bone, which has similar mechanical properties to pearl.
+C343-398 The game may crash if a wielded potion of polymorph is drunk.
+:   This is actually a different bug from other bugs with similar causes and symptoms. It isn't a dangling pointer bug, but rather a panic. What's happening is that the potion is dropped when polymorphing into a creature with no hands, and that's before it's used up; so when useup() is called after the potion is finished being drunk, it fails to find the potion in inventory and panics.
+C343-399 Messages referring to a named vault gaurd have grammatical errors.
+:   Fixed in AceHack, but I didn't make a record as to what was causing it in the first place. Sorry!
+SC343-8 Re-animating a statue containing gold produces too much gold.
+:   The bug here is that two stacks of gold are produced: the monster's mgold is converted into a stack, but also stored in the mgold stat itself. This only happens when the monster's data is stored in the statue itself; although the mgold value is set to 0, it's after the monster structure has already been copied, and thus too late.
+SC343-11 It's possible to easily find the identity of a high priest on the Astral plane.
+:   The same bug as the next one...
+SC343-12 Hero using telepathy can abuse Call on the Astral Plane.
+:   The cause of the bug was that distant_monnam was not being used consistently in do_mname. (Thus, using Call via telepathy against a high priest divulges his/her identity in the resulting error message.)
