@@ -1,0 +1,38 @@
+This is a mostly unsorted and vague list of changes which will probably eventually be in AceHack.
+
+If you have ideas of your own, add them to the [Ideas]() page.
+
+- default DEC/IBM/Unicode graphics
+- calling wands just after engrave-IDing with them
+- stash tracking
+- remembering seen prices of items in \
+- automark cursed light sources as cursed
+- some way to save notes with the character
+- pickup-burden at every level, not just one
+- unequip one item to equip another
+- uniqueness in trap colors
+- cursed armor should autoBCU when worn
+- "You feel stronger!" after eating giants, spinach, etc
+- ID kicking boots when they make things reel
+- travel position should reset between levels
+- new statuses need to cause a botl update
+- pre-ID the ?oEarth in Sokoban
+- "things that are here" should only show if blind or there's only one item
+- applying keys should not ask so many questions
+- travel should route past peacefuls more sensibly
+- traps need a valid glyph in IBM rogue graphics
+- lit middot vs. unlit lowdot; a consequence of darkroom vs. rogue? (it went away when I changed to IBM and back to DEC, so probably)
+- screen clear must pick the right background color
+- option to stop autoexplore with unexplored objects in LOS
+- show prices of items in containers
+- wipe out engravings from the engrave menu
+- better behaviour for walking into priests
+- price memory in \
+- total inventory weight
+- show time remaining on spells
+- ^X going back to its own menu
+- shift-walking into doors?
+- name levels you aren't on
+- second confirm on overwriting perm engraving with semiperm
+- some way to mark squares on a level by hand
+- extra question upon #loot/a,
