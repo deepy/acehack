@@ -1809,7 +1809,7 @@ unchanger()
     return 0;
 }
 
-/* occupation callback for 'A' */
+/* check if something is removable; return 1 if so, 0 if not */
 STATIC_PTR
 int
 select_off(otmp)
@@ -1920,7 +1920,7 @@ register struct obj *otmp;
 
 	else impossible("select_off: %s???", doname(otmp));
 
-	return(0);
+	return 1;
 }
 
 STATIC_OVL struct obj *
@@ -1933,7 +1933,7 @@ do_takeoff()
 	    setuwep((struct obj *) 0);
 	    You("are empty %s.", body_part(HANDED));
 	    u.twoweap = FALSE;
-	  }
+	  } else goto cursed_takeoff;
 	} else if (taking_off == W_SWAPWEP) {
 	  setuswapwep((struct obj *) 0);
 	  You("no longer have a second weapon readied.");
@@ -1943,39 +1943,48 @@ do_takeoff()
 	  You("no longer have ammunition readied.");
 	} else if (taking_off == WORN_ARMOR) {
 	  otmp = uarm;
-	  if(!cursed(otmp)) (void) Armor_off();
+	  if(!cursed(otmp)) (void) Armor_off(); else goto cursed_takeoff;
 	} else if (taking_off == WORN_CLOAK) {
 	  otmp = uarmc;
-	  if(!cursed(otmp)) (void) Cloak_off();
+	  if(!cursed(otmp)) (void) Cloak_off(); else goto cursed_takeoff;
 	} else if (taking_off == WORN_BOOTS) {
 	  otmp = uarmf;
-	  if(!cursed(otmp)) (void) Boots_off();
+	  if(!cursed(otmp)) (void) Boots_off(); else goto cursed_takeoff;
 	} else if (taking_off == WORN_GLOVES) {
 	  otmp = uarmg;
-	  if(!cursed(otmp)) (void) Gloves_off();
+	  if(!cursed(otmp)) (void) Gloves_off(); else goto cursed_takeoff;
 	} else if (taking_off == WORN_HELMET) {
 	  otmp = uarmh;
-	  if(!cursed(otmp)) (void) Helmet_off();
+	  if(!cursed(otmp)) (void) Helmet_off(); else goto cursed_takeoff;
 	} else if (taking_off == WORN_SHIELD) {
 	  otmp = uarms;
-	  if(!cursed(otmp)) (void) Shield_off();
+	  if(!cursed(otmp)) (void) Shield_off(); else goto cursed_takeoff;
 #ifdef TOURIST
 	} else if (taking_off == WORN_SHIRT) {
 	  otmp = uarmu;
-	  if (!cursed(otmp)) (void) Shirt_off();
+	  if (!cursed(otmp)) (void) Shirt_off(); else goto cursed_takeoff;
 #endif
 	} else if (taking_off == WORN_AMUL) {
 	  otmp = uamul;
-	  if(!cursed(otmp)) Amulet_off();
+	  if(!cursed(otmp)) Amulet_off(); else goto cursed_takeoff;
 	} else if (taking_off == LEFT_RING) {
 	  otmp = uleft;
-	  if(!cursed(otmp)) Ring_off(uleft);
+	  if(!cursed(otmp)) Ring_off(uleft); else goto cursed_takeoff;
 	} else if (taking_off == RIGHT_RING) {
 	  otmp = uright;
-	  if(!cursed(otmp)) Ring_off(uright);
+	  if(!cursed(otmp)) Ring_off(uright); else goto cursed_takeoff;
 	} else if (taking_off == WORN_BLINDF) {
 	  if (!cursed(ublindf)) Blindf_off(ublindf);
+          else {
+            /* We only get here if something was cursed while we were
+               taking it off, but need to handle the situation sanely */
+          cursed_takeoff:
+            otmp = NULL;
+            takeoff_mask = puton_mask = taking_off = 0;
+            stop_occupation();
+          }
 	} else impossible("do_takeoff: taking off %lx", taking_off);
+
 
 	return(otmp);
 }
@@ -2014,8 +2023,14 @@ take_off()
 	    if (todelay > 0) {
 		todelay--;
 		return(1);	/* still busy */
-	    } else {
+	    } else if (takeoff_mask) {
 		if ((otmp = do_takeoff())) off_msg(otmp);
+                if (!takeoff_mask) {
+                  /* if this is zeroised, we had to abort out because of
+                     cursed items */
+                  todelay = 0;
+                  return 0;
+                }
 	    }
             takeoff_mask &= ~taking_off;
 	    taking_off = 0L;
@@ -2165,6 +2180,10 @@ take_off()
             }
           }
           return take_off();
+        } else if (puton_mask & taking_off) {
+          /* item stuck in slot due to it or a covering item being cursed */
+          puton_mask &= ~taking_off;
+          todelay = 0;
         }
 
 	if (otmp) todelay += objects[otmp->otyp].oc_delay;
@@ -2317,48 +2336,48 @@ int retry;
        can cancel a prompt, or press -, to choose to empty that slot. */
     for(i = 0; i < n; i++) switch(selected[i].item.a_int) {
         case 'c':
-          if (uarmc) select_off(uarmc); puton_mask |= WORN_CLOAK;
+          if (!uarmc || select_off(uarmc)) puton_mask |= WORN_CLOAK;
           break;
         case 'm':
-          if (uarm) select_off(uarm); puton_mask |= WORN_ARMOR;
+          if (!uarm || select_off(uarm)) puton_mask |= WORN_ARMOR;
           break;
 #ifdef TOURIST
         case 'u':
-          if (uarmu) select_off(uarmu); puton_mask |= WORN_SHIRT;
+          if (!uarmu || select_off(uarmu)) puton_mask |= WORN_SHIRT;
           break;
 #endif
         case 'h':
-          if (uarmh) select_off(uarmh); puton_mask |= WORN_HELMET;
+          if (!uarmh || select_off(uarmh)) puton_mask |= WORN_HELMET;
           break;
         case 'g':
-          if (uarmg) select_off(uarmg); puton_mask |= WORN_GLOVES;
+          if (!uarmg || select_off(uarmg)) puton_mask |= WORN_GLOVES;
           break;
         case 'f':
-          if (uarmf) select_off(uarmf); puton_mask |= WORN_BOOTS;
+          if (!uarmf || select_off(uarmf)) puton_mask |= WORN_BOOTS;
           break;
         case 's':
-          if (uarms) select_off(uarms); puton_mask |= WORN_SHIELD;
+          if (!uarms || select_off(uarms)) puton_mask |= WORN_SHIELD;
           break;
         case 'w':
-          if (uwep) select_off(uwep); puton_mask |= W_WEP;
+          if (!uwep || select_off(uwep)) puton_mask |= W_WEP;
           break;
         case 'x':
-          if (uswapwep) select_off(uswapwep); puton_mask |= W_SWAPWEP;
+          if (!uswapwep || select_off(uswapwep)) puton_mask |= W_SWAPWEP;
           break;
         case 'q':
-          if (uquiver) select_off(uquiver); puton_mask |= W_QUIVER;
+          if (!uquiver || select_off(uquiver)) puton_mask |= W_QUIVER;
           break;
         case 'a':
-          if (uamul) select_off(uamul); puton_mask |= WORN_AMUL;
+          if (!uamul || select_off(uamul)) puton_mask |= WORN_AMUL;
           break;
         case 'l':
-          if (uleft) select_off(uleft); puton_mask |= LEFT_RING;
+          if (!uleft || select_off(uleft)) puton_mask |= LEFT_RING;
           break;
         case 'r':
-          if (uright) select_off(uright); puton_mask |= RIGHT_RING;
+          if (!uright || select_off(uright)) puton_mask |= RIGHT_RING;
           break;
         case 'b':
-          if (ublindf) select_off(ublindf); puton_mask |= WORN_BLINDF;
+          if (!ublindf || select_off(ublindf)) puton_mask |= WORN_BLINDF;
           break;          
     }
 
