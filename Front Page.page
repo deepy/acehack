@@ -5,6 +5,7 @@ You may be interested in the following links:
 - [Manually-updated log of differences between NetHack and AceHack](http://patch-tag.com/r/ais523/acehack/snapshot/current/content/raw/doc/fixes36.0)
 - [Automatically generated list of recent changes to AceHack](https://patch-tag.com/r/ais523/acehack/snapshots/all/history)
 - [acehack.rawrnix.com](http://acehack.rawrnix.com) - public AceHack server (telnet to it to play online)
+- [Development source](http://patch-tag.com/r/ais523/acehack) (darcs repository)
 
 This wiki also contains information relevant to the development of AceHack:
 
