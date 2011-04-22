@@ -12,3 +12,4 @@ This wiki also contains information relevant to the development of AceHack:
 - The [Ideas]() page contains ideas for future changes;
 - The [Bugs]() page contains bugs in AceHack that should ideally be fixed (many of which are also in NetHack).
 
+As AceHack's gameplay is so similar to NetHack's, if you're looking for, or want to add, gameplay advice about AceHack, a good place is  the [NetHack Wiki](http://nethackwiki.com). Most of the information there will also apply to AceHack, and AceHack-specific information will likely be welcomed if its context is made clear.
