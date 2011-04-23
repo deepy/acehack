@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 23 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2865,9 +2865,11 @@ mergable(otmp, obj)	/* returns TRUE if obj  & otmp can be merged */
 		is_reviver(&mons[otmp->corpsenm])))
 	    return FALSE;
 
-	/* allow candle merging only if their ages are close */
-	/* see begin_burn() for a reference for the magic "25" */
-	if (Is_candle(obj) && obj->age/25 != otmp->age/25)
+	/* candles merge only if their ages are in the same age band:
+           that's 0..15, 16..75, 76+ */
+	if (Is_candle(obj) && obj->age <= 15 && otmp->age > 15)
+	    return(FALSE);
+	if (Is_candle(obj) && obj->age <= 75 && otmp->age > 75)
 	    return(FALSE);
 
 	/* burning potions of oil never merge */
