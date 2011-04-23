@@ -7,7 +7,6 @@ If you find a bug, or have more information on the causes of a bug (or just a mo
 Bugs will be removed from this list as soon as they are fixed in the repository and on public servers, so this list will typically be empty. 
 
 - Monster generation on dungeon level 1 often seems rather out-of-depth. The bug always seems to clear itself up upon going to dungeon level 2, though.
-- Hallucination does not randomize background colors of squares, leaking information
 
 # Vanilla NetHack bugs also in AceHack
 

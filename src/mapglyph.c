@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 23 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -357,6 +357,12 @@ unsigned *ospecial;
         (getdirh != GETDIRH_NEXT ||
          (abs(x-getdirx) <= 1 && abs(y-getdiry) <= 1)))
         color += CLR_MAX * CLR_RED;
+    }
+
+    if (Hallucination) {
+      /* randomize backgrounds to avoid leaking information */
+      color %= CLR_MAX;
+      color += CLR_MAX * rn2(8);
     }
 
     *ochar = (int)ch;

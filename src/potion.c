@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)potion.c	3.4	2002/10/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 23 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -295,6 +295,9 @@ long mask;	/* nonzero if resistance status should change by mask */
 	    /* for perm_inv and anything similar
 	    (eg. Qt windowport's equipped items display) */
 	    update_inventory();
+
+            /* redraw background colors */
+            docrt();
 
 	    flags.botl = 1;
 	    if (talk) pline(message, verb);
