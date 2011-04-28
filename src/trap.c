@@ -3965,7 +3965,11 @@ register int bodypart;
 
 	pline("KABOOM!!  %s was booby-trapped!", The(item));
 	wake_nearby();
-	losehp(dmg, "explosion", KILLED_BY_AN);
+	if (heaven_or_hell_mode) {
+		You_feel("as if something protected you.");
+	}
+	else
+		losehp(dmg, "explosion", KILLED_BY_AN);
 	exercise(A_STR, FALSE);
 	if (bodypart) exercise(A_CON, FALSE);
 	make_stunned(HStun + dmg, TRUE);
