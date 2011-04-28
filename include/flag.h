@@ -45,10 +45,6 @@ struct flag {
 	boolean  forcefight;
 	boolean  friday13;	/* it's Friday the 13th */
 	boolean  help;		/* look in data file for info about stuff */
-	boolean  heaven_or_hell; /* die in one hit/enemies die in one hit */
-	boolean  hell_or_hell; /* die in one hit */
-#define heaven_or_hell_mode (flags.heaven_or_hell || flags.hell_or_hell)
-#define hell_or_hell_mode flags.hell_or_hell
 	boolean  ignintr;	/* ignore interrupts */
 #ifdef INSURANCE
 	boolean  ins_chkpt;	/* checkpoint as appropriate */
@@ -238,6 +234,9 @@ struct instance_flags {
 #ifdef SORTLOOT
 	char sortloot;          /* sort items to loot alphabetically */
 #endif
+	/* Heaven or hell modes */
+	boolean heaven_or_hell;
+	boolean hell_or_hell;
 /*
  * Window capability support.
  */

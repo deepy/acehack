@@ -71,10 +71,15 @@ struct u_conduct {		/* number of times... */
 	long    heptagrams;     /* drew magic hepagrams */
 	long	wishes;		/* used a wish */
 	long	wisharti;	/* wished for an artifact */
+	long	heaven_or_hell; /* heaven or hell mode */
+	long	hell_or_hell; /* hell or hell mode */
 				/* genocides already listed at end of game */
-        long    padding[10];    /* for adding new conducts without breaking
-                                   save compat */
+        long    padding[7];    /* for adding new conducts without breaking
+                                  save compat */
 };
+
+#define heaven_or_hell_mode u.uconduct.heaven_or_hell
+#define hell_or_hell_mode u.uconduct.hell_or_hell
 
 /*** Unified structure containing role information ***/
 struct Role {
@@ -272,8 +277,6 @@ struct you {
 	int	 uhunger;	/* refd only in eat.c and shk.c */
 	unsigned uhs;		/* hunger state - see eat.c */
 
-	int  ulives;    /* heaven or hell mode, number of lives */
-
 	struct prop uprops[LAST_PROP+1];
 
 	unsigned umconf;
@@ -322,6 +325,7 @@ struct you {
 	struct u_event	uevent;		/* certain events have happened */
 	struct u_have	uhave;		/* you're carrying special objects */
 	struct u_conduct uconduct;	/* KMH, conduct */
+	long  ulives;    /* heaven or hell mode, number of lives */
 	struct attribs	acurr,		/* your current attributes (eg. str)*/
 			aexe,		/* for gain/loss via "exercise" */
 			abon,		/* your bonus attributes (eg. str) */

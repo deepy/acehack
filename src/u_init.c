@@ -587,6 +587,14 @@ u_init_idempotent()
 	u.uspellprot = 0;
 	u.ulevel = u.ulevelmax = 1;
 
+	if (iflags.heaven_or_hell) {
+		heaven_or_hell_mode = TRUE;
+	}
+	if (iflags.hell_or_hell) {
+		heaven_or_hell_mode = TRUE;
+		hell_or_hell_mode = TRUE;
+	}
+
 	if (heaven_or_hell_mode) {
 		u.ulives = 3;
 		u.uhpmax = 1;

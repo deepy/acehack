@@ -1687,7 +1687,7 @@ int final;
 	putstr_or_dump(en_win, 0, "");
 
 	if (heaven_or_hell_mode) {
-		if (flags.hell_or_hell) {
+		if (hell_or_hell_mode) {
 			you_have_been("following the path of Hell or Hell");
 		}
 		else

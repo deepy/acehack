@@ -105,8 +105,8 @@ static struct Bool_Opt
 	{"flush", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 	{"fullscreen", &iflags.wc2_fullscreen, FALSE, SET_IN_FILE},
-	{"heaven_or_hell", &flags.heaven_or_hell, FALSE, DISP_IN_GAME},
-	{"hell_or_hell", &flags.hell_or_hell, FALSE, DISP_IN_GAME},
+	{"heaven_or_hell", &iflags.heaven_or_hell, FALSE, SET_IN_FILE},
+	{"hell_or_hell", &iflags.hell_or_hell, FALSE, SET_IN_FILE},
 	{"help", &flags.help, TRUE, SET_IN_FILE},
 	{"hilite_pet",    &iflags.wc_hilite_pet, TRUE, SET_IN_FILE},	/*WC*/
 #ifdef ASCIIGRAPH
@@ -1218,15 +1218,15 @@ boolean tinitial, tfrom_file;
     /* heaven or hell */
     if (match_optname(opts, "heaven_or_hell", 14, FALSE)) {
         if (!initial)
-			flags.heaven_or_hell = !negated;
+			iflags.heaven_or_hell = !negated;
     }
 	/* hell or hell */
     if (match_optname(opts, "hell_or_hell", 12, FALSE)) {
         if (!initial)
-            flags.hell_or_hell = !negated;
+            iflags.hell_or_hell = !negated;
     }
-	if (flags.hell_or_hell)
-		flags.heaven_or_hell = TRUE;
+	if (iflags.hell_or_hell)
+		iflags.heaven_or_hell = TRUE;
 
 #if defined(MICRO) && !defined(AMIGA)
 	/* included for compatibility with old NetHack.cnf files */
