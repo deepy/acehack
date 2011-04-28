@@ -168,7 +168,6 @@ mon_regen(mon, digest_meal)
 struct monst *mon;
 boolean digest_meal;
 {
-        if (is_mp_player(mon)) return; /* regeneration handled separately */
 	if (mon->mhp < mon->mhpmax &&
 	    (monstermoves % 20 == 0 || regenerates(mon->data))) mon->mhp++;
 	if (mon->mspec_used) mon->mspec_used--;

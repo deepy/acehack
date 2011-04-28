@@ -1121,6 +1121,16 @@ int final;	/* 0 => still in progress; 1 => over, survived; 2 => dead */
 	    you_are(hofe_titles[u.uevent.uhand_of_elbereth - 1]);
 	}
 #endif
+    /* heaven or hell modes */
+	if (heaven_or_hell_mode) {
+		if (u.ulives > 1)
+			Sprintf(buf, "%d lives", u.ulives);
+		else if (u.ulives == 0)
+			Sprintf(buf, "no lives");
+		else
+			Sprintf(buf, "%d life", u.ulives);
+		you_have(buf);
+	}
 
 	/* note: piousness 20 matches MIN_QUEST_ALIGN (quest.h) */
 	if (u.ualign.record >= 20)	you_are("piously aligned");
@@ -1675,6 +1685,14 @@ int final;
 	if (putstr_or_dump == putstr) en_win = create_nhwindow(NHW_MENU);
 	putstr_or_dump(en_win, 0, "Voluntary challenges:");
 	putstr_or_dump(en_win, 0, "");
+
+	if (heaven_or_hell_mode) {
+		if (flags.hell_or_hell) {
+			you_have_been("following the path of Hell or Hell");
+		}
+		else
+			you_have_been("following the path of Heaven or Hell");
+	}
 
 	if (!u.uconduct.food)
 	    enl_msg(You_, "have gone", "went", " without food");

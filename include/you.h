@@ -272,6 +272,8 @@ struct you {
 	int	 uhunger;	/* refd only in eat.c and shk.c */
 	unsigned uhs;		/* hunger state - see eat.c */
 
+	int  ulives;    /* heaven or hell mode, number of lives */
+
 	struct prop uprops[LAST_PROP+1];
 
 	unsigned umconf;

@@ -1013,7 +1013,10 @@ boolean your_fault;
 		distance = 0;
 		pline_The("%s crashes on your %s and breaks into shards.",
 			botlnam, body_part(HEAD));
-		losehp(rnd(2), "thrown potion", KILLED_BY_AN);
+		if (!heaven_or_hell_mode) {
+			losehp(rnd(2), "thrown potion", KILLED_BY_AN);
+		} else
+			You_feel("as if something protected you.");
 	} else {
 		distance = distu(mon->mx,mon->my);
 		if (!cansee(mon->mx,mon->my)) pline("Crash!");

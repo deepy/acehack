@@ -1136,6 +1136,13 @@ register int	mmflags;
 			mtmp->mstrategy |= STRAT_CLOSE;
 	}
 
+    /* heaven or hell mode */
+	if (heaven_or_hell_mode && !hell_or_hell_mode)
+	{
+		mtmp->mhpmax = 1;
+		mtmp->mhp = 1;
+	}
+
 	if (!in_mklev)
 	    newsym(mtmp->mx,mtmp->my);	/* make sure the mon shows up */
 

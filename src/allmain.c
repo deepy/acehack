@@ -134,6 +134,13 @@ moveloop()
                       break;	/* it's now your action or the next turn */
                 } while (monscanmove);
 		flags.mon_moving = FALSE;
+		/* heaven or hell mode: player always has 1 maxhp */
+		if (heaven_or_hell_mode)
+		{
+			u.uhpmax = 1;
+			if (u.uhp > u.uhpmax)
+				u.uhp = u.uhpmax;
+		}
 
 		if (((!monscanmove && youmonst.movement < NORMAL_SPEED) ||
                      turns_behind) && (!iflags.multiplayer || !u.ustuck)) {

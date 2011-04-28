@@ -587,6 +587,16 @@ u_init_idempotent()
 	u.uspellprot = 0;
 	u.ulevel = u.ulevelmax = 1;
 
+	if (heaven_or_hell_mode) {
+		u.ulives = 3;
+		u.uhpmax = 1;
+		u.uhp = 1;
+        HWarning = TRUE;
+	}
+	else {
+		u.ulives = 0;
+	}
+
 	init_uhunger();
 	for (i = 0; i <= MAXSPELL; i++) spl_book[i].sp_id = NO_SPELL;
 	u.ublesscnt = 300;			/* no prayers just yet */
@@ -718,6 +728,10 @@ u_init_idempotent()
 		break;
 	}
 
+	/* Add knowledge of life saving amulets for heaven or hell mode. */
+	if (heaven_or_hell_mode) {
+		knows_object(AMULET_OF_LIFE_SAVING);
+	}
 
 	/*** Race-specific initializations ***/
 	switch (Race_switch) {

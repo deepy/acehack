@@ -599,6 +599,7 @@ unsigned trflags;
 	boolean already_seen = trap->tseen;
 	boolean webmsgok = (!(trflags & NOWEBMSG));
 	boolean forcebungle = (trflags & FORCEBUNGLE);
+	int shooter_trap_chance = 15;
 
 	nomul(0);
 
@@ -641,9 +642,21 @@ unsigned trflags;
 	if (u.usteed) u.usteed->mtrapseen |= (1 << (ttype-1));
 #endif
 
+	if (heaven_or_hell_mode &&
+		(ttype == ARROW_TRAP ||
+		 ttype == DART_TRAP ||
+		 ttype == ROCKTRAP)) {
+		You_feel("as if something protected you.");
+		shooter_trap_chance = 1;
+        trap->once = 1;
+		seetrap(trap);
+        /* Ensure seen is set */
+        trap->tseen = TRUE;
+	}
+
 	switch(ttype) {
 	    case ARROW_TRAP:
-		if (trap->once && trap->tseen && !rn2(15)) {
+		if (trap->once && trap->tseen && !rn2(shooter_trap_chance)) {
 		    You_hear("a loud click!");
 		    deltrap(trap);
 		    newsym(u.ux,u.uy);
@@ -670,7 +683,7 @@ unsigned trflags;
 		}
 		break;
 	    case DART_TRAP:
-		if (trap->once && trap->tseen && !rn2(15)) {
+		if (trap->once && trap->tseen && !rn2(shooter_trap_chance)) {
 		    You_hear("a soft click.");
 		    deltrap(trap);
 		    newsym(u.ux,u.uy);
@@ -699,7 +712,7 @@ unsigned trflags;
 		}
 		break;
 	    case ROCKTRAP:
-		if (trap->once && trap->tseen && !rn2(15)) {
+		if (trap->once && trap->tseen && !rn2(shooter_trap_chance)) {
 		    pline("A trap door in %s opens, but nothing falls out!",
 			  the(ceiling(u.ux,u.uy)));
 		    deltrap(trap);
@@ -930,13 +943,16 @@ glovecheck:		(void) rust_dmg(uarmg, "gauntlets", 1, TRUE, &youmonst);
 #ifdef STEED
 		if (!steedintrap(trap, (struct obj *)0)) {
 #endif
-		if (ttype == SPIKED_PIT) {
-		    losehp(rnd(10),"fell into a pit of iron spikes",
-			NO_KILLER_PREFIX);
-		    if (!rn2(6))
-			poisoned("spikes", A_STR, "fall onto poison spikes", 8);
+		if (!heaven_or_hell_mode) {
+			if (ttype == SPIKED_PIT) {
+					losehp(rnd(10),"fell into a pit of iron spikes",
+					NO_KILLER_PREFIX);
+					if (!rn2(6))
+					poisoned("spikes", A_STR, "fall onto poison spikes", 8);
+			} else
+				losehp(rnd(6),"fell into a pit", NO_KILLER_PREFIX);
 		} else
-		    losehp(rnd(6),"fell into a pit", NO_KILLER_PREFIX);
+			You_feel("as if something protected you.");
 		if (Punished && !carried(uball)) {
 		    unplacebc();
 		    ballfall();
@@ -1165,7 +1181,10 @@ glovecheck:		(void) rust_dmg(uarmg, "gauntlets", 1, TRUE, &youmonst);
 			(void)keep_saddle_with_steedcorpse(steed_mid, fobj, saddle);
 #endif
 		newsym(u.ux,u.uy);		/* update trap symbol */
-		losehp(rnd(16), "land mine", KILLED_BY_AN);
+		if (!heaven_or_hell_mode)
+			losehp(rnd(16), "land mine", KILLED_BY_AN);
+		else
+			You_feel("as if something protected you.");
 		/* fall recursively into the pit... */
 		if ((trap = t_at(u.ux, u.uy)) != 0) dotrap(trap, RECURSIVETRAP);
 		fill_pit(u.ux, u.uy);
@@ -1763,7 +1782,7 @@ register struct monst *mtmp;
 			if (thitm(8, mtmp, otmp, 0, FALSE)) trapkilled = TRUE;
 			break;
 		case DART_TRAP:
-			if (trap->once && trap->tseen && !rn2(15)) {
+			if ((trap->once && trap->tseen && !rn2(15))) {
 			    if (in_sight && see_it)
 				pline("%s triggers a trap but nothing happens.",
 				      Monnam(mtmp));
@@ -1780,7 +1799,7 @@ register struct monst *mtmp;
 			if (thitm(7, mtmp, otmp, 0, FALSE)) trapkilled = TRUE;
 			break;
 		case ROCKTRAP:
-			if (trap->once && trap->tseen && !rn2(15)) {
+			if ((trap->once && trap->tseen && !rn2(15))) {
 			    if (in_sight && see_it)
 				pline("A trap door above %s opens, but nothing falls out!",
 				      mon_nam(mtmp));
@@ -2458,6 +2477,12 @@ struct obj *box;	/* null for floor trap */
 {
 	boolean see_it = !Blind;
 	int num, alt;
+
+	/* Disable fire traps in case of heaven or hell mode */
+	if (heaven_or_hell_mode) {
+		You_feel("as if something protected you.");
+		return;
+	}
 
 /* Bug: for box case, the equivalent of burn_floor_paper() ought
  * to be done upon its contents.

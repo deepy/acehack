@@ -1213,6 +1213,19 @@ boolean tinitial, tfrom_file;
 		return;
 	}
 
+    /* heaven or hell */
+    if (match_optname(opts, "heaven_or_hell", 14, FALSE)) {
+        if (!initial)
+			flags.heaven_or_hell = !negated;
+    }
+	/* hell or hell */
+    if (match_optname(opts, "hell_or_hell", 12, FALSE)) {
+        if (!initial)
+            flags.hell_or_hell = !negated;
+    }
+	if (flags.hell_or_hell)
+		flags.heaven_or_hell = TRUE;
+
 #if defined(MICRO) && !defined(AMIGA)
 	/* included for compatibility with old NetHack.cnf files */
 	if (match_optname(opts, "IBM_", 4, FALSE)) {
