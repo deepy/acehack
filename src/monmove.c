@@ -450,7 +450,11 @@ register struct monst *mtmp;
 					Blind_telepat ? "latent telepathy" : "mind");
 				dmg = rnd(15);
 				if (Half_spell_damage) dmg = (dmg+1) / 2;
-				losehp(dmg, "psychic blast", KILLED_BY_AN);
+				if (heaven_or_hell_mode) {
+					You_feel("as if something protected you.");
+				}
+				else
+					losehp(dmg, "psychic blast", KILLED_BY_AN);
 			}
 		}
 		for(m2=fmon; m2; m2 = nmon) {
