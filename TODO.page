@@ -8,7 +8,7 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - remembering seen prices of items in \
 - automark cursed light sources as cursed
 - some way to save notes with the character
-- pickup-burden at every level, not just one
+- pickup-burden at every level, not just one (this is beginning to get a little urgent...)
 - unequip one item to equip another
 - uniqueness in trap colors
 - cursed armor should autoBCU when worn
@@ -36,3 +36,8 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - second confirm on overwriting perm engraving with semiperm
 - some way to mark squares on a level by hand
 - extra question upon #loot/a,
+- track down obscure bugs: background color on spellcasting when blind, and nooodl's double-branch thing
+- stop pets doing things that might annoy their masters (like cursing enemy's items); it's fine for conflicted monsters to do that, though
+- xlogfile, livelog
+- make c close doors if there's nothing to chat to
+- fix bump-conversation with priests (perhaps keep it meaning "chat", but the priest doesn't ask for money)
