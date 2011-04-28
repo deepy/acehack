@@ -105,6 +105,8 @@ static struct Bool_Opt
 	{"flush", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 	{"fullscreen", &iflags.wc2_fullscreen, FALSE, SET_IN_FILE},
+	{"heaven_or_hell", &flags.heaven_or_hell, FALSE, DISP_IN_GAME},
+	{"hell_or_hell", &flags.hell_or_hell, FALSE, DISP_IN_GAME},
 	{"help", &flags.help, TRUE, SET_IN_FILE},
 	{"hilite_pet",    &iflags.wc_hilite_pet, TRUE, SET_IN_FILE},	/*WC*/
 #ifdef ASCIIGRAPH
