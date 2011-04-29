@@ -442,6 +442,11 @@ int	mntmp;
 	}
 	u.mh = u.mhmax;
 
+	if (heaven_or_hell_mode) {
+		u.mhmax = 1;
+		u.mh = 1;
+	}
+
 	if (u.ulevel < mlvl) {
 	/* Low level characters can't become high level monsters for long */
 #ifdef DUMB
