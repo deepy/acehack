@@ -925,6 +925,10 @@ pleased(g_align)
 	    } else {
 		u.uhpmax += 5;
 		if (Upolyd) u.mhmax += 5;
+		if (heaven_or_hell_mode) {
+			u.uhpmax = 1;
+			if (Upolyd) u.mhmax = 1;
+		}
 	    }
 	    u.uhp = u.uhpmax;
 	    if (Upolyd) u.mh = u.mhmax;
