@@ -106,7 +106,7 @@ static struct Bool_Opt
 #endif
 	{"fullscreen", &iflags.wc2_fullscreen, FALSE, SET_IN_FILE},
 	{"heaven_or_hell", &iflags.heaven_or_hell, FALSE, SET_IN_FILE},
-	{"hell_or_hell", &iflags.hell_or_hell, FALSE, SET_IN_FILE},
+	{"hell_and_hell", &iflags.hell_and_hell, FALSE, SET_IN_FILE},
 	{"help", &flags.help, TRUE, SET_IN_FILE},
 	{"hilite_pet",    &iflags.wc_hilite_pet, TRUE, SET_IN_FILE},	/*WC*/
 #ifdef ASCIIGRAPH
@@ -1221,11 +1221,11 @@ boolean tinitial, tfrom_file;
 			iflags.heaven_or_hell = !negated;
     }
 	/* hell or hell */
-    if (match_optname(opts, "hell_or_hell", 12, FALSE)) {
+    if (match_optname(opts, "hell_and_hell", 13, FALSE)) {
         if (!initial)
-            iflags.hell_or_hell = !negated;
+            iflags.hell_and_hell = !negated;
     }
-	if (iflags.hell_or_hell)
+	if (iflags.hell_and_hell)
 		iflags.heaven_or_hell = TRUE;
 
 #if defined(MICRO) && !defined(AMIGA)

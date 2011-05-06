@@ -590,9 +590,9 @@ u_init_idempotent()
 	if (iflags.heaven_or_hell) {
 		heaven_or_hell_mode = TRUE;
 	}
-	if (iflags.hell_or_hell) {
+	if (iflags.hell_and_hell) {
 		heaven_or_hell_mode = TRUE;
-		hell_or_hell_mode = TRUE;
+		hell_and_hell_mode = TRUE;
 	}
 
 	if (heaven_or_hell_mode) {

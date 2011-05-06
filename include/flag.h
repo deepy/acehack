@@ -236,7 +236,7 @@ struct instance_flags {
 #endif
 	/* Heaven or hell modes */
 	boolean heaven_or_hell;
-	boolean hell_or_hell;
+	boolean hell_and_hell;
 /*
  * Window capability support.
  */

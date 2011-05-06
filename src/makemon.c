@@ -1137,7 +1137,7 @@ register int	mmflags;
 	}
 
     /* heaven or hell mode */
-	if (heaven_or_hell_mode && !hell_or_hell_mode)
+	if (heaven_or_hell_mode && !hell_and_hell_mode)
 	{
 		mtmp->mhpmax = 1;
 		mtmp->mhp = 1;

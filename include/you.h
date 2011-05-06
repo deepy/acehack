@@ -72,14 +72,14 @@ struct u_conduct {		/* number of times... */
 	long	wishes;		/* used a wish */
 	long	wisharti;	/* wished for an artifact */
 	long	heaven_or_hell; /* heaven or hell mode */
-	long	hell_or_hell; /* hell or hell mode */
+	long	hell_and_hell; /* hell and hell mode */
 				/* genocides already listed at end of game */
         long    padding[7];    /* for adding new conducts without breaking
                                   save compat */
 };
 
 #define heaven_or_hell_mode u.uconduct.heaven_or_hell
-#define hell_or_hell_mode u.uconduct.hell_or_hell
+#define hell_and_hell_mode u.uconduct.hell_and_hell
 
 /*** Unified structure containing role information ***/
 struct Role {
