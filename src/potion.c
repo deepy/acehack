@@ -935,6 +935,15 @@ healup(nhp, nxtra, curesick, cureblind)
 			if(u.uhp > u.uhpmax) u.uhp = (u.uhpmax += nxtra);
 		}
 	}
+	if (heaven_or_hell_mode) {
+		if (Upolyd) {
+			u.mhmax = 1;
+			if (u.mh > u.mhmax) u.mh = u.mhmax;
+		} else {
+			u.uhpmax = 1;
+			if (u.uhp > u.uhpmax) u.uhp = u.uhpmax;
+		}
+	}
 	if(cureblind)	make_blinded(0L,TRUE);
 	if(curesick)	make_sick(0L, (char *) 0, TRUE, SICK_ALL);
 	flags.botl = 1;
