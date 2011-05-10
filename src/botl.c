@@ -180,7 +180,7 @@ hp_pw_bar(current, outof, ishp, y)
      >1/7   red    magenta
      <=1/7  br.red br.magenta */
   if (current < 0) current = 0;
-  hpsplit = (current*14/outof) + 1;
+  if (outof) hpsplit = (current*14/outof) + 1; else hpsplit = 0;
   if (current == 0) hpsplit = 0;
   if (current == outof) hpcolor = NO_COLOR;
   else if (current*3 > outof*2) hpcolor = ishp ? CLR_GREEN : CLR_CYAN;
