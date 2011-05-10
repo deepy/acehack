@@ -961,24 +961,6 @@ int how;
 	killer = kilbuf;
 
 	if (how < PANICKED) u.umortality++;
-	/* Save life when under heaven or hell mode, but not when
-	 * self-genociding. */
-	if (u.ulives > 0 && how < GENOCIDED) {
-		pline("But wait...");
-		You("suddenly start to feel better!");
-		savelife(how);
-		u.ulives--;
-		if (!u.ulives)
-			You_feel("death is waiting for you just around the corner...");
-		/* Set invulnerability and wait until player gets another action. */
-		nomul(-5);
-		u.uinvulnerable = TRUE;
-		nomovemsg = You_can_move_again;
-		afternmv = heaven_or_hell_lifesave_end;
-		killer = 0;
-		killer_format = 0;
-		return;
-	}
 	if (Lifesaved && (how <= GENOCIDED)) {
 		pline("But wait...");
 		makeknown(AMULET_OF_LIFE_SAVING);
@@ -999,6 +981,24 @@ int how;
 			killer_format = 0;
 			return;
 		}
+	}
+	/* Save life when under heaven or hell mode, but not when
+	 * self-genociding. */
+	if (u.ulives > 0 && how < GENOCIDED) {
+		pline("But wait...");
+		You("suddenly start to feel better!");
+		savelife(how);
+		u.ulives--;
+		if (!u.ulives)
+			You_feel("death is waiting for you just around the corner...");
+		/* Set invulnerability and wait until player gets another action. */
+		nomul(-5);
+		u.uinvulnerable = TRUE;
+		nomovemsg = You_can_move_again;
+		afternmv = heaven_or_hell_lifesave_end;
+		killer = 0;
+		killer_format = 0;
+		return;
 	}
 	if ((
 #ifdef WIZARD
