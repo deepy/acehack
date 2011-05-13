@@ -26,7 +26,6 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - option to stop autoexplore with unexplored objects in LOS
 - show prices of items in containers
 - wipe out engravings from the engrave menu
-- better behaviour for walking into priests
 - price memory in \
 - total inventory weight
 - show time remaining on spells
@@ -40,4 +39,3 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - stop pets doing things that might annoy their masters (like cursing enemy's items); it's fine for conflicted monsters to do that, though
 - xlogfile, livelog
 - make c close doors if there's nothing to chat to
-- fix bump-conversation with priests (perhaps keep it meaning "chat", but the priest doesn't ask for money)

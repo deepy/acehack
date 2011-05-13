@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)uhitm.c	3.4	2003/02/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 13 May 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -207,7 +207,9 @@ struct obj *wep;	/* uwep for attack(), null for kick_monster() */
             }
             if (always_peaceful(mtmp->data) && mtmp->mpeaceful) {
                 setnextgetdirdxdy(mtmp->mx-u.ux, mtmp->my-u.uy);
-                dotalk();
+                if (mtmp->data->msound == MS_PRIEST)
+                    pline("The priest mutters a prayer.");
+                else dotalk();
                 setnextgetdir(0); /* player might be muted */
                 return TRUE;
             }
