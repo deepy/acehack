@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Apr 2011 by Alex Smith */
+/* Modified 13 May 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1852,13 +1852,13 @@ struct obj *obj;
           add_menu(win, NO_GLYPH, &any, 'r', 0, ATR_NONE,
                    "Read the message inside this cookie", MENU_UNSELECTED);
         else if (obj->otyp == T_SHIRT)
-          add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
+          add_menu(win, NO_GLYPH, &any, 'r', 0, ATR_NONE,
                    "Read the slogan on the shirt", MENU_UNSELECTED);
         else if (obj->oclass == SCROLL_CLASS)
-          add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
+          add_menu(win, NO_GLYPH, &any, 'r', 0, ATR_NONE,
                    "Cast the spell on this scroll", MENU_UNSELECTED);
         else if (obj->oclass == SPBOOK_CLASS)
-          add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
+          add_menu(win, NO_GLYPH, &any, 'r', 0, ATR_NONE,
                    "Study this spellbook", MENU_UNSELECTED);
         /* t: throw item, works on everything */
         any.a_void = (genericptr_t)dothrow;
@@ -1888,7 +1888,7 @@ struct obj *obj;
                  obj->otyp == MIRROR) /* wtf NetHack devteam? */
           add_menu(win, NO_GLYPH, &any, 'V', 0, ATR_NONE,
                    "Try to invoke a unique power of this object", MENU_UNSELECTED);
-        else if (obj->otyp == POT_OIL)
+        else if (obj->otyp == POT_OIL && obj->dknown)
           add_menu(win, NO_GLYPH, &any, 'V', 0, ATR_NONE,
                    "Ignite or extinguish this oil", MENU_UNSELECTED);
         /* w: hold in hands, works on everything but with different
@@ -1975,7 +1975,7 @@ struct obj *obj;
         }
         /* In most cases, we can just set getobj's result directly.
            (This works even for commands that take no arguments, because
-           they don't call getobj at all. */
+           they don't call getobj at all.) */
         nextgetobj = obj;
         n = (*feedback_fn)();
         nextgetobj = 0;
