@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mapglyph.c	3.4	2003/01/08	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 23 Apr 2011 by Alex Smith */
+/* Modified 13 May 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -312,13 +312,11 @@ unsigned *ospecial;
     }
 
 #ifdef TEXTCOLOR
+    /* Don't draw trap/portal branding on Water; the portals move, so the
+       player shouldn't be allowed to memorize their positions. */
+    if (!Is_waterlevel(&u.uz))
     {
-      /* Brand squares known to be trapped as cyan, if there's no existing
-         branding. */
       struct trap *ttmp = t_at(x,y);
-      if (ttmp && ttmp->tseen && color < CLR_MAX) {
-        color += CLR_MAX*CLR_CYAN;
-      }
       /* Brand squares with known stairs/ladders/portals as red, if there's
          no existing branding. (White looks nicer but several terminals
          can't handle it.) */
@@ -326,6 +324,11 @@ unsigned *ospecial;
            (ttmp && ttmp->tseen && ttmp->ttyp == MAGIC_PORTAL)) &&
           color < CLR_MAX) {
         color += CLR_MAX*CLR_RED;
+      }
+      /* Brand squares known to be trapped as cyan, if there's no existing
+         branding. */
+      if (ttmp && ttmp->tseen && color < CLR_MAX) {
+        color += CLR_MAX*CLR_CYAN;
       }
     }
 #endif
@@ -363,6 +366,8 @@ unsigned *ospecial;
       /* randomize backgrounds to avoid leaking information */
       color %= CLR_MAX;
       color += CLR_MAX * rn2(8);
+      /* backgrounding every square is silly... */
+      if (glyph_is_cmap(glyph)) color %= CLR_MAX;
     }
 
     *ochar = (int)ch;
