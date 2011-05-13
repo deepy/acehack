@@ -501,12 +501,15 @@ toofar:
 	    }
 	}
 
-/*      Look for other monsters to fight (at a distance) */
+/*      Look for other monsters to fight (at a distance) 
+        Check for scaredness if the monster is next to the player.
+*/
         //for (i = 0; i < 2; i++)
-	if (( attacktype(mtmp->data, AT_BREA) ||
-	      attacktype(mtmp->data, AT_GAZE) ||
-	      attacktype(mtmp->data, AT_SPIT) ||
-	     (attacktype(mtmp->data, AT_WEAP) &&
+	if ((!scared || !monnear(mtmp, u.ux, u.uy)) &&
+	    (attacktype(mtmp->data, AT_BREA) ||
+	     attacktype(mtmp->data, AT_GAZE) ||
+	     attacktype(mtmp->data, AT_SPIT) ||
+	    (attacktype(mtmp->data, AT_WEAP) &&
 	      select_rwep(mtmp) != 0)) &&
 	    mtmp->mlstmv != monstermoves)
 	{
