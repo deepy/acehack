@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dogmove.c	3.4	2002/09/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 13 May 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -234,10 +234,11 @@ int x, y;
 	return FALSE;
 }
 
-int
-dog_nutrition(mtmp, obj)
+STATIC_OVL int
+dog_nutrition_value(mtmp, obj, set_meating)
 struct monst *mtmp;
 struct obj *obj;
+boolean set_meating;
 {
 	int nutrit;
 
@@ -247,10 +248,10 @@ struct obj *obj;
 	 */
 	if (obj->oclass == FOOD_CLASS) {
 	    if(obj->otyp == CORPSE) {
-		mtmp->meating = 3 + (mons[obj->corpsenm].cwt >> 6);
+                if (set_meating) mtmp->meating = 3 + (mons[obj->corpsenm].cwt >> 6);
 		nutrit = mons[obj->corpsenm].cnutrit;
 	    } else {
-		mtmp->meating = objects[obj->otyp].oc_delay;
+		if (set_meating) mtmp->meating = objects[obj->otyp].oc_delay;
 		nutrit = objects[obj->otyp].oc_nutrition;
 	    }
 	    switch(mtmp->data->msize) {
@@ -263,12 +264,12 @@ struct obj *obj;
 		case MZ_GIGANTIC: nutrit *= 2; break;
 	    }
 	    if(obj->oeaten) {
-		mtmp->meating = eaten_stat(mtmp->meating, obj);
+		if (set_meating) mtmp->meating = eaten_stat(mtmp->meating, obj);
 		nutrit = eaten_stat(nutrit, obj);
 	    }
 	} else if (obj->oclass == COIN_CLASS) {
-	    mtmp->meating = (int)(obj->quan/2000) + 1;
-	    if (mtmp->meating < 0) mtmp->meating = 1;
+	    if (set_meating) mtmp->meating = (int)(obj->quan/2000) + 1;
+	    if (set_meating && mtmp->meating < 0) mtmp->meating = 1;
 	    nutrit = (int)(obj->quan/20);
 	    if (nutrit < 0) nutrit = 0;
 	} else {
@@ -277,10 +278,18 @@ struct obj *obj;
 	     * nutrit made consistent with polymorphed player nutrit in
 	     * eat.c.  (This also applies to pets eating gold.)
 	     */
-	    mtmp->meating = obj->owt/20 + 1;
+	    if (set_meating) mtmp->meating = obj->owt/20 + 1;
 	    nutrit = 5*objects[obj->otyp].oc_nutrition;
 	}
 	return nutrit;
+}
+
+int
+dog_nutrition(mtmp, obj)
+struct monst *mtmp;
+struct obj *obj;
+{
+  return dog_nutrition_value(mtmp, obj, TRUE);
 }
 
 /* returns 2 if pet dies, otherwise 1 */
@@ -410,7 +419,7 @@ register struct edog *edog;
 	    int cur_food = APPORT, best_food = APPORT;
 	    for (otmp = mtmp->minvent; otmp; otmp = otmp->nobj)
 	    {
-	        cur_nutrit = dog_nutrition(mtmp, otmp);
+	        cur_nutrit = dog_nutrition_value(mtmp, otmp, FALSE);
 		cur_food = dogfood(mtmp, otmp);
 	        if (cur_food < best_food &&
 		    cur_nutrit > best_nutrit)
