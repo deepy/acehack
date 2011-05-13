@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)monmove.c	3.4	2002/04/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 13 May 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -496,7 +496,7 @@ toofar:
 	    mtmp->mlstmv != monstermoves)
 	{
 	    register struct monst *mtmp2 = mfind_target(mtmp);
-	    if (mtmp2)
+	    if (mtmp2 && mtmp2 != &youmonst)
 	    {
 	        if (mattackm(mtmp, mtmp2) & MM_AGR_DIED)
 		    return 1; // Oops.
