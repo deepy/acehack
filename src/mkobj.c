@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mkobj.c	3.4	2002/10/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Mar 2011 by Alex Smith */
+/* Modified 13 May 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -475,7 +475,6 @@ boolean artif;
 					otmp->lamplit = 0;
 					otmp->quan = 1L +
 					      (long)(rn2(2) ? rn2(7) : 0);
-					blessorcurse(otmp, 5);
 					break;
 		case BRASS_LANTERN:
 		case OIL_LAMP:		otmp->spe = 1;
