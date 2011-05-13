@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pickup.c	3.4	2003/07/27	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Mar 2011 by Alex Smith */
+/* Modified 13 May 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -1217,8 +1217,6 @@ boolean telekinesis;
     } else {
 	result = 1;
 	prev_encumbr = near_capacity();
-	if (prev_encumbr < flags.pickup_burden)
-		prev_encumbr = flags.pickup_burden;
 	next_encumbr = calc_capacity(new_wt - old_wt);
 	if (next_encumbr > prev_encumbr) {
 	    if (telekinesis) {

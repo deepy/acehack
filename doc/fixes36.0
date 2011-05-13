@@ -245,6 +245,9 @@ almost a bug in vanilla, as without spare wishes, there's pretty much
 no way to recover from that situation without pudding farming or a lot
 of luck.)
 
+Picking up items warns whenever it would make your burden level
+increase.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
