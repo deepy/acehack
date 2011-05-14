@@ -432,9 +432,9 @@ int	mntmp;
 	 */
 	mlvl = (int)mons[mntmp].mlevel;
 	if (youmonst.data->mlet == S_DRAGON && mntmp >= PM_GRAY_DRAGON) {
-		u.mhmax = In_endgame(&u.uz) ? (8*mlvl) : (4*mlvl + d(mlvl,4));
+		set_uhpmax(In_endgame(&u.uz) ? (8*mlvl) : (4*mlvl + d(mlvl,4)), TRUE);
 	} else if (is_golem(youmonst.data)) {
-		u.mhmax = golemhp(mntmp);
+		set_uhpmax(golemhp(mntmp), TRUE);
 	} else {
 		if (!mlvl) u.mhmax = rnd(4);
 		else u.mhmax = d(mlvl, 8);
@@ -442,10 +442,7 @@ int	mntmp;
 	}
 	u.mh = u.mhmax;
 
-	if (heaven_or_hell_mode) {
-		u.mhmax = 1;
-		u.mh = 1;
-	}
+    check_uhpmax();
 
 	if (u.ulevel < mlvl) {
 	/* Low level characters can't become high level monsters for long */

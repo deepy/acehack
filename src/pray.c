@@ -325,7 +325,7 @@ register int trouble;
 		    }
 		    if (u.uhpmax < u.ulevel * 5 + 11) u.uhpmax += rnd(5);
 		    if (u.uhpmax <= 5) u.uhpmax = 5+1;
-			if (heaven_or_hell_mode) u.uhpmax = 1;
+			check_uhpmax();
 		    u.uhp = u.uhpmax;
 		    flags.botl = 1;
 		    break;

@@ -2565,7 +2565,7 @@ register struct attack *mattk;
 		}
 		pline("%s is suddenly very cold!", Monnam(mtmp));
 		u.mh += tmp / 2;
-		if (u.mhmax < u.mh) u.mhmax = u.mh;
+		if (u.mhmax < u.mh) set_uhpmax(u.mh, TRUE);
 		if (u.mhmax > ((youmonst.data->mlevel+1) * 8))
 		    (void)split_mon(&youmonst, mtmp);
 		break;
