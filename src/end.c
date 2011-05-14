@@ -972,7 +972,7 @@ int how;
 		if (uamul) useup(uamul);
 
 		(void) adjattrib(A_CON, -1, TRUE);
-		if(u.uhpmax <= 0) u.uhpmax = 10;	/* arbitrary */
+		if(u.uhpmax <= 0) u.uhpmax = (heaven_or_hell_mode ? 1 : 10);
 		savelife(how);
 		if (how == GENOCIDED)
 			pline("Unfortunately you are still genocided...");
@@ -987,6 +987,7 @@ int how;
 	if (u.ulives > 0 && how < GENOCIDED) {
 		pline("But wait...");
 		You("suddenly start to feel better!");
+		if(u.uhpmax <= 0) u.uhpmax = 1;
 		savelife(how);
 		u.ulives--;
 		if (!u.ulives)
