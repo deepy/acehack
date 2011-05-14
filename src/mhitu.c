@@ -1082,6 +1082,11 @@ dopois:
 			int lifesaved = 0;
 			struct obj *wore_amulet = uamul;
 
+			/* Set lives to 0; avoids small loop in heaven or hell modes. 
+			   Player dies regardless of lives left when dies to 
+			   brainlessness. */
+			u.ulives = 0;
+
 			while(1) {
 			    /* avoid looping on "die(y/n)?" */
 			    if (lifesaved && (discover || wizard)) {
