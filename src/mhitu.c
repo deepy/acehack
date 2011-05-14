@@ -31,6 +31,8 @@ STATIC_DCL void FDECL(wildmiss, (struct monst *,struct attack *));
 STATIC_DCL void FDECL(hurtarmor,(int));
 STATIC_DCL void FDECL(hitmsg,(struct monst *,struct attack *));
 
+STATIC_DCL void FDECL(invulnerability_messages,(struct monst *,BOOLEAN_P,BOOLEAN_P));
+
 /* See comment in mhitm.c.  If we use this a lot it probably should be */
 /* changed to a parameter to mhitu. */
 static int dieroll;
@@ -527,16 +529,7 @@ mattacku(mtmp)
 	}
 
 	if(u.uinvulnerable) {
-	    /* monsters won't attack you */
-	    if(mtmp == u.ustuck)
-		pline("%s loosens its grip slightly.", Monnam(mtmp));
-	    else if(!range2) {
-		if (youseeit || sensemon(mtmp))
-		    pline("%s starts to attack you, but pulls back.",
-			  Monnam(mtmp));
-		else
-		    You_feel("%s move nearby.", something);
-	    }
+		invulnerability_messages(mtmp, range2, youseeit);
 	    return (0);
 	}
 
@@ -548,6 +541,14 @@ mattacku(mtmp)
 	}
 
 	for(i = 0; i < NATTK; i++) {
+		/* invulnerability may occur between attacks 
+		   (when HoH life saving.). Cancel attacks if we become
+		   invulnerable. */
+		if (u.uinvulnerable)
+		{
+			invulnerability_messages(mtmp, range2, youseeit);
+			break;
+		}
 
 	    sum[i] = 0;
 	    mattk = getmattk(mdat, i, sum, &alt_attk);
@@ -2604,6 +2605,24 @@ register struct attack *mattk;
 		return 2;
 	}
 	return 1;
+}
+
+STATIC_OVL void 
+invulnerability_messages(mtmp, range2, youseeit)
+	struct monst *mtmp;
+	boolean range2;
+	boolean youseeit;
+{
+	/* monsters won't attack you */
+	if(mtmp == u.ustuck)
+	pline("%s loosens its grip slightly.", Monnam(mtmp));
+	else if(!range2) {
+	if (youseeit || sensemon(mtmp))
+		pline("%s starts to attack you, but pulls back.",
+		  Monnam(mtmp));
+	else
+		You_feel("%s move nearby.", something);
+    }
 }
 
 #endif /* OVL1 */
