@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 11 Aug 2010 by Alex Smith */
+/* Modified 22 May 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -520,6 +520,7 @@ newgame_part_2()
             rndmonst_safe_in_newgame = TRUE;
             u_init_idempotent();
             rndmonst_safe_in_newgame = FALSE;
+            reset_rndmonst(NON_PM);
             newgame_progress = 2;
         } while (inv_cnt() > 16); /* ensure no more than 16 items in starting inventory */
 }
