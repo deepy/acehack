@@ -2712,6 +2712,10 @@ tty_print_glyph(window, x, y, glyph)
 #endif
 	g_putch(ch);		/* print the character */
 
+#ifdef TEXTCOLOR
+    tty_end_color();
+#endif /* TEXTCOLOR */
+
     tty_end_attr(ATR_INVERSE);
     tty_end_attr(ATR_ULINE);
 
