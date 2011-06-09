@@ -336,6 +336,7 @@ checkfile_again:
       if (otmp->otyp == COIN_CLASS) otmp->quan = 2L;
       if (otmp->otyp == SLIME_MOLD) otmp->spe = current_fruit;
       inp = xname(otmp);
+      dealloc_obj(otmp);
       objects[otyp].oc_name_known = save_oc_name_known;
       if (second_pass && !strcmp(oldinp,inp)) {
         fp = dlb_fopen(DATAFILE, "r");
