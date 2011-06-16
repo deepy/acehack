@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 16 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -884,6 +884,7 @@ register struct obj *obj;
 		if (!Blind)
 		    pline_The("%s %s for a moment, then %s.",
 			      s, vtense(s, "flicker"), vtense(s, "die"));
+			obj->bknown = TRUE;
 		return;
 	}
 	if(obj->spe < 7) {
@@ -1094,6 +1095,7 @@ struct obj *obj;
 	if (obj->cursed && !rn2(2)) {
 		pline("%s for a moment, then %s.",
 		      Tobjnam(obj, "flicker"), otense(obj, "die"));
+		obj->bknown = TRUE;
 	} else {
 		if(obj->otyp == OIL_LAMP || obj->otyp == MAGIC_LAMP ||
 				obj->otyp == BRASS_LANTERN) {

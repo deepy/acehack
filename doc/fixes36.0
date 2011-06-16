@@ -248,6 +248,9 @@ of luck.)
 Picking up items warns whenever it would make your burden level
 increase.
 
+Cursed light-sources become marked as cursed when they fail to light
+as a result. (Patch credits: patch by rawrmage).
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
