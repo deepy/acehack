@@ -185,7 +185,7 @@ static struct Bool_Opt
 	{"sound", &flags.soundok, TRUE, SET_IN_FILE},
 	{"sparkle", &flags.sparkle, TRUE, SET_IN_FILE},
 	{"standout", &flags.standout, TRUE, SET_IN_FILE},
-	{"startscum", &flags.startscum, TRUE, SET_IN_FILE},
+	{"startscum", &flags.startscum, FALSE, SET_IN_FILE},
 	{"splash_screen",     &iflags.wc_splash_screen, TRUE, SET_IN_FILE},	/*WC*/
         {"targethighlight", &iflags.targethighlight, FALSE, SET_IN_FILE},
 	{"tiled_map",     &iflags.wc_tiled_map, PREFER_TILED, SET_IN_FILE},	/*WC*/
