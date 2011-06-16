@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)config.h	3.4	2003/12/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 16 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef CONFIG_H /* make sure the compiler does not see the typedefs twice */
@@ -148,14 +148,20 @@
 
 #ifndef WIZARD		/* allow for compile-time or Makefile changes */
 # ifndef KR1ED
-#  define WIZARD  "ais523" /* the person allowed to use the -D option */
+#  define WIZARD  "wizard" /* the person allowed to use the -D option */
 # else
 #  define WIZARD
-#  define WIZARD_NAME "ais523"
+#  define WIZARD_NAME "wizard"
 # endif
 #endif
 
 #define LOGFILE "logfile"	/* larger file for debugging purposes */
+/* This is handled by autoconf... */
+#if 0
+# ifndef XLOGFILE
+#  define XLOGFILE "logfile"	/* even larger file for recordkeeping purposes */
+# endif
+#endif
 #define NEWS "news"		/* the file containing the latest hack news */
 #define PANICLOG "paniclog"	/* log of panic and impossible events */
 

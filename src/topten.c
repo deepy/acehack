@@ -1,10 +1,11 @@
 /*	SCCS Id: @(#)topten.c	3.4	2000/01/21	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 25 Mar 2011 by Alex Smith */
+/* Modified 16 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
 #include "dlb.h"
+#include "quest.h"
 #ifdef SHORT_FILENAMES
 #include "patchlev.h"
 #else
@@ -241,6 +242,147 @@ struct toptenentry *tt;
 	dealloc_ttentry(tt);
 }
 
+static time_t deathtime_internal = 0;
+
+/* xlogfile writing. Based on the xlogfile patch by Aardvark Joe. */
+
+#define SEP ":"
+#define SEPC (SEP[0])
+
+STATIC_OVL void
+munge_xlstring(dest, src, n)
+char *dest;
+char *src;
+int n;
+{
+  int i;
+
+  for(i = 0; i < (n - 1) && src[i] != '\0'; i++) {
+    if(src[i] == SEPC || src[i] == '\n')
+      dest[i] = '_';
+    else
+      dest[i] = src[i];
+  }
+
+  dest[i] = '\0';
+
+  return;
+}
+
+STATIC_OVL unsigned long
+encode_uevent()
+{
+  unsigned long c = 0UL;
+
+  /* game plot events */
+  if (u.uevent.minor_oracle ||
+      u.uevent.major_oracle)        c |= 0x0001UL; /* any Oracle consultation */
+  if (u.uevent.qcalled)             c |= 0x0002UL; /* reached quest portal level */
+  if (quest_status.got_quest ||
+      quest_status.got_thanks)      c |= 0x0004UL; /* was accepted for quest */
+  if (u.uevent.qcompleted)          c |= 0x0008UL; /* showed quest arti to leader */
+  if (u.uevent.uopened_dbridge)     c |= 0x0010UL; /* opened/destroyed Castle drawbridge */
+  if (u.uevent.gehennom_entered)    c |= 0x0020UL; /* entered Gehennom the front way */
+  if (u.uevent.udemigod)            c |= 0x0040UL; /* provoked Rodney's wrath */
+  if (u.uevent.invoked)             c |= 0x0080UL; /* did the invocation */
+  if (u.uevent.ascended)            c |= 0x0100UL; /* someone needs to use this variable */
+
+  /* notable other events */
+#ifdef ELBERETH
+  if (u.uevent.uhand_of_elbereth)   c |= 0x0200UL; /* was crowned */
+#endif
+
+  /* boss kills */
+  if (quest_status.killed_nemesis)  c |= 0x0400UL; /* defeated quest nemesis */
+  if (mvitals[PM_CROESUS].died)     c |= 0x0800UL; /* defeated Croesus */
+  if (mvitals[PM_MEDUSA].died)      c |= 0x1000UL; /* defeated Medusa */
+  if (mvitals[PM_VLAD_THE_IMPALER].
+      died)                         c |= 0x2000UL; /* defeated Vlad */
+  if (mvitals[PM_WIZARD_OF_YENDOR].
+      died)                         c |= 0x4000UL; /* defeated Rodney */
+  if (mvitals[PM_HIGH_PRIEST].died) c |= 0x8000UL; /* defeated a high priest */
+
+  return c;
+}
+
+STATIC_OVL unsigned long
+encode_carried()
+{
+  unsigned long c = 0UL;
+
+  /* this encodes important items potentially owned by the player at the
+     time of death */
+  if (u.uhave.amulet)   c |= 0x0001UL; /* real Amulet of Yendor */
+  if (u.uhave.bell)     c |= 0x0002UL; /* Bell of Opening */
+  if (u.uhave.book)     c |= 0x0004UL; /* Book of the Dead */
+  if (u.uhave.menorah)  c |= 0x0008UL; /* Candelabrum of Invocation */
+  if (u.uhave.questart) c |= 0x0010UL; /* own quest artifact */
+
+  return c;
+}
+
+STATIC_OVL void
+write_xlentry(rfile,tt)
+FILE* rfile;
+struct toptenentry *tt;
+{
+  char buf[DTHSZ+1];
+
+  /* regular logfile data */
+  (void)fprintf(rfile,
+                "version=%d.%d.%d"
+                SEP "points=%ld"
+                SEP "deathdnum=%d"
+                SEP "deathlev=%d"
+                SEP "maxlvl=%d"
+                SEP "hp=%d"
+                SEP "maxhp=%d"
+                SEP "deaths=%d"
+                SEP "deathdate=%ld"
+                SEP "birthdate=%ld"
+                SEP "uid=%d",
+                tt->ver_major, tt->ver_minor, tt->patchlevel,
+                tt->points, tt->deathdnum, tt->deathlev,
+                tt->maxlvl, tt->hp, tt->maxhp, tt->deaths,
+                (unsigned long) tt->deathdate,
+                (unsigned long) tt->birthdate, tt->uid);
+
+  (void)fprintf(rfile,
+                SEP "role=%s"
+                SEP "race=%s"
+                SEP "gender=%s"
+                SEP "align=%s",
+                tt->plrole, tt->plrace, tt->plgend, tt->plalign);
+   
+  munge_xlstring(buf, plname, DTHSZ + 1);
+  (void)fprintf(rfile, SEP "name=%s", buf);
+
+  munge_xlstring(buf, tt->death, DTHSZ + 1);
+  (void)fprintf(rfile, SEP "death=%s", buf);
+
+  (void)fprintf(rfile, SEP "conduct=%ld", encode_conduct());
+
+  (void)fprintf(rfile, SEP "turns=%ld", moves);
+
+  /* AceHack's equivalent of achieve has rather different semantics from
+     vanilla's. So give it a different name. */
+  (void)fprintf(rfile, SEP "event=%ld", encode_uevent());
+  (void)fprintf(rfile, SEP "carried=%ld", encode_carried());
+
+  (void)fprintf(rfile, SEP "starttime=%ld"
+                       SEP "endtime=%ld",
+                (long) u.ubirthday, (long) deathtime_internal);
+
+  (void)fprintf(rfile, SEP "gender0=%s", genders[flags.initgend].filecode);
+  (void)fprintf(rfile, SEP "align0=%s", aligns[1 - u.ualignbase[A_ORIGINAL]].filecode);
+
+  (void)fprintf(rfile, "\n");
+}
+
+#undef SEP
+#undef SEPC
+
+/* The main highscore recording function. */
 void
 topten(how)
 int how;
@@ -256,6 +398,9 @@ int how;
 #ifdef LOGFILE
 	FILE *lfile;
 #endif /* LOGFILE */
+#ifdef XLOGFILE
+        FILE *xlfile;
+#endif /* XLOGFILE */
 
 /* Under DICE 3.0, this crashes the system consistently, apparently due to
  * corruption of *rfile somewhere.  Until I figure this out, just cut out
@@ -334,6 +479,7 @@ int how;
 	}
 	t0->birthdate = yyyymmdd(u.ubirthday);
 	t0->deathdate = yyyymmdd((time_t)0L);
+        (void) time(&deathtime_internal);
 	t0->tt_next = 0;
 #ifdef UPDATE_RECORD_IN_PLACE
 	t0->fpos = -1L;
@@ -350,6 +496,18 @@ int how;
 	    unlock_file(LOGFILE);
 	}
 #endif /* LOGFILE */
+
+#ifdef XLOGFILE
+	if(lock_file(XLOGFILE, SCOREPREFIX, 10)) {
+		if(!(xlfile = fopen_datafile(XLOGFILE, "a", SCOREPREFIX))) {
+			HUP raw_print("Cannot open extended log file!");
+		} else {
+			write_xlentry(xlfile, t0);
+			(void) fclose(xlfile);
+		}
+		unlock_file(XLOGFILE);
+	}
+#endif /* XLOGFILE */
 
 	if (wizard || discover) {
 	    if (how != PANICKED) HUP {
@@ -539,6 +697,7 @@ int how;
 
 #define SCOREWIDTH (COLNO - 2)
 
+/* High score display. */
 STATIC_OVL void
 outheader()
 {

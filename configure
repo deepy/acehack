@@ -719,6 +719,7 @@ enable_sortloot
 enable_score_on_botl
 enable_goldobj
 enable_autopickup_exceptions
+enable_xlogfile
 enable_wizmode
 with_owner
 with_group
@@ -1381,6 +1382,9 @@ Optional Features:
   --enable-autopickup-exceptions
                           Exceptions to autopickup (experimental)
                           (default=yes)
+  --enable-xlogfile       More verbose logfile (default=yes)
+  --enable-xlogfile=FILE  More verbose logfile (default=yes, default
+                          filename=xlogfile)
   --enable-wizmode=USER   enable wizard mode for the specified user
                           (default=wizard)
 
@@ -5798,21 +5802,49 @@ _ACEOF
 #NETHACK_ARG(qwertz,[QWERTZ keyboard layout support],QWERTZ,yes)
 #NETHACK_ARG(simple-mail,[simple mail dgamelaunch support],SIMPLE_MAIL,no)
 
-#NETHACK_ARG(xlogfile,[More verbose logfile],XLOGFILE,yes)
-#AC_MSG_CHECKING([whether to enable xlogfile])
-#AC_ARG_ENABLE([xlogfile], AC_HELP_STRING([--enable-xlogfile=FILE],
-#	[More verbose logfile (default=yes, default filename=xlogfile)]),
-#	if test "$enableval" != no; then enable_xlogfile=yes;
-#	 if test "$enableval" != yes; then xlogfile=$enableval;
-#	 else xlogfile="xlogfile"; fi;
-#	else enable_xlogfile=no; fi,
-#	enable_xlogfile=yes; xlogfile="xlogfile")
-#if test "$enable_xlogfile" != "no" ; then
-#	AC_MSG_RESULT([yes (file $xlogfile)])
-#	AC_DEFINE_UNQUOTED([XLOGFILE], ["$xlogfile"], [The name of the xlogfile])
-#else
-#	AC_MSG_RESULT([no])
-#fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable xlogfile" >&5
+$as_echo_n "checking whether to enable xlogfile... " >&6; }
+   # Check whether --enable-xlogfile was given.
+if test "${enable_xlogfile+set}" = set; then :
+  enableval=$enable_xlogfile;
+else
+  enable_xlogfile="yes"
+fi
+
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: $enable_xlogfile" >&5
+$as_echo "$enable_xlogfile" >&6; }
+   if test "$enable_xlogfile" != "no" ; then
+
+cat >>confdefs.h <<_ACEOF
+#define XLOGFILE /**/
+_ACEOF
+
+   fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable xlogfile" >&5
+$as_echo_n "checking whether to enable xlogfile... " >&6; }
+# Check whether --enable-xlogfile was given.
+if test "${enable_xlogfile+set}" = set; then :
+  enableval=$enable_xlogfile; if test "$enableval" != no; then enable_xlogfile=yes;
+	 if test "$enableval" != yes; then xlogfile=$enableval;
+	 else xlogfile="xlogfile"; fi;
+	else enable_xlogfile=no; fi
+else
+  enable_xlogfile=yes; xlogfile="xlogfile"
+fi
+
+if test "$enable_xlogfile" != "no" ; then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes (file $xlogfile)" >&5
+$as_echo "yes (file $xlogfile)" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define XLOGFILE "$xlogfile"
+_ACEOF
+
+else
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
 
 # NETHACK_ARG(livelog,[Live game progress logfile],LIVELOGFILE,no)
 #AC_MSG_CHECKING([whether to enable live logfile])

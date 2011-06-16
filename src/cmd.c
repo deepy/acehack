@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 16 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1510,6 +1510,33 @@ int final;
           putstr_or_dump(0, 0, "-----------------------------------"
                          "-----------------------------------");
         }
+}
+
+unsigned long
+encode_conduct()
+{
+  unsigned long c = 0UL;
+
+  if (!u.uconduct.food)         c |= 0x0001UL;
+  if (!u.uconduct.unvegan)      c |= 0x0002UL;
+  if (!u.uconduct.unvegetarian) c |= 0x0004UL;
+  if (!u.uconduct.gnostic)      c |= 0x0008UL;
+  if (!u.uconduct.weaphit)      c |= 0x0010UL;
+  if (!u.uconduct.killer)       c |= 0x0020UL;
+  if (!u.uconduct.literate)     c |= 0x0040UL;
+  /* heptagrams, genocides are given a higher number later on to avoid
+     clashing with the "traditional" conduct encoding */
+  if (!u.uconduct.polypiles)    c |= 0x0080UL;
+  if (!u.uconduct.polyselfs)    c |= 0x0100UL;
+  if (!u.uconduct.wishes)       c |= 0x0200UL;
+  if (!u.uconduct.wisharti)     c |= 0x0400UL;
+  if (!num_genocides())         c |= 0x0800UL;
+  /* Slash'EM xlogfile does not record celibacy, presumably either by
+     mistake or for compatibility with vanilla. So it's safe to just
+     take the next available number for heptagrams. */
+  if (!u.uconduct.heptagrams)   c |= 0x1000UL;
+
+  return c;
 }
 
 #endif /* OVLB */

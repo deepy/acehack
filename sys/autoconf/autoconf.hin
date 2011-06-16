@@ -182,6 +182,9 @@
 /* X11 graphics */
 #undef X11_GRAPHICS
 
+/* The name of the xlogfile */
+#undef XLOGFILE
+
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
 #undef YYTEXT_POINTER
