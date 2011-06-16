@@ -492,7 +492,10 @@ X: Now a synonym for #twoweapon.  (Credits: Another nethack.alt.org
 idea.)  The old meaning of X, "enter explore mode", was moved to
 #xplore.
 ^X: Now shows ability scores (as they're no longer on the botl), both
-current and "natural" (i.e. without the effects of items or poison).
+current and "natural" (i.e. without the effects of items or poison);
+some messages have been changed to allow for this (e.g. eating giants
+now produces a message rather than increasing strength silently, a
+patch by rawrmage).
 Also lists information shown at game end, like inventory and conducts,
 although it does not identify your possessions for you; likewise, it
 will show your intrinsics, but not your extrinsics.

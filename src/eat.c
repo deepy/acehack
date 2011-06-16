@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)eat.c	3.4	2003/02/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2010 by Alex Smith */
+/* Modified 16 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -925,7 +925,10 @@ register int pm;
 			pline ("Oh wow!  Great stuff!");
 			make_hallucinated(HHallucination + 200,FALSE,0L);
 		}
-		if(is_giant(ptr)) gainstr((struct obj *)0, 0);
+		if(is_giant(ptr)) {
+			gainstr((struct obj *)0, 0);
+			pline("You feel stronger!");
+		}
 
 		/* Check the monster for all of the intrinsics.  If this
 		 * monster can give more than one, pick one to try to give
