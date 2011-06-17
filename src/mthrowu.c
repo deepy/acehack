@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mthrowu.c	3.4	2003/05/09	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 20 Apr 2011 by Alex Smith */
+/* Modified 17 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1062,13 +1062,15 @@ mlined_up(mtmp, mdef, breath)	/* is mtmp in position to use ranged attack? */
 
 	int x = mtmp->mx, y = mtmp->my;
 
-	int i = 10; //arbitrary
+	int i = 10; /* arbitrary */
 
-        // No special checks if confused - can't tell friend from foe
-	if (!lined_up || mtmp->mconf || !mtmp->mtame) return lined_up;
+        /* No special checks if confused - can't tell friend from foe
+           Likewise if conflicted */
+	if (!lined_up || mtmp->mconf || !mtmp->mtame ||
+            Conflict) return lined_up;
 
-        // Check for friendlies in the line of fire.
-	for (; !breath || i > 0; --i)
+        /* Check for friendlies in the line of fire... */
+	for (; i > 0; --i)
 	{
 	    x += dx;
 	    y += dy;
@@ -1081,10 +1083,34 @@ mlined_up(mtmp, mdef, breath)	/* is mtmp in position to use ranged attack? */
 	    {
 	        if (!breath && mat == mdef) return lined_up;
 
-		// Don't hit friendlies:
+		/* Don't hit friendlies */
 		if (mat->mtame) return FALSE;
 	    }
 	}
+        /* ...and behind the line of fire, in case of bounces. */
+        i = 10; x = mtmp->mx; y = mtmp->my;
+      	for (; i > 0; --i)
+	{
+	    x -= dx;
+	    y -= dy;
+	    if (!isok(x, y)) break;
+		
+            if (x == u.ux && y == u.uy) 
+	        return FALSE;
+
+	    if ((mat = m_at(x, y)))
+	    {
+	        if (!breath && mat == mdef) return lined_up;
+
+		/* Don't hit friendlies */
+		if (mat->mtame) return FALSE;
+	    }
+	}
+        /* We should really check for right-angle bounces too, but that's
+           pretty difficult given the code. (Monsters never intentionally
+           bounce attacks off walls, incidentally.) Let's just hope it
+           doesn't happen; it isn't massively bad if it does, except for
+           frustrating the player slightly. */
 
 	return lined_up;
 }

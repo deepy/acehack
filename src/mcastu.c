@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mcastu.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 17 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -781,6 +781,12 @@ int spellnum;
 	if ((!mtmp->iswiz || flags.no_of_wizards > 1)
 						&& spellnum == MGC_CLONE_WIZ)
 	    return TRUE;
+        /* spells that harm master while tame and not conflicted */
+        if (mtmp->mtame && !Conflict &&
+            (spellnum == MGC_CURSE_ITEMS ||
+             spellnum == MGC_DISAPPEAR ||
+             spellnum == MGC_DESTRY_ARMR))
+            return TRUE;
 #ifndef TAME_SUMMONING
         if (spellnum == MGC_SUMMON_MONS)
 	    return TRUE;
@@ -792,6 +798,9 @@ int spellnum;
 	/* blindness spell on blinded player */
 	if ((!haseyes(mdef->data) || mdef->mblinded) && spellnum == CLC_BLIND_YOU)
 	    return TRUE;
+        /* spells that harm master while tame and not conflicted */
+        if (mtmp->mtame && !Conflict && spellnum == CLC_CURSE_ITEMS)
+            return TRUE;
     }
     return FALSE;
 }
@@ -819,10 +828,17 @@ int spellnum;
         if (spellnum == MGC_SUMMON_MONS)
 	    return TRUE;
 #endif
+        /* spells that you rather wouldn't cast */
+        if (spellnum == MGC_CURSE_ITEMS ||
+            spellnum == MGC_DESTRY_ARMR)
+            return TRUE;
     } else if (adtyp == AD_CLRC) {
 	/* healing when already healed */
-	if (u.mh == u.mhmax && spellnum == MGC_CURE_SELF)
+	if (u.mh == u.mhmax && spellnum == CLC_CURE_SELF)
 	    return TRUE;
+        /* spells that you rather wouldn't cast */
+        if (spellnum == CLC_CURSE_ITEMS)
+            return TRUE;
     }
     return FALSE;
 }

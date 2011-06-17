@@ -29,7 +29,6 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - second confirm on overwriting perm engraving with semiperm
 - some way to mark squares on a level by hand
 - extra question upon #loot/a,
-- track down obscure bugs: background color on spellcasting when blind, and nooodl's double-branch thing
-- stop pets doing things that might annoy their masters (like cursing enemy's items); it's fine for conflicted monsters to do that, though
+- track down nooodl's double-branch thing
 - xlogfile, livelog
 - make c close doors if there's nothing to chat to
