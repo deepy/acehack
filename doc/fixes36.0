@@ -548,7 +548,8 @@ followed by a capital letter to represent control-letter, or M-
 followed by an arbitrary character to represent combinations involving
 the Meta modifier (which may not work on all keyboards). See qwertz.nh
 in the doc/ folder for an example rebinding (that swaps z and y,
-common for vi-keys play on German keyboards).
+common for vi-keys play on German keyboards). You can also rebind a
+key to #donothing to cause it to have no effect.
 
 Color changes:
 

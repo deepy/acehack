@@ -330,6 +330,7 @@ E void NDECL(deferred_goto);
 E boolean FDECL(revive_corpse, (struct obj *));
 E void FDECL(revive_mon, (genericptr_t, long));
 E int NDECL(donull);
+E int NDECL(donull0);
 E int NDECL(dowipe);
 E void FDECL(set_wounded_legs, (long,int));
 E void NDECL(heal_legs);

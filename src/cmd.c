@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 16 Jun 2011 by Alex Smith */
+/* Modified 17 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1574,6 +1574,7 @@ struct ext_func_tab extcmdlist[] = {
   {"dip", "dip an object into something", dodip, FALSE, 1, M('d'), 0, 0, 0},
   {"drop", "drop many items", doddrop, FALSE, 12, 'D', 0, 0, 0},
   {"dropone", "drop one item", dodrop, FALSE, 13, 'd', 0, 0, 0},
+  {"donothing", "do nothing, consuming no time", donull0, FALSE, 15, 0, 0, 0, 0},
   {"east", "move, attack, or interact east", 0, FALSE, 21, 'l', '6', 0, 'l'},
   {"eastfar", "move east as far as possible", 0, FALSE, 22, 'L', 0, 0, 'L'},
   {"eastfarcareful", "move east until something interesting happens",
