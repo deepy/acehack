@@ -617,37 +617,6 @@ long umoney;  /* total of visible and invisible gold */
             category_ratio, category_points);
     putstr_or_dump(swin, 0, buf);
   }
-  /* Pets. Points are awarded according to the levels of the pets in question.
-     (The previous scoring system used current hp, but this means that the
-     best score would be obtained via taming the elementals on the Planes,
-     which isn't exactly balanced; doing it by level means that pets that are
-     merely generated on the altar will be worth less than equivalent pets who
-     came with you all that way.) Level has a hard limit of 49 (except for
-     demon lords, who can't be tamed), and you can ascend with 9 pets, so the
-     maximum in this category is 441 levels.) Be slightly charitable here, and
-     don't deduct points just because the pet is sleeping or paralyzed; but
-     only adjacent pets count for points. Counts only on ascension or
-     escape. */
-  if (how == ESCAPED || how == ASCENDED)
-  {
-    struct monst *mtmp = fmon;
-    category_raw = 0;
-    while (mtmp) {
-      if (DEADMONSTER(mtmp)) continue;
-      if (mtmp->mtame && monnear(mtmp, u.ux, u.uy))
-        category_raw += min(mtmp->data->mlevel, 49);
-      mtmp = mtmp->nmon;
-    }
-    category_points = sqrt((double)category_raw / 441.0) * 30000.0;
-    total += category_points;
-    if (show) {
-      Sprintf(buf, "Pets:            %10ld level%s             (%5ld points)",
-              category_raw, category_raw == 1 ? " " : "s", category_points);
-      putstr_or_dump(swin, 0, buf);
-    }
-  } else if (show) {
-    putstr_or_dump(swin, 0, "Pets:            (no points given unless you survive)");
-  }
   /* Time penalty. */
   category_raw = moves;
   category_points = log(max(moves,2000) / 2000.0) / elog2;
@@ -948,7 +917,7 @@ int how;
 	winid endwin = WIN_ERR;
 	boolean bones_ok, have_windows = iflags.window_inited;
 	struct obj *corpse = (struct obj *)0;
-        long umoney;
+        long umoney, saved_score;
 
 	if (how == TRICKED) {
 	    if (killer) {
@@ -1111,6 +1080,7 @@ die:
         umoney += hidden_gold();	/* accumulate gold from containers */
 
         calculate_score(how, FALSE, umoney);
+        saved_score = u.urexp;
 	if (strcmp(flags.end_disclose, "none") && how != PANICKED)
 	    disclose(how, taken, umoney);
 	/* finish_paybill should be called after disclosure but before bones */
@@ -1171,6 +1141,7 @@ die:
 
 	/* "So when I die, the first thing I will see in Heaven is a
 	 * score list?" */
+        u.urexp = saved_score; /* just to make sure */
 	if (flags.toptenwin) {
 	    topten(how);
 	    if (have_windows)
