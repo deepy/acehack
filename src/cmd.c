@@ -1264,7 +1264,8 @@ doattributes()
 	winid tmpwin;
 	menu_item *selected;
 	anything any;
-	int genidx, n, r;
+	int genidx, n, r, wcu;
+        long wc;
 	char buf[BUFSZ], buf2[BUFSZ];
 	static const char fmtstr[] = "%-10s: %-12s (originally %s)";
 	static const char fmtstr_noorig[] = "%-10s: %s";
@@ -1319,9 +1320,26 @@ doattributes()
           Sprintf(buf, "naturally : St:%-1d ",AMAX(A_STR));
 	Sprintf(eos(buf), "Dx:%-1d Co:%-1d In:%-1d Wi:%-1d Ch:%-1d",
 		AMAX(A_DEX), AMAX(A_CON), AMAX(A_INT), AMAX(A_WIS), AMAX(A_CHA));
+
+        wc = weight_cap();
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+        Sprintf(buf, "burden    : %ld (", wc + inv_weight());
+        /* We want to show the /nearest/ capacity breakpoint, which involves
+           checking capacity to a slightly higher resolution than near_capacity
+           does. So we use calc_capacity instead, and give it 1/4 the weightcap
+           as argument; this bumps up the result half a burden level. */
+        switch (calc_capacity(wc/4)) {
+        case UNENCUMBERED:
+        case SLT_ENCUMBER: Sprintf(eos(buf), "burdened at "); wcu = 2; break;
+        case MOD_ENCUMBER: Sprintf(eos(buf), "stressed at "); wcu = 3; break;
+        case HVY_ENCUMBER: Sprintf(eos(buf), "strained at "); wcu = 4; break;
+        case EXT_ENCUMBER: Sprintf(eos(buf), "overtaxed at "); wcu = 5; break;
+        default:           Sprintf(eos(buf), "overloaded at "); wcu = 6; break;
+        }
+        Sprintf(eos(buf), "%ld)", wc * wcu / 2 + 1);
+	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
+
 	/* Deity list */
-	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings, "Deities", FALSE);
 	Sprintf(buf2, deity_fmtstr, align_gname(A_CHAOTIC),
 	    (u.ualignbase[A_ORIGINAL] == u.ualign.type
@@ -1348,7 +1366,6 @@ doattributes()
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, buf, FALSE);
 
         /* A list of submenus, based on the DYWYPI? at end of game. */
-        add_menu(tmpwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
 	add_menu(tmpwin, NO_GLYPH, &any, 0, 0, iflags.menu_headings,
                  "Other Information", FALSE);
         any.a_int = 'i';

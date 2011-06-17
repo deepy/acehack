@@ -506,7 +506,8 @@ idea.)  The old meaning of X, "enter explore mode", was moved to
 current and "natural" (i.e. without the effects of items or poison);
 some messages have been changed to allow for this (e.g. eating giants
 now produces a message rather than increasing strength silently, a
-patch by rawrmage).
+patch by rawrmage). Additionally, it shows a count of your total
+inventory weight, together with the nearest encumberance breakpoint.
 Also lists information shown at game end, like inventory and conducts,
 although it does not identify your possessions for you; likewise, it
 will show your intrinsics, but not your extrinsics.
