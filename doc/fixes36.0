@@ -251,6 +251,12 @@ increase.
 Cursed light-sources become marked as cursed when they fail to light
 as a result. (Patch credits: patch by rawrmage).
 
+The "Things that are here:" list now shows only if blind (or if
+there's only one item, when it's just an ordinary message rather than
+an item). When blind, it shows no matter how many objects there are,
+as it would otherwise take a turn to determine what they were, even
+though the character knows.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

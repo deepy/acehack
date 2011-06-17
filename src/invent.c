@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 May 2011 by Alex Smith */
+/* Modified 17 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2657,7 +2657,7 @@ boolean picked_some;
 	const char *dfeature = (char *)0;
 	char fbuf[BUFSZ], fbuf2[BUFSZ];
 	winid tmpwin;
-	boolean skip_objects = (obj_cnt >= 5), felt_cockatrice = FALSE;
+	boolean skip_objects = obj_cnt>1, felt_cockatrice = FALSE;
 
 	if (u.uswallow && u.ustuck) {
 	    struct monst *mtmp = u.ustuck;
@@ -2719,10 +2719,11 @@ boolean picked_some;
 	}
 	/* we know there is something here */
 
-	if (skip_objects) {
+	if (skip_objects && !Blind) {
 	    if (dfeature) pline("%s",fbuf);
 	    read_engr_at(u.ux, u.uy); /* Eric Backus */
 	    There("are %s%s objects here.",
+                  (obj_cnt <= 5) ? "multiple" :
 		  (obj_cnt <= 10) ? "several" : "many",
 		  picked_some ? " more" : "");
 	} else if (!otmp->nexthere) {

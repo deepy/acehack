@@ -14,7 +14,6 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - travel position should reset between levels
 - new statuses need to cause a botl update
 - pre-ID the ?oEarth in Sokoban
-- "things that are here" should only show if blind or there's only one item
 - applying keys should not ask so many questions
 - travel should route past peacefuls more sensibly
 - traps need a valid glyph in IBM rogue graphics
