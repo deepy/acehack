@@ -1,7 +1,7 @@
 #	SCCS Id: @(#)mines.des	3.4	2002/05/02
 #	Copyright (c) 1989-95 by Jean-Christophe Collet
 #	Copyright (c) 1991-95 by M. Stephenson
-#       Modified 21 July 2010 by Alex Smith
+#       Modified 31 Jun 2011 by Alex Smith
 # NetHack may be freely redistributed.  See license for details.
 #
 
@@ -825,6 +825,7 @@ MAP
 ENDMAP
 
 # Dungeon Description
+RANDOM_PLACES:(69,04),(69,05),(70,04),(70,05)
 FOUNTAIN:(14,13)
 REGION:(23,03,48,06),lit,"ordinary"
 REGION:(21,06,22,06),lit,"ordinary"
@@ -847,34 +848,34 @@ NON_DIGGABLE:(53,14,61,14)
 # The Gnome King's wine cellar.
 ENGRAVING:(12,03),engrave,"You are now entering the Gnome King's wine cellar."
 ENGRAVING:(12,04),engrave,"Trespassers will be persecuted!"
-OBJECT:'!',"booze",(10,07)
-OBJECT:'!',"booze",(10,07)
+OBJECT:'!',"booze",(10,07),identified,random
+OBJECT:'!',"booze",(10,07),identified,random
 OBJECT:'!',random,(10,07)
-OBJECT:'!',"booze",(10,08)
-OBJECT:'!',"booze",(10,08)
+OBJECT:'!',"booze",(10,08),identified,random
+OBJECT:'!',"booze",(10,08),identified,random
 OBJECT:'!',random,(10,08)
-OBJECT:'!',"booze",(10,09)
-OBJECT:'!',"booze",(10,09)
+OBJECT:'!',"booze",(10,09),identified,random
+OBJECT:'!',"booze",(10,09),identified,random
 OBJECT:'!',"object detection",(10,09)
 # Objects
 # The Treasure chamber...
-OBJECT:'*',"diamond",(69,04)
-OBJECT:'*',random,(69,04)
-OBJECT:'*',"diamond",(69,04)
-OBJECT:'*',random,(69,04)
-OBJECT:'*',"emerald",(70,04)
-OBJECT:'*',random,(70,04)
-OBJECT:'*',"emerald",(70,04)
-OBJECT:'*',random,(70,04)
-OBJECT:'*',"emerald",(69,05)
-OBJECT:'*',random,(69,05)
-OBJECT:'*',"ruby",(69,05)
-OBJECT:'*',random,(69,05)
-OBJECT:'*',"ruby",(70,05)
-OBJECT:'*',"amethyst",(70,05)
-OBJECT:'*',random,(70,05)
-OBJECT:'*',"amethyst",(70,05)
-OBJECT:'*',"luckstone",(70,05)
+OBJECT:'*',"diamond",place[0]
+OBJECT:'*',random,place[0]
+OBJECT:'*',"diamond",place[0]
+OBJECT:'*',random,place[0]
+OBJECT:'*',"emerald",place[1]
+OBJECT:'*',random,place[1]
+OBJECT:'*',"emerald",place[1]
+OBJECT:'*',random,place[1]
+OBJECT:'*',"emerald",place[2]
+OBJECT:'*',random,place[2]
+OBJECT:'*',"ruby",place[2]
+OBJECT:'*',random,place[2]
+OBJECT:'*',"ruby",place[3]
+OBJECT:'*',"amethyst",place[3]
+OBJECT:'*',random,place[3]
+OBJECT:'*',"amethyst",place[3]
+OBJECT:'*',"luckstone",place[3]
 # Scattered gems...
 OBJECT:'*',random,random
 OBJECT:'*',random,random

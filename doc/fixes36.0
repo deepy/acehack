@@ -254,9 +254,15 @@ as a result. (Patch credits: patch by rawrmage).
 
 The "Things that are here:" list now shows only if blind (or if
 there's only one item, when it's just an ordinary message rather than
-an item). When blind, it shows no matter how many objects there are,
+an item).  When blind, it shows no matter how many objects there are,
 as it would otherwise take a turn to determine what they were, even
 though the character knows.
+
+Objects that spawn in fixed locations on the map are now preidentified
+(to be precise, identify themselves as soon as you interact with them,
+or look at or farlook them).  There have been minor changes to some
+maps to prevent this leaking information (specifically, the treasure
+room in the Gnome King's Wine Cellar ending).
 
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------

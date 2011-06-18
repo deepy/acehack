@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)obj.h	3.4	2002/01/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Mar 2011 by Alex Smith */
+/* Modified 18 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef OBJ_H
@@ -93,7 +93,8 @@ struct obj {
 	Bitfield(in_use,1);	/* for magic items before useup items */
 	Bitfield(bypass,1);	/* mark this as an object to be skipped by bhito() */
 	Bitfield(was_thrown,1);	/* thrown by the hero since last picked up */
-	/* 5 free bits */
+        Bitfield(id_on_view,1); /* ID this object when it comes into view */
+	/* 4 free bits */
 
 	long	corpsenm;	/* type of corpse is mons[corpsenm] */
 #define leashmon  corpsenm	/* gets m_id of attached pet */

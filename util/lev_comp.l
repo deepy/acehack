@@ -1,6 +1,7 @@
 %{
 /*	SCCS Id: @(#)lev_lex.c	3.4	2002/03/27	*/
 /*	Copyright (c) 1989 by Jean-Christophe Collet */
+/* Modified 18 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define LEV_LEX_C
@@ -193,6 +194,7 @@ mark		{ yylval.i=MARK; return ENGRAVING_TYPE; }
 blessed		{ yylval.i=1; return CURSE_TYPE; }
 uncursed	{ yylval.i=2; return CURSE_TYPE; }
 cursed		{ yylval.i=3; return CURSE_TYPE; }
+identified	{ yylval.i=4; return CURSE_TYPE; /* random BCU, but ID object */ }
 contained	{ return CONTAINED; }
 noteleport	{ yylval.i=NOTELEPORT; return FLAG_TYPE; }
 hardfloor	{ yylval.i=HARDFLOOR; return FLAG_TYPE; }

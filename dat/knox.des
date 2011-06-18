@@ -1,6 +1,7 @@
 #	SCCS Id: @(#)knox.des	3.4	1994/08/20
 #	Copyright (c) 1989 by Jean-Christophe Collet
 #	Copyright (c) 1992 by Izchak Miller
+# Modified 18 Jun 2011 by Alex Smith
 # NetHack may be freely redistributed.  See license for details.
 #
 MAZE:"knox",' '
@@ -90,15 +91,15 @@ MONSTER:';',"giant eel",(17,11)
 MONSTER:';',"giant eel",(48,08)
 MONSTER:';',"giant eel",(48,11)
 # The corner rooms treasures
-OBJECT:'*',"diamond",(19,06)
-OBJECT:'*',"diamond",(20,06)
-OBJECT:'*',"diamond",(21,06)
-OBJECT:'*',"emerald",(19,13)
-OBJECT:'*',"emerald",(20,13)
-OBJECT:'*',"emerald",(21,13)
-OBJECT:'*',"ruby",(46,06)
-OBJECT:'*',"ruby",(47,06)
-OBJECT:'*',"ruby",(48,06)
-OBJECT:'*',"amethyst",(46,13)
-OBJECT:'*',"amethyst",(47,13)
-OBJECT:'*',"amethyst",(48,13)
+OBJECT:'*',"diamond",(19,06),identified,random
+OBJECT:'*',"diamond",(20,06),identified,random
+OBJECT:'*',"diamond",(21,06),identified,random
+OBJECT:'*',"emerald",(19,13),identified,random
+OBJECT:'*',"emerald",(20,13),identified,random
+OBJECT:'*',"emerald",(21,13),identified,random
+OBJECT:'*',"ruby",(46,06),identified,random
+OBJECT:'*',"ruby",(47,06),identified,random
+OBJECT:'*',"ruby",(48,06),identified,random
+OBJECT:'*',"amethyst",(46,13),identified,random
+OBJECT:'*',"amethyst",(47,13),identified,random
+OBJECT:'*',"amethyst",(48,13),identified,random

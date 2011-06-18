@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)sp_lev.c	3.4	2001/09/06	*/
 /*	Copyright (c) 1989 by Jean-Christophe Collet */
-/* Modified 18 Sep 2010 by Alex Smith */
+/* Modified 18 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -960,6 +960,8 @@ struct mkroom	*croom;
 	      case 1:	bless(otmp); break; /* BLESSED */
 	      case 2:	unbless(otmp); uncurse(otmp); break; /* uncursed */
 	      case 3:	curse(otmp); break; /* CURSED */
+              case 4:   otmp->id_on_view = 1; break; /* keep random BCU,
+                                                        but ID on view */
 	      default:	break;	/* Otherwise it's random and we're happy
 				 * with what mkobj gave us! */
 	}

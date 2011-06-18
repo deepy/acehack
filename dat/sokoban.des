@@ -1,5 +1,6 @@
 #	SCCS Id: @(#)sokoban.des	3.4	1999/03/15
 #	Copyright (c) 1998-1999 by Kevin Hugo
+# Modified 18 Jun 2011 by Alex Smith
 # NetHack may be freely redistributed.  See license for details.
 #
 # In case you haven't played the game Sokoban, you'll learn
@@ -83,8 +84,8 @@ TRAP:"pit",(06,10)
 TRAP:"pit",(07,10)
 
 # A little help
-OBJECT:'?',"earth",(02,11)
-OBJECT:'?',"earth",(03,11)
+OBJECT:'?',"earth",(02,11),identified,random
+OBJECT:'?',"earth",(03,11),identified,random
 
 # Random objects
 OBJECT:'%',random,random
@@ -147,8 +148,8 @@ TRAP:"pit",(05,08)
 TRAP:"pit",(06,08)
 
 # A little help
-OBJECT:'?',"earth",(01,09)
-OBJECT:'?',"earth",(02,09)
+OBJECT:'?',"earth",(01,09),identified,random
+OBJECT:'?',"earth",(02,09),identified,random
 
 # Random objects
 OBJECT:'%',random,random
@@ -525,7 +526,7 @@ DOOR:closed,(17,11)
 DOOR:closed,(17,13)
 DOOR:closed,(17,15)
 REGION:(18,10,22,16),lit,"zoo",filled,true
-OBJECT:'(',"bag of holding",place[0]
+OBJECT:'(',"bag of holding",place[0],identified,random
 ENGRAVING:place[0],burn,""
 
 
@@ -619,5 +620,5 @@ DOOR:closed,(17,10)
 DOOR:closed,(17,12)
 DOOR:closed,(17,14)
 REGION:(18,09,22,15),lit,"zoo",filled,true
-OBJECT:'"',"amulet of reflection",place[0]
+OBJECT:'"',"amulet of reflection",place[0],identified,random
 ENGRAVING:place[0],burn,""

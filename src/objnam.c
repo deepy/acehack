@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 18 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -318,6 +318,14 @@ boolean ignore_oquan;
 
         if (!dn) dn = actualn;
         if (!actualn) actualn = dn;
+
+        if (obj->id_on_view) {
+          /* ID it even if blind or viewing distantly */
+          nn = TRUE;
+          makeknown(typ);
+          obj->dknown = TRUE;
+          obj->id_on_view = FALSE; /* don't re-ID it if amnesiad, etc */
+        }
 
 	buf = nextobuf() + PREFIX;	/* leave room for "17 -3 " */
 	if (Role_if(PM_SAMURAI) && Japanese_item_name(typ))
