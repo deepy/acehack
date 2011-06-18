@@ -5,7 +5,6 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - default DEC/IBM/Unicode graphics
 - calling wands just after engrave-IDing with them
 - stash tracking
-- remembering seen prices of items in \
 - some way to save notes with the character
 - unequip one item to equip another
 - uniqueness in trap colors
@@ -17,7 +16,6 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - travel should route past peacefuls more sensibly
 - traps need a valid glyph in IBM rogue graphics
 - lit middot vs. unlit lowdot; a consequence of darkroom vs. rogue? (it went away when I changed to IBM and back to DEC, so probably)
-- screen clear must pick the right background color
 - option to stop autoexplore with unexplored objects in LOS
 - show prices of items in containers
 - wipe out engravings from the engrave menu
@@ -29,5 +27,5 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - some way to mark squares on a level by hand
 - extra question upon #loot/a,
 - track down nooodl's double-branch thing
-- xlogfile, livelog
+- livelog
 - make c close doors if there's nothing to chat to

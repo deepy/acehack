@@ -6,7 +6,6 @@ If you find a bug, or have more information on the causes of a bug (or just a mo
 
 Bugs will be removed from this list as soon as they are fixed in the repository and on public servers, so this list will typically be empty. 
 
-- The background colors sometimes get messed up for no obvious reason (spellcasting while blind seemed to reproduce in one game, but didn't in my tests).
 - In one game, two stairs to every branch generated. (It's unclear why.)
 - Sometimes putting gold in a bag leaves it not stacking with other gold in the same bag. (Apparently this is happening in vanilla too.)
 
