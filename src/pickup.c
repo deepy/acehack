@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pickup.c	3.4	2003/07/27	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 May 2011 by Alex Smith */
+/* Modified 18 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -28,7 +28,7 @@ STATIC_DCL int FDECL(count_categories, (struct obj *,int));
 STATIC_DCL long FDECL(carry_count,
 		      (struct obj *,struct obj *,long,BOOLEAN_P,int *,int *));
 STATIC_DCL int FDECL(lift_object, (struct obj *,struct obj *,long *,BOOLEAN_P));
-STATIC_DCL boolean FDECL(mbag_explodes, (struct obj *,int));
+STATIC_DCL int FDECL(mbag_explodes, (struct obj *,int));
 STATIC_PTR int FDECL(in_container,(struct obj *));
 STATIC_PTR int FDECL(ck_bag,(struct obj *));
 STATIC_PTR int FDECL(out_container,(struct obj *));
@@ -1782,8 +1782,9 @@ boolean *prev_loot;
 /*
  * Decide whether an object being placed into a magic bag will cause
  * it to explode.  If the object is a bag itself, check recursively.
+ * Return value: 0 = no explosion, 1 = explosion, 2 = disallow one item
  */
-STATIC_OVL boolean
+STATIC_OVL int
 mbag_explodes(obj, depthin)
     struct obj *obj;
     int depthin;
@@ -1791,7 +1792,31 @@ mbag_explodes(obj, depthin)
     /* these won't cause an explosion when they're empty */
     if ((obj->otyp == WAN_CANCELLATION || obj->otyp == BAG_OF_TRICKS) &&
 	    obj->spe <= 0)
-	return FALSE;
+	return 0;
+    else if (obj->otyp == WAN_CANCELLATION || obj->otyp == BAG_OF_TRICKS) {
+        if (obj->where == OBJ_CONTAINED)
+          pline("As you nest the bags, you see a crazily bright glow.");
+        else
+          pline("As you put %s inside, it glows crazily bright for a while.",
+                doname(obj));
+        pline("Then you feel a strange absence of magical power...");
+        obj->spe = 0; /* charge a lot for the free identify, as this would have
+                         destroyed the item and the bag in vanila */
+        obj->known = TRUE; /* mark the absence of charges, so players know
+                              what happened */
+        makeknown(obj->otyp);
+        return 0;
+    } else if (Is_mbag(obj)) {
+        /* nesting bags of holding; there is a legitimate use for this,
+           unlike the other two cases, so tell the player how to override the
+           normal restrictions */
+        if (!doing_extended_command_override()) {
+            pline("You think nesting those bags might be a bad idea.");
+            pline("To try anyway, use #apply rather than %s.",
+                  key_for_cmd("#apply"));
+            return 2;
+        }
+    }
 
     /* odds: 1/1, 2/2, 3/4, 4/8, 5/16, 6/32, 7/64, 8/128, 9/128, 10/128,... */
     if ((Is_mbag(obj) || obj->otyp == WAN_CANCELLATION) &&
@@ -1800,10 +1825,12 @@ mbag_explodes(obj, depthin)
     else if (Has_contents(obj)) {
 	struct obj *otmp;
 
-	for (otmp = obj->cobj; otmp; otmp = otmp->nobj)
-	    if (mbag_explodes(otmp, depthin+1)) return TRUE;
+	for (otmp = obj->cobj; otmp; otmp = otmp->nobj) {
+            int i = mbag_explodes(otmp, depthin+1);
+	    if (i) return i;
+        }
     }
-    return FALSE;
+    return 0;
 }
 
 /* A variable set in use_container(), to be used by the callback routines   */
@@ -1818,6 +1845,7 @@ register struct obj *obj;
 {
 	boolean floor_container = !carried(current_container);
 	boolean was_unpaid = FALSE;
+        int mbag_explodes_reason = 0;
 	char buf[BUFSZ];
 
 	if (!current_container) {
@@ -1829,7 +1857,13 @@ register struct obj *obj;
 	} else if (obj == current_container) {
 		pline("That would be an interesting topological exercise.");
 		return 0;
-	} else if (obj->owornmask & (W_ARMOR | W_RING | W_AMUL | W_TOOL)) {
+	}
+        /* must do this check after checking for obj == current_container */
+        if (Is_mbag(current_container))
+                mbag_explodes_reason = mbag_explodes(obj, 0);
+        if (mbag_explodes_reason == 2) {
+                return 0; /* message already printed by mbag_explodes */
+        } else if (obj->owornmask & (W_ARMOR | W_RING | W_AMUL | W_TOOL)) {
 		Norep("You cannot %s %s you are wearing.",
 			Icebox ? "refrigerate" : "stash", something);
 		return 0;
@@ -1923,7 +1957,9 @@ register struct obj *obj;
 			/* mark a non-reviving corpse as such */
 			if (rot_alarm) obj->norevive = 1;
 		}
-	} else if (Is_mbag(current_container) && mbag_explodes(obj, 0)) {
+	} else if (mbag_explodes_reason == 1) {
+                if (mbag_explodes_reason == 2) return 0; /* cancel nesting */
+
 		/* explicitly mention what item is triggering the explosion */
 		pline(
 	      "As you put %s inside, you are blasted by a magical explosion!",

@@ -290,6 +290,8 @@ char ch;
 #endif /* OVL1 */
 #ifdef OVLB
 
+static boolean accessed_via_extcmd = FALSE;
+
 STATIC_PTR int
 doextcmd()	/* here after # - now read a full-word command */
 {
@@ -323,10 +325,18 @@ doextcmd()	/* here after # - now read a full-word command */
             if (extcmdlist[idx].ef_funct == 0)
               return -REPARSE_AS_KEY - extcmdlist[idx].replacewithkey;
 
+            accessed_via_extcmd = TRUE;
 	    retval = (*extcmdlist[idx].ef_funct)();
+            accessed_via_extcmd = FALSE;
 	} while (extcmdlist[idx].ef_funct == doextlist);
 
 	return retval;
+}
+
+boolean
+doing_extended_command_override()
+{
+  return accessed_via_extcmd;
 }
 
 int

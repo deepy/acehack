@@ -169,6 +169,7 @@ E void NDECL(add_debug_extended_commands);
 E void FDECL(rhack, (char *));
 E int NDECL(doextlist);
 E int NDECL(extcmd_via_menu);
+E boolean NDECL(doing_extended_command_override);
 E char * FDECL(key_for_cmd, (char *));
 E const char * FDECL(desc_for_cmd, (const char *));
 E const char * FDECL(cmd_for_key, (char));

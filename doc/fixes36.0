@@ -264,6 +264,14 @@ or look at or farlook them).  There have been minor changes to some
 maps to prevent this leaking information (specifically, the treasure
 room in the Gnome King's Wine Cellar ending).
 
+The player now gets a warning before trying to nest bags of holding
+(with an override, so that trying to nest them with sacks in between
+is still possible).  Trying to place a bag of tricks or wand of
+cancellation in a bag of holding gives no warning (to prevent them
+being IDed that way), but is no longer as catastrophically bad as it
+was in vanilla NetHack; the item that would destroy the bag is instead
+drained of all charges.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
