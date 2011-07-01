@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)attrib.c	3.4	2002/10/07	*/
 /*	Copyright 1988, 1989, 1990, 1992, M. Stephenson		  */
+/* Modified 1 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*  attribute modification routines. */
@@ -160,7 +161,7 @@ adjattrib(ndx, incr, msgflg)
 	return TRUE;
 }
 
-void
+int
 gainstr(otmp, incr)
 	register struct obj *otmp;
 	register int incr;
@@ -172,7 +173,7 @@ gainstr(otmp, incr)
 	    if(ABASE(A_STR) < 18) num = (rn2(4) ? 1 : rnd(6) );
 	    else if (ABASE(A_STR) < STR18(85)) num = rnd(10);
 	}
-	(void) adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num, TRUE);
+	return adjattrib(A_STR, (otmp && otmp->cursed) ? -num : num, TRUE);
 }
 
 void

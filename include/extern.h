@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)extern.h	3.4	2003/03/10	*/
 /* Copyright (c) Steve Creps, 1988.				  */
-/* Modified 16 Jun 2011 by Alex Smith */
+/* Modified 1 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef EXTERN_H
@@ -93,7 +93,7 @@ E boolean FDECL(adjattrib, (int,int,int));
 E void FDECL(change_luck, (SCHAR_P));
 E int FDECL(stone_luck, (BOOLEAN_P));
 E void NDECL(set_moreluck);
-E void FDECL(gainstr, (struct obj *,int));
+E int FDECL(gainstr, (struct obj *,int));
 E void FDECL(losestr, (int));
 E void NDECL(restore_attrib);
 E void FDECL(exercise, (int,BOOLEAN_P));
