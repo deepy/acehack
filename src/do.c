@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Dec 2011 by Alex Smith */
+/* Modified 17 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -114,6 +114,7 @@ boolean pushing;
 
 		if (fills_up && u.uinwater && distu(rx,ry) == 0) {
 		    u.uinwater = 0;
+                    display_nhwindow(WIN_MESSAGE, FALSE);
 		    docrt();
 		    vision_full_recalc = 1;
 		    You("find yourself on dry land again!");
@@ -1029,19 +1030,140 @@ currentlevel_rewrite()
 	return fd;
 }
 
+/* Checkpointing a level is useful in both single-player and
+   multiplayer, for allowing recovery as well as communicating the
+   current gamestate. Uncheckpointing a level, though, is an operation
+   mostly only meaningful in multiplayer, as there's no other way it
+   could have changed behind our back. These both return negative if
+   the operation fails due to I/O issues, in which case multiplayer
+   can't do much but give the player the opportunity to abandon the
+   game or try again. No messages are produced with a normal return;
+   an error message will accompany an error return.
+
+   Calling checkpoint_level then uncheckpoint_level is idempotent, if
+   nothing changes the level files in between. (There probably will
+   be changes to the level files in between, though; that's the
+   whole purpose of uncheckpointing, to reflect changes made by
+   other processes.)
+
+   In order to mark our current location in the checkpoint files,
+   we use player-monsters, flagged as tame, and named by the game's
+   multiplayer lockname. (For instance, "tame valkyrie named
+   1000ais523".) These are removed upon uncheckpointing by
+   getlev().
+
+   Note that these routines both mess around with monster pointers, so
+   checkpointing will invalidate any pointers to monsters you might
+   happen to have around. (Uncheckpointing also messes up pointers to
+   everything else on the level.) Thus, be careful using it.
+*/
+int
+checkpoint_level()
+{
+  int fd;
+  struct monst *mtmp;
+  fd = currentlevel_rewrite();
+  if(fd < 0) return fd;
+  bufon(fd);
+  in_mklev = TRUE; /* turn off normal sanity checks,
+                      we're about to do something insane */
+  mtmp = makemon(youmonst.data, u.ux, u.uy,
+                 NO_MINVENT | MM_NOCOUNTBIRTH | MM_IGNOREWATER | MM_EDOG);
+  in_mklev = FALSE;
+  if (!mtmp) {
+    /* Self-genocide while polymorphed is the most plausible reason to
+       get here, in which case, there's not much we can do to
+
+       continue. So just die in spectacular fashion, by having a
+       monster genocide the player's current form too. Ideally, this
+       will also eventually happen upon one player genociding
+       another. */
+    pline("You hear the sound of a genocide approaching in the distance.");
+    pline("Wiped out all %s.", youmonst.data->mname);
+    killer_format = KILLED_BY_AN;
+    killer = "distant genocide";
+    done(GENOCIDED);
+    pline("Unfortunately, you are still genocided...");
+    done(GENOCIDED);
+    panic("player did not die even after being genocided three times");
+  }
+
+  mtmp->female = poly_gender();
+  initedog(mtmp); /* mark as tame */
+  mtmp->mtame = 127;
+  /* Setting the movement value is very important, so that the other
+     games know whether they should yield to us this turn. */
+  mtmp->movement = youmonst.movement;
+  christen_monst(mtmp, mplock);
+
+  /* In multiplayer, lock the file that we're checkpointing, so that
+     we don't have someone trying to merge with the level due to a
+     level change reading a partial level file and crashing*/
+
+  if (iflags.multiplayer) {
+    Strcpy(lock, iflags.mp_lock_name);
+    set_levelfile_name(lock, ledger_no(&u.uz));
+    if (!lock_file_silently(lock, LEVELPREFIX, 20))
+      panic("Stale lockfile lock when checkpointing level!");
+  }
+
+  savelev(fd, ledger_no(&u.uz), WRITE_SAVE);
+
+  if (iflags.multiplayer) {
+    /* lock may have changed value by now */
+    Strcpy(lock, iflags.mp_lock_name);
+    set_levelfile_name(lock, ledger_no(&u.uz));
+    unlock_file(lock);
+  }
+
+  /* we cannot use the old pointer here, it's no longer valid */
+  mongone(m_at(u.ux, u.uy));
+  dmonsfree();
+
+  docrt();
+  flush_screen(1);
+
+  bclose(fd);
+  return 0; /* successful */
+}
+
+int
+uncheckpoint_level()
+{
+  int fd;
+  char whynot[BUFSZ];
+  fd = open_levelfile(ledger_no(&u.uz), whynot);
+  if (fd < 0) {
+    pline("%s", whynot);
+    return fd;
+  }
+  minit(); /* needed to reset compression status */
+  /* free the old version of the level */
+  dmonsfree();
+  savelev(0, ledger_no(&u.uz), FREE_SAVE);
+  /* The 0 here indicates that there shouldn't be a trickery if the
+     lockfile has the wrong PID. Of course, in multiplayer, it'll have
+     the other game's PID. */
+  getlev(fd, 0, ledger_no(&u.uz), FALSE);
+  (void) close(fd);
+
+  /* For the time being, redraw the screen. (Eventually, it'd be nice
+     to get incremental updates sent from the other game while it's in
+     control.) */
+  vision_reset();
+  docrt();
+  flush_screen(1);  
+
+  return 0; /* successful */
+}
+
 #ifdef INSURANCE
 void
 save_currentstate()
 {
-	int fd;
-
 	if (flags.ins_chkpt) {
 		/* write out just-attained level, with pets and everything */
-		fd = currentlevel_rewrite();
-		if(fd < 0) return;
-		bufon(fd);
-		savelev(fd,ledger_no(&u.uz), WRITE_SAVE);
-		bclose(fd);
+		if(checkpoint_level() < 0) return;
 	}
 
 	/* write out non-level state */
@@ -1072,8 +1194,10 @@ boolean at_stairs, falling, portal;
 		was_in_W_tower = In_W_tower(u.ux, u.uy, &u.uz),
 		familiar = FALSE;
 	boolean new = FALSE;	/* made a new level? */
+        boolean level_file_already_loaded = FALSE;
 	struct monst *mtmp;
 	char whynot[BUFSZ];
+        char yield_after[BUFSZ] = "";
 
 	if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
 		newlevel->dlevel = dunlevs_in_dungeon(newlevel);
@@ -1159,14 +1283,32 @@ boolean at_stairs, falling, portal;
 	 */
 	vision_recalc(2);
 
+        /*
+         * If leaving a level which has another player on it, yield to
+         * them, while continuing to execute. This increases the number
+         * of drivers by one.
+         */
+        rYou(" left the level.");
+        if (iflags.multiplayer) {
+          for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (is_mp_player(mtmp)) break;
+          }
+          if (mtmp) Strcpy(yield_after, is_mp_player(mtmp));
+        }
+
 	/*
 	 * Save the level we're leaving.  If we're entering the endgame,
 	 * we can get rid of all existing levels because they cannot be
 	 * reached any more.  We still need to use savelev()'s cleanup
 	 * for the level being left, to recover dynamic memory in use and
 	 * to avoid dangling timers and light sources.
+         *
+         * In multiplayer, we don't delete existing levels in case there
+         * are still players on them. They'll eventually get deleted upon
+         * death or ascension of the last remaining player.
 	 */
-	cant_go_back = (newdungeon && In_endgame(newlevel));
+	cant_go_back = (newdungeon && In_endgame(newlevel) &&
+                        !iflags.multiplayer);
 	if (!cant_go_back) {
 	    update_mlstmv();	/* current monsters are becoming inactive */
 	    bufon(fd);		/* use buffered output */
@@ -1179,6 +1321,140 @@ boolean at_stairs, falling, portal;
 	    for (l_idx = maxledgerno(); l_idx > 0; --l_idx)
 		delete_levelfile(l_idx);
 	}
+
+        /* In multiplayer, we need careful synchronization handling
+           between levels. When someone leaves a level, if anyone else
+           is there, one of them should be yielded to, desynchronizing
+           the two parties; that bit is easy. The tricky part is
+           resynchronizing on arrival on a level; we should ideally
+           just yield without telling anyone to continue, which would
+           be fine, except then nobody would know we existed. So we
+           have to place ourselves on the level so people know to
+           yield to us, and that can only be done if someone yields
+           to us so we can place ourselves there.
+
+           Just to make things more fun, if nobody else is on the
+           level we arrive on, we should just continue by loading it.
+           But we shouldn't load it if someone else is there in case
+           they're halfway through checkpointing it, and we can only
+           find that out by loading it...
+
+           This dilemma can only be resolved by, um, locking the
+           lockfiles. This is arguably silly, but is the only solution
+           I can see to the problem. However, more problems arise; the
+           locking routines in vanilla NetHack assume that they're
+           running outside the windowing system (and so spew error
+           messages to stdout), and to lock a file, it must first
+           exist. As such, we use an AceHack extension to the locking
+           API.
+        */
+
+        if (iflags.multiplayer) {
+
+          char mergebuf[3];
+
+          if (*yield_after) {
+            /* Must happen after we've vacated the level; we already
+               saved (rather than checkpointing) the level file above,
+               so it now doesn't have us on it */
+            char yield_message[BUFSZ];
+            Sprintf(yield_message, "%s y\n", mplock);
+            mp_message(yield_after, yield_message);
+            *yield_after = 0;
+          }
+
+          /* This might be rather time-consuming, so we show a message on
+             a blank screen to make it clear that the program hasn't hung */
+          cls();
+          pline("Communicating...");
+          suppress_more();
+
+          Strcpy(lock, iflags.mp_lock_name);
+          set_levelfile_name(lock, new_ledger);
+          if (!lock_file_silently(lock, LEVELPREFIX, 20)) {
+            /* This shouldn't happen. TODO: This is probably
+               recoverable anyway, but just panic for now. */
+            panic("Stale lockfile lock in level changes!");
+          }
+          fd = open_levelfile(new_ledger, whynot);
+          /* We need to check that the levelfile is not an empty file
+             in case two processes tried to lock the same nonexistent
+             file simultaneously. Only one will get the lock, but the
+             other might erroneously think it exists. */
+          if (fd >= 0 && read(fd, mergebuf, 1) >= 1) {
+            /* It's entirely possible that someone created the level,
+               but we didn't previously know it existed. We do now! */
+            level_info[new_ledger].flags |= LFILE_EXISTS;
+            close(fd);
+            /* We need to find someone else on the level, and contact
+               them asking for a yield. It's so frustrating, to load
+               the level we want to arrive on and have to throw it
+               away again, but necessary so that there's a consistent
+               version of events. This may potentially need to be done
+               multiple times, if the people we contact keep leaving
+               the level before they can process the command (which is
+               unlikely but possible). If nobody else is on the level,
+               we take ownership of it, and this is similar to the
+               case where the level file didn't exist; the lock will
+               ensure nobody else tries to do the same thing.
+            */            
+            for (;;) {
+              fd = open_levelfile(new_ledger, whynot);
+              getlev(fd, 0, new_ledger, FALSE);
+              (void) close(fd);
+
+              for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+                if (is_mp_player(mtmp)) break;
+              }
+              
+              if (mtmp) {
+                /* Yield the lock, this operation is timeconsuming,
+                   and we want people to be able to change the locked
+                   lockfile anyway while we wait */
+                Strcpy(lock, iflags.mp_lock_name);
+                set_levelfile_name(lock, new_ledger);
+                unlock_file(lock);
+
+                /* Encode the level we want to arrive on */
+                mergebuf[2] = 0;
+                mergebuf[0] = newlevel->dnum + 11;
+                mergebuf[1] = newlevel->dlevel + 11;
+
+                if (mp_message_and_reply(
+                      is_mp_player(mtmp), "g", mergebuf, TRUE)) {
+                  /* OK acknowledgement; we can safely add ourselves
+                     to the map, so long as we yield afterwards */
+                  Strcpy(yield_after, is_mp_player(mtmp));
+                  savelev(0, new_ledger, FREE_SAVE);
+                  Strcpy(lock, iflags.mp_lock_name);
+                  set_levelfile_name(lock, new_ledger);
+                  /* The lock could fail to lock first time if someone
+                     else is trying to join the level in the meantime.
+                     This is OK, though; they'll ask one of the players
+                     on the level for a merge, then unlock the file
+                     again, and that player won't reply until we're
+                     done because they're waiting on our yield */
+                  if (!lock_file_silently(lock, LEVELPREFIX, 20))
+                    panic("Stale lockfile lock in level merge!");
+                  break;
+                } else {
+                  /* error acknowledgement; wait a second (to avoid a
+                     tight loop if there are 11 or more people trying
+                     to all enter the same level at once), then relock
+                     and try again */
+                  sleep(1);
+                  if (!lock_file_silently(lock, LEVELPREFIX, 20))
+                    panic("Stale lockfile lock in level change retry!");
+                  continue;
+                }
+              } else {
+                /* maintain the lock and take ownership */
+                level_file_already_loaded = TRUE;
+                break;
+              }
+            }
+          } /* else maintain the lock and take ownership... */
+        }
 
 #ifdef REINCARNATION
 	if (Is_rogue_level(newlevel) || Is_rogue_level(&u.uz))
@@ -1214,7 +1490,7 @@ boolean at_stairs, falling, portal;
 		}
 		mklev();
 		new = TRUE;	/* made the level */
-	} else {
+	} else if (!level_file_already_loaded) {
 		/* returning to previously visited level; reload it */
 		fd = open_levelfile(new_ledger, whynot);
 		if (fd < 0) {
@@ -1224,9 +1500,22 @@ boolean at_stairs, falling, portal;
                         goto remake_level;
 		}
 		minit();	/* ZEROCOMP */
-		getlev(fd, hackpid, new_ledger, FALSE);
+		getlev(fd, 0, new_ledger, FALSE);
 		(void) close(fd);
 	}
+
+        /* We must release the lock before anything that could print
+           messages, to avoid panicking other processes; the error
+           on level file removal above is OK, though, because it can
+           only happen if someone's gone around deleting files while
+           we have them locked, which would crash those processes
+           anyway. */
+        if (iflags.multiplayer) {
+          Strcpy(lock, iflags.mp_lock_name);
+          set_levelfile_name(lock, new_ledger);
+          unlock_file(lock);
+        }
+
 	/* do this prior to level-change pline messages */
 	vision_reset();		/* clear old level's line-of-sight */
 	vision_full_recalc = 0;	/* don't let that reenable vision yet */
@@ -1355,7 +1644,13 @@ boolean at_stairs, falling, portal;
 		    enexto(&cc, u.ux, u.uy, youmonst.data) &&
 		    distu(cc.x, cc.y) <= 2)
 		u_on_newpos(cc.x, cc.y);	/*[maybe give message here?]*/
-	    else
+	    else if (is_mp_player(mtmp) && enexto(&cc, u.ux, u.uy, youmonst.data))
+                /* This can be a bit ridiculous, but is better than the
+                   alternative (which always, rather than very rarely,
+                   places two players on the same square, leading to
+                   one of them getting genocided) */
+                u_on_newpos(cc.x, cc.y);
+            else
 		mnexto(mtmp);
 
 	    if ((mtmp = m_at(u.ux, u.uy)) != 0) {
@@ -1364,8 +1659,9 @@ boolean at_stairs, falling, portal;
 	    }
 	}
 
-	/* initial movement of bubbles just before vision_recalc */
-	if (Is_waterlevel(&u.uz))
+	/* initial movement of bubbles just before vision_recalc. Don't
+           do this in multiplayer, it causes too many issues. */
+	if (Is_waterlevel(&u.uz) && !iflags.multiplayer)
 		movebubbles();
 
 	if (level_info[new_ledger].flags & FORGOTTEN) {
@@ -1376,6 +1672,7 @@ boolean at_stairs, falling, portal;
 	}
 
 	/* Reset the screen. */
+        display_nhwindow(WIN_MESSAGE, FALSE); /* messages on the old level */
 	vision_reset();		/* reset the blockages */
 	docrt();		/* does a full vision recalc */
 	flush_screen(-1);
@@ -1470,6 +1767,19 @@ boolean at_stairs, falling, portal;
 	/* assume this will always return TRUE when changing level */
 	(void) in_out_region(u.ux, u.uy);
 	(void) pickup(1);
+
+        if (*yield_after) { /* can only happen in multiplayer */
+          char buf[BUFSZ];
+          rYou(" arrives on this level.");
+          /* TODO: Should we boost our own movement energy a bit upon
+             doing this? We're meshing two incompatible time systems,
+             and everyone else ends up a turn ahead the current way */
+          checkpoint_level();
+          Sprintf(buf, "%s y\n", mplock);
+          mp_message(yield_after, buf);
+          while (mp_await_reply_or_yield() != 2) {}
+          uncheckpoint_level();
+        }
 }
 
 STATIC_OVL void

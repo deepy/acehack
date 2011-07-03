@@ -1142,6 +1142,7 @@ curs_on_u()
 int
 doredraw()
 {
+    cls();
     docrt();
     return 0;
 }
@@ -1170,12 +1171,8 @@ docrt()
     /* shut down vision */
     vision_recalc(2);
 
-    /*
-     * This routine assumes that cls() does the following:
-     *      + fills the physical screen with the symbol for rock
-     *      + clears the glyph buffer
-     */
-    cls();
+    clear_nhwindow(WIN_MAP);	/* clear physical screen */
+    clear_glyph_buffer();
 
     /* display memory */
     for (x = 1; x < COLNO; x++) {

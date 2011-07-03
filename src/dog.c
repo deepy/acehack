@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dog.c	3.4	2002/09/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -60,11 +60,16 @@ boolean quietly;
 	    if (otmp) {	/* figurine; otherwise spell */
 		int mndx = otmp->corpsenm;
 		pm = &mons[mndx];
-		/* activating a figurine provides one way to exceed the
-		   maximum number of the target critter created--unless
-		   it has a special limit (erinys, Nazgul) */
-		if ((mvitals[mndx].mvflags & G_EXTINCT) &&
-			mbirth_limit(mndx) != MAXMONNO) {
+		/* activating a figurine provides one way to exceed
+		   the maximum number of the target critter
+		   created--unless it has a special limit (erinys,
+		   Nazgul). The is_mplayer check is just to make
+		   absolutely sure, as it would crash a multiplayer
+		   game really nastily, and maybe cause a singleplayer
+                   game to think it was a multiplayer game. */
+		if (((mvitals[mndx].mvflags & G_EXTINCT) &&
+                     mbirth_limit(mndx) != MAXMONNO) ||
+                    is_mplayer(pm)) {
 		    if (!quietly)
 			/* have just been given "You <do something with>
 			   the figurine and it transforms." message */
@@ -480,6 +485,22 @@ long nmv;		/* number of moves */
 #endif /* OVLB */
 #ifdef OVL2
 
+/* check to see if a monster is a placeholder for a player;
+   return value is NULL if they aren't, or lockname if they are */
+char *
+is_mp_player(mtmp)
+struct monst *mtmp;
+{
+  if (DEADMONSTER(mtmp)) return NULL;
+  if (!mtmp->mtame) return NULL;
+  if (!is_mplayer(mtmp->data)) return NULL;
+  if (!mtmp->mnamelth) {
+    impossible("Tame player-monster is not multiplayer placeholder?");
+    return NULL;
+  }
+  return NAME(mtmp);
+}
+
 /* called when you move to another level */
 void
 keepdogs(pets_only)
@@ -494,6 +515,7 @@ boolean pets_only;	/* true for ascension or final escape */
 	    mtmp2 = mtmp->nmon;
 	    if (DEADMONSTER(mtmp)) continue;
 	    if (pets_only && !mtmp->mtame) continue;
+            if (is_mp_player(mtmp)) continue; /* players don't follow */
 	    if (((monnear(mtmp, u.ux, u.uy) && levl_follower(mtmp)) ||
 #ifdef STEED
 			(mtmp == u.usteed) ||
@@ -831,6 +853,8 @@ register struct obj *obj;
 	    mtmp->isshk || mtmp->isgd || mtmp->ispriest || mtmp->isminion ||
 	    is_covetous(mtmp->data) || is_human(mtmp->data) ||
 	    (is_demon(mtmp->data) && !is_demon(youmonst.data)) ||
+            /* tame player-monsters are specific concepts in multiplayer */
+            is_mplayer(mtmp->data) ||
 	    (obj && dogfood(mtmp, obj) >= MANFOOD)) return (struct monst *)0;
 
 	if (mtmp->m_id == quest_status.leader_m_id)

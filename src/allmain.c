@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 22 May 2011 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -25,7 +25,9 @@ moveloop()
     int abort_lev;
 #endif
     int moveamt = 0, wtcap = 0, change = 0;
+    int turns_behind = 0;
     boolean didmove = FALSE, monscanmove = FALSE;
+    const char *merging_player;
 
     flags.moonphase = phase_of_the_moon();
     if(flags.moonphase == FULL_MOON) {
@@ -72,31 +74,80 @@ moveloop()
 	    youmonst.movement -= NORMAL_SPEED;
 
 	    do { /* hero can't move this turn loop */
+
+                turns_behind += mp_turns_behind();
+
 		wtcap = encumber_msg();
 
 		flags.mon_moving = TRUE;
-		do {
+                do {
+                    /* Note that monsters might choose not to move
+                       right now, in order to target a different
+                       player. This is fine if they do so by the end
+                       of the turn; if they don't, they lose their
+                       move. This is also where we yield to players
+                       who still have movement left. The way this
+                       works is that if we have movement left, we'll
+                       be yielded to with turns_behind == 0, and we
+                       continue our turn as normal; if we have no
+                       movement left, we won't be yielded to until
+                       some other game has moved onto its next turn
+                       and turns_behind will equal 1, in which case
+                       we follow up by breaking out of this loop and
+                       into the next-turn loop. */
 		    monscanmove = movemon();
-		    if (youmonst.movement > NORMAL_SPEED)
-			break;	/* it's now your turn */
-		} while (monscanmove);
+                    turns_behind += mp_turns_behind();
+		    if (youmonst.movement > NORMAL_SPEED || turns_behind)
+                      break;	/* it's now your action or the next turn */
+                } while (monscanmove);
 		flags.mon_moving = FALSE;
 
-		if (!monscanmove && youmonst.movement < NORMAL_SPEED) {
+		if (((!monscanmove && youmonst.movement < NORMAL_SPEED) ||
+                     turns_behind) && (!iflags.multiplayer || !u.ustuck)) {
+
+                    /* We get here with turns_behind == 0 only if
+                       every other player is out of movement energy
+                       and so are we, in which case /somebody/ has to
+                       do the updates; it should be us. Otherwise, we
+                       get here with turns_behind == 1 on our first
+                       action of the turn; we do the end-of-turn
+                       updates and go back to calculating monster and
+                       other-player movements if we still don't have
+                       enough movement energy. */
+
 		    /* both you and the monsters are out of steam this round */
 		    /* set up for a new turn */
 		    struct monst *mtmp;
-		    mcalcdistress();	/* adjust monsters' trap, blind, etc */
 
-		    /* reallocate movement rations to monsters */
-		    for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-			mtmp->movement += mcalcmove(mtmp);
+		    /***************************************************************/
+		    /* once-per-turn things done once across all processes go here */
+		    /***************************************************************/
 
-		    if(!rn2(u.uevent.udemigod ? 25 :
-			    (depth(&u.uz) > depth(&stronghold_level)) ? 50 : 70))
-			(void) makemon((struct permonst *)0, 0, 0, NO_MM_FLAGS);
+                    if (!turns_behind) {
 
-		    /* calculate how much time passed. */
+                        mcalcdistress();	/* adjust monsters' trap, blind, etc */
+
+                        /* reallocate movement rations to monsters and players;
+                           note that mcalcmove reallocates movement rations to
+                           remote multiplayer players too, but indirectly */
+                        for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
+                            mtmp->movement += mcalcmove(mtmp);
+
+                        if(!rn2(u.uevent.udemigod ? 25 :
+                                (depth(&u.uz) > depth(&stronghold_level)) ? 50 : 70))
+                            (void) makemon((struct permonst *)0, 0, 0, NO_MM_FLAGS);
+
+                        run_regions();
+
+                        if (Is_waterlevel(&u.uz))
+                            movebubbles();
+                    } else turns_behind--;
+
+		    /**********************************************************/
+		    /* once-per-turn things done once in each process go here */
+		    /**********************************************************/
+
+		    /* calculate how much time passed */
 #ifdef STEED
 		    if (u.usteed && u.umoved) {
 			/* your speed doesn't augment steed's speed */
@@ -132,14 +183,9 @@ moveloop()
 		    monstermoves++;
 		    moves++;
 
-		    /********************************/
-		    /* once-per-turn things go here */
-		    /********************************/
-
 		    if (flags.bypasses) clear_bypasses();
 		    if(Glib) glibr();
 		    nh_timeout();
-		    run_regions();
 
 		    if (u.ublesscnt)  u.ublesscnt--;
 		    if(flags.time && !flags.run)
@@ -273,9 +319,7 @@ moveloop()
 		    }
 		    restore_attrib();
 		    /* underwater and waterlevel vision are done here */
-		    if (Is_waterlevel(&u.uz))
-			movebubbles();
-		    else if (Underwater)
+		    if (Underwater && !Is_waterlevel(&u.uz))
 			under_water(0);
 		    /* vision while buried done here */
 		    else if (u.uburied) under_ground(0);
@@ -288,13 +332,71 @@ moveloop()
 			    if (u.utotype) deferred_goto();
 			}
 		    }
-		}
+
+                    /* We may need to give a break from the normal
+                       driving sequence to allow another player onto
+                       the level. (This would also allow players to
+                       join uninvited, if implementing that seems
+                       desirable.) This is not a "true" yield,
+                       because it doesn't allow the other player
+                       actions, but it does allow the other player
+                       to place themselves on the map. Also, it's
+                       technically an acknowledgement rather than a
+                       yield; but we get a true yield back again.
+                       This reduces the total number of drivers by
+                       one, as we require. */
+                    if (!u.ustuck) { /* cannot safely yield when stuck */
+                      if ((merging_player = mp_levelmerger_name())) {
+                        checkpoint_level();
+                        mp_message(merging_player, "\n");
+                        while (mp_await_reply_or_yield() != 2) {}
+                        uncheckpoint_level();
+                      }
+                    }
+		} else if (iflags.multiplayer && u.ustuck &&
+                           !monscanmove && youmonst.movement < NORMAL_SPEED) {
+                    int oldmovement = youmonst.movement;
+                    /* In order to avoid an infinite loop, give the player
+                       and the engulfing/sticking monster extra actions.
+                       Adding to every monster on the level might be less
+                       abusable, but would make unrelated players on the
+                       level potentially have to live through 20 attacks
+                       in a row, which would be ridiculous. */
+                    u.ustuck->movement += mcalcmove(u.ustuck);
+
+                    {
+			moveamt = youmonst.data->mmove;
+
+			if (Very_fast) {	/* speed boots or potion */
+			    /* average movement is 1.67 times normal */
+			    moveamt += NORMAL_SPEED / 2;
+			    if (rn2(3) == 0) moveamt += NORMAL_SPEED / 2;
+			} else if (Fast) {
+			    /* average movement is 1.33 times normal */
+			    if (rn2(3) != 0) moveamt += NORMAL_SPEED / 2;
+			}
+		    }
+
+		    switch (wtcap) {
+			case UNENCUMBERED: break;
+			case SLT_ENCUMBER: moveamt -= (moveamt / 4); break;
+			case MOD_ENCUMBER: moveamt -= (moveamt / 2); break;
+			case HVY_ENCUMBER: moveamt -= ((moveamt * 3) / 4); break;
+			case EXT_ENCUMBER: moveamt -= ((moveamt * 7) / 8); break;
+			default: break;
+		    }
+
+		    youmonst.movement += moveamt;
+                    /* Prevent blue jellies engulfed by ice vortices
+                       locking the game forever. */
+		    if (youmonst.movement <= oldmovement)
+                      youmonst.movement = oldmovement + 1;
+                }
 	    } while (youmonst.movement<NORMAL_SPEED); /* hero can't move loop */
 
 	    /******************************************/
 	    /* once-per-hero-took-time things go here */
 	    /******************************************/
-
 
 	} /* actual time passed */
 
@@ -559,6 +661,7 @@ newgame()
 	 */
 	if(MON_AT(u.ux, u.uy)) mnexto(m_at(u.ux, u.uy));
 	(void) makedog();
+        display_nhwindow(WIN_MESSAGE, FALSE);
 	docrt();
 
 	if (flags.legacy) {
@@ -575,6 +678,202 @@ newgame()
 	/* Success! */
 	welcome(TRUE);
 	return;
+}
+
+void
+terminate_during_newgame()
+{
+  display_nhwindow(WIN_MESSAGE, TRUE);
+  wait_synch();
+  program_state.gameover = 1;
+  clearlocks();
+  exit_nhwindows((char *) 0);
+  terminate(EXIT_SUCCESS);  
+}
+
+/* Signal handler for connection failure in a multiplayer game, during
+   the newgame sequence. This just displays an error message and quits
+   the game. */
+/*ARGSUSED*/
+STATIC_DCL void
+mp_newgame_connection_failure(sig_unused)
+int sig_unused;
+{
+  pline("Connection failure!");
+  terminate_during_newgame();
+}
+
+/* "Join game"; intialise a new game for the second or subsequent player
+   in a multiplayer game. */
+void
+newgame_mp()
+{
+        int mpcfd;
+        const char *ln;
+
+	if (newgame_progress < 2) newgame_part_2();
+        if (newgame_progress > 2) panic("Newgame sequence out of order: 3");
+
+        /* This has to come first, because the qtext system is used to
+           print the multiplayer instructions. */
+        load_qtlist();
+
+        /* Before trying to start the game, find a game to attach to. */
+        for (;;) {
+
+          /* Advertise that we're willing to join a multiplayer game. */
+          mpcfd = setup_multiplayer_pipe('a');
+          /* We don't actually want to panic, as this isn't our
+             fault. But we can't continue. We're halfway through
+             initialisation, so cannot safely use any of the cleanup
+             routines but panic(); thus, we use our own here. */
+          if (mpcfd < 0) {
+            mp_newgame_connection_failure(0);
+          }
+
+          int other = FALSE;
+          mp_track_yielders(TRUE);
+          com_pager(8); /* gives instructions, waits for Space */
+          cls();
+          teardown_multiplayer_pipe('a'); /* stop listening */
+          /* Whenever we tear down a pipe, we delay for a short time to
+             avoid a potential race condition with something that just
+             grabbed the old pipe from its name, and hasn't written to
+             it yet. (The race condition isn't the end of the world 
+             from our point of view, but it'll leave the other end
+             hanging until cancelled manually.) */
+          delay_output();
+          mark_synch();
+          mp_flush_log();
+          mp_track_yielders(FALSE);
+          for (;;) {
+            ln = mp_yielder_name();
+            const char* n;
+            char qbuf[QBUFSZ];
+            if (!ln) break;
+            other = TRUE;
+            /* Remove the numerical prefix from the lockname to get a
+               character name. (TODO: .0 suffix) */
+            n = ln + strspn(ln, "0123456789");
+            /* Singular they for now, as we don't know gender */
+            Sprintf(qbuf, "%s invited you to their dungeon. Join their game?", n);
+            switch (ynq(qbuf)) {
+            case 'y':
+              goto found_game_to_attach_to; /* multilevel break */
+            case 'q':
+              /* Decline all remaining invitations */
+              while (ln) {mp_message(ln, "!\n"); ln = mp_yielder_name();}
+              /* Quit the entire program */
+              terminate_during_newgame();
+            default:
+              /* Let the other player know we declined their invitation */
+              mp_message(ln, "!\n");
+              continue;
+            }
+          }
+          if (!other && yn("Nobody has invited you to their dungeon. Exit?") == 'y') {
+            terminate_during_newgame();
+          }
+        }
+        /* C doesn't have a multilevel break, so fake one with goto. */
+found_game_to_attach_to: ;
+        /* Let the other player know we accepted. Now we are driving.
+           We need to set up the control pipe first in case it tries
+           to reply (and it should, with things like dungeon layout). */
+        mpcfd = setup_multiplayer_pipe('c');
+        {
+          /* We have to reject any other invitations. */
+          const char* other_ln = mp_yielder_name();
+          while (other_ln) {mp_message(other_ln, "!\n"); other_ln = mp_yielder_name();}
+        }
+        mp_message(ln, "\n");
+
+        /* If connection takes more than 5 seconds, assume something's
+           gone wrong at the other end. (Like, for instance, the other
+           player cancelling before we accept.) */
+	(void) signal(SIGALRM, (SIG_RET_TYPE) mp_newgame_connection_failure);
+        alarm(5);
+
+        /* This mirrors newgame in a way, but much of what we
+           initialise has to be copied from the other game rather than
+           generated from scratch, so we have to be very careful about
+           multiplayer safety here. */
+
+        /* Most of these are MP-safe. This will lead to different god
+           names between the two games, but that's OK; there's nothing
+           wrong with two characters each praying to their respective
+           gods on the same lawful altar, for example. (We assume that
+           gods of the same alignment cooperate to the extent that
+           they're fine with that.) Quest nemesis fixup could get
+           "interesting" if the nemesis is lured out of the quest;
+           that will need testing. (Most likely it will work, but with
+           garbled AI.) */
+        role_specific_modifications();
+
+        /* Affects just the character him/herself. */
+        u_init_idempotent();
+
+        /* We /cannot/ call init_dungeons, as that would lead to an
+           incompatible dungeon layout between the games, which causes
+           immense problems (both in terms of implementation, and in
+           terms of player expectation). Instead, we grab the data
+           from the other game. Given that the game we're connecting
+           to is the only one with our control pipe, we don't need
+           to worry about interruptions, so we just send binary
+           right down the pipe. */
+        restore_dungeon(mpcfd);
+
+        /* A bit of a weird dependency issue here. We have to uncheckpoint
+           before placing the player on the stairs, or we don't know where
+           the stairs are. But we have to place the player on the stairs
+           before uncheckpointing, or the game tries to move the cursor
+           off the map, leading to an infinite loop. The solution is to
+           get the coordinates from the other game. */
+        if (read(mpcfd, &u.ux, sizeof(u.ux)) <= 0 ||
+            read(mpcfd, &u.uy, sizeof(u.uy)) <= 0) {
+          panic("Multiplayer control pipe read failure");
+        }
+
+        /* Remove watchdog timer. */
+        alarm(0);
+
+        /* I /hope/ this is multiplayer-safe... */
+        init_artifacts();
+
+#ifndef NO_SIGNAL
+	(void) signal(SIGINT, (SIG_RET_TYPE) done1);
+#endif
+        iflags.multiplayer = 1;
+        Strcpy(iflags.mp_lock_name, ln);
+
+        uncheckpoint_level();
+        vision_reset(); /* we have separate vision for the two games,
+                           even though we have shared map memory */
+        check_special_room(FALSE);
+        flags.botlx = 1;
+
+        /* no pets; one pet between the players is enough, one pet each
+           would just be annoying (note that there's no ownership
+           relationship for pets, a monster is either tame to all or
+           nontame to all */
+#ifdef INSURANCE
+	save_currentstate();
+#endif
+	program_state.something_worth_saving++;	/* useful data now exists */
+        newgame_progress = 3;
+
+        /* /Not/ rpline; we want to tell just the player whose game
+           we're joining that everything worked. The ! suppresses a
+           --More--. */
+        (void) mp_message_and_reply(ln, "p!", "Communicating...", FALSE);
+
+	/* Success! */
+#ifdef NEWS
+	if(iflags.news) display_file(NEWS, FALSE);
+#endif
+        display_nhwindow(WIN_MESSAGE, FALSE);
+        docrt();
+	welcome(TRUE);
 }
 
 /* show "welcome [back] to nethack" message at program startup */

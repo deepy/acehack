@@ -13,12 +13,12 @@
 [36;1;40m JMM*'[0;33;40mP`M|[36;1;40m`*MMk  `*MMM*"  MMMMMMM  MMM [0;33;40mMP`M[36;1;40mMMM[0;33;40mM,[36;1;40mMMP    *MM   `*MMM*"  MM    *MM
 [0;33;40m.MLHH'  HH                            |M| `*M?ML[0;37;40m
 [0;33;40mJMM*'   |M|                           HH    `HMM.[0;37;40m  c - Continue game
-[0;33;40mMMb_     HH                          |M|    .,MM|[0;37;40m  n - New game   
-[0;33;40m`HMMM#o_ |M,                         dM .,dHMMM?[0;37;40m   t - Tutorial   
-[0;33;40m  `HH:"#M#Mb.                       ,MHHH*'$M*'[0;37;40m    m - Other modes
-[0;33;40m   `*Mb  `TMMHb\.               _o#MMM"  ,HH'[0;37;40m
-[0;33;40m     `HH\  Mb``*HH#o_      .,d#M#"",M| .dM*[0;37;40m        s - High scores
-[0;33;40m       ?Mb.|M.    ""#M#o,dHH*''    JM ,HH'[0;37;40m         o - Options
-[0;33;40m        `*M$ML     _o#MH#MHb\.    .M[HH'[0;37;40m           ? - Help
-[0;33;40m          `HMM._o#M#""    ``*HHb\.JMM*'[0;37;40m            q - Exit
-[0;33;40m            *MMMMM############HMMMMH'[0;37;40m
+[0;33;40mMMb_     HH                          |M|    .,MM|[0;37;40m  n - New game
+[0;33;40m`HMMM#o_ |M,                         dM .,dHMMM?[0;37;40m   j - Join game
+[0;33;40m  `HH:"#M#Mb.                       ,MHHH*'$M*'[0;37;40m    t - Tutorial
+[0;33;40m   `*Mb  `TMMHb\.               _o#MMM"  ,HH'[0;37;40m      m - Other modes
+[0;33;40m     `HH\  Mb``*HH#o_      .,d#M#"",M| .dM*[0;37;40m
+[0;33;40m       ?Mb.|M.    ""#M#o,dHH*''    JM ,HH'[0;37;40m         s - High scores
+[0;33;40m        `*M$ML     _o#MH#MHb\.    .M[HH'[0;37;40m           o - Options
+[0;33;40m          `HMM._o#M#""    ``*HHb\.JMM*'[0;37;40m            ? - Help
+[0;33;40m            *MMMMM############HMMMMH'[0;37;40m              q - Exit

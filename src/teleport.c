@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)teleport.c	3.4	2003/08/11	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 24 Dec 2010 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -287,6 +287,7 @@ boolean allow_drag;
 		    ball_active = TRUE;
 		    allow_drag = FALSE;
 		}
+                display_nhwindow(WIN_MESSAGE, FALSE);
 		docrt();
 	}
 	if (ball_active) {

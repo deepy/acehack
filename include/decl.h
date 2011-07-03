@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)decl.h	3.4	2001/12/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 2 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef DECL_H
@@ -203,6 +203,7 @@ E const char *occtxt;			/* defined when occupation != NULL */
 E const char *nomovemsg;
 E const char nul[];
 E char lock[];
+E char mplock[];
 
 E const char sdir[], ndir[];
 E const schar xdir[], ydir[], zdir[];

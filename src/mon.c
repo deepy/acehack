@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mon.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Oct 2010 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you're using precompiled headers, you don't want this either */
@@ -486,12 +486,31 @@ register struct monst *mtmp;
     return (0);
 }
 
-
 int
 mcalcmove(mon)
 struct monst *mon;
 {
     int mmove = mon->data->mmove;
+    const char* lockname;
+
+    /* In multiplayer, players have their speed calculated differently. */
+    if ((lockname = is_mp_player(mon))) {
+        /* Let the player know they have another turn. */
+        mp_message_and_reply(lockname, "t", NULL, FALSE);
+        /* The speed value has a different meaning to normal on a
+           mp_player placeholder; >= 12 means that yielding to them is
+           potentially interesting, < 12 means that yielding to them
+           is a no-op and thus shouldn't be done (and is how turns
+           end, when everyone has that set). We thus need to flag the
+           player as yieldable, or they'll never recalculate their
+           speed. The reason this is set to a very high value is to
+           make everyone's turn happen before anyone's action, with
+           the exception of the turn updator's action (which has to
+           happen first, if it exists, in order to maintain
+           alternation of turns); it doesn't reflect the actual number
+           of actions left in this case, nor does it have to. */
+        return 1000;
+    }
 
     /* Note: MSLOW's `+ 1' prevents slowed speed 1 getting reduced to 0;
      *	     MFAST's `+ 2' prevents hasted speed 1 from becoming a no-op;
@@ -557,10 +576,10 @@ movemon()
 {
     register struct monst *mtmp, *nmtmp;
     register boolean somebody_can_move = FALSE;
-#if 0
-    /* part of the original warning code which was replaced in 3.3.1 */
-    warnlevel = 0;
-#endif
+
+    const char* lockname = NULL;
+    char lockname_copy[BUFSZ] = ""; /* lockname is a temporary buffer */
+    int lockname_mvpts = 0;
 
     /*
     Some of you may remember the former assertion here that
@@ -570,16 +589,41 @@ movemon()
     the chain with hit points <= 0, to be cleaned up at the end
     of the pass.
 
-    The only other actions which cause monsters to be removed from
-    the chain are level migrations and losedogs().  I believe losedogs()
-    is a cleanup routine not associated with monster movements, and
-    monsters can only affect level migrations on themselves, not others
-    (hence the fetching of nmon before moving the monster).  Currently,
-    monsters can jump into traps, read cursed scrolls of teleportation,
-    and drink cursed potions of raise level to change levels.  These are
-    all reflexive at this point.  Should one monster be able to level
-    teleport another, this scheme would have problems.
+    The only other actions which cause monsters to be removed from the
+    chain are level migrations, multiplayer yields, and losedogs().  I
+    believe losedogs() is a cleanup routine not associated with
+    monster movements, and monsters can only affect level migrations
+    on themselves, not others (hence the fetching of nmon before
+    moving the monster).  Currently, monsters can jump into traps,
+    read cursed scrolls of teleportation, and drink cursed potions of
+    raise level to change levels.  These are all reflexive at this
+    point.  Should one monster be able to level teleport another, this
+    scheme would have problems.
+
+    Multiplayer yields definitely do cause trouble, and so are simply
+    done in a separate pass.
     */
+
+    /* Work out who it is we want to yield to. If they have more
+       movement points left than any monster, then they move before
+       the monster does; this prevents alternations of a monster
+       moving twice in a row and a player moving twice in a row,
+       which would be unintuitive and confusing. */
+    if (!u.ustuck) { /* cannot yield while stuck */
+      for(mtmp = fmon; mtmp; mtmp = nmtmp) {
+	nmtmp = mtmp->nmon;
+        
+        if (!is_mp_player(mtmp)) continue;
+
+        if (mtmp->movement < lockname_mvpts) continue;
+        if (mtmp->movement < NORMAL_SPEED) continue; /* unyieldable */
+
+        lockname = is_mp_player(mtmp);
+        lockname_mvpts = mtmp->movement;
+      }
+    }
+
+    if (lockname) Strcpy(lockname_copy, lockname);
 
     for(mtmp = fmon; mtmp; mtmp = nmtmp) {
 	nmtmp = mtmp->nmon;
@@ -587,8 +631,20 @@ movemon()
 	/* Find a monster that we have not treated yet.	 */
 	if(DEADMONSTER(mtmp))
 	    continue;
+        if(is_mp_player(mtmp))
+            continue;
 	if(mtmp->movement < NORMAL_SPEED)
 	    continue;
+        /* For consistency, we don't move monsters if they're outsped
+           by any player. Otherwise, the monsters would all move in a
+           lump at the start of every turn. The monsters will still
+           definitely get their turns eventually, as we test for their
+           moves after every player action, and the players will
+           eventually fall below 12. (It's worth considering comparing
+           to youmonst.movement too, but that would change single-
+           player timings.) */
+        if(mtmp->movement < lockname_mvpts)
+            continue;
 
 	mtmp->movement -= NORMAL_SPEED;
 	if (mtmp->movement >= NORMAL_SPEED)
@@ -625,11 +681,6 @@ movemon()
 	if(dochugw(mtmp))		/* otherwise just move the monster */
 	    continue;
     }
-#if 0
-    /* part of the original warning code which was replaced in 3.3.1 */
-    if(warnlevel > 0)
-	warn_effects();
-#endif
 
     if (any_light_source())
 	vision_full_recalc = 1;	/* in case a mon moved with a light source */
@@ -640,6 +691,17 @@ movemon()
 	deferred_goto();
 	/* changed levels, so these monsters are dormant */
 	somebody_can_move = FALSE;
+    }
+
+    /* Yield, a safe distance after the dmonsfree(), if there's anyone
+       to yield to. At this point, lockname is invalid. */
+    if (*lockname_copy) {
+        char buf[BUFSZ];
+        checkpoint_level();
+        Sprintf(buf, "%s y\n", mplock);
+        mp_message(lockname_copy, buf);
+        while (mp_await_reply_or_yield() != 2) {}
+        uncheckpoint_level();
     }
 
     return somebody_can_move;
@@ -1740,6 +1802,7 @@ register struct monst *mtmp;
 			u.uswldtim = 0;
 			if (Punished) placebc();
 			vision_full_recalc = 1;
+                        display_nhwindow(WIN_MESSAGE, FALSE);
 			docrt();
 		}
 		u.ustuck = 0;

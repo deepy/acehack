@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)steed.c	3.4	2003/01/10	*/
 /* Copyright (c) Kevin Hugo, 1998-1999. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 2 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -173,6 +173,15 @@ int
 doride()
 {
 	boolean forcemount = FALSE;
+
+        if (iflags.multiplayer) {
+          /* TODO: remove this limitation. It's quite a deep-seated one,
+             based on the fact that monsters riding other monsters is
+             not implemented, and that you can't put two monsters on the
+             same square. */
+          pline("You cannot ride steeds in multiplayer.");
+          return 0;
+        }
 
 	if (u.usteed)
 	    dismount_steed(DISMOUNT_BYCHOICE);

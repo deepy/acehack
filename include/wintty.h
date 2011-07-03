@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.h	3.4	1996/02/18	*/
 /* Copyright (c) David Cohrs, 1991,1992				  */
-/* Modified 26 Mar 2011 by Alex Smith */
+/* Modified 3 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef WINTTY_H
@@ -157,6 +157,7 @@ E int FDECL(has_color,(int color));
 E void FDECL(addtopl, (const char *));
 E void NDECL(more);
 E void FDECL(update_topl, (const char *));
+E void FDECL(redotoplin, (const char*));
 E void NDECL(fade_topl);
 E void FDECL(putsyms, (const char*));
 

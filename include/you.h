@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)you.h	3.4	2000/05/21	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Mar 2011 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef YOU_H
@@ -356,9 +356,9 @@ struct you {
 	long	ucleansed;	/* to record moves when player was cleansed */
 	long	usleep;		/* sleeping; monstermove you last started */
 	int uinvault;
-	struct monst *ustuck;
+	struct monst *ustuck;   /* NOT SAFE IN MULTIPLAYER */
 #ifdef STEED
-	struct monst *usteed;
+	struct monst *usteed;   /* NOT SAFE IN MULTIPLAYER */   
 	long ugallop;
 	int urideturns;
 #endif

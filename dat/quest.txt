@@ -1,6 +1,6 @@
 #	SCCS Id: @(#)quest.txt	3.4	2002/01/30
 #	Copyright (c) 1991 by M. Stephenson
-#       Modified 26 Mar 2011 by Alex Smith
+#       Modified 2 Jul 2011 by Alex Smith
 # NetHack may be freely redistributed.  See license for details.
 #
 #	The quest text file for AceHack 3.6
@@ -3358,6 +3358,30 @@ You again sense %l demanding your attendance.
 %Cp - 00005
 "The silver bell which was hoarded by %n will be
 essential in locating the Amulet of Yendor."
+%E
+#
+#       Multiplayer instructions
+#
+%Cc - 00008
+In order to join another player's game, that player will have to
+invite you in. Ask that player to return to dungeon level 1 (if they
+aren't there already), in view of the exit ladder, and give the
+#invite command, specifying your name, %p.
+
+You must be waiting at this screen for other players to invite
+you. Once you have been invited, or if you change your mind about
+playing multiplayer, press Space to dismiss this message, and you
+will be able to accept an invitation or quit the game.
+
+
+Multiplayer rules are basically the same as single-player. You will be
+transported to the entrance of the other player's dungeon, where the
+two of you can cooperate in order to try to complete the game. (You
+cannot directly attack each other, and the game is anyway not balanced
+for PvP.) Each of you can act only during your own turn, and will have
+to wait for your partner to take their turn.
+
+Good luck!
 %E
 #
 #	Angelic maledictions.

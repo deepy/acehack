@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)files.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Sep 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -78,6 +78,8 @@ char bones[] = "bonesnn.xxx";
 char lock[PL_NSIZ+25];		/* long enough for username+-+name+.99 */
 # endif
 #endif
+
+char mplock[sizeof lock];       /* lockname without the .99 ending */
 
 #if defined(UNIX) || defined(__BEOS__)
 #define SAVESIZE	(PL_NSIZ + 13)	/* save/99999player.e */
@@ -388,6 +390,7 @@ int prefix;
 void
 set_lock_and_bones()
 {
+        char *bp;
 	if (!ramdisk) {
 		Strcpy(levels, permbones);
 		Strcpy(bones, permbones);
@@ -403,6 +406,9 @@ set_lock_and_bones()
 #ifndef AMIGA
 	Strcat(lock, alllevels);
 #endif
+        Strcpy(mplock, lock);
+        bp = rindex(mplock, '.');
+        if (bp) *bp = 0;
 	return;
 }
 #endif /* MFLOPPY */
@@ -439,6 +445,8 @@ char errbuf[];
 	const char *fq_lock;
 
 	if (errbuf) *errbuf = '\0';
+        if (iflags.multiplayer)
+          Strcpy(lock, lev ? iflags.mp_lock_name : mplock);
 	set_levelfile_name(lock, lev);
 	fq_lock = fqname(lock, LEVELPREFIX, 0);
 
@@ -481,6 +489,8 @@ char errbuf[];
 	const char *fq_lock;
 
 	if (errbuf) *errbuf = '\0';
+        if (iflags.multiplayer)
+          Strcpy(lock, lev ? iflags.mp_lock_name : mplock);
 	set_levelfile_name(lock, lev);
 	fq_lock = fqname(lock, LEVELPREFIX, 0);
 #ifdef MFLOPPY
@@ -520,6 +530,8 @@ int lev;
 	 * call create_levfile(), so always assume that it exists.
 	 */
 	if (lev == 0 || (level_info[lev].flags & LFILE_EXISTS)) {
+                if (iflags.multiplayer)
+                    Strcpy(lock, lev ? iflags.mp_lock_name : mplock);
 		set_levelfile_name(lock, lev);
 #ifdef HOLD_LOCKFILE_OPEN
 		if (lev == 0) really_close();
@@ -547,6 +559,9 @@ clearlocks()
 	for (x = (n_dgns ? maxledgerno() : 0); x >= 0; x--)
 		delete_levelfile(x);	/* not all levels need be present */
 #endif
+
+        teardown_multiplayer_pipe('a');
+        teardown_multiplayer_pipe('c');
 }
 
 #ifdef HOLD_LOCKFILE_OPEN
@@ -612,6 +627,136 @@ int fd;
 	
 /* ----------  END LEVEL FILE HANDLING ----------- */
 
+/* ----------  BEGIN MP CONTROL PIPE HANDLING ----------- */
+
+static int mp_pipe_fd = -1;
+
+/* We have two possible sorts of inbound control pipe. An
+   advertisement pipe is used when originally setting up the game, and
+   has .mpa at the end of the filename. Such pipes never block when
+   written to. A control pipe is used from then on, and its filename
+   ends with .mpc; these rely on there being one "active" process at a
+   time in a group of cooperating processes, with the active process
+   doing all the reading and the other processes all the
+   writing. Sending data down a control pipe makes the process it's
+   sent to active, always; if it shouldn't be active, it just replies
+   again to give activity back. Because processes may not be able to
+   respond to invites during actual normal game, we need a signal
+   somewhere like the filename in order to be able to tell whether we
+   can "safely" send to a pipe. */
+
+/* Returns pipe FD on success, -1 and print a message on error.
+   The argument is the pipe type, currently only 'a' or 'c', and is
+   embedded into the filename. */
+int setup_multiplayer_pipe(ptype)
+char ptype;
+{
+	int fd;
+	const char *fq_pipe;
+
+        char basename[BUFSZ];
+
+        /* We want the actual lock here, not the multiplayer-safe
+           version, because the multiplayer version might be shared
+           by more than one game (that's its purpose!). */
+        sprintf(basename,"%s.mp%c", mplock, ptype);
+	fq_pipe = fqname(basename, LEVELPREFIX, 0);
+
+        /* This is a little tricky. We can safely assume that the FIFO
+           doesn't exist because it's based on the lockfile, /except/
+           if a previous invocation of the program crashed, in which
+           case we want to just leave it there. So we try to create
+           it, and report an error unless the error was a filename
+           clash. */
+        errno = 0;
+        if (mkfifo(fq_pipe, FCMASK) && errno != EEXIST) {
+          pline("Cannot create multiplayer communication pipe \"%s\" (errno %d)",
+                basename, errno);
+          return -1;
+        }
+
+        /* Now open the resulting FIFO for reading, and also for
+           writing, on a separate FD, which we deliberately leak.
+           Opening it for writing prevents it closing when the last
+           other process closes, allowing us to attach to it and
+           detach from it at will. (TODO: Does this work on non-Linux
+           Unices?) This prevents random SIGPIPEs caused by writing to
+           an advertisment pipe just after some other process has
+           finished writing to it. For the same reason, FIFOs are
+           always unlinked /before/ closing them.
+
+           We have to do a bit of silly hackery here to get
+           non-blocking opens but blocking writes: we open nonblocking
+           for reading, then blocking for writing (and leak the FD),
+           then close the original read FD and open again in blocking
+           mode. (Linux supports specifying read+write mode as a
+           simpler way to accomplish the same thing, but that isn't
+           portable.) */
+        errno = 0;
+        if (((fd = open(fq_pipe, O_RDONLY | O_NONBLOCK))) < 0) {
+          pline("Cannot open own communication file for non-blocking reads (errno %d)!",
+                errno);
+          (void)unlink(fq_pipe); /* try, and ignore problems if it fails */
+          return -1;
+        }
+        if (open(fq_pipe, O_WRONLY) < 0) {
+          pline("Cannot open own communication file for writing (errno %d)!", errno);
+          (void)unlink(fq_pipe); /* try, and ignore problems if it fails */
+          return -1;
+        }
+        /* Hey, one of those rare situations in which not checking the
+           return value of close() is technically correct! (Of course,
+           people basically never check it anyway...) */
+        (void) close(fd);
+        /* Now to open the same file a third time... */
+        if (((fd = open(fq_pipe, O_RDONLY))) < 0) {
+          pline("Cannot open own communication file for reading (errno %d)!",
+                errno);
+          (void)unlink(fq_pipe); /* try, and ignore problems if it fails */
+          return -1;
+        }
+        mp_pipe_fd = fd;
+        return fd;
+}
+void teardown_multiplayer_pipe(ptype)
+char ptype;
+{
+	const char *fq_pipe;
+
+        char basename[BUFSZ];
+
+        sprintf(basename,"%s.mp%c", mplock, ptype);
+	fq_pipe = fqname(basename, LEVELPREFIX, 0);
+
+        /* If something goes wrong with this, we're probably in the
+           desired state anyway. */
+        (void)unlink(fq_pipe);
+
+        mp_pipe_fd = -1;
+}
+int multiplayer_pipe_fd()
+{
+        return mp_pipe_fd;
+}
+/* Note that this actually opens the fd, and for the moment, the
+   caller is responsible for closing it. */
+int other_multiplayer_pipe_fd(lockname, ptype)
+const char *lockname;
+char ptype;
+{
+	const char *fq_pipe;
+
+        char basename[BUFSZ];
+
+        sprintf(basename,"%s.mp%c", lockname, ptype);
+	fq_pipe = fqname(basename, LEVELPREFIX, 0);
+
+        /* Return fd number or propagate error return. */
+        errno = 0;
+        return open(fq_pipe, O_WRONLY);
+}
+
+/* ----------  END MP CONTROL PIPE HANDLING ----------- */
 
 /* ----------  BEGIN BONES FILE HANDLING ----------- */
 
@@ -1321,6 +1466,7 @@ const char *filename;
 /* ----------  BEGIN FILE LOCKING HANDLING ----------- */
 
 static int nesting = 0;
+static boolean silently = FALSE;
 
 #ifdef NO_FILE_LINKS	/* implies UNIX */
 static int lockfd;	/* for lock_file() to pass to unlock_file() */
@@ -1362,7 +1508,6 @@ char *lockname;
 #endif
 }
 
-
 /* lock a file */
 boolean
 lock_file(filename, whichprefix, retryct)
@@ -1375,6 +1520,7 @@ int retryct;
 #endif
 	char locknambuf[BUFSZ];
 	const char *lockname;
+        boolean filetouched = FALSE;
 
 	nesting++;
 	if (nesting > 1) {
@@ -1399,7 +1545,7 @@ int retryct;
 	    switch (errnosv) {	/* George Barbanis */
 	    case EEXIST:
 		if (retryct--) {
-		    HUP raw_printf(
+                    HUP if (!silently) raw_printf(
 			    "Waiting for access to %s.  (%d retries left).",
 			    filename, retryct);
 # if defined(SYSV) || defined(ULTRIX) || defined(VMS)
@@ -1407,16 +1553,27 @@ int retryct;
 # endif
 			sleep(1);
 		} else {
-		    HUP (void) raw_print("I give up.  Sorry.");
-		    HUP raw_printf("Perhaps there is an old %s around?",
-					lockname);
+		    HUP if (!silently) (void) raw_print("I give up.  Sorry.");
+		    HUP if (!silently) raw_printf("Perhaps there is an old %s around?",
+                                                  lockname);
 		    nesting--;
 		    return FALSE;
 		}
 
 		break;
 	    case ENOENT:
-		HUP raw_printf("Can't find file %s to lock!", filename);
+                if (silently) {
+                  /* The file must exist to be able to lock it. So we
+                     touch it, and try again. If two processes try to lock
+                     it at once, it's theoretically possible both will
+                     touch it, but then only one will get the resulting
+                     lock. */
+                  int filefd = open(filename, O_RDWR | O_CREAT | O_EXCL, 0666);
+                  if (filefd < 0) {nesting--; return FALSE;}
+                  filetouched = TRUE;
+                  break; /* try again */
+                }
+		HUP if (!silently) raw_printf("Can't find file %s to lock!", filename);
 		nesting--;
 		return FALSE;
 	    case EACCES:
@@ -1426,14 +1583,14 @@ int retryct;
 # ifdef VMS			/* c__translate(vmsfiles.c) */
 	    case EPERM:
 		/* could be misleading, but usually right */
-		HUP raw_printf("Can't lock %s due to directory protection.",
-			       filename);
+		HUP if (!silently) raw_printf("Can't lock %s due to directory protection.",
+                                              filename);
 		nesting--;
 		return FALSE;
 # endif
 	    default:
-		HUP perror(lockname);
-		HUP raw_printf(
+		HUP if (!silently) perror(lockname);
+		HUP if (!silently) raw_printf(
 			     "Cannot lock %s for unknown reason (%d).",
 			       filename, errnosv);
 		nesting--;
@@ -1441,6 +1598,14 @@ int retryct;
 	    }
 
 	}
+
+        /* If we had to create the file to lock it, unlink the
+           filename (leaving the lock as the main name for the file). */
+        if (filetouched) {
+            if (unlink(filename) < -1)
+                panic("Could not uncreate nonexistent file in locking!");
+        }
+
 #endif  /* UNIX || VMS */
 
 #if defined(AMIGA) || defined(WIN32) || defined(MSDOS)
@@ -1476,7 +1641,6 @@ int retryct;
 #endif /* AMIGA || WIN32 || MSDOS */
 	return TRUE;
 }
-
 
 #ifdef VMS	/* for unlock_file, use the unlink() routine in vmsunix.c */
 # ifdef unlink
@@ -1521,6 +1685,21 @@ const char *filename;
 	nesting--;
 }
 
+/* For multiplayer, we may need to lock things interactively.
+   That means no raw printing to the screen. */
+boolean
+lock_file_silently(filename, whichprefix, retryct)
+const char *filename;
+int whichprefix;
+int retryct;
+{
+    boolean rv;
+    silently = TRUE;
+    rv = lock_file(filename, whichprefix, retryct);
+    silently = FALSE;
+    return rv;
+}
+
 /* ----------  END FILE LOCKING HANDLING ----------- */
 
 
@@ -1546,9 +1725,9 @@ const char *configfile =
 /* conflict with speed-dial under windows
  * for XXX.cnf file so support of AceHack.cnf
  * is for backward compatibility only.
- * Preferred name (and first tried) is now defaults.nh but
- * the game will try the old name if there
- * is no defaults.nh.
+ * Preferred name (and first tried) is now defaults.ace but
+ * the game will try the old name style if there
+ * is no defaults.ace.
  */
 const char *backward_compat_configfile = "acehack.cnf"; 
 #endif

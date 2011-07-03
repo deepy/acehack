@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)unixmain.c	3.4	1997/01/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Sep 2011 by Alex Smith */
+/* Modified 25 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* main.c - Unix NetHack */
@@ -55,6 +55,7 @@ char *argv[];
 	register char *dir;
 #endif
 	boolean exact_username;
+        char *bp;
 
 #if defined(__APPLE__)
 	/* special hack to change working directory to a resource fork when
@@ -226,6 +227,11 @@ char *argv[];
 	}
 #endif /* WIZARD */
 
+        /* Record who we are for multiplayer purposes */
+        Strcpy(mplock, lock);
+        bp = rindex(mplock, '.');
+        if (bp) *bp = 0;
+
 	/*
 	 * Initialization of the boundaries of the mazes
 	 * Both boundaries have to be even.
@@ -282,7 +288,17 @@ char *argv[];
 	} else {
 not_recovered:
 		player_selection();
-		newgame();
+                /* Multiplayer newgame (that is, "join game") works by
+                   finding the lockfile name of the other game, then
+                   letting the other game checkpoint, and
+                   uncheckpointing. The joining game gets the first
+                   turn, so it's OK if character setup is not complete
+                   before then; we can complete it before anything
+                   else happens. */
+                if (iflags.multiplayer)
+                  newgame_mp();
+                else
+                  newgame();
 		wd_message();
 
 		flags.move = 0;

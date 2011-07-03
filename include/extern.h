@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)extern.h	3.4	2003/03/10	*/
 /* Copyright (c) Steve Creps, 1988.				  */
-/* Modified 15 Sep 2011 by Alex Smith */
+/* Modified 1 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef EXTERN_H
@@ -26,6 +26,7 @@ E void NDECL(stop_occupation);
 E void NDECL(display_gamewindows);
 E void NDECL(newgame);
 E void NDECL(newgame_part_2);
+E void NDECL(newgame_mp);
 E void FDECL(welcome, (BOOLEAN_P));
 
 /* ### apply.c ### */
@@ -321,6 +322,8 @@ E int NDECL(doddrop);
 E int NDECL(dodown);
 E int NDECL(doup);
 E int NDECL(doterrain);
+E int NDECL(checkpoint_level);
+E int NDECL(uncheckpoint_level);
 #ifdef INSURANCE
 E void NDECL(save_currentstate);
 #endif
@@ -424,6 +427,7 @@ E void NDECL(update_mlstmv);
 E void NDECL(losedogs);
 E void FDECL(mon_arrive, (struct monst *,BOOLEAN_P));
 E void FDECL(mon_catchup_elapsed_time, (struct monst *,long));
+E char *FDECL(is_mp_player, (struct monst *));
 E void FDECL(keepdogs, (BOOLEAN_P));
 E void FDECL(migrate_to_level, (struct monst *,XCHAR_P,XCHAR_P,coord *));
 E int FDECL(dogfood, (struct monst *,struct obj *));
@@ -676,10 +680,11 @@ E int NDECL(open_savefile);
 E boolean NDECL(verify_savefile);
 E int NDECL(delete_savefile);
 E int NDECL(restore_saved_game);
-E void FDECL(nhcompress, (const char *));
-E void FDECL(nhuncompress, (const char *));
+E void FDECL(compress, (const char *));
+E void FDECL(uncompress, (const char *));
 E boolean FDECL(lock_file, (const char *,int,int));
 E void FDECL(unlock_file, (const char *));
+E boolean FDECL(lock_file_silently, (const char *,int,int));
 #ifdef USER_SOUNDS
 E boolean FDECL(can_read_file, (const char *));
 #endif
@@ -1581,6 +1586,18 @@ E const char *FDECL(align_str, (ALIGNTYP_P));
 E void FDECL(mstatusline, (struct monst *));
 E void NDECL(ustatusline);
 E void NDECL(self_invis_message);
+
+E boolean NDECL(handle_mp_input);
+E void NDECL(mp_flush_log);
+E void FDECL(mp_message, (const char *,const char *));
+E int  FDECL(mp_message_and_reply, (const char *,const char *,const char*,boolean));
+E int  NDECL(mp_await_reply_or_yield);
+E void FDECL(mp_track_yielders, (boolean));
+E const char *NDECL(mp_yielder_name);
+E const char *NDECL(mp_levelmerger_name);
+E int  NDECL(mp_turns_behind);
+E void VDECL(rpline, (const char *,...)) PRINTF_F(1,2);
+E void VDECL(rYou, (const char *,...)) PRINTF_F(1,2);
 
 /* ### polyself.c ### */
 

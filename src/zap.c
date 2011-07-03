@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)zap.c	3.4	2003/08/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -3672,6 +3672,7 @@ boolean *shopdamage;
 			    /* leave the no longer existent water */
 			    u.uinwater = 0;
 			    u.uundetected = 0;
+                            display_nhwindow(WIN_MESSAGE, FALSE);
 			    docrt();
 			    vision_full_recalc = 1;
 			} else if (u.utrap && u.utraptype == TT_LAVA) {

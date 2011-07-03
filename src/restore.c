@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)restore.c	3.4	2003/09/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -538,6 +538,8 @@ xchar ltmp;
 	}
 #endif
 	bufon(nfd);
+        /* multiplayer-safe because we only have the one player
+           around right now to do the restore */
 	savelev(nfd, ltmp, WRITE_SAVE | FREE_SAVE);
 	bclose(nfd);
 	return(2);
@@ -674,6 +676,7 @@ register int fd;
 	vision_full_recalc = 1;	/* recompute vision (not saved) */
 
 	run_timers();	/* expire all timers that have gone off while away */
+        display_nhwindow(WIN_MESSAGE, FALSE);
 	docrt();
 	restoring = FALSE;
 	clear_nhwindow(WIN_MESSAGE);
@@ -901,6 +904,34 @@ boolean ghostly;
 	relink_timers(ghostly);
 	relink_light_sources(ghostly);
 	reset_oattached_mids(ghostly);
+
+        /* Look for player placeholders. In particular, if we find one
+           with our name, we should delete it, and if we find one with
+           somebody else's name, we should go into multiplayer mode. */
+        {
+	    struct monst *mtmp2;
+            char *mp_plname;
+
+	    for (mtmp = fmon; mtmp; mtmp = mtmp2) {
+		mtmp2 = mtmp->nmon;
+
+                if (DEADMONSTER(mtmp)) continue;
+
+                mp_plname = is_mp_player(mtmp);
+                if (!mp_plname) continue;
+
+                if (!strcmp(mp_plname, mplock)) {
+                  /* It's a placeholder for us; flag it as gone and
+                     remove it from the level, so that the next
+                     dmonsfree() will remove it from the chain and
+                     deallocate it */
+                  mongone(mtmp);
+                } else if (!iflags.multiplayer) {
+                  iflags.multiplayer = TRUE;
+                  Strcpy(iflags.mp_lock_name, mplock);
+                }
+	    }
+	}
 
 	if (ghostly)
 	    clear_id_mapping();

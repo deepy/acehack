@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Sep 2011 by Alex Smith */
+/* Modified 17 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -114,6 +114,7 @@ STATIC_PTR int NDECL(doextcmd);
 STATIC_PTR int NDECL(domonability);
 STATIC_PTR int NDECL(dotravel);
 STATIC_PTR int NDECL(doautoexplore);
+STATIC_PTR int NDECL(doinvite);
 # ifdef WIZARD
 STATIC_PTR int NDECL(wiz_wish);
 STATIC_PTR int NDECL(wiz_identify);
@@ -129,6 +130,7 @@ STATIC_PTR int NDECL(wiz_show_seenv);
 STATIC_PTR int NDECL(wiz_show_vision);
 STATIC_PTR int NDECL(wiz_mon_polycontrol);
 STATIC_PTR int NDECL(wiz_show_wmodes);
+STATIC_PTR int NDECL(wiz_multiplayer_yield);
 #if defined(__BORLANDC__) && !defined(_WIN32)
 extern void FDECL(show_borlandc_stats, (winid));
 #endif
@@ -543,7 +545,151 @@ enter_explore_mode()
 }
 #endif
 
+/* #invite command - invite another player */
+STATIC_PTR int
+doinvite()
+{
+  struct monst *mtmp;
+  char lockname[BUFSZ];
+  char buf[BUFSZ];
+  int fd;
+  xchar x, y; /* same type as u.ux, u.uy */
+  /* The conditions for an invite: you must be within view of the dlvl
+     1 upstairs, and that square must be unoccupied. */
+  if (depth(&u.uz) != 1 || !sstairs.sx || !cansee(sstairs.sx,sstairs.sy)) {
+    You_cant("invite players if you can't see the dungeon level 1 exit ladder.");
+    return 0;
+  }
+  if (u.ux == sstairs.sx && u.uy == sstairs.sy)
+  {
+    You_cant("invite players if you're blocking the exit ladder.");
+    return 0;
+  }
+
+  /* Avoid multiplayer-unsafe or yield-unsafe circumstances. */
+  if (u.usteed)
+  {
+    You_cant("ride a steed in multiplayer.");
+    return 0;
+  }
+  if (u.ustuck)
+  {
+    You_cant("invite a player while %s has you trapped!", a_monnam(u.ustuck));
+    return 0;
+  }
+
+  /* This leaks a tiny bit of information. Oh well... */
+  if ((mtmp = m_at(sstairs.sx,sstairs.sy))) {
+    if (canseemon(mtmp))
+      You_cant("invite players with %s blocking the ladder.", a_monnam(mtmp));
+    else
+      You_cant("invite players. Perhaps something is blocking the ladder?");
+    return 0;
+  }
+
+  /* Necessary if there's even a slight possibility we might yield; is
+     harmless if we don't */
+  checkpoint_level();
+
+  /* If invitation is legal from this dungeon's point of view, ask who to
+     invite. For the time being, use lockfile names. (Ideally we want a
+     list eventually.) */
+  getlin("What lockname to invite?",lockname);
+  if (!*lockname || *lockname == '\033') return 0; /* cancelled */
+
+  /* If we don't have a control pipe yet, set one up now.
+     If we cancel and continue as a single-player game from there, we just
+     have a control pipe nobody is using; no great problem. */
+  if (multiplayer_pipe_fd() == -1)
+    setup_multiplayer_pipe('c');
+
+  fd = other_multiplayer_pipe_fd(lockname, 'a');
+  if (fd < 0) {
+    pline("%s doesn't seem to be waiting to join a game.", lockname);
+    return 0;
+  }
+  /* mplock is the multiplayer lockname, that's used to identify a
+     particular running process. We need to send our own here. */
+  Sprintf(buf, "%s y\n", mplock);
+  /* TODO: SIGPIPE due to a really unlikely race condition */
+  if(write(fd, buf, strlen(buf)) < 0) {
+    panic("Cannot write to remote multiplayer advertisement pipe");
+  }
+  close(fd);
+  /* Now await the reply or user cancel. */
+  pline("Waiting for response... (ESC = stop waiting)");
+  suppress_more();
+  switch (mp_await_reply_or_yield()) {
+  case 0: /* declined */
+    pline("%s declined your invitation.", lockname);
+    break;
+  case 1: /* accepted */
+    pline("Invitation accepted, connecting...");
+    suppress_more();
+    /* The other end of the connection badly needs to know the dungeon
+       layout right now; in fact, it's waiting on a timer. So we do
+       that first. */
+    fd = other_multiplayer_pipe_fd(lockname, 'c');
+    if (fd < 0) panic("Multiplayer control pipe not ready");
+    save_dungeon(fd, TRUE, FALSE);
+    /* It needs to know the player's coordinates, too, to do things
+       in the right order. x and y are the same size as u.ux and
+       u.uy, or this wouldn't work. */
+    x = sstairs.sx; y = sstairs.sy;
+    if (write(fd, &x, sizeof(u.ux)) <= 0 ||
+        write(fd, &y, sizeof(u.uy)) <= 0) {
+      panic("Multiplayer control pipe write failure");
+    }
+    /* Now the other end has control, and we're just waiting on a
+       yield. */
+    iflags.multiplayer = TRUE;
+    Strcpy(iflags.mp_lock_name, mplock);
+    while (mp_await_reply_or_yield() != 2) {}
+    uncheckpoint_level();
+    break;
+  case 3: /* cancelled */
+    /* This one's a bit tricky. Either the other end's crashed, in
+       which case we'll never get a reply, or it hasn't, in which case
+       we will and it'll be indistinguishable from a valid reply in an
+       entirely different context. Worse still, if the other end
+       accepts, it'll find us unable to supply the data. TODO: A more
+       robust solution to this is needed eventually; for the time
+       being, we just continue and hope the response happens while
+       we're either driving or yielded (which is the vast majority of
+       the time; problems happen if it comes while we're rplining
+       another game, or changing levels.) */
+    pline("Invitation cancelled.");
+    break;
+  default:
+    impossible("Invalid remote connection response");
+    break;
+  }
+  return 0;
+}
+
 #ifdef WIZARD
+
+/* #yield command - test multiplayer yield routines */
+STATIC_PTR int
+wiz_multiplayer_yield()
+{
+  if (!wizard) {
+    pline("Unavailable command #yield.");
+    return 0;
+  }
+  if (checkpoint_level() < 0) {
+    pline("Checkpoint failed, not uncheckpointing!");
+    return 0;
+  }
+  pline("Checkpointed. Clear this message to uncheckpoint again...");
+  display_nhwindow(WIN_MESSAGE, FALSE); /* force --More-- */
+  if (uncheckpoint_level() < 0) {
+    /* Uncheckpointing shouldn't go wrong if checkpointing worked (at
+       the other end, if necessary). */
+    impossible("Uncheckpoint failed in wiz_multiplayer_yield!");
+  }
+  return 0;
+}
 
 /* ^W command - wish for something */
 STATIC_PTR int
@@ -1633,6 +1779,7 @@ struct ext_func_tab extcmdlist[] = {
   {"inventory", "list, describe or use items", ddoinv, TRUE, 10, 'i', 0, 0, 0},
   {"invoke", "use artifact powers, or break/ignite/rub on an item",
    doinvoke, TRUE, 1, 'V', 0, 0, 0},
+  {"invite", "allow another player to join your game", doinvite, TRUE, 5, 0, 0, 0, 0},
   {"jump", "jump, teleport, ride, or dismount", dojump, FALSE, 1, 'G', M('j'), 0, 0},
   {"kick", "kick an adjacent object or monster", dokick, FALSE, 10, C('d'), 0, 0, 0},
   {"lookhere", "describe the current square", dolook, TRUE, 10, ':', 0, 0, 0},
@@ -1779,6 +1926,7 @@ struct ext_func_tab extcmdlist[] = {
    {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
    {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
    {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
+   {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #ifdef DEBUG
    {(char *)0, (char *)0, donull, TRUE, 0, 0, 0, 0, 0},
 #endif
@@ -1804,6 +1952,8 @@ static const struct ext_func_tab debug_extcmdlist[] = {
 	{"stats", "(debug mode) show memory statistics", wiz_show_stats, TRUE},
 	{"timeout", "(debug mode) look at timeout queue", wiz_timeout_queue, TRUE},
 	{"vision", "(debug mode) show vision array", wiz_show_vision, TRUE},
+	{"yield", "(debug mode) test multiplayer yield routines",
+         wiz_multiplayer_yield, TRUE},
 #ifdef DEBUG
 	{"wizdebug", "(debug mode) wizard debug command", wiz_debug_cmd, TRUE},
 #endif
@@ -2923,17 +3073,20 @@ parse()
                     mark_synch();
 		    last_multi = multi;
 		    if (!multi && foo == '0') prezero = TRUE;
-		} else {	/* not a digit */
+		} else if (foo == '#' && iflags.multiplayer) {
+                    /* multiplayer chat */
+                    char buf[BUFSZ];
+                    getlin("##", buf);
+                    if (*buf && *buf != '\033')
+                      rpline("## %s", buf);
+                    foo = '\033';
+                    break;
+                } else {	/* not a digit */
                     if (multi == 0 && !prezero) {
+                        /* TODO: This almost certainly breaks on tiles. */
 # ifdef REDO
                         if (!in_doagain)
-                          extcmd_char1 = foo;
-# else
-                        /* TODO: This almost certainly breaks on tiles.
-                           And it also breaks on multiplayer, because
-                           select() doesn't see ungetc. Perhaps just
-                           use pgetchar() as the input function no
-                           matter what? */
+# endif                      
                         ungetc(foo, stdin);
 #endif
                         foo = ecl_extcmd->binding1;

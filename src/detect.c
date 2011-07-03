@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)detect.c	3.4	2003/08/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 27 Dec 2010 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -227,7 +227,7 @@ register struct obj *sobj;
 	return(1);
     }
     /* only under me - no separate display required */
-    if (stale) docrt();
+    if (stale) {display_nhwindow(WIN_MESSAGE, FALSE); docrt();}
     You("notice some gold between your %s.", makeplural(body_part(FOOT)));
     return(0);
 
@@ -282,6 +282,7 @@ outgoldmap:
     You_feel("very greedy, and sense gold!");
     exercise(A_WIS, TRUE);
     display_nhwindow(WIN_MAP, TRUE);
+    display_nhwindow(WIN_MESSAGE, FALSE);
     docrt();
     u.uinwater = uw;
     if (Underwater) under_water(2);
@@ -322,6 +323,7 @@ register struct obj	*sobj;
     if (!ct && !ctu) {
 	known = stale && !confused;
 	if (stale) {
+            display_nhwindow(WIN_MESSAGE, FALSE);
 	    docrt();
 	    You("sense a lack of %s nearby.", what);
 	    if (sobj && sobj->blessed) {
@@ -383,6 +385,7 @@ register struct obj	*sobj;
 	else You("sense %s.", what);
 	display_nhwindow(WIN_MAP, TRUE);
 	exercise(A_WIS, TRUE);
+        display_nhwindow(WIN_MESSAGE, FALSE);
 	docrt();
 	u.uinwater = uw;
 	if (Underwater) under_water(2);
@@ -566,6 +569,7 @@ int		class;		/* an object class, 0 for all */
      * What are we going to do when the hero does an object detect while blind
      * and the detected object covers a known pool?
      */
+    display_nhwindow(WIN_MESSAGE, FALSE);
     docrt();	/* this will correctly reset vision */
 
     u.uinwater = uw;
@@ -635,6 +639,7 @@ int mclass;			/* monster class, 0 for all */
 	if (woken)
 	    pline("Monsters sense the presence of you.");
 	display_nhwindow(WIN_MAP, TRUE);
+        display_nhwindow(WIN_MESSAGE, FALSE);
 	docrt();
 	if (Underwater) under_water(2);
 	if (u.uburied) under_ground(2);
@@ -741,6 +746,7 @@ outtrapmap:
     newsym(u.ux,u.uy);
     You_feel("%s.", sobj && sobj->cursed ? "very greedy" : "entrapped");
     display_nhwindow(WIN_MAP, TRUE);
+    display_nhwindow(WIN_MESSAGE, FALSE);
     docrt();
     u.uinwater = uw;
     if (Underwater) under_water(2);
@@ -964,6 +970,7 @@ do_mapping()
     if (!level.flags.hero_memory || Underwater) {
 	flush_screen(1);			/* flush temp screen */
 	display_nhwindow(WIN_MAP, TRUE);	/* wait */
+        display_nhwindow(WIN_MESSAGE, FALSE);
 	docrt();
     }
 }
@@ -984,6 +991,7 @@ do_vicinity_map()
     if (!level.flags.hero_memory || Underwater) {
 	flush_screen(1);			/* flush temp screen */
 	display_nhwindow(WIN_MAP, TRUE);	/* wait */
+        display_nhwindow(WIN_MESSAGE, FALSE);
 	docrt();
     }
 }
@@ -1162,6 +1170,7 @@ struct trap *trap;
 
     if (cleared) {
 	display_nhwindow(WIN_MAP, TRUE);	/* wait */
+        display_nhwindow(WIN_MESSAGE, FALSE);
 	docrt();
     }
 }

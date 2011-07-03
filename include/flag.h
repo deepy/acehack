@@ -157,7 +157,6 @@ struct flag {
 /*
  * Flags that are set each time the game is started.
  * These are not saved with the game.
- *
  */
 
 struct instance_flags {
@@ -173,20 +172,22 @@ struct instance_flags {
 	boolean  menu_requested; /* Flag for overloaded use of 'm' prefix
 				  * on some non-move commands */
 	int	menu_headings;	/* ATR for menu headings */
-	int      purge_monsters;	/* # of dead monsters still on fmon list */
+	int     purge_monsters;	/* # of dead monsters still on fmon list */
 	int *opt_booldup;	/* for duplication of boolean opts in config file */
 	int *opt_compdup;	/* for duplication of compound opts in config file */
 	uchar	bouldersym;	/* symbol for boulder display */
         boolean autoexplore;    /* in autoexplore */
 	boolean travel1;	/* first travel step */
 	coord	travelcc;	/* coordinates for travel_cache */
+        boolean multiplayer;    /* there is someone to yield to */
+        char    mp_lock_name[BUFSZ]; /* the lockfile name being used for multiplayer */
 #ifdef WIZARD
-	boolean  sanity_check;	/* run sanity checks */
-	boolean  mon_polycontrol;	/* debug: control monster polymorphs */
+	boolean sanity_check;	/* run sanity checks */
+	boolean mon_polycontrol;	/* debug: control monster polymorphs */
 #endif
 #ifdef TTY_GRAPHICS
 	char prevmsg_window;	/* type of old message window to use */
-	boolean  extmenu;	/* extended commands use menu interface */
+	boolean extmenu;	/* extended commands use menu interface */
 #endif
 #ifdef MENU_COLOR
 	boolean use_menu_color;	/* use color in menus; only if wc_color */
@@ -194,7 +195,7 @@ struct instance_flags {
         boolean targethighlight;/* highlight directions when targeting */
         boolean floorcolor;     /* color floor as well as everything else */
 #ifdef MFLOPPY
-	boolean  checkspace;	/* check disk space before writing files */
+	boolean checkspace;	/* check disk space before writing files */
 				/* (in iflags to allow restore after moving
 				 * to >2GB partition) */
 #endif

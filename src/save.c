@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)save.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -94,6 +94,11 @@ dosave()
 #endif
 		if(dosave0()) {
 			program_state.something_worth_saving = 0;
+                        /* TODO: the clearlocks() call is necessary in
+                           multiplayer to avoid a corrupted playfield,
+                           but atm saving doesn't work in multiplayer
+                           anyway, so this should probably be adapted */
+                        clearlocks();
 			u.uhp = -1;		/* universal game's over indicator */
 			/* make sure they see the Saving message */
 			display_nhwindow(WIN_MESSAGE, TRUE);
@@ -141,6 +146,7 @@ int sig_unused;
 }
 #endif
 
+/* TODO: make this do remotely the right thing in multiplayer. */
 /* returns 1 if save successful */
 int
 dosave0()
@@ -150,6 +156,11 @@ dosave0()
 	xchar ltmp;
 	d_level uz_save;
 	char whynot[BUFSZ];
+
+        if (iflags.multiplayer) {
+          pline("Saving in multiplayer is currently unimplemented.");
+          return 0;
+        }
 
 	if (!SAVEF[0])
 		return 0;
@@ -392,6 +403,9 @@ savestateinlock()
 
 		if (read(fd, (genericptr_t) &hpid, sizeof(hpid))) {}
 		if (hackpid != hpid) {
+                  /* This needs checking even in multiplayer; lockfile 0 is
+                     not shared between the players like the other lockfiles
+                     are. */
 		    Sprintf(whynot,
 			    "Level #0 pid (%d) doesn't match ours (%d)!",
 			    hpid, hackpid);

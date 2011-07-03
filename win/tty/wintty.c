@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 17 Dec 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -324,12 +324,14 @@ char** argv;
 
 /**
    Runs before player selection, and is used to determine which game
-   mode to play in. If the choice is to continue or start a new game, it
-   sets the character name to determine which (currently unused name for
-   the player = new game, currently used name = continue that game);
-   otherwise, it implements the choice itself then either loops or
-   exits.
-*/
+   mode to play in. If the choice is to continue or start a new game,
+   it sets the character name to determine which (currently unused
+   name for the player = new game, currently used name = continue that
+   game); otherwise, it implements the choice itself then either loops
+   or exits. Joining a game is implemented as starting a new game and
+   setting the multiplayer iflag, from our point of view; the relevant
+   main routines handle the actual join.
+ */
 void
 tty_game_mode_selection()
 {
@@ -341,6 +343,7 @@ tty_game_mode_selection()
   int plname_was_explicit = !!*plname;
 
   saved = get_saved_games();
+  iflags.multiplayer = 0;
 
   if (*plname && saved && *saved) {
     for (sp = saved; *sp; sp++) {
@@ -421,7 +424,7 @@ reread_char:
       free((genericptr_t) selected);
     }
     break;
-  case 'n': case 't': case 'm': /* the new game options */
+  case 'n': case 'j': case 't': case 'm': /* the new game options */
     /* if the name is forced by the -u option, don't give an option to
        start a new game, as we're forced onto the existing game */
     if (*plname && plname_in_saved) goto reread_char;
@@ -487,6 +490,9 @@ reread_char:
       } while (c != 'n' && c != 't');
     }
     if (c == 't') flags.tutorial = 1;
+    /* Multiplayerness is stored in iflags because it doesn't persist
+       correctly across saves. */
+    if (c == 'j') iflags.multiplayer = 1;
     break;
   case 's': /* show high score list */
     prscore_interactive();
@@ -1197,9 +1203,18 @@ tty_clear_nhwindow(window)
 	cl_end();
 	break;
     case NHW_MAP:
-	/* cheap -- clear the whole thing and tell nethack to redraw botl */
+	/* cheap -- clear the whole thing and tell nethack to redraw botl,
+           redrawing the topl ourselves */
 	flags.botlx = 1;
-	/* fall into ... */
+        onechar(0);
+        clear_screen();
+        /* We might want to draw a faded topl, or a full-brightness topl,
+           depending on what was there beforehand. */
+        if (ttyDisplay->toplin)
+          redotoplin(toplines);
+        else
+          fade_topl();
+        break;
     case NHW_BASE:
         onechar(0);
 	clear_screen();
@@ -2758,7 +2773,7 @@ tty_raw_print_bold(str)
 int
 tty_nhgetch()
 {
-    int i;
+    int i, fd;
 #ifdef UNIX
     /* kludge alert: Some Unix variants return funny values if getc()
      * is called, interrupted, and then called again.  There
@@ -2770,6 +2785,51 @@ tty_nhgetch()
 #endif
 
     (void) fflush(stdout);
+    /* While blocking on user input, we still want to respond to computer
+       input in a multiplayer game. So we check our input pipe FD, and if
+       it isn't -1, respond. There are two possible ways this can be done;
+       either the player is driving, in which case we do nothing visible
+       upon FD input, just log and respond with a newline, or the computer
+       is driving, in which case we act on its suggestion immediately.
+       These are controlled by the callback function, handle_mp_input.
+
+       It's a little frustrating to have to put this obviously
+       windowing-unrelated code in a windowing system, except that it
+       /is/ related; select needs to be given all possible input
+       sources as arguments, and that includes both other processes
+       and the user. The less hacky way would involve threading, and
+       that would be even worse for all sorts of reasons.
+
+       TODO: also monitor all multiplayer control pipes we're aware
+       of, other than our own, for closes, so that we can report
+       communication errors to the player. */
+    fd = multiplayer_pipe_fd();
+    while (fd > -1) { /* if (fd > -1) for (;;) */
+      int fd2 = fileno(stdin);
+      fd_set readfds;
+      FD_ZERO(&readfds);
+      FD_SET(fd, &readfds);
+      FD_SET(fd2, &readfds);
+      if (fd > fd2) fd2 = fd;
+      if (select(fd2+1, &readfds, NULL, NULL, NULL) < 0) {
+        /* Tear down communication pipes to avoid a potential infinite loop
+           involving multiplayer activity during the panic. */
+        teardown_multiplayer_pipe('a');
+        teardown_multiplayer_pipe('c');
+        panic("Cannot determine status of multiplayer pipe or stdin in nhgetch()");
+      }
+      /* Handle local keypresses before distant signals. The distant
+         signals can wait in the FIFO, so long as they aren't too
+         large, and they typically won't be; and we get back to nhgetch()
+         again in finite (hopefully short) time afterwards. */
+      if (FD_ISSET(fileno(stdin), &readfds)) break;
+      /* Depending on the message, if we're remote-driving, we might
+         change our mind and not want to get a key after all. We should
+         handle it in either case, and handle_mp_input's return value
+         determines whether we should just return space or continue. */
+      if (handle_mp_input()) return ' ';
+    }
+
     /* Note: if raw_print() and wait_synch() get called to report terminal
      * initialization problems, then wins[] and ttyDisplay might not be
      * available yet.  Such problems will probably be fatal before we get

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)topl.c	3.4	1996/10/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 6 Apr 2011 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -15,7 +15,6 @@
 #define C(c)	(0x1f & (c))
 #endif
 
-STATIC_DCL void FDECL(redotoplin, (const char*));
 STATIC_DCL void FDECL(topl_putsym, (CHAR_P));
 STATIC_DCL void NDECL(remember_topl);
 STATIC_DCL void FDECL(removetopl, (int));
@@ -121,11 +120,12 @@ tty_doprev_message()
 #endif /* OVLB */
 #ifdef OVL1
 
-STATIC_OVL void
+void
 redotoplin(str)
     const char *str;
 {
 	int otoplin = ttyDisplay->toplin;
+
 	home();
 	if(*str & 0x80) {
 		/* kludge for the / command, the only time we ever want a */
@@ -137,6 +137,8 @@ redotoplin(str)
 	putsyms(str);
 	cl_end();
 	ttyDisplay->toplin = 1;
+        fflush(stdout); /* needed in multiplayer, where we might have
+                           arbitrary waits after printing messages */
 	if(ttyDisplay->cury && otoplin != 3)
 		more();
 }
@@ -197,6 +199,7 @@ const char *s;
     tty_curs(BASE_WINDOW,cw->curx+1,cw->cury);
     putsyms(s);
     cl_end();
+    fflush(stdout);
     ttyDisplay->toplin = 1;
 }
 
@@ -221,6 +224,7 @@ more()
     putsyms(defmorestr);
     tty_inverse_end();
 
+    fflush(stdout);
     xwaitforspace("\033 ");
 
     if(morc == '\033')

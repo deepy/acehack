@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.c	3.4	2003/04/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 1 Apr 2011 by Alex Smith */
+/* Modified 3 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1187,6 +1187,13 @@ domove()
 
 	/* attack monster */
 	if(mtmp) {
+            /* attempts to move towards another player are silently
+               vetoed */
+            if (is_mp_player(mtmp)) {
+                nomul(0);
+                flags.move = 0;
+                return;
+            }
             /* don't stop travel when displacing pets; if the
                displace fails for some reason, attack() in uhitm.c
                will stop travel rather than domove */
@@ -1676,6 +1683,7 @@ boolean pick;
 		was_underwater = Underwater && !Is_waterlevel(&u.uz);
 		u.uinwater = 0;		/* leave the water */
 		if (was_underwater) {	/* restore vision */
+                        display_nhwindow(WIN_MESSAGE, FALSE);
 			docrt();
 			vision_full_recalc = 1;
 		}
