@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Aug 2011 by Alex Smith */
+/* Modified 16 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -422,6 +422,10 @@ struct obj *obj;
 	register struct monst *mtmp;
 	int spotmon;
 
+        if(iflags.multiplayer) {
+                pline("Leashes do not work in multiplayer games.");
+                return;
+        }
 	if(!obj->leashmon && number_leashed() >= MAXLEASHED) {
 		You("cannot leash any more pets.");
 		return;

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)timeout.c	3.4	2002/12/17	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1865,6 +1865,35 @@ relink_timers(ghostly)
 	    } else
 		panic("relink_timers 2");
 	}
+    }
+}
+
+/* change the timeout time of all nonlocal timers by the given delta */
+void
+adjust_nonlocal_timers(dtime)
+long dtime;
+{
+    timer_element *prev, *curr, *ttmp, *nonlocals = 0;
+
+    /* unchain all nonlocal timers from the existing chain, and adjust
+       their timeouts */
+    for (prev = 0, curr = timer_base; curr; prev = curr, curr = curr->next) {
+      while (curr && !timer_is_local(curr)) {
+        if (!prev) timer_base = curr->next;
+        else prev->next = curr->next;
+        ttmp = curr;
+        curr = curr->next;
+        ttmp->next = nonlocals;
+        ttmp->timeout += dtime;
+        nonlocals = ttmp;
+      }
+      if (!curr) break;
+    }
+
+    /* then add them back to the original chain */
+    for (curr = nonlocals; curr; curr = ttmp) {
+      ttmp = curr->next;
+      insert_timer(curr);
     }
 }
 

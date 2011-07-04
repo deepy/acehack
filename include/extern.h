@@ -2067,6 +2067,7 @@ E boolean FDECL(obj_is_local, (struct obj *));
 E void FDECL(save_timers, (int,int,int));
 E void FDECL(restore_timers, (int,int,BOOLEAN_P,long));
 E void FDECL(relink_timers, (BOOLEAN_P));
+E void FDECL(adjust_nonlocal_timers, (long));
 #ifdef WIZARD
 E int NDECL(wiz_timeout_queue);
 E void NDECL(timer_sanity_check);

@@ -567,14 +567,27 @@ doinvite()
   }
 
   /* Avoid multiplayer-unsafe or yield-unsafe circumstances. */
+  if (iflags.multiplayer && strcmp(iflags.mp_lock_name, mplock))
+  { /* would garble lockfiles, and is anyway best from a game management
+       point of view */
+    pline("All invitations into a game must be done by the same person.");
+    return 0;
+  }
   if (u.usteed)
-  {
+  { /* multiplayer-unsafe (pointer from lockfile 0 to other lockfiles) */
     You_cant("ride a steed in multiplayer.");
     return 0;
   }
   if (u.ustuck)
-  {
+  { /* yield-unsafe */
     You_cant("invite a player while %s has you trapped!", a_monnam(u.ustuck));
+    return 0;
+  }
+  /* This limitation is not because it would crash the program, but because
+     it effectively leashes the pet to all players on the level at once,
+     which is not at all what people expect. */
+  if (number_leashed()) {
+    You_cant("leash pets in multiplayer. Unleash them before inviting.");
     return 0;
   }
 
@@ -634,10 +647,12 @@ doinvite()
     save_dungeon(fd, TRUE, FALSE);
     /* It needs to know the player's coordinates, too, to do things
        in the right order. x and y are the same size as u.ux and
-       u.uy, or this wouldn't work. */
+       u.uy, or this wouldn't work. Likewise, we need to ensure that
+       the games have a consistent view of time. */
     x = sstairs.sx; y = sstairs.sy;
     if (write(fd, &x, sizeof(u.ux)) <= 0 ||
-        write(fd, &y, sizeof(u.uy)) <= 0) {
+        write(fd, &y, sizeof(u.uy)) <= 0 ||
+        write(fd, &monstermoves, sizeof(monstermoves)) <= 0) {
       panic("Multiplayer control pipe write failure");
     }
     /* Now the other end has control, and we're just waiting on a

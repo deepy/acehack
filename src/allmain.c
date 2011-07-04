@@ -823,16 +823,20 @@ found_game_to_attach_to: ;
            right down the pipe. */
         restore_dungeon(mpcfd);
 
-        /* A bit of a weird dependency issue here. We have to uncheckpoint
-           before placing the player on the stairs, or we don't know where
-           the stairs are. But we have to place the player on the stairs
-           before uncheckpointing, or the game tries to move the cursor
-           off the map, leading to an infinite loop. The solution is to
-           get the coordinates from the other game. */
+        /* A bit of a weird dependency issue here. We have to
+           uncheckpoint before placing the player on the stairs, or we
+           don't know where the stairs are. But we have to place the
+           player on the stairs before uncheckpointing, or the game
+           tries to move the cursor off the map, leading to an
+           infinite loop. The solution is to get the coordinates from
+           the other game. We also get the current time from the other
+           game, because the timings must be approximately in sync. */
         if (read(mpcfd, &u.ux, sizeof(u.ux)) <= 0 ||
-            read(mpcfd, &u.uy, sizeof(u.uy)) <= 0) {
+            read(mpcfd, &u.uy, sizeof(u.uy)) <= 0 ||
+            read(mpcfd, &monstermoves, sizeof(monstermoves)) <= 0) {
           panic("Multiplayer control pipe read failure");
         }
+        moves = monstermoves;
 
         /* Remove watchdog timer. */
         alarm(0);

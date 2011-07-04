@@ -1091,6 +1091,7 @@ checkpoint_level()
   mtmp->female = poly_gender();
   initedog(mtmp); /* mark as tame */
   mtmp->mtame = 127;
+  mtmp->mlstmv = monstermoves; /* indicate what this level's "local time" is */
   /* Setting the movement value is very important, so that the other
      games know whether they should yield to us this turn. */
   mtmp->movement = youmonst.movement;
@@ -1155,6 +1156,123 @@ uncheckpoint_level()
   flush_screen(1);  
 
   return 0; /* successful */
+}
+
+/* Looks at the current level, to deduce what its local time is.  We
+   rely on the facts that a) nothing on the level can be dated in the
+   future, and b) any other players on the level are flagged with
+   their current times, so that if there are other players there, the
+   times will line up exactly (to within a turn, anyway). */
+static long
+calculate_objchain_local_time(ochain)
+struct obj *ochain;
+{
+  struct obj *otmp;
+  long localtime = 0L;
+  for (otmp = ochain; otmp; otmp = otmp->nobj) {
+    if (age_is_relative(otmp)) continue;
+    if (otmp->age > localtime) localtime = otmp->age;
+    /* Age has a different meaning inside ice boxes. */
+    if (Has_contents(otmp) && otmp->otyp != ICE_BOX) {
+      long t = calculate_objchain_local_time(otmp->cobj);
+      if (t > localtime) localtime = t;
+    }
+  }
+  return localtime;
+}
+static long
+calculate_level_local_time()
+{
+  struct monst *mtmp;
+  long localtime = -1L;
+  long t;
+
+  for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+    if (DEADMONSTER(mtmp)) continue;
+    if (mtmp->mlstmv > localtime) localtime = mtmp->mlstmv;
+    if (mtmp->minvent) {
+      t = calculate_objchain_local_time(mtmp->minvent);
+      if (t > localtime) localtime = t;
+    }
+    if (mtmp->mw && mtmp->mw->age > localtime) localtime = mtmp->mw->age;
+  }
+  t = calculate_objchain_local_time(fobj);
+  if (t > localtime) localtime = t;
+  t = calculate_objchain_local_time(level.buriedobjlist, FALSE);
+  if (t > localtime) localtime = t;
+  if (localtime == -1) {
+    /* no monsters or items on the level; this is rather unlikely, but
+       theoretically possible, and in this case we can choose the time
+       we like for the level's local time, so set it to our own local
+       time */
+    localtime = monstermoves;
+  }
+  return localtime;
+}
+
+static void
+time_dilate_objchain(ochain, dtime)
+struct obj *ochain;
+long dtime;
+{
+  struct obj *otmp;
+  for (otmp = ochain; otmp; otmp = otmp->nobj) {
+    if (age_is_relative(otmp)) continue;
+    otmp->age += dtime;
+    /* Age has a different meaning inside ice boxes. */
+    if (Has_contents(otmp) && otmp->otyp != ICE_BOX)
+      time_dilate_objchain(otmp->cobj, dtime);
+  }
+}
+static void
+time_dilate_monchain(mchain, dtime)
+struct monst *mchain;
+long dtime;
+{
+  struct monst *mtmp;
+  for (mtmp = mchain; mtmp; mtmp = mtmp->nmon) {
+    if (DEADMONSTER(mtmp)) continue;
+    mtmp->mlstmv += dtime;
+    if (mtmp->minvent) time_dilate_objchain(mtmp->minvent, dtime);
+    /* Assume monsters don't wield containers. */
+    if (mtmp->mw && !age_is_relative(mtmp->mw)) mtmp->mw->age += dtime;
+  }
+}
+
+/* Adjusts all timestamps saved in lockfile 0 by the given amount. */
+static void
+time_dilation(dtime)
+long dtime;
+{
+    /* nothing relevant in flags */
+    /* timestamps in struct you */
+    u.ucleansed += dtime;
+    u.usleep += dtime;
+    /* timers */
+    adjust_nonlocal_timers(dtime);
+    /* nothing relevant in light sources */
+    /* inventory */
+    time_dilate_objchain(invent, dtime);
+    /* migration */
+    time_dilate_objchain(migrating_objs, dtime);
+    time_dilate_monchain(migrating_mons, dtime);
+    /* nothing relevant in monster statistics */
+    /* nothing relevant in dungeons or level chains */
+    /* time handling */
+    moves += dtime;
+    monstermoves += dtime;
+    /* nothing relevant in quest status */
+    /* nothing relevant in spells (perhaps surprisingly, spell
+       knowledge is relative not absolute) */
+    /* nothing relevant in artifacts */
+    /* nothing relevant in oracularities */
+    /* stuck/steed are not multiplayer-safe, so needn't be adjusted */
+    /* nothing relevant in tutorial flags (TODO: the tutorial is currently
+       based on local time, when it should be based on character time,
+       but we can't fix that here) */
+    /* nothing relevant in character name */
+    /* nothing relevant in fruitnames */
+    /* nothing relevant in Plane of Water status */
 }
 
 #ifdef INSURANCE
@@ -1504,16 +1622,20 @@ boolean at_stairs, falling, portal;
 		(void) close(fd);
 	}
 
-        /* We must release the lock before anything that could print
-           messages, to avoid panicking other processes; the error
-           on level file removal above is OK, though, because it can
-           only happen if someone's gone around deleting files while
-           we have them locked, which would crash those processes
-           anyway. */
         if (iflags.multiplayer) {
+          /* We must release the lock before anything that could print
+             messages, to avoid panicking other processes; the error
+             on level file removal above is OK, though, because it can
+             only happen if someone's gone around deleting files while
+             we have them locked, which would crash those processes
+             anyway. */
           Strcpy(lock, iflags.mp_lock_name);
           set_levelfile_name(lock, new_ledger);
           unlock_file(lock);
+
+          /* We also need to adjust for local time, before doing
+             anything that might depend on timers. */
+          time_dilation(calculate_level_local_time() - monstermoves);
         }
 
 	/* do this prior to level-change pline messages */
