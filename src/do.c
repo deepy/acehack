@@ -1384,8 +1384,26 @@ boolean at_stairs, falling, portal;
 
 	if (on_level(newlevel, &u.uz)) return;		/* this can happen */
 
+        /* Lock the level we're leaving, in order to avoid someone arriving
+           on the level while it's being rewritten. */
+        if (iflags.multiplayer) {
+          Strcpy(lock, iflags.mp_lock_name);
+          set_levelfile_name(lock, ledger_no(&u.uz));
+          if (!lock_file_silently(lock, LEVELPREFIX, 20)) {
+            /* This shouldn't happen. */
+            panic("Stale lockfile lock when leaving level!");
+          }
+        }
+
 	fd = currentlevel_rewrite();
-	if (fd < 0) return;
+	if (fd < 0) {
+          if (iflags.multiplayer) {
+            Strcpy(lock, iflags.mp_lock_name);
+            set_levelfile_name(lock, ledger_no(&u.uz));
+            unlock_file(lock);
+          }
+          return;
+        }
 
 	if (falling) /* assuming this is only trap door or hole */
 	    impact_drop((struct obj *)0, u.ux, u.uy, newlevel->dlevel);
@@ -1477,6 +1495,12 @@ boolean at_stairs, falling, portal;
         if (iflags.multiplayer) {
 
           char mergebuf[3];
+          const char *levelmerger;
+
+          /* First, unlock the old level file. */
+          Strcpy(lock, iflags.mp_lock_name);
+          set_levelfile_name(lock, ledger_no(&u.uz));
+          unlock_file(lock);
 
           if (*yield_after) {
             /* Must happen after we've vacated the level; we already
@@ -1493,6 +1517,12 @@ boolean at_stairs, falling, portal;
           cls();
           pline("Communicating...");
           suppress_more();
+
+          /* Avoid deadlocks involving levels with multiple people on
+             each trying to change levels simultaneously */
+          for (levelmerger = mp_levelmerger_name(); levelmerger;
+               levelmerger = mp_levelmerger_name())
+            mp_message(levelmerger, "!\n");
 
           Strcpy(lock, iflags.mp_lock_name);
           set_levelfile_name(lock, new_ledger);

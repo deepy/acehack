@@ -574,12 +574,6 @@ doinvite()
   }
 
   /* Avoid multiplayer-unsafe or yield-unsafe circumstances. */
-  if (iflags.multiplayer && strcmp(iflags.mp_lock_name, mplock))
-  { /* would garble lockfiles, and is anyway best from a game management
-       point of view */
-    pline("All invitations into a game must be done by the same person.");
-    return 0;
-  }
   if (u.usteed)
   { /* multiplayer-unsafe (pointer from lockfile 0 to other lockfiles) */
     You_cant("ride a steed in multiplayer.");
@@ -646,26 +640,63 @@ doinvite()
   case 1: /* accepted */
     pline("Invitation accepted, connecting...");
     suppress_more();
+    /* Before the connection can be set up, we need to move the lockfiles
+       to a name not associated with any player, so that if players die
+       they can start a single-player game without filename clashes. */
+    if (!iflags.multiplayer) {
+      /* We need to pick a currently unused name first time. This can
+         be done by combining our current lockfile name with the current
+         time; it's impossible to start more than one multiplayer game
+         in the same second due to the sleep(1) in newgame_mp. */
+      int ln, fd;
+      char errbuf[BUFSZ];  
+      Sprintf(iflags.mp_lock_name, "%lu_%s", u.ubirthday, mplock);
+      /* Rename all level files but 0. */
+      for (ln = maxledgerno(); ln; ln--) {
+        if (rename_levelfile(ln, iflags.mp_lock_name, errbuf) < 0) {
+          /* We can't do much here but panic, and let the other game
+             fail with a communication error when its timer runs out.
+             The partially renamed lockfiles will make recovery nasty,
+             but potentially still possible; and it's hard to see how
+             this could go wrong halfway through the list of lockfiles
+             anyway except if someone tampers with the files by hand,
+             or the system is very low on disk space. */
+          panic("%s",errbuf);
+        }
+      }
+      /* "Level file" -1 is used to count the number of players in the
+         dungeon (so that a process knows when to clean up and when to
+         let others clean up); its actual content is irrelevant, with
+         the processes instead being counted by advisory locks (which
+         works correctly even if one or more of the processes crash,
+         although a crash will still block all other players on the
+         level if done() isn't called). */
+      iflags.multiplayer = TRUE;
+      fd = create_levelfile(-1, errbuf);
+      if (fd < 0) panic("%s",errbuf);
+      flock(fd, LOCK_SH);
+      iflags.shared_lockfd = fd;
+    }
     /* The other end of the connection badly needs to know the dungeon
        layout right now; in fact, it's waiting on a timer. So we do
-       that first. */
+       that as soon as the lockfiles are set up correctly. */
     fd = other_multiplayer_pipe_fd(lockname, 'c');
     if (fd < 0) panic("Multiplayer control pipe not ready");
     save_dungeon(fd, TRUE, FALSE);
     /* It needs to know the player's coordinates, too, to do things
        in the right order. x and y are the same size as u.ux and
        u.uy, or this wouldn't work. Likewise, we need to ensure that
-       the games have a consistent view of time. */
+       the games have a consistent view of time. Finally, we need
+       to tell it where to look for the lockfiles. */
     x = sstairs.sx; y = sstairs.sy;
     if (write(fd, &x, sizeof(u.ux)) <= 0 ||
         write(fd, &y, sizeof(u.uy)) <= 0 ||
-        write(fd, &monstermoves, sizeof(monstermoves)) <= 0) {
+        write(fd, &monstermoves, sizeof(monstermoves)) <= 0 || 
+        write(fd, iflags.mp_lock_name, BUFSZ) <= 0) {
       panic("Multiplayer control pipe write failure");
     }
     /* Now the other end has control, and we're just waiting on a
        yield. */
-    iflags.multiplayer = TRUE;
-    Strcpy(iflags.mp_lock_name, mplock);
     while (mp_await_reply_or_yield() != 2) {}
     uncheckpoint_level();
     break;
@@ -1700,7 +1731,7 @@ int final;
         if (solo)
             enl_msg(You_, "are", "were", " playing solo");
         if (iflags.multiplayer)
-            enl_msg(You_, "have", "had", " human-controlled allies.");
+            enl_msg(You_, "have", "had", " human-controlled allies");
 
         if (putstr_or_dump == putstr) {
             display_nhwindow(en_win, TRUE);

@@ -740,8 +740,13 @@ newgame_mp()
              grabbed the old pipe from its name, and hasn't written to
              it yet. (The race condition isn't the end of the world 
              from our point of view, but it'll leave the other end
-             hanging until cancelled manually.) */
-          delay_output();
+             hanging until cancelled manually.) This additionally
+             prevents two multiplayer games being started by the same
+             person in the same second, making it easier to generate
+             unique filenames. */
+          pline("Communicating...");
+          suppress_more();
+          sleep(1);
           mark_synch();
           mp_flush_log();
           mp_track_yielders(FALSE);
@@ -754,7 +759,7 @@ newgame_mp()
             /* Remove the numerical prefix from the lockname to get a
                character name. (TODO: .0 suffix) */
             n = ln + strspn(ln, "0123456789");
-            /* Singular they for now, as we don't know gender */
+            /* Singular they for now, as we don't know gender yet. */
             Sprintf(qbuf, "%s invited you to their dungeon. Join their game?", n);
             switch (ynq(qbuf)) {
             case 'y':
@@ -787,11 +792,11 @@ found_game_to_attach_to: ;
         }
         mp_message(ln, "\n");
 
-        /* If connection takes more than 5 seconds, assume something's
+        /* If connection takes more than 20 seconds, assume something's
            gone wrong at the other end. (Like, for instance, the other
            player cancelling before we accept.) */
 	(void) signal(SIGALRM, (SIG_RET_TYPE) mp_newgame_connection_failure);
-        alarm(5);
+        alarm(20);
 
         /* This mirrors newgame in a way, but much of what we
            initialise has to be copied from the other game rather than
@@ -830,10 +835,12 @@ found_game_to_attach_to: ;
            infinite loop. The solution is to get the coordinates from
            the other game. We also get the current local time from the
            other game, because the timings must be approximately in
-           sync. */
+           sync; and the level lockfile name, as otherwise we wouldn't
+           be able to uncheckpoint. */
         if (read(mpcfd, &u.ux, sizeof(u.ux)) <= 0 ||
             read(mpcfd, &u.uy, sizeof(u.uy)) <= 0 ||
-            read(mpcfd, &monstermoves, sizeof(monstermoves)) <= 0) {
+            read(mpcfd, &monstermoves, sizeof(monstermoves)) <= 0 ||
+            read(mpcfd, iflags.mp_lock_name, BUFSZ) <= 0) {
           panic("Multiplayer control pipe read failure");
         }
 
@@ -846,8 +853,15 @@ found_game_to_attach_to: ;
 #ifndef NO_SIGNAL
 	(void) signal(SIGINT, (SIG_RET_TYPE) done1);
 #endif
-        iflags.multiplayer = 1;
-        Strcpy(iflags.mp_lock_name, ln);
+
+        /* Record our process as being in the dungeon. */
+        iflags.multiplayer = TRUE;
+        mpcfd = open_levelfile(-1, 0);
+        if (mpcfd < 0) {
+          panic("Multiplayer main lockfile open failure");
+        }
+        flock(mpcfd, LOCK_SH);
+        iflags.shared_lockfd = mpcfd;
 
         uncheckpoint_level();
         vision_reset(); /* we have separate vision for the two games,

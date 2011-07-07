@@ -56,14 +56,12 @@ extern int errno;
 # define O_BINARY 0
 #endif
 
-#ifdef PREFIXES_IN_USE
 #define FQN_NUMBUF 4
 static char fqn_filename_buffer[FQN_NUMBUF][FQN_MAX_FILENAME];
-#endif
 
 #if !defined(MFLOPPY) && !defined(VMS) && !defined(WIN32)
 char bones[] = "bonesnn.xxx";
-char lock[PL_NSIZ+14] = "1lock"; /* long enough for uid+name+.99 */
+char lock[PL_NSIZ+25] = "1lock"; /* long enough for 4294967295+_+uid++name+.99 */
 #else
 # if defined(MFLOPPY)
 char bones[FILENAME];		/* pathname of bones files */
@@ -71,11 +69,11 @@ char lock[FILENAME];		/* pathname of level files */
 # endif
 # if defined(VMS)
 char bones[] = "bonesnn.xxx;1";
-char lock[PL_NSIZ+17] = "1lock"; /* long enough for _uid+name+.99;1 */
+char lock[PL_NSIZ+28] = "1lock"; /* long enough for _4294967295+_+uid+name+.99;1 */
 # endif
 # if defined(WIN32)
 char bones[] = "bonesnn.xxx";
-char lock[PL_NSIZ+25];		/* long enough for username+-+name+.99 */
+char lock[PL_NSIZ+36];		/* long enough for 4294967295+_+username+-+name+.99 */
 # endif
 #endif
 
@@ -293,7 +291,9 @@ const char *basename;
 int whichprefix, buffnum;
 {
 #ifndef PREFIXES_IN_USE
-	return basename;
+        /* rename_levelfile relies on this making a copy. */
+        Strcpy(fqn_filename_buffer[buffnum], basename);
+	return fqn_filename_buffer[buffnum];
 #else
 	if (!basename || whichprefix < 0 || whichprefix >= PREFIX_COUNT)
 		return basename;
@@ -469,9 +469,10 @@ char errbuf[];
 # endif
 #endif /* MICRO || WIN32 */
 
-	if (fd >= 0)
-	    level_info[lev].flags |= LFILE_EXISTS;
-	else if (errbuf)	/* failure explanation */
+	if (fd >= 0) {
+          if (lev > -1)
+            level_info[lev].flags |= LFILE_EXISTS;
+	} else if (errbuf)	/* failure explanation */
 	    Sprintf(errbuf,
 		    "Cannot create file \"%s\" for level %d (errno %d).",
 		    lock, lev, errno);
@@ -479,6 +480,37 @@ char errbuf[];
 	return fd;
 }
 
+/* Attempts to rename the levelfile from its existing name, to
+   one that uses the given lockname. Returns 0 if successful or
+   if it failed solely because the file didn't exist; -1 on
+   failure. */
+int
+rename_levelfile(lev, lockname, errbuf)
+int lev;
+char *lockname;
+char errbuf[];
+{
+  const char *oldfqname, *newfqname;
+  if (errbuf) *errbuf = '\0';
+  if (iflags.multiplayer)
+    Strcpy(lock, lev ? iflags.mp_lock_name : mplock);
+  set_levelfile_name(lock, lev);
+  oldfqname = fqname(lock, LEVELPREFIX, 0);
+  Strcpy(lock, lockname);
+  set_levelfile_name(lock, lev);
+  newfqname = fqname(lock, LEVELPREFIX, 1);
+  Strcpy(lock, mplock); /* avoid lockfile name corruption in singleplayer */
+  errno = 0;
+  if (rename(oldfqname, newfqname) < 0) {
+    if (errno == ENOENT) return 0;
+    if (errbuf)
+      Sprintf(errbuf,
+              "Cannot rename lockfile for level %d (errno %d).",
+              lev, errno);
+    return -1;
+  }
+  return 0;
+}
 
 int
 open_levelfile(lev, errbuf)
@@ -495,7 +527,7 @@ char errbuf[];
 	fq_lock = fqname(lock, LEVELPREFIX, 0);
 #ifdef MFLOPPY
 	/* If not currently accessible, swap it in. */
-	if (level_info[lev].where != ACTIVE)
+	if (lev > -1 && level_info[lev].where != ACTIVE)
 		swapin_file(lev);
 #endif
 #ifdef MAC
@@ -520,7 +552,6 @@ char errbuf[];
 	return fd;
 }
 
-
 void
 delete_levelfile(lev)
 int lev;
@@ -528,8 +559,10 @@ int lev;
 	/*
 	 * Level 0 might be created by port specific code that doesn't
 	 * call create_levfile(), so always assume that it exists.
+         * Level -1 is special, and is recorded as existing in
+         * iflags.multiplayer rather than level_info.
 	 */
-	if (lev == 0 || (level_info[lev].flags & LFILE_EXISTS)) {
+	if (lev <= 0 || (level_info[lev].flags & LFILE_EXISTS)) {
                 if (iflags.multiplayer)
                     Strcpy(lock, lev ? iflags.mp_lock_name : mplock);
 		set_levelfile_name(lock, lev);
@@ -541,7 +574,6 @@ int lev;
 	}
 }
 
-
 void
 clearlocks()
 {
@@ -551,12 +583,37 @@ clearlocks()
 		eraseall(permbones, alllevels);
 #else
 	register int x;
+        boolean last_player = TRUE;
+
+        if (iflags.multiplayer) {
+          /* If we're in multiplayer mode, we don't want to delete
+             lockfiles that are still in use by other players. To
+             avoid that, we attempt to convert our shared lock on
+             iflags.shared_lockfd into an exclusive lock. If it
+             works, we're the last player remaining. If it doesn't,
+             there must be more players here. We can leave the
+             exclusive lock there until the process exits; we're
+             going to delete the filename anyway, and the file will
+             follow soon after. */
+          errno = 0;
+          if (flock(iflags.shared_lockfd, LOCK_EX | LOCK_NB) == 0)
+            last_player = TRUE;
+          else if (errno == EWOULDBLOCK)
+            last_player = FALSE;
+          else if (!program_state.panicking)
+            panic("Could not check lock on the main multiplayer lockfile");
+          /* otherwise we're in a panic already, let's clear all the
+             lockfiles as the other processes are likely in a
+             messed-up state too */
+
+          if (last_player) delete_levelfile(-1);
+        }
 
 # if defined(UNIX) || defined(VMS)
 	(void) signal(SIGHUP, SIG_IGN);
 # endif
 	/* can't access maxledgerno() before dungeons are created -dlc */
-	for (x = (n_dgns ? maxledgerno() : 0); x >= 0; x--)
+	for (x = (n_dgns && last_player ? maxledgerno() : 0); x >= 0; x--)
 		delete_levelfile(x);	/* not all levels need be present */
 #endif
 

@@ -657,6 +657,7 @@ E void NDECL(set_lock_and_bones);
 E void FDECL(set_levelfile_name, (char *,int));
 E int FDECL(create_levelfile, (int,char *));
 E int FDECL(open_levelfile, (int,char *));
+E int FDECL(rename_levelfile, (int, char*, char*));
 E void FDECL(delete_levelfile, (int));
 E void NDECL(clearlocks);
 E int FDECL(create_bonesfile, (d_level*,char **, char *));

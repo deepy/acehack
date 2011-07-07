@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)end.c	3.4	2003/03/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 7 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS	/* comment line for pre-compiled headers */
@@ -8,6 +8,7 @@
 #include <math.h>
 #include "hack.h"
 #include "eshk.h"
+#include "lev.h"
 #ifndef NO_SIGNAL
 #include <signal.h>
 #endif
@@ -996,6 +997,11 @@ die:
 	   it's gone prior to inventory disclosure and creation of bones data */
 	inven_inuse(TRUE);
 
+        /* Notify other players that we're no longer on the level, and what's
+           taking so long about our turn */
+        if (iflags.multiplayer)
+          rYou(" died...");
+
 	/* Sometimes you die on the first move.  Life's not fair.
 	 * On those rare occasions you get hosed immediately, go out
 	 * smiling... :-)  -3.
@@ -1012,12 +1018,13 @@ die:
 # endif
 #endif /* NO_SIGNAL */
 
-	bones_ok = (how < GENOCIDED) && can_make_bones();
+	bones_ok = (how < GENOCIDED) && !iflags.multiplayer && can_make_bones();
 
 	if (how == TURNED_SLIME)
 	    u.ugrave_arise = PM_GREEN_SLIME;
 
-	if (bones_ok && u.ugrave_arise < LOW_PM) {
+	if ((bones_ok || (iflags.multiplayer && how < GENOCIDED)) &&
+            u.ugrave_arise < LOW_PM) {
 	    /* corpse gets burnt up too */
 	    if (how == BURNING)
 		u.ugrave_arise = (NON_PM - 2);	/* leave no corpse */
@@ -1064,8 +1071,6 @@ die:
 	    clearpriests();
 	} else	taken = FALSE;	/* lint; assert( !bones_ok ); */
 
-	clearlocks();
-
 	if (have_windows) display_nhwindow(WIN_MESSAGE, FALSE);
 
         if (how < PANICKED)
@@ -1085,6 +1090,83 @@ die:
 	    disclose(how, taken, umoney);
 	/* finish_paybill should be called after disclosure but before bones */
 	if (bones_ok && taken) finish_paybill();
+
+        /* In multiplayer, we need to yield if anyone else is on the level.
+           First, we need to drop our corpse (already handled), and our
+           items (handled here). This must be after disclose() in order
+           for the DYWYPI and dumplog to be correct; this does hold up
+           other players on the level somewhat, but that's OK.
+
+           TODO: It's possible to panic from here, which crashes the
+           program hard. Ideally, we'd disable panics somehow... */
+        if (iflags.multiplayer && how != PANICKED) {
+          struct monst *mtmp;
+          struct obj *otmp, *otmp2;
+          const char *levelmerger;
+          int fd;
+          char buf[BUFSZ] = "";
+          char yield_message[BUFSZ];
+
+          /* Drop inventory: everything in most cases, unique items
+             only upon escape, quit or ascension; note that we drop
+             the Amulet at the altar upon ascension, to make it
+             possible for other players to win */
+          for (otmp = invent; otmp; otmp = otmp2) {
+            otmp2 = otmp->nobj;
+            remove_worn_item(otmp, TRUE);
+            if ((how != ESCAPED && how != ASCENDED && how != QUIT) ||
+                otmp->otyp == AMULET_OF_YENDOR ||
+                otmp->otyp == CANDELABRUM_OF_INVOCATION ||
+                otmp->otyp == BELL_OF_OPENING ||
+                otmp->otyp == SPE_BOOK_OF_THE_DEAD) {
+              freeinv(otmp);
+              /* not dropy; we want no message, and don't want to sell
+                 to shops; no newsym as we're dying anyway, and the
+                 other games will redraw upon uncheckpointing */
+              place_object(otmp, u.ux, u.uy);
+              stackobj(otmp);
+            }
+          }
+
+          /* Check to see if we need to yield to someone */
+          for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
+            if (is_mp_player(mtmp)) {
+              Strcpy(buf, is_mp_player(mtmp));
+              break;
+            }
+          }
+
+          /* Save the level without us on it: */
+          /* lock the level file (in case someone's trying to arrive on it) */
+          Strcpy(lock, iflags.mp_lock_name);
+          set_levelfile_name(lock, ledger_no(&u.uz));
+          lock_file_silently(lock, LEVELPREFIX, 5);
+          /* save the level file, if possible */
+          fd = create_levelfile(ledger_no(&u.uz), NULL);
+          if (fd >= 0) savelev(fd, ledger_no(&u.uz), WRITE_SAVE);
+          /* unlock the level file again */
+          Strcpy(lock, iflags.mp_lock_name);
+          set_levelfile_name(lock, ledger_no(&u.uz));
+          unlock_file(lock);
+
+          /* If we need to yield, do that now (without actually blocking,
+             of course; we're about to exit, so this doesn't increase
+             the number of drivers, and reduces it if we're alone on a
+             level). */
+          if (*buf) {
+            Sprintf(yield_message, "%s y\n", mplock);
+            mp_message(buf, yield_message);
+          }
+
+          /* Tell people that we aren't available to pass turns to them,
+             they'll have to ask someone else (or steal the level if
+             nobody else is there */
+          for (levelmerger = mp_levelmerger_name(); levelmerger;
+               levelmerger = mp_levelmerger_name())
+            mp_message(levelmerger, "!\n");
+        }
+
+	clearlocks(); /* must be after multiplayer handling */
 
 	if (bones_ok && !discover) {
 #ifdef WIZARD

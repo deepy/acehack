@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)flag.h	3.4	2002/08/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Dec 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you change the flag structure make sure you increment EDITLEVEL in   */
@@ -181,6 +181,7 @@ struct instance_flags {
 	coord	travelcc;	/* coordinates for travel_cache */
         boolean multiplayer;    /* there is someone to yield to */
         char    mp_lock_name[BUFSZ]; /* the lockfile name being used for multiplayer */
+        int     shared_lockfd;  /* the fd that counts players in multiplayer */
 #ifdef WIZARD
 	boolean sanity_check;	/* run sanity checks */
 	boolean mon_polycontrol;	/* debug: control monster polymorphs */

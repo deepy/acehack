@@ -286,6 +286,8 @@
 #include <sys/wait.h>
 #endif
 
+#include <sys/file.h>   /* for flock and its constants */
+
 #if defined(BSD) || defined(ULTRIX)
 # if !defined(DGUX) && !defined(SUNOS4)
 #define memcpy(d, s, n)		bcopy(s, d, n)
