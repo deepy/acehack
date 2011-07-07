@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jul 2011 by Alex Smith */
+/* Modified 7 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -639,7 +639,6 @@ newgame()
 	init_artifacts();	/* TODO: putting this here means wizkits
                                    can't contain artifacts */
 
-
 #ifndef NO_SIGNAL
 	(void) signal(SIGINT, (SIG_RET_TYPE) done1);
 #endif
@@ -811,7 +810,7 @@ found_game_to_attach_to: ;
         role_specific_modifications();
 
         /* Affects just the character him/herself. */
-        u_init_idempotent();
+        u_init_nonidempotent();
 
         /* We /cannot/ call init_dungeons, as that would lead to an
            incompatible dungeon layout between the games, which causes

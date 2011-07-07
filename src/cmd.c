@@ -555,7 +555,9 @@ doinvite()
   int fd;
   xchar x, y; /* same type as u.ux, u.uy */
   /* The conditions for an invite: you must be within view of the dlvl
-     1 upstairs, and that square must be unoccupied. */
+     1 upstairs, and that square must be unoccupied. Also, solo mode
+     disallows multiplayer, not for technical reasons, but for
+     consistency reasons. */
   if (depth(&u.uz) != 1 || !sstairs.sx || !cansee(sstairs.sx,sstairs.sy)) {
     You_cant("invite players if you can't see the dungeon level 1 exit ladder.");
     return 0;
@@ -563,6 +565,11 @@ doinvite()
   if (u.ux == sstairs.sx && u.uy == sstairs.sy)
   {
     You_cant("invite players if you're blocking the exit ladder.");
+    return 0;
+  }
+  if (solo)
+  {
+    You_cant("use other players to help you play solo!");
     return 0;
   }
 
