@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)save.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 5 Jul 2011 by Alex Smith */
+/* Modified 7 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -26,7 +26,6 @@ int dotcnt, dotrow;	/* also used in restore */
 #ifdef ZEROCOMP
 STATIC_DCL void FDECL(bputc, (int));
 #endif
-STATIC_DCL void FDECL(savelevchn, (int,int));
 STATIC_DCL void FDECL(savedamage, (int,int));
 STATIC_DCL void FDECL(saveobjchn, (int,struct obj *,int));
 STATIC_DCL void FDECL(savemonchn, (int,struct monst *,int));
@@ -845,7 +844,7 @@ bclose(fd)
 }
 #endif /* ZEROCOMP */
 
-STATIC_OVL void
+void
 savelevchn(fd, mode)
 register int fd, mode;
 {

@@ -826,6 +826,7 @@ found_game_to_attach_to: ;
            to worry about interruptions, so we just send binary
            right down the pipe. */
         restore_dungeon(mpcfd);
+        restlevchn(mpcfd);
 
         /* A bit of a weird dependency issue here. We have to
            uncheckpoint before placing the player on the stairs, or we
@@ -846,6 +847,9 @@ found_game_to_attach_to: ;
 
         /* Remove watchdog timer. */
         alarm(0);
+
+        /* Fix up the Quest (which isn't shared between games). */
+        rerole_quest_branch();
 
         /* I /hope/ this is multiplayer-safe... */
         init_artifacts();

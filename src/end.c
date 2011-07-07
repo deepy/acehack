@@ -999,8 +999,17 @@ die:
 
         /* Notify other players that we're no longer on the level, and what's
            taking so long about our turn */
-        if (iflags.multiplayer)
-          rYou(" died...");
+        if (iflags.multiplayer) {
+          if (how == ESCAPED)
+            rYou(" escaped the dungeon.");
+          else if (how == ASCENDED)
+            rYou(" ascended to demigod%shood!",
+                 flags.female ? "dess" : "");
+          else if (how == QUIT)
+            rYou(" vanished in a puff of quittiness.");
+          else
+            rYou(" died...");
+        }
 
 	/* Sometimes you die on the first move.  Life's not fair.
 	 * On those rare occasions you get hosed immediately, go out

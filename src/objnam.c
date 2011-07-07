@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 1 Sep 2011 by Alex Smith */
+/* Modified 18 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2886,6 +2886,18 @@ typfnd:
 			u.uconduct.wisharti++;	/* KMH, conduct */
 		}
 	}
+
+        /* Disallow quest artifact wishes outright in multiplayer, to
+           prevent bypassing the quest sequence via one player wishing
+           for the other's quest artifact (TODO: what about wishing
+           for one before the first #invite?). They'll be told the
+           item doesn't exist in the game, because in multiplayer,
+           it doesn't. */
+        if (otmp->oartifact && otmp->oartifact >= ART_ORB_OF_DETECTION &&
+            otmp->oartifact <= ART_EYES_OF_THE_OVERWORLD &&
+            iflags.multiplayer && !wizard) {
+          return NULL; /* allow specifying a different wish */
+        }
 
 	/* more wishing abuse: don't allow wishing for certain artifacts */
 	/* and make them pay; charge them for the wish anyway! */

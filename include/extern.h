@@ -497,6 +497,7 @@ E xchar FDECL(dunlev, (d_level *));
 E xchar FDECL(dunlevs_in_dungeon, (d_level *));
 E xchar FDECL(ledger_to_dnum, (XCHAR_P));
 E xchar FDECL(ledger_to_dlev, (XCHAR_P));
+E boolean FDECL(ledger_is_local, (XCHAR_P));
 E xchar FDECL(deepest_lev_reached, (BOOLEAN_P));
 E boolean FDECL(on_level, (d_level *,d_level *));
 E void FDECL(next_level, (BOOLEAN_P));
@@ -532,6 +533,7 @@ E schar FDECL(lev_by_name, (const char *));
 #ifdef WIZARD
 E schar FDECL(print_dungeon, (BOOLEAN_P,schar *,xchar *));
 #endif
+E void NDECL(rerole_quest_branch);
 E int NDECL(donamelevel);
 E int NDECL(dooverview);
 E void FDECL(forget_mapseen, (int));
@@ -1768,6 +1770,7 @@ E NhRegion* FDECL(create_gas_cloud, (XCHAR_P, XCHAR_P, int, size_t));
 
 E void FDECL(inven_inuse, (BOOLEAN_P));
 E int FDECL(dorecover, (int));
+E void FDECL(restlevchn, (int));
 E void FDECL(trickery, (char *));
 E void FDECL(getlev, (int,int,XCHAR_P,BOOLEAN_P));
 E void NDECL(minit);
@@ -1854,6 +1857,7 @@ E void FDECL(bflush, (int));
 E void FDECL(bwrite, (int,genericptr_t,unsigned int));
 E void FDECL(bclose, (int));
 E void FDECL(savefruitchn, (int,int));
+E void FDECL(savelevchn, (int,int));
 E void NDECL(free_dungeons);
 E void NDECL(freedynamicdata);
 

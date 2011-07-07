@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dungeon.c	3.4	1999/10/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 7 Jan 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -939,6 +939,17 @@ init_dungeons()		/* initialize the "dungeon" structs */
 #endif
 }
 
+/* Changes the dungeon layout so that the quest branch corresponds to the
+   current role (necessary for multiplayer). */
+void
+rerole_quest_branch()
+{
+  s_level *curr;
+  for(curr = sp_levchn; curr; curr = curr->next)
+    if (curr->proto[3] == '-')
+      Sprintf(curr->proto, "%s-%s", urole.filecode, curr->proto + 4);
+}
+
 xchar
 dunlev(lev)	/* return the level number for lev in *this* dungeon */
 d_level	*lev;
@@ -1036,6 +1047,17 @@ ledger_to_dlev(ledgerno)
 xchar	ledgerno;
 {
 	return((xchar)(ledgerno - dungeons[ledger_to_dnum(ledgerno)].ledger_start));
+}
+
+/* return whether the ledger number in question is local to one player
+   in a multiplayer game */
+boolean
+ledger_is_local(ledgerno)
+xchar   ledgerno;
+{
+  if (!ledgerno) return TRUE;
+  if (ledgerno == (xchar)-1) return FALSE;
+  return ledger_to_dnum(ledgerno) == quest_dnum;
 }
 
 #endif /* OVL1 */

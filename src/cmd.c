@@ -5,6 +5,7 @@
 
 #include "hack.h"
 #include "func_tab.h"
+#include "lev.h"
 #include <ctype.h>
 /* #define DEBUG */	/* uncomment for debugging */
 
@@ -651,8 +652,9 @@ doinvite()
       int ln, fd;
       char errbuf[BUFSZ];  
       Sprintf(iflags.mp_lock_name, "%lu_%s", u.ubirthday, mplock);
-      /* Rename all level files but 0. */
+      /* Rename all nonlocal level files. */
       for (ln = maxledgerno(); ln; ln--) {
+        if (ledger_is_local(ln)) continue;
         if (rename_levelfile(ln, iflags.mp_lock_name, errbuf) < 0) {
           /* We can't do much here but panic, and let the other game
              fail with a communication error when its timer runs out.
@@ -683,6 +685,7 @@ doinvite()
     fd = other_multiplayer_pipe_fd(lockname, 'c');
     if (fd < 0) panic("Multiplayer control pipe not ready");
     save_dungeon(fd, TRUE, FALSE);
+    savelevchn(fd, WRITE_SAVE);
     /* It needs to know the player's coordinates, too, to do things
        in the right order. x and y are the same size as u.ux and
        u.uy, or this wouldn't work. Likewise, we need to ensure that

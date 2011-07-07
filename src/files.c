@@ -446,7 +446,7 @@ char errbuf[];
 
 	if (errbuf) *errbuf = '\0';
         if (iflags.multiplayer)
-          Strcpy(lock, lev ? iflags.mp_lock_name : mplock);
+          Strcpy(lock, !ledger_is_local(lev) ? iflags.mp_lock_name : mplock);
 	set_levelfile_name(lock, lev);
 	fq_lock = fqname(lock, LEVELPREFIX, 0);
 
@@ -493,7 +493,7 @@ char errbuf[];
   const char *oldfqname, *newfqname;
   if (errbuf) *errbuf = '\0';
   if (iflags.multiplayer)
-    Strcpy(lock, lev ? iflags.mp_lock_name : mplock);
+    Strcpy(lock, !ledger_is_local(lev) ? iflags.mp_lock_name : mplock);
   set_levelfile_name(lock, lev);
   oldfqname = fqname(lock, LEVELPREFIX, 0);
   Strcpy(lock, lockname);
@@ -522,7 +522,7 @@ char errbuf[];
 
 	if (errbuf) *errbuf = '\0';
         if (iflags.multiplayer)
-          Strcpy(lock, lev ? iflags.mp_lock_name : mplock);
+          Strcpy(lock, !ledger_is_local(lev) ? iflags.mp_lock_name : mplock);
 	set_levelfile_name(lock, lev);
 	fq_lock = fqname(lock, LEVELPREFIX, 0);
 #ifdef MFLOPPY
@@ -561,10 +561,15 @@ int lev;
 	 * call create_levfile(), so always assume that it exists.
          * Level -1 is special, and is recorded as existing in
          * iflags.multiplayer rather than level_info.
+         *
+         * In multiplayer, we try to delete the level no matter
+         * what; it's possible it was created by another player (who
+         * has since died) without our knowledge.
 	 */
-	if (lev <= 0 || (level_info[lev].flags & LFILE_EXISTS)) {
+	if (lev <= 0 || (level_info[lev].flags & LFILE_EXISTS) ||
+            iflags.multiplayer) {
                 if (iflags.multiplayer)
-                    Strcpy(lock, lev ? iflags.mp_lock_name : mplock);
+                    Strcpy(lock, !ledger_is_local(lev) ? iflags.mp_lock_name : mplock);
 		set_levelfile_name(lock, lev);
 #ifdef HOLD_LOCKFILE_OPEN
 		if (lev == 0) really_close();
@@ -613,8 +618,9 @@ clearlocks()
 	(void) signal(SIGHUP, SIG_IGN);
 # endif
 	/* can't access maxledgerno() before dungeons are created -dlc */
-	for (x = (n_dgns && last_player ? maxledgerno() : 0); x >= 0; x--)
-		delete_levelfile(x);	/* not all levels need be present */
+	for (x = (n_dgns ? maxledgerno() : 0); x >= 0; x--)
+          if (last_player || ledger_is_local(x))
+            delete_levelfile(x);     /* not all levels need be present */
 #endif
 
         teardown_multiplayer_pipe('a');

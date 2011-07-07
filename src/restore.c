@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)restore.c	3.4	2003/09/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jul 2011 by Alex Smith */
+/* Modified 7 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -20,7 +20,6 @@ extern void FDECL(substitute_tiles, (d_level *));       /* from tile.c */
 static int NDECL(mgetc);
 #endif
 STATIC_DCL void NDECL(find_lev_obj);
-STATIC_DCL void FDECL(restlevchn, (int));
 STATIC_DCL void FDECL(restdamage, (int,BOOLEAN_P));
 STATIC_DCL struct obj *FDECL(restobjchn, (int,BOOLEAN_P,BOOLEAN_P));
 STATIC_DCL struct monst *FDECL(restmonchn, (int,BOOLEAN_P));
@@ -125,7 +124,7 @@ boolean quietly;
 	}
 }
 
-STATIC_OVL void
+void
 restlevchn(fd)
 register int fd;
 {

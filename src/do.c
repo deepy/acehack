@@ -1253,8 +1253,8 @@ long dtime;
 {
     /* nothing relevant in flags */
     /* timestamps in struct you */
-    u.ucleansed += dtime;
-    u.usleep += dtime;
+    if (u.ucleansed) u.ucleansed += dtime;
+    if (u.usleep) u.usleep += dtime;
     /* timers */
     adjust_nonlocal_timers(dtime);
     /* nothing relevant in light sources */
