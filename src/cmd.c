@@ -3112,7 +3112,6 @@ parse()
                         if (!in_doagain)
 # endif                      
                         ungetc(foo, stdin);
-#endif
                         foo = ecl_extcmd->binding1;
                     }
                     /* otherwise we need another # to mark an extended
