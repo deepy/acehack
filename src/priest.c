@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)priest.c	3.4	2002/11/06	*/
 /* Copyright (c) Izchak Miller, Steve Linhart, 1989.		  */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -520,9 +520,9 @@ register struct monst *priest;
 #else
 		if(money_cnt(invent) < (offer * 2L) && coaligned) {
 #endif
-		    if(strayed && (moves - u.ucleansed) > 5000L) {
+		    if(strayed && (monstermoves - u.ucleansed) > 5000L) {
 			u.ualign.record = 0; /* cleanse thee */
-			u.ucleansed = moves;
+			u.ucleansed = monstermoves;
 		    } else {
 			adjalign(2);
 		    }

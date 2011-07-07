@@ -7,6 +7,7 @@
 
 #include "hack.h"
 #include "lev.h"
+#include "edog.h"
 
 #ifdef SINKS
 # ifdef OVLB
@@ -1236,6 +1237,12 @@ long dtime;
     if (mtmp->minvent) time_dilate_objchain(mtmp->minvent, dtime);
     /* Assume monsters don't wield containers. */
     if (mtmp->mw && !age_is_relative(mtmp->mw)) mtmp->mw->age += dtime;
+    /* migrating pets need special treatment */
+    if (mtmp->mtame && !mtmp->isminion) {
+      EDOG(mtmp)->droptime += dtime;
+      EDOG(mtmp)->whistletime += dtime;
+      EDOG(mtmp)->hungrytime += dtime;
+    }
   }
 }
 
@@ -1256,10 +1263,10 @@ long dtime;
     /* migration */
     time_dilate_objchain(migrating_objs, dtime);
     time_dilate_monchain(migrating_mons, dtime);
+    time_dilate_monchain(mydogs, dtime);
     /* nothing relevant in monster statistics */
     /* nothing relevant in dungeons or level chains */
-    /* time handling */
-    moves += dtime;
+    /* time handling; moves is /not/ updated, that's its whole purpose */
     monstermoves += dtime;
     /* nothing relevant in quest status */
     /* nothing relevant in spells (perhaps surprisingly, spell

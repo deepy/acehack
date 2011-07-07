@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)worm.c	3.4	1995/01/28	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 14 Aug 2010 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -221,9 +221,9 @@ worm_move(worm)
     wheads[wnum]  = new_seg;		/* move the end pointer */
 
 
-    if (wgrowtime[wnum] <= moves) {
+    if (wgrowtime[wnum] <= monstermoves) {
 	if (!wgrowtime[wnum])
-	    wgrowtime[wnum] = moves + rnd(5);
+	    wgrowtime[wnum] = monstermoves + rnd(5);
 	else
 	    wgrowtime[wnum] += rn1(15, 3);
 	worm->mhp += 3;

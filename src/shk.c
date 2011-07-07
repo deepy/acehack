@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)shk.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 27 Dec 2010 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -3268,10 +3268,10 @@ register struct monst *shkp;
 				    eshkp->following = 0;
 			    return(0);
 			}
-			if(moves > followmsg+4) {
+			if(monstermoves > followmsg+4) {
 			    verbalize("%s, %s!  Didn't you forget to pay?",
 				    Hello(shkp), plname);
-			    followmsg = moves;
+			    followmsg = monstermoves;
 			    if (!rn2(9)) {
 			      pline("%s doesn't like customers who don't pay.",
 				    Monnam(shkp));

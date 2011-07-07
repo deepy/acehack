@@ -794,7 +794,9 @@ boolean ghostly;
 	else
 	    doorindex = 0;
 
-	restore_timers(fd, RANGE_LEVEL, ghostly, monstermoves - omoves);
+        /* In multiplayer, don't time-dilate existing timers. */
+	restore_timers(fd, RANGE_LEVEL, ghostly,
+                       iflags.multiplayer ? 0 : monstermoves - omoves);
 	restore_light_sources(fd);
 	fmon = restmonchn(fd, ghostly);
 
@@ -810,7 +812,7 @@ boolean ghostly;
 				/* shopkeepers will reset based on name */
 				mtmp->mpeaceful = peace_minded(mtmp->data);
 			set_malign(mtmp);
-		} else if (monstermoves > omoves)
+		} else if (!iflags.multiplayer && monstermoves > omoves)
 			mon_catchup_elapsed_time(mtmp, monstermoves - omoves);
 
 		/* update shape-changers in case protection against

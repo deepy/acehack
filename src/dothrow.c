@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dothrow.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Mar 2010 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 't' (throw) */
@@ -1609,10 +1609,13 @@ boolean from_invent;
 		if (shkp) {		/* (implies *o_shop != '\0') */
 		    static NEARDATA long lastmovetime = 0L;
 		    static NEARDATA boolean peaceful_shk = FALSE;
-		    /*  We want to base shk actions on her peacefulness
-			at start of this turn, so that "simultaneous"
-			multiple breakage isn't drastically worse than
-			single breakage.  (ought to be done via ESHK)  */
+		    /*  We want to base shk actions on her
+			peacefulness at start of this turn, so that
+			"simultaneous" multiple breakage isn't
+			drastically worse than single breakage.
+			(ought to be done via ESHK; for the time
+			being, using "moves" not "monstermoves" here
+			makes it not break too badly)  */
 		    if (moves != lastmovetime)
 			peaceful_shk = shkp->mpeaceful;
 		    if (stolen_value(obj, x, y, peaceful_shk, FALSE) > 0L &&

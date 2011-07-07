@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)save.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jul 2011 by Alex Smith */
+/* Modified 5 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -469,7 +469,14 @@ int mode;
 	}
 	if (mode != FREE_SAVE) {
 		level_info[lev].where = ACTIVE;
-		level_info[lev].time = moves;
+                /* this is not particularly meaningful in multiplayer,
+                   because it isn't saved with the level; it is only
+                   used for determining which level to swap out on
+                   floppy-disk systems, though, which probably aren't
+                   playing multiplayer, but think carefully before
+                   using it for anything else to ensure that what
+                   you're doing is multiplayer-safe */
+		level_info[lev].time = monstermoves;
 		level_info[lev].size = bytes_counted;
 	}
 	return TRUE;

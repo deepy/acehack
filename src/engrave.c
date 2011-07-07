@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)engrave.c	3.4	2001/11/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Dec 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -237,7 +237,7 @@ sengr_at(s, x, y)
 	register struct engr *ep = engr_at(x,y);
 
 	return (ep && ep->engr_type != HEADSTONE &&
-		ep->engr_time <= moves && strstri(ep->engr_txt, s) != 0);
+		ep->engr_time <= monstermoves && strstri(ep->engr_txt, s) != 0);
 }
 
 int
@@ -255,7 +255,7 @@ heptagram_count(x, y)
 {
 	struct engr *ep = engr_at(x,y);
         int c = 0;
-        if (ep && ep->engr_time <= moves) {
+        if (ep && ep->engr_time <= monstermoves) {
             char* p = ep->engr_txt;
             for(;;) {
                 p = strstr(p, "\x1\x2\x3\x4\x5\x6\x7\x8");
@@ -271,7 +271,7 @@ corrupted_heptagram_count(x, y)
 {
 	struct engr *ep = engr_at(x,y);
         int c = -8 * heptagram_count(x, y);
-        if (ep && ep->engr_time <= moves) {
+        if (ep && ep->engr_time <= monstermoves) {
             char* p = ep->engr_txt;
             for(;*p;p++) {
               if (*p <= 9) c++;
@@ -932,7 +932,7 @@ boolean hept;
 
 	/* Something has changed the engraving here */
 	if (*buf) {
-	    make_engr_at(u.ux, u.uy, buf, moves, type);
+	    make_engr_at(u.ux, u.uy, buf, monstermoves, type);
 	    pline_The("engraving now reads: \"%s\".", buf);
 	    ptext = FALSE;
 	}
@@ -1271,7 +1271,7 @@ boolean hept;
 	    (void) strncat(buf, ebuf, (BUFSZ - (int)strlen(buf) - 1));
 
 	make_engr_at(u.ux, u.uy, buf,
-                     (moves - (multi < 0 ? multi : 0)), type);
+                     (monstermoves - (multi < 0 ? multi : 0)), type);
 
 	if (post_engr_text[0]) pline("%s",post_engr_text);
 
@@ -1359,7 +1359,7 @@ int fd;
 		/* mark as finished for bones levels -- no problem for
 		 * normal levels as the player must have finished engraving
 		 * to be able to move again */
-		ep->engr_time = moves;
+		ep->engr_time = monstermoves;
 	}
 }
 

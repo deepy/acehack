@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)decl.c	3.2	2001/12/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Sep 2010 by Alex Smith */
+/* Modified 7 Aug 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -189,8 +189,13 @@ const int shield_static[SHIELD_COUNT] = {
 
 NEARDATA struct spell spl_book[MAXSPELL + 1] = {DUMMY};
 
-NEARDATA long moves = 1L, monstermoves = 1L;
-	 /* These diverge when player is Fast */
+/* moves = time relative to player; monstermoves = time relative to level
+   most things should use monstermoves
+   these are always separated by the same value in single-player, but can
+   diverge in multiplayer
+   the very large starting value of monstermoves is to avoid underflow
+   due to time dilation in multiplayer (which is otherwise possible) */
+NEARDATA long moves = 1L, monstermoves = 1L << 28;
 NEARDATA long wailmsg = 0L;
 
 /* objects that are moving to another dungeon level */

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)spell.c	3.4	2003/01/17	*/
 /*	Copyright (c) M. Stephenson 1988			  */
-/* Modified 17 Jun 2011 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -236,7 +236,7 @@ struct obj *book2;
 		else arti_cursed = TRUE;
 	    }
 	    if(otmp->otyp == BELL_OF_OPENING &&
-	       (moves - otmp->age) < 5L) { /* you rang it recently */
+	       (monstermoves - otmp->age) < 5L) { /* you rang it recently */
 		if(!otmp->cursed) arti2_primed = TRUE;
 		else arti_cursed = TRUE;
 	    }

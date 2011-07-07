@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dog.c	3.4	2002/09/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jul 2011 by Alex Smith */
+/* Modified 7 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -414,7 +414,7 @@ long nmv;		/* number of moves */
 	    panic("catchup from future time?");
 	    /*NOTREACHED*/
 	    return;
-	} else if (nmv == 0L) {		/* safe, but should'nt happen */
+	} else if (nmv == 0L) {		/* safe, but shouldn't happen */
 	    impossible("catchup from now?");
 	} else
 #endif

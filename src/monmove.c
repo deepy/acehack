@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)monmove.c	3.4	2002/04/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 2 Jul 2011 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -165,7 +165,7 @@ struct monst *mon;
 boolean digest_meal;
 {
 	if (mon->mhp < mon->mhpmax &&
-	    (moves % 20 == 0 || regenerates(mon->data))) mon->mhp++;
+	    (monstermoves % 20 == 0 || regenerates(mon->data))) mon->mhp++;
 	if (mon->mspec_used) mon->mspec_used--;
 	if (digest_meal) {
 	    if (mon->meating) mon->meating--;

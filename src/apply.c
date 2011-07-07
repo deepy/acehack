@@ -223,6 +223,9 @@ use_stethoscope(obj)
 	if (!getdir("Use your stethoscope in which direction?",
                     GETDIRH_NEXT, 1)) return 0;
 
+        /* Do use moves not monstermoves here, so that changing level gives
+           consistent stethoscope behaviour (and because it's a static, thus
+           effectively "lockfile 0" as it isn't saved anywhere) */
 	res = (moves == last_used_move) &&
 	      (youmonst.movement == last_used_movement);
 	last_used_move = moves;
@@ -825,7 +828,9 @@ struct obj **optr;
 #ifdef	AMIGA
 		amii_speaker( obj, "aefeaefeaefeaefeaefe", AMII_LOUDER_VOLUME );
 #endif
-		obj->age = moves;
+                /* This has to be monstermoves in case one person drops the
+                   Bell and a different person picks it up */
+		obj->age = monstermoves;
 		learno = TRUE;
 		wakem = TRUE;
 

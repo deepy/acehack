@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mcastu.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Jun 2011 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -75,7 +75,7 @@ boolean undirected;
 		point_msg = "at you, then curses";
 
 	    pline("%s points %s.", Monnam(mtmp), point_msg);
-	} else if ((!(moves % 4) || !rn2(4))) {
+	} else if ((!(monstermoves % 4) || !rn2(4))) {
 	    if (flags.soundok) Norep("You hear a mumbled curse.");
 	}
 }
@@ -919,7 +919,7 @@ castmm(mtmp, mdef, mattk)
 	            pline("%s points at %s, then curses.",
 		          buf, mon_nam(mdef));
 
-	    } else if ((!(moves % 4) || !rn2(4))) {
+	    } else if ((!(monstermoves % 4) || !rn2(4))) {
 	        if (flags.soundok) Norep("You hear a mumbled curse.");
 	    }
 	    return(0);

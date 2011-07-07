@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)zap.c	3.4	2003/08/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jul 2011 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -2428,7 +2428,7 @@ struct obj *obj;	/* wand or spell */
 		case WAN_POLYMORPH:
 		case SPE_POLYMORPH:
 		    del_engr(e);
-		    make_engr_at(x, y, random_engraving(buf), moves, (xchar)0);
+		    make_engr_at(x, y, random_engraving(buf), monstermoves, (xchar)0);
 		    break;
 		case WAN_CANCELLATION:
 		case SPE_CANCELLATION:

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)region.c	3.4	2002/10/15	*/
 /* Copyright (c) 1996 by Jean-Christophe Collet	 */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 4 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -622,7 +622,7 @@ int mode;
 
     if (!perform_bwrite(mode)) goto skip_lots;
 
-    bwrite(fd, (genericptr_t) &moves, sizeof (moves));	/* timestamp */
+    bwrite(fd, (genericptr_t) &monstermoves, sizeof (monstermoves));	/* timestamp */
     bwrite(fd, (genericptr_t) &n_regions, sizeof (n_regions));
     for (i = 0; i < n_regions; i++) {
 	bwrite(fd, (genericptr_t) &regions[i]->bounding_box, sizeof (NhRect));
@@ -675,7 +675,7 @@ boolean ghostly; /* If a bones file restore */
     clear_regions();		/* Just for security */
     mread(fd, (genericptr_t) &tmstamp, sizeof (tmstamp));
     if (ghostly) tmstamp = 0;
-    else tmstamp = (moves - tmstamp);
+    else tmstamp = (monstermoves - tmstamp);
     mread(fd, (genericptr_t) &n_regions, sizeof (n_regions));
     max_regions = n_regions;
     if (n_regions > 0)

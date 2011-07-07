@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)eat.c	3.4	2003/02/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Aug 2011 by Alex Smith */
+/* Modified 1 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1878,7 +1878,7 @@ struct obj *otmp;
          * deliberate rather than coincidental).
 	 */
 	 
-	if (!u.uconduct.unvegetarian && monstermoves > 1800 &&
+	if (!u.uconduct.unvegetarian && moves > 1800 &&
 	    ((material == LEATHER || material == BONE ||
 	      material == DRAGON_HIDE) ||
 	     (cadaver && !vegetarian(&mons[mnum])))) {
@@ -1887,7 +1887,7 @@ struct obj *otmp;
 		if (yn_function(buf,ynchars,'n')=='n') return 1;
 		else return 2;
 	}
-	if (!u.uconduct.unvegan && monstermoves > 1800 &&
+	if (!u.uconduct.unvegan && moves > 1800 &&
 	    ((material == LEATHER || material == BONE ||
 	      material == DRAGON_HIDE || material == WAX) ||
 	     (cadaver && !vegan(&mons[mnum])))) {

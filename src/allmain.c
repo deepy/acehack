@@ -829,14 +829,14 @@ found_game_to_attach_to: ;
            player on the stairs before uncheckpointing, or the game
            tries to move the cursor off the map, leading to an
            infinite loop. The solution is to get the coordinates from
-           the other game. We also get the current time from the other
-           game, because the timings must be approximately in sync. */
+           the other game. We also get the current local time from the
+           other game, because the timings must be approximately in
+           sync. */
         if (read(mpcfd, &u.ux, sizeof(u.ux)) <= 0 ||
             read(mpcfd, &u.uy, sizeof(u.uy)) <= 0 ||
             read(mpcfd, &monstermoves, sizeof(monstermoves)) <= 0) {
           panic("Multiplayer control pipe read failure");
         }
-        moves = monstermoves;
 
         /* Remove watchdog timer. */
         alarm(0);

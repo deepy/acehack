@@ -1692,6 +1692,8 @@ int final;
 
         if (solo)
             enl_msg(You_, "are", "were", " playing solo");
+        if (iflags.multiplayer)
+            enl_msg(You_, "have", "had", " human-controlled allies.");
 
         if (putstr_or_dump == putstr) {
             display_nhwindow(en_win, TRUE);
