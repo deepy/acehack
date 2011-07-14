@@ -4,4 +4,4 @@ Note that AceHack is mostly focused on improving NetHack's interface, while keep
 
 ## List of ideas
   
-- Add the [Additional items categories](http://nh.gmuf.com/#itemcat) patch (or a homebrewn version of it). With it, when you for example press D, you can choose to drop "Items just picked up" or "Items just taken out". This is extremely useful for hoarding items into piles and working with shops and stashes.
+- Add the [Additional items categories](http://nh.gmuf.com/#itemcat) patch (or a homebrewn version of it). With it, when you for example press D, you can choose to drop "Items just picked up" or "Items just taken out". This is extremely useful for hoarding items into piles and working with shops and stashes. It's also purely an UI change.
