@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)wizard.c	3.4	2003/02/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 15 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* wizard code - inspired by rogue code from Merlyn Leroy (digi-g!brian) */
@@ -78,9 +79,8 @@ amulet()
 	    }
 	}
 
-	if (!flags.no_of_wizards)
-		return;
-	/* find Wizard, and wake him if necessary */
+	/* check to see if the Wizard is on this level; wake him if
+           necessary */
 	for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
 	    if (!DEADMONSTER(mtmp) && mtmp->iswiz && mtmp->msleeping && !rn2(40)) {
 		mtmp->msleeping = 0;
@@ -506,6 +506,12 @@ resurrect()
 		}
 		mmtmp = &mtmp->nmon;
 	    }
+            if (!mtmp) {
+              /* This can happen in multiplayer, if somebody else kills
+                 the Wizard. */
+              verb = "forget";
+              mtmp = makemon(&mons[PM_WIZARD_OF_YENDOR], u.ux, u.uy, MM_NOWAIT);
+            }
 	}
 
 	if (mtmp) {
@@ -545,7 +551,10 @@ intervene()
 void
 wizdead()
 {
-	flags.no_of_wizards--;
+        /* The no_of_wizards count is unreliable in multiplayer. At
+           least this does better than it would otherwise; we ensure
+           that nothing critically depends on its value. */
+	if (flags.no_of_wizards) flags.no_of_wizards--;
 	if (!u.uevent.udemigod) {
 		u.uevent.udemigod = TRUE;
 		u.udg_cnt = rn1(250, 50);

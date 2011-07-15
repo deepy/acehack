@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)makemon.c	3.4	2003/09/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Apr 2011 by Alex Smith */
+/* Modified 15 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1054,7 +1054,8 @@ register int	mmflags;
 	} else if (mndx == PM_WIZARD_OF_YENDOR) {
 		mtmp->iswiz = TRUE;
 		flags.no_of_wizards++;
-		if (flags.no_of_wizards == 1 && Is_earthlevel(&u.uz))
+		if ((flags.no_of_wizards == 1 || iflags.multiplayer) &&
+                    Is_earthlevel(&u.uz))
 			mitem = SPE_DIG;
 	} else if (mndx == PM_DJINNI) {
 		flags.djinni_count++;

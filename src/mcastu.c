@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mcastu.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Jul 2011 by Alex Smith */
+/* Modified 15 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -361,7 +361,11 @@ int spellnum;
 	    pline("Double Trouble...");
 	    clonewiz();
 	    dmg = 0;
-	} else
+	} else if (mtmp->iswiz) {
+            /* Happens in multiplayer, if no_of_wizards has got out of sync. */
+            pline("You feel the Wizard of Yendor was looking for aid.");
+            pline("But none came.");
+        } else
 	    impossible("bad wizard cloning?");
 	break;
     case MGC_SUMMON_MONS:
