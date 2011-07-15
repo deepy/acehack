@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)teleport.c	3.4	2003/08/11	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jul 2011 by Alex Smith */
+/* Modified 15 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1128,6 +1128,13 @@ int in_sight;
 
 	if (mtmp == u.ustuck)	/* probably a vortex */
 	    return 0;		/* temporary? kludge */
+
+        /* Prevent the nemesis/guardian from escaping the Quest via the
+           entrance portal in multiplayer. */
+        if ((mtmp->data->msound == MS_NEMESIS ||
+             mtmp->data->msound == MS_GUARDIAN) &&
+            iflags.multiplayer) return 0;
+        
 	if (teleport_pet(mtmp, force_it)) {
 	    d_level tolevel;
 	    int migrate_typ = MIGR_RANDOM;

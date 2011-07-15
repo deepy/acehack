@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dog.c	3.4	2002/09/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Jul 2011 by Alex Smith */
+/* Modified 15 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -516,6 +516,11 @@ boolean pets_only;	/* true for ascension or final escape */
 	    if (DEADMONSTER(mtmp)) continue;
 	    if (pets_only && !mtmp->mtame) continue;
             if (is_mp_player(mtmp)) continue; /* players don't follow */
+            /* Quest nemesis/guardian must not follow in multiplayer,
+               to prevent them ending up in the wrong dungeon. */
+            if ((mtmp->data->msound == MS_NEMESIS ||
+                 mtmp->data->msound == MS_GUARDIAN) &&
+                iflags.multiplayer) continue;
 	    if (((monnear(mtmp, u.ux, u.uy) && levl_follower(mtmp)) ||
 #ifdef STEED
 			(mtmp == u.usteed) ||
