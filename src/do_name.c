@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do_name.c	3.4	2003/01/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Jul 2011 by Alex Smith */
+/* Modified 30 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -802,6 +802,12 @@ boolean called;
 	    name_at_start = FALSE;
 	} else if (mtmp->mnamelth) {
 	    char *name = NAME(mtmp);
+
+            /* Remove number from the start of the name of other
+               players (the players will see the name without the
+               prefixed number) */
+            if (is_mp_player(mtmp) && name)
+              while (*name >= '0' && *name <= '9') name++;
 
 	    if (mdat == &mons[PM_GHOST]) {
 		Sprintf(eos(buf), "%s ghost", s_suffix(name));

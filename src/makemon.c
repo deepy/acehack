@@ -720,6 +720,9 @@ xchar x, y;	/* clone's preferred location or 0 (near mon) */
 	if (mon->mhp <= 1 || (mvitals[monsndx(mon->data)].mvflags & G_EXTINCT))
 	    return (struct monst *)0;
 
+        /* never clone other players */
+        if (is_mp_player(mon)) return (struct monst *)0;
+
 	if (x == 0) {
 	    mm.x = mon->mx;
 	    mm.y = mon->my;
