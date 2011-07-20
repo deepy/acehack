@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pline.c	3.4	1999/11/28	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS /* Uses ... */	/* comment line for pre-compiled headers */
@@ -313,7 +313,8 @@ register struct monst *mtmp;
 		A_NEUTRAL;
 
 	info[0] = 0;
-	if (mtmp->mtame) {	  Strcat(info, ", tame");
+        if (is_mp_player(mtmp)) Strcat(info, ", allied");
+	else if (mtmp->mtame) {	  Strcat(info, ", tame");
 #ifdef WIZARD
 	    if (wizard) {
 		Sprintf(eos(info), " (%d", mtmp->mtame);
@@ -564,6 +565,10 @@ static int turns_behind = 0;
    the dnum/dlevel numbers are represented as value+11, to prevent
    them being newlines or nulls
 
+   lockname space b code newline
+   beneficial effect; respond and log. When the log is processed, the
+   beneficial effect will be too. (This is used for PvP healing, etc.)
+
    newline
    standard "OK" reply; this can only happen if we're in a nested pline
    inside a computer-driving mode, in which case we log it and don't
@@ -636,6 +641,7 @@ const char *s;
     break;
   case 'q': log = FALSE; break;
   case 'p': break;
+  case 'b': break;
   case 't': log = FALSE; turns_behind++; break;
   default: panic("Invalid multiplayer message type");
   }
@@ -701,6 +707,7 @@ mp_flush_log()
             this_mpple->entry_data);
       if (*(this_mpple->entry_data) == '!') suppress_more();
       break;
+    case 'b': handle_mp_zap(this_mpple->entry_data); break;
     default: panic("Impossible mpple logged");
     }
     if (this_mpple->entry_data) free(this_mpple->entry_data);
@@ -931,6 +938,17 @@ rYou VA_DECL(const char *, line)
 	VA_END();
 }
 
+/* Send a pline to a specific monster. This does nothing except in
+   multiplayer, if that player is human-controlled; in that case,
+   they will see the message. */
+void
+message_monster(mtmp, msg)
+struct monst *mtmp;
+char *msg;
+{
+  if (is_mp_player(mtmp))
+    mp_message_and_reply(is_mp_player(mtmp), "p", msg, FALSE);
+}
 
 #endif /* OVLB */
 /*pline.c*/

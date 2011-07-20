@@ -1601,6 +1601,7 @@ E const char *NDECL(mp_levelmerger_name);
 E int  NDECL(mp_turns_behind);
 E void VDECL(rpline, (const char *,...)) PRINTF_F(1,2);
 E void VDECL(rYou, (const char *,...)) PRINTF_F(1,2);
+E void FDECL(message_monster, (struct monst *,char *));
 
 /* ### polyself.c ### */
 
@@ -2471,6 +2472,7 @@ E int FDECL(zappable, (struct obj *));
 E void FDECL(zapnodir, (struct obj *));
 E int NDECL(dozap);
 E int FDECL(zapyourself, (struct obj *,BOOLEAN_P));
+E void FDECL(handle_mp_zap, (const char *));
 E boolean FDECL(cancel_monst, (struct monst *,struct obj *,
 			       BOOLEAN_P,BOOLEAN_P,BOOLEAN_P));
 E void FDECL(weffects, (struct obj *));

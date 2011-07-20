@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)sit.c	3.4	2002/09/21	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Dec 2011 by Alex Smith */
+/* Modified 19 Jul 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -403,7 +403,13 @@ register struct monst *mtmp;
 	struct	obj	*otmp;
 	static const char mal_aura[] = "feel a malignant aura surround %s.";
 
-	boolean resists = resist(mtmp, 0, 0, FALSE);
+	boolean resists;
+
+        /* can happen if a lich-form player casts monster spells at another
+           player, unless that's blocked elsewhere (I'm not sure); ban Pvp */
+        if (is_mp_player(mtmp)) return;
+
+        resists = resist(mtmp, 0, 0, FALSE);
 
 	if (MON_WEP(mtmp) &&
 	    (MON_WEP(mtmp)->oartifact == ART_MAGICBANE) && rn2(20)) {

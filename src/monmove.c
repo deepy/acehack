@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)monmove.c	3.4	2002/04/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -26,6 +26,10 @@ boolean /* TRUE : mtmp died */
 mb_trapped(mtmp)
 register struct monst *mtmp;
 {
+        if (is_mp_player(mtmp)) {
+          impossible("nondriving player in mb_trapped");
+          return FALSE;
+        }
 	if (flags.verbose) {
 	    if (cansee(mtmp->mx, mtmp->my))
 		pline("KABOOM!!  You see a door explode.");
@@ -164,6 +168,7 @@ mon_regen(mon, digest_meal)
 struct monst *mon;
 boolean digest_meal;
 {
+        if (is_mp_player(mon)) return; /* regeneration handled separately */
 	if (mon->mhp < mon->mhpmax &&
 	    (monstermoves % 20 == 0 || regenerates(mon->data))) mon->mhp++;
 	if (mon->mspec_used) mon->mspec_used--;
@@ -180,6 +185,7 @@ STATIC_OVL int
 disturb(mtmp)
 	register struct monst *mtmp;
 {
+        if (is_mp_player(mtmp)) return 0;
 	/*
 	 * + Ettins are hard to surprise.
 	 * + Nymphs, jabberwocks, and leprechauns do not easily wake up.
@@ -222,6 +228,8 @@ int fleetime;
 boolean first;
 boolean fleemsg;
 {
+        if (is_mp_player(mtmp)) return;
+
 	if (u.ustuck == mtmp) {
 	    if (u.uswallow)
 		expels(mtmp, mtmp->data, TRUE);
@@ -314,6 +322,10 @@ register struct monst *mtmp;
 #ifdef GOLDOBJ
         struct obj *ygold = 0, *lepgold = 0;
 #endif
+
+        /* Other players don't use the AI code, as they're human-
+           rather than AI-controlled. */
+        if (is_mp_player(mtmp)) return 0;
 
 /*	Pre-movement adjustments	*/
 
@@ -646,7 +658,12 @@ register int after;
 	int  omx = mtmp->mx, omy = mtmp->my;
 	struct obj *mw_tmp;
 
-	if(mtmp->mtrapped) {
+        if (is_mp_player(mtmp)) { /* sanity */
+          impossible("nondriving player in m_move?");
+          return 3;
+        }
+
+	if (mtmp->mtrapped) {
 	    int i = mintrap(mtmp);
 	    if(i >= 2) { newsym(mtmp->mx,mtmp->my); return(2); }/* it died */
 	    if(i == 1) return(0);	/* still in trap, so didn't move */

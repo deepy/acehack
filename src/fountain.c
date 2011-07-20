@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)fountain.c	3.4	2003/03/23	*/
 /*	Copyright Scott R. Turner, srt@ucla, 10/27/86 */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Code for drinking from fountains. */
@@ -111,6 +112,7 @@ genericptr_t poolcnt;
 
 	if (((x+y)%2) || (x == u.ux && y == u.uy) ||
 	    (rn2(1 + distmin(u.ux, u.uy, x, y)))  ||
+            ((mtmp = m_at(x, y)) && is_mp_player(mtmp)) || /* PvP check */
 	    (levl[x][y].typ != ROOM) ||
 	    (sobj_at(BOULDER, x, y)) || nexttodoor(x, y))
 		return;
@@ -328,7 +330,7 @@ drinkfountain()
 
 			pline("This water gives you bad breath!");
 			for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-			    if(!DEADMONSTER(mtmp))
+                            if(!DEADMONSTER(mtmp) && !is_mp_player(mtmp))
 				monflee(mtmp, 0, FALSE, FALSE);
 			}
 			break;

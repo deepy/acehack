@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)ball.c	3.4	2003/02/03	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Ball & Chain =============================================================*/
@@ -584,7 +585,7 @@ drag:
 
 		    tmp = -2 + Luck + find_mac(victim);
 		    tmp += omon_adj(victim, uball, TRUE);
-		    if (tmp >= rnd(20))
+		    if (tmp >= rnd(20) && !is_mp_player(victim)) /* PvP check */
 			(void) hmon(victim,uball,1);
 		    else
 			miss(xname(uball), victim);

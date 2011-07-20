@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mhitm.c	3.4	2003/01/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Dec 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -90,6 +90,7 @@ missmm(magr, mdef, mattk)
 		Sprintf(buf, fmt, Monnam(magr));
 		pline("%s %s.", buf, mon_nam_too(mdef_name, mdef, magr));
 	} else  noises(magr, mattk);
+        message_monster(mdef, "A monster's attack misses you.");
 }
 
 /*
@@ -116,6 +117,9 @@ fightm(mtmp)		/* have monsters fight each other */
 	if(resist(mtmp, RING_CLASS, 0, 0))
 	    return(0);
 
+        /* other players can't be conflicted */
+        if(is_mp_player(mtmp)) return(0);
+
 	if(u.ustuck == mtmp) {
 	    /* perhaps we're holding it... */
 	    if(itsstuck(mtmp))
@@ -129,9 +133,11 @@ fightm(mtmp)		/* have monsters fight each other */
 	    /* Be careful to ignore monsters that are already dead, since we
 	     * might be calling this before we've cleaned them up.  This can
 	     * happen if the monster attacked a cockatrice bare-handedly, for
-	     * instance.
+	     * instance. Also ignore nondriving players, a) so that players
+             * can't use conflit as a PvP mechanism, b) because it wouldn't
+             * work anyway.
 	     */
-	    if(mon != mtmp && !DEADMONSTER(mon)) {
+	    if(mon != mtmp && !DEADMONSTER(mon) && !is_mp_player(mon)) {
 		if(monnear(mtmp,mon->mx,mon->my)) {
 		    if(!u.uswallow && (mtmp == u.ustuck)) {
 			if(!rn2(4)) {
@@ -206,6 +212,11 @@ mattackm(magr, mdef)
     struct permonst *pa, *pd;
 
     if (mdef == &youmonst) return mattacku(magr) ? MM_AGR_DIED : 0;
+    if (is_mp_player(mdef)) return MM_MISS; /* nondriving check */
+    if (is_mp_player(magr)) { /* sanity */
+      impossible("Nondriving player attacking monster?");
+      return MM_MISS;
+    }
 
     if (!magr || !mdef) return(MM_MISS);		/* mike@genat */
     if (!magr->mcanmove || magr->msleeping) return(MM_MISS);
@@ -510,7 +521,8 @@ gazemm(magr, mdef, mattk)
 
 	if (magr->mcan || !magr->mcansee ||
 	    (magr->minvis && !perceives(mdef->data)) ||
-	    !mdef->mcansee || mdef->msleeping) {
+	    !mdef->mcansee || mdef->msleeping
+            || is_mp_player(mdef)) { /* nondriving check */
 	    if(vis) pline("but nothing happens.");
 	    return(MM_MISS);
 	}
@@ -556,6 +568,7 @@ gulpmm(magr, mdef, mattk)
 	struct obj *obj;
 
 	if (mdef->data->msize >= MZ_HUGE) return MM_MISS;
+        if (is_mp_player(mdef)) return MM_MISS; /* nondriving check */
 
 	if (vis) {
 		Sprintf(buf,"%s swallows", Monnam(magr));
@@ -574,7 +587,7 @@ gulpmm(magr, mdef, mattk)
 	dy = mdef->my;
 	/*
 	 *  Leave the defender in the monster chain at it's current position,
-	 *  but don't leave it on the screen.  Move the agressor to the def-
+	 *  but don't leave it on the screen.  Move the aggressor to the def-
 	 *  ender's position.
 	 */
 	remove_monster(ax, ay);
@@ -620,7 +633,7 @@ explmm(magr, mdef, mattk)
 {
 	int result;
 
-	if (magr->mcan)
+	if (magr->mcan || is_mp_player(mdef)) /* nondriving check */
 	    return MM_MISS;
 
 	if(cansee(magr->mx, magr->my))
@@ -654,6 +667,8 @@ mdamagem(magr, mdef, mattk)
 	struct permonst *pa = magr->data, *pd = mdef->data;
 	int armpro, num, tmp = d((int)mattk->damn, (int)mattk->damd);
 	boolean cancelled;
+
+        if (is_mp_player(mdef)) return MM_MISS; /* sanity */
 
 	if (touch_petrifies(pd) && !resists_ston(magr)) {
 	    long protector = attk_protection((int)mattk->aatyp),
@@ -1304,8 +1319,8 @@ sleep_monst(mon, amt, how)
 struct monst *mon;
 int amt, how;
 {
-	if (resists_sleep(mon) ||
-		(how >= 0 && resist(mon, (char)how, 0, NOTELL))) {
+        if (resists_sleep(mon) || is_mp_player(mon) ||
+            (how >= 0 && resist(mon, (char)how, 0, NOTELL))) {
 	    shieldeff(mon->mx, mon->my);
 	} else if (mon->mcanmove) {
 	    amt += (int) mon->mfrozen;
@@ -1343,6 +1358,7 @@ register struct obj *obj;
 	boolean is_acid;
 
 	if (!magr || !mdef || !obj) return; /* just in case */
+        if (is_mp_player(mdef)) return; /* sanity */
 
 	if (dmgtype(mdef->data, AD_CORR))
 	    is_acid = TRUE;
@@ -1399,6 +1415,9 @@ int mdead;
 	register struct permonst *madat = magr->data;
 	char buf[BUFSZ];
 	int i, tmp;
+
+        if (is_mp_player(magr)) return MM_MISS; /* reverse PvP check */
+        if (is_mp_player(mdef)) return MM_MISS; /* nondriving check */
 
 	for(i = 0; ; i++) {
 	    if(i >= NATTK) return (mdead | mhit); /* no passive attacks */

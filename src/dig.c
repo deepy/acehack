@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dig.c	3.4	2003/03/23	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -59,11 +59,13 @@ mkcavepos(x, y, dist, waslit, rockit)
     if(rockit) {
 	register struct monst *mtmp;
 
-	if(IS_ROCK(lev->typ)) return;
-	if(t_at(x, y)) return; /* don't cover the portal */
-	if ((mtmp = m_at(x, y)) != 0)	/* make sure crucial monsters survive */
-	    if(!passes_walls(mtmp->data)) (void) rloc(mtmp, FALSE);
-    } else if(lev->typ == ROOM) return;
+	if (IS_ROCK(lev->typ)) return;
+	if (t_at(x, y)) return; /* don't cover the portal */
+	if ((mtmp = m_at(x, y)) != 0) { /* make sure crucial monsters survive */
+          if (is_mp_player(mtmp)) return; /* don't relocate other players */
+	  else if (!passes_walls(mtmp->data)) (void) rloc(mtmp, FALSE);
+        }
+    } else if (lev->typ == ROOM) return;
 
     unblock_point(x,y);	/* make sure vision knows this location is open */
 

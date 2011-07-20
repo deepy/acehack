@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mkobj.c	3.4	2002/10/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 May 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -926,7 +926,9 @@ boolean init;
 	} else
 		otmp = mksobj_at(objtype, x, y, init, FALSE);
 	if (otmp) {
-	    if (mtmp) {
+            if (mtmp && is_mp_player(mtmp))
+              impossible("making corpse for nondriving player?");
+            if (mtmp) {
 		struct obj *otmp2;
 
 		if (!ptr) ptr = mtmp->data;
@@ -1399,6 +1401,9 @@ add_to_minv(mon, obj)
 
     if (obj->where != OBJ_FREE)
 	panic("add_to_minv: obj not free");
+
+    if (is_mp_player(mon))
+      impossible("adding object to nondriving player's inventory?");
 
     /* merge if possible */
     for (otmp = mon->minvent; otmp; otmp = otmp->nobj)

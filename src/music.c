@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)music.c	3.4	2003/05/25	*/
 /*	Copyright (c) 1989 by Jean-Christophe Collet */
-/* Modified 23 Aug 2010 by Alex Smith */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -66,7 +66,7 @@ int distance;
 	register int distm;
 
 	while(mtmp) {
-	    if (!DEADMONSTER(mtmp)) {
+            if (!DEADMONSTER(mtmp) && !is_mp_player(mtmp)) {
 		distm = distu(mtmp->mx, mtmp->my);
 		if (distm < distance) {
 		    mtmp->msleeping = 0;
@@ -94,7 +94,8 @@ int distance;
 
 	while(mtmp) {
 		if (!DEADMONSTER(mtmp) && distu(mtmp->mx, mtmp->my) < distance &&
-			sleep_monst(mtmp, d(10,10), TOOL_CLASS)) {
+                    !is_mp_player(mtmp) && /* PvP check */
+                    sleep_monst(mtmp, d(10,10), TOOL_CLASS)) {
 		    mtmp->msleeping = 1; /* 10d10 turns + wake_nearby to rouse */
 		    slept_monst(mtmp);
 		}
@@ -115,7 +116,8 @@ int distance;
 
 	while (mtmp) {
 	    if (!DEADMONSTER(mtmp) && mtmp->data->mlet == S_SNAKE && mtmp->mcanmove &&
-		    distu(mtmp->mx, mtmp->my) < distance) {
+                !is_mp_player(mtmp) && /* sanity; should be impossible */
+                distu(mtmp->mx, mtmp->my) < distance) {
 		was_peaceful = mtmp->mpeaceful;
 		mtmp->mpeaceful = 1;
 		mtmp->mavenge = 0;
@@ -148,7 +150,8 @@ int distance;
 
 	while (mtmp) {
 	    if (!DEADMONSTER(mtmp) && mtmp->data->mlet == S_NYMPH && mtmp->mcanmove &&
-		    distu(mtmp->mx, mtmp->my) < distance) {
+                !is_mp_player(mtmp) && /* sanity; should be impossible */
+                distu(mtmp->mx, mtmp->my) < distance) {
 		mtmp->msleeping = 0;
 		mtmp->mpeaceful = 1;
 		mtmp->mavenge = 0;
@@ -169,8 +172,8 @@ awaken_soldiers()
 	register struct monst *mtmp = fmon;
 
 	while(mtmp) {
-	    if (!DEADMONSTER(mtmp) &&
-			is_mercenary(mtmp->data) && mtmp->data != &mons[PM_GUARD]) {
+          if (!DEADMONSTER(mtmp) && !is_mp_player(mtmp) &&
+                is_mercenary(mtmp->data) && mtmp->data != &mons[PM_GUARD]) {
 		mtmp->mpeaceful = mtmp->msleeping = mtmp->mfrozen = 0;
 		mtmp->mcanmove = 1;
 		if (canseemon(mtmp))
@@ -199,6 +202,7 @@ int distance;
 	    for (mtmp = fmon; mtmp; mtmp = mtmp2) {
 		mtmp2 = mtmp->nmon;
 		if (DEADMONSTER(mtmp)) continue;
+                if (is_mp_player(mtmp)) continue; /* PvP check */
 
 		if (distu(mtmp->mx, mtmp->my) <= distance) {
 		    if (!resist(mtmp, TOOL_CLASS, 0, NOTELL))
@@ -233,7 +237,8 @@ int force;
 	if (end_y >= ROWNO) end_y = ROWNO - 1;
 	for (x=start_x; x<=end_x; x++) for (y=start_y; y<=end_y; y++) {
 	    if ((mtmp = m_at(x,y)) != 0) {
-		wakeup(mtmp);	/* peaceful monster will become hostile */
+                if (!is_mp_player(mtmp))
+                  wakeup(mtmp);	/* peaceful monster will become hostile */
 		if (mtmp->mundetected && is_hider(mtmp->data)) {
 		    mtmp->mundetected = 0;
 		    if (cansee(x,y))
@@ -296,7 +301,7 @@ do_pit:		    chasm = maketrap(x,y,PIT);
 		    /* We have to check whether monsters or player
 		       falls in a chasm... */
 
-		    if (mtmp) {
+		    if (mtmp && !is_mp_player(mtmp)) { /* PvP check */
 			if(!is_flyer(mtmp->data) && !is_clinger(mtmp->data)) {
 			    mtmp->mtrapped = 1;
 			    if(cansee(x,y))

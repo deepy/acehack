@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)weapon.c	3.4	2002/11/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 24 Mar 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -399,8 +399,8 @@ struct obj *otmp;
         }
     }
 
-    if (is_pole(otmp)) return FALSE; // If we get this far,
-                                     // we failed the polearm strength check
+    if (is_pole(otmp)) return FALSE; /* If we get this far,
+                                        we failed the polearm strength check */
 
     for (i = 0; i < SIZE(rwep); i++)
     {
@@ -415,7 +415,7 @@ struct obj *otmp;
     return FALSE;
 }
 
-//static
+/* static */
 struct obj *propellor;
 
 struct obj *
@@ -446,9 +446,9 @@ register struct monst *mtmp;
 	 * one direction and 1 in another; one space beyond that would be 3 in
 	 * one direction and 2 in another; 3^2+2^2=13.
 	 */
-	// This check is disabled, as it's targeted towards attacking you
-	// and not any arbitrary target.
-	//if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 13 && couldsee(mtmp->mx, mtmp->my))
+	/* This check is disabled, as it's targeted towards attacking you
+	   and not any arbitrary target.
+           if (dist2(mtmp->mx, mtmp->my, mtmp->mux, mtmp->muy) <= 13 && couldsee(mtmp->mx, mtmp->my)) */
 	{
 	    for (i = 0; i < SIZE(pwep); i++) {
 		/* Only strong monsters can wield big (esp. long) weapons.
@@ -637,6 +637,7 @@ boolean polyspot;
 
 	if (!(mw_tmp = MON_WEP(mon)))
 		return;
+        if (is_mp_player(mon)) return; /* can't unwield other players' weapons */
 	for (obj = mon->minvent; obj; obj = obj->nobj)
 		if (obj == mw_tmp) break;
 	if (!obj) { /* The weapon was stolen or destroyed */
@@ -688,6 +689,9 @@ mon_wield_item(mon)
 register struct monst *mon;
 {
 	struct obj *obj;
+
+        /* Don't run AI code on another player */
+        if (is_mp_player(mon)) return 0;
 
 	/* This case actually should never happen */
 	if (mon->weapon_check == NO_WEAPON_WANTED) return 0;

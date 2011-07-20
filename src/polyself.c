@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)polyself.c	3.4	2003/01/08	*/
 /*	Copyright (C) 1987, 1988, 1989 by Ken Arromdee */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -964,6 +964,11 @@ dogaze()
 
 	for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
 	    if (DEADMONSTER(mtmp)) continue;
+            /* safepet-like pvp prevention for gaze attacks */
+            if (is_mp_player(mtmp)) {
+              You("avoid gazing at %s", mon_nam(mtmp));
+              continue;
+            }
 	    if (canseemon(mtmp) && couldsee(mtmp->mx, mtmp->my)) {
 		looked++;
 		if (Invis && !perceives(mtmp->data))
@@ -1098,7 +1103,7 @@ domindblast()
 			continue;
 		if (distu(mtmp->mx, mtmp->my) > BOLT_LIM * BOLT_LIM)
 			continue;
-		if(mtmp->mpeaceful)
+		if (mtmp->mpeaceful || is_mp_player(mtmp))
 			continue;
 		u_sen = telepathic(mtmp->data) && !mtmp->mcansee;
 		if (u_sen || (telepathic(mtmp->data) && rn2(2)) || !rn2(10)) {

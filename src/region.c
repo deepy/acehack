@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)region.c	3.4	2002/10/15	*/
 /* Copyright (c) 1996 by Jean-Christophe Collet	 */
-/* Modified 4 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -921,6 +921,9 @@ genericptr_t p2;
 	}
     } else {			/* A monster is inside the cloud */
 	mtmp = (struct monst *) p2;
+
+        /* Nondriving players take the damage on their own turn */
+        if (is_mp_player(mtmp)) return FALSE;
 
 	/* Non living and non breathing monsters are not concerned */
 	if (!nonliving(mtmp->data) && !breathless(mtmp->data)) {

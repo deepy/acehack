@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)steed.c	3.4	2003/01/10	*/
 /* Copyright (c) Kevin Hugo, 1998-1999. */
-/* Modified 2 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -80,6 +80,11 @@ use_saddle(otmp)
 	    pline("%s doesn't need another one.", Monnam(mtmp));
 	    return 1;
 	}
+        if (is_mp_player(mtmp)) {
+            pline("%s seems saddled with enough problems as it is.",
+                  Monnam(mtmp));
+            return 1;
+        }
 	ptr = mtmp->data;
 	if (touch_petrifies(ptr) && !uarmg && !Stone_resistance) {
 	    char kbuf[BUFSZ];
@@ -164,8 +169,9 @@ can_ride(mtmp)
 	struct monst *mtmp;
 {
 	return (mtmp->mtame && humanoid(youmonst.data) &&
-			!verysmall(youmonst.data) && !bigmonst(youmonst.data) &&
-			(!Underwater || is_swimmer(mtmp->data)));
+                !iflags.multiplayer &&
+                !verysmall(youmonst.data) && !bigmonst(youmonst.data) &&
+                (!Underwater || is_swimmer(mtmp->data)));
 }
 
 
@@ -215,6 +221,10 @@ mount_steed(mtmp, force)
 	    You("are already riding %s.", mon_nam(u.usteed));
 	    return (FALSE);
 	}
+        if (iflags.multiplayer) {
+            You("cannot ride steeds in multiplayer.");
+            return (FALSE);
+        }
 
 	/* Is the player in the right form? */
 	if (Hallucination && !force) {

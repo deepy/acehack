@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)priest.c	3.4	2002/11/06	*/
 /* Copyright (c) Izchak Miller, Steve Linhart, 1989.		  */
-/* Modified 4 Jul 2011 by Alex Smith */
+/* Modified 15 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -544,6 +544,8 @@ boolean peaceful;
 	if (ptr != &mons[PM_ALIGNED_PRIEST] && ptr != &mons[PM_ANGEL])
 		return((struct monst *)0);
 	
+        if (MON_AT(x, y) && is_mp_player(m_at(x, y)))
+          return ((struct monst *)0); /* double insurance */
 	if (MON_AT(x, y)) (void) rloc(m_at(x, y), FALSE);	/* insurance */
 
 	if (!(roamer = makemon(ptr, x, y, NO_MM_FLAGS)))

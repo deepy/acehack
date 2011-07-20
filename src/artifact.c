@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)artifact.c 3.4	2003/08/11	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Dec 2011 by Alex Smith */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -508,6 +508,9 @@ touch_artifact(obj,mon)
     if(!oart) return 1;
 
     yours = (mon == &youmonst);
+
+    if (!yours && is_mp_player(mon)) return 1; /* sanity */
+
     /* all quest artifacts are self-willed; it this ever changes, `badclass'
        will have to be extended to explicitly include quest artifacts */
     self_willed = ((oart->spfx & SPFX_INTEL) != 0);
@@ -774,6 +777,11 @@ char *hittee;			/* target's name: "you" or mon_nam(mdef) */
 	    resisted = FALSE, do_stun, do_confuse, result;
     int attack_indx, scare_dieroll = MB_MAX_DIEROLL / 2;
 
+    if (is_mp_player(mdef)) {
+      impossible("PvP with Magicbane was not caught earlier?");
+      return TRUE;
+    }
+
     result = FALSE;		/* no message given yet */
     /* the most severe effects are less likely at higher enchantment */
     if (mb->spe >= 3)
@@ -953,6 +961,15 @@ int dieroll; /* needed for Magicbane and vorpal blades */
 	const char *wepdesc;
 	static const char you[] = "you";
 	char hittee[BUFSZ];
+
+        if (!youattack && is_mp_player(magr)) {
+          impossible("Nondriving player attacking with artifact?");
+          return 1;
+        }
+        if (!youdefend && is_mp_player(mdef)) {
+          impossible("Nondriving player defending from artifact?");
+          return 1;
+        }
 
 	Strcpy(hittee, youdefend ? you : mon_nam(mdef));
 

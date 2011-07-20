@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mcastu.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -178,6 +178,11 @@ castmu(mtmp, mattk, thinks_it_foundyou, foundyou)
 	int ret;
 	int spellnum = 0;
 
+        if (is_mp_player(mtmp)) {
+          impossible("nondriving player casting spell?");
+          return 0;
+        }
+
 	/* Three cases:
 	 * -- monster is attacking you.  Search for a useful spell.
 	 * -- monster thinks it's attacking you.  Search for a useful spell,
@@ -335,6 +340,10 @@ int spellnum;
     if (dmg == 0 && !is_undirected_spell(AD_SPEL, spellnum)) {
 	impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
 	return;
+    }
+    if (is_mp_player(mtmp)) {
+        impossible("nondriving player casting wizard spell?");
+        return;
     }
 
     switch (spellnum) {
@@ -498,6 +507,10 @@ int spellnum;
     if (dmg == 0 && !is_undirected_spell(AD_CLRC, spellnum)) {
 	impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
 	return;
+    }
+    if (is_mp_player(mtmp)) {
+        impossible("nondriving player casting wizard spell?");
+        return;
     }
 
     switch (spellnum) {
@@ -857,6 +870,11 @@ buzzmu(mtmp, mattk)		/* monster uses spell (ranged) */
 	register struct monst *mtmp;
 	register struct attack  *mattk;
 {
+        if (is_mp_player(mtmp)) {
+          impossible("nondriving player in buzzmu?");
+          return(0);
+        }
+
 	/* don't print constant stream of curse messages for 'normal'
 	   spellcasting monsters at range */
 	if (mattk->adtyp > AD_SPC2)
@@ -893,6 +911,13 @@ castmm(mtmp, mdef, mattk)
 	int	dmg, ml = mtmp->m_lev;
 	int ret;
 	int spellnum = 0;
+
+        /* prevent monsters attacking nondriving players by accident */
+        if (mdef && is_mp_player(mdef)) return 0;
+        if (is_mp_player(mtmp)) {
+          impossible("nondriving player casting at monster?");
+          return 0;
+        }
 
 	if ((mattk->adtyp == AD_SPEL || mattk->adtyp == AD_CLRC) && ml) {
 	    int cnt = 40;
@@ -991,9 +1016,9 @@ castmm(mtmp, mdef, mattk)
 	    case AD_SPEL:	/* wizard spell */
 	    case AD_CLRC:       /* clerical spell */
 	    {
-	        //aggravation is a special case;
-		//it's undirected but should still target the
-		//victim so as to aggravate you
+	        /* aggravation is a special case;
+		   it's undirected but should still target the
+		   victim so as to aggravate you */
 	        if (is_undirected_spell(mattk->adtyp, spellnum) &&
 		    (mattk->adtyp != AD_SPEL ||
 		     (spellnum != MGC_AGGRAVATION &&
@@ -1036,6 +1061,9 @@ castum(mtmp, mattk)
 	int spellnum = 0;
 	boolean directed = FALSE;
 
+        /* prevent PvP via monster spells */
+        if (is_mp_player(mtmp)) return 0;
+
 	/* Three cases:
 	 * -- monster is attacking you.  Search for a useful spell.
 	 * -- monster thinks it's attacking you.  Search for a useful spell,
@@ -1075,7 +1103,7 @@ castum(mtmp, mattk)
 
 	if (spellnum == MGC_AGGRAVATION && !mtmp)
 	{
-	    // choose a random monster on the level
+	    /* choose a random monster on the level */
 	    int j = 0, k = 0;
 	    for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
 	        if (!mtmp->mtame && !mtmp->mpeaceful) j++;
@@ -1198,6 +1226,11 @@ int spellnum;
 	impossible("cast directed wizard spell (%d) with dmg=0?", spellnum);
 	return;
     }
+    if (!yours && is_mp_player(mattk)) {
+        impossible("nondriving player in ucast_wizard_spell?");
+        return;
+    }
+    if (mtmp && is_mp_player(mtmp)) return; /* ban PvP */
 
     if (mtmp && mtmp->mhp < 1)
     {
@@ -1316,8 +1349,8 @@ int spellnum;
 	    You_feel("lonely.");
 	    return;
 	}
-	//You_feel("that monsters are aware of %s presence.",
-	//    s_suffix(mon_nam(mtmp)));
+	/* You_feel("that monsters are aware of %s presence.",
+	      s_suffix(mon_nam(mtmp))); */
 	you_aggravate(mtmp);
 	dmg = 0;
 	break;
@@ -1491,6 +1524,12 @@ int spellnum;
 	impossible("cast directed cleric spell (%d) with dmg=0?", spellnum);
 	return;
     }
+
+    if (!yours && is_mp_player(mattk)) {
+        impossible("nondriving player in ucast_cleric_spell?");
+        return;
+    }
+    if (mtmp && is_mp_player(mtmp)) return; /* ban PvP */
 
     if (mtmp && mtmp->mhp < 1)
     {

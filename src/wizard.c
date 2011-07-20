@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wizard.c	3.4	2003/02/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* wizard code - inspired by rogue code from Merlyn Leroy (digi-g!brian) */
@@ -361,7 +361,7 @@ tactics(mtmp)
 			} else return(0);
 		    } else {
 			/* a monster is standing on it - cause some trouble */
-			if (!rn2(5)) mnexto(mtmp);
+                        if (!rn2(5) && !is_mp_player(mtmp)) mnexto(mtmp);
 			return(0);
 		    }
 	        } else { /* a monster has it - 'port beside it. */
@@ -380,7 +380,7 @@ aggravate()
 	register struct monst *mtmp;
 
 	for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-	    if (!DEADMONSTER(mtmp)) {
+            if (!DEADMONSTER(mtmp) && !is_mp_player(mtmp)) {
 		mtmp->msleeping = 0;
 		if(!mtmp->mcanmove && !rn2(5)) {
 			mtmp->mfrozen = 0;

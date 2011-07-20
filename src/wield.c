@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wield.c	3.4	2003/01/29	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -618,6 +618,10 @@ boolean fade_scrolls;
 	    return;
 	victim = carried(target) ? &youmonst :
 	    mcarried(target) ? target->ocarry : (struct monst *)0;
+
+        /* PvP check; this one's sanity, I doubt it can trigget */
+        if (victim && victim != &youmonst && is_mp_player(victim)) return;
+
 	vismon = victim && (victim != &youmonst) && canseemon(victim);
 	visobj = !victim && cansee(bhitpos.x, bhitpos.y); /* assume thrown */
 

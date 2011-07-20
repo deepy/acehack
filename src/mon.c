@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mon.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you're using precompiled headers, you don't want this either */
@@ -391,6 +391,10 @@ register struct monst *mtmp;
 	     !is_flyer(mtmp->data) && !is_floater(mtmp->data);
     infountain = IS_FOUNTAIN(levl[mtmp->mx][mtmp->my].typ);
 
+    /* if a nondriving player is going to burn in lava, they do it on their
+       own turn */
+    if (is_mp_player(mtmp)) return (0);
+
 #ifdef STEED
 	/* Flying and levitation keeps our steed out of the liquid */
 	/* (but not water-walking or swimming) */
@@ -508,7 +512,11 @@ struct monst *mon;
            the exception of the turn updator's action (which has to
            happen first, if it exists, in order to maintain
            alternation of turns); it doesn't reflect the actual number
-           of actions left in this case, nor does it have to. */
+           of actions left in this case, nor does it have to.
+
+           TODO: This isn't having the desired effect (as in, it's
+           doing what's described above, but that isn't actually
+           helpful). Multiplayer turn order needs a rethink. */
         return 1000;
     }
 
@@ -543,6 +551,8 @@ mcalcdistress()
 
     for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
 	if (DEADMONSTER(mtmp)) continue;
+        /* other players have their own turnly update */
+        if (is_mp_player(mtmp)) continue;
 
 	/* must check non-moving monsters once/turn in case
 	 * they managed to end up in liquid */
@@ -907,6 +917,8 @@ mpickgold(mtmp)
     register struct obj *gold;
     int mat_idx;
 
+    if (is_mp_player(mtmp)) return; /* give the player the choice */
+
     if ((gold = g_at(mtmp->mx, mtmp->my)) != 0) {
 	mat_idx = objects[gold->otyp].oc_material;
 #ifndef GOLDOBJ
@@ -936,6 +948,8 @@ mpickstuff(mtmp, str)
 
 /*	prevent shopkeepers from leaving the door of their shop */
 	if(mtmp->isshk && inhishop(mtmp)) return FALSE;
+
+        if(is_mp_player(mtmp)) return FALSE; /* sanity */
 
 	for(otmp = level.objects[mtmp->mx][mtmp->my]; otmp; otmp = otmp2) {
 	    otmp2 = otmp->nexthere;
@@ -1026,6 +1040,7 @@ struct obj *otmp;
 	struct permonst *mdat = mtmp->data;
 
 	if (notake(mdat)) return FALSE;		/* can't carry anything */
+        if (is_mp_player(mtmp)) return FALSE;   /* sanity */
 
 	if (otyp == CORPSE && touch_petrifies(&mons[otmp->corpsenm]) &&
 		!(mtmp->misc_worn_check & W_ARMG) && !resists_ston(mtmp))
@@ -1180,6 +1195,9 @@ nexttry:	/* eels prefer the water, but if there is no water nearby,
 		} else {
 			if(MON_AT(nx, ny)) {
 				struct monst *mtmp2 = m_at(nx, ny);
+                                /* Monsters shouldn't target nondriving
+                                   players. */
+                                if (is_mp_player(mtmp2)) continue;
 				long mmflag = flag | mm_aggression(mon, mtmp2);
 
 				if (!(mmflag & ALLOW_M)) continue;
@@ -1273,10 +1291,7 @@ impossible("A monster looked at a very strange trap of type %d.", ttmp->ttyp);
 
 /* Monster against monster special attacks; for the specified monster
    combinations, this allows one monster to attack another adjacent one
-   in the absence of Conflict.  There is no provision for targetting
-   other monsters; just hand to hand fighting when they happen to be
-   next to each other. */
-//STATIC_OVL
+   in the absence of Conflict. */
 long
 mm_aggression(magr, mdef)
 struct monst *magr,	/* monster that is currently deciding where to move */
@@ -1288,6 +1303,11 @@ struct monst *magr,	/* monster that is currently deciding where to move */
 		mdef->data == &mons[PM_SHRIEKER])
 	    return ALLOW_M|ALLOW_TM;
 
+        /* nondriving players don't attack and can't be attacked for
+           technical reasons; the monster AI is adjusted to attack
+           them when they're driving instead */
+        if (is_mp_player(magr) || is_mp_player(mdef)) return 0L;
+
 #ifdef ATTACK_PETS
         /* pets attack hostile monsters */
 	if (magr->mtame && !mdef->mpeaceful)
@@ -1296,7 +1316,7 @@ struct monst *magr,	/* monster that is currently deciding where to move */
         /* and vice versa */
 	if (mdef->mtame && !magr->mpeaceful)
 	    return ALLOW_M|ALLOW_TM;
-#endif //ATTACK_PETS
+#endif /* ATTACK_PETS */
 
 	/* Various other combinations such as dog vs cat, cat vs rat, and
 	   elf vs orc have been suggested.  For the time being we don't
@@ -1494,6 +1514,11 @@ register struct monst *mtmp;
 	struct permonst *mptr;
 	int tmp;
 
+        if(is_mp_player(mtmp)) {
+          impossible("player died while not driving?");
+          mtmp->mhp = 1; /* unmark it as dead */
+          return; /* abort the death */
+        }
 	if(mtmp->isgd) {
 		/* if we're going to abort the death, it *must* be before
 		 * the m_detach or there will be relmon problems later */
@@ -1681,6 +1706,11 @@ register struct monst *mdef;
 	boolean wasinside = FALSE;
 	int oldgold;
 
+        if (is_mp_player(mdef)) {
+          impossible("turning nondriving player to stone?");
+          return; /* leave the player there in the hope the game can recover */
+        }
+
 	/* we have to make the statue before calling mondead, to be able to
 	 * put inventory in it, and we have to check for lifesaving before
 	 * making the statue....
@@ -1770,6 +1800,11 @@ int how;
 {
 	boolean be_sad = FALSE;		/* true if unseen pet is killed */
 
+        if (is_mp_player(mdef)) {
+          impossible("nondriving player killed by monster?");
+          return; /* abort */
+        }
+
 	if ((mdef->wormno ? worm_known(mdef) : cansee(mdef->mx, mdef->my))
 		&& fltxt)
 	    pline("%s is %s%s%s!", Monnam(mdef),
@@ -1834,6 +1869,10 @@ xkilled(mtmp, dest)
 	boolean redisp = FALSE;
 	boolean wasinside = u.uswallow && (u.ustuck == mtmp);
 
+        if (is_mp_player(mtmp)) {
+          impossible("killed another player despite no PvP?");
+          return;
+        }
 
 	/* KMH, conduct */
 	u.uconduct.killer++;
@@ -2013,6 +2052,11 @@ mnexto(mtmp)	/* Make monster mtmp next to you (if possible) */
 {
 	coord mm;
 
+        if (is_mp_player(mtmp)) {
+          impossible("relocating nondriving player?");
+          return;
+        }
+
 #ifdef STEED
 	if (mtmp == u.usteed) {
 		/* Keep your steed in sync with you instead */
@@ -2042,6 +2086,11 @@ boolean move_other;	/* make sure mtmp gets to x, y! so move m_at(x, y) */
 	struct monst *othermon = (struct monst *)0;
 	xchar newx, newy;
 	coord mm;
+
+        if (is_mp_player(mtmp)) {
+          impossible("relocating nondriving player to location?");
+          return 0;
+        }
 
 	if ((mtmp->mx == x) && (mtmp->my == y)) return(FALSE);
 
@@ -2331,7 +2380,11 @@ restartcham()
 
 /* called when restoring a monster from a saved level; protection
    against shape-changing might be different now than it was at the
-   time the level was saved. */
+   time the level was saved. (This will seem rather bizarre in
+   multiplayer, but Do The Right Thing, in that the protected player
+   will see only base-form shapechangers; the nonprotected player
+   will see the shapechangers go mad, but this is easily explained
+   as a side-effect of the ring.) */
 void
 restore_cham(mon)
 struct monst *mon;
@@ -2472,6 +2525,8 @@ boolean msg;		/* "The oldmon turns into a newmon!" */
 	int mndx, tryct;
 	struct permonst *olddata = mtmp->data;
 	char oldname[BUFSZ];
+
+        if (is_mp_player(mtmp)) return 0; /* sanity */
 
 	if (msg) {
 	    /* like Monnam() but never mention saddle */
@@ -2771,6 +2826,9 @@ kill_genocided_monsters()
 	for (mtmp = fmon; mtmp; mtmp = mtmp2) {
 	    mtmp2 = mtmp->nmon;
 	    if (DEADMONSTER(mtmp)) continue;
+            /* not ideal, but better than the alternative; this is the
+               effects of the PvP ban on genocide */
+            if (is_mp_player(mtmp)) continue;
 	    mndx = monsndx(mtmp->data);
 	    if ((mvitals[mndx].mvflags & G_GENOD) || kill_cham[mtmp->cham]) {
 		if (mtmp->cham && !kill_cham[mtmp->cham])
@@ -2795,6 +2853,8 @@ register struct monst *mon;
 int damtype, dam;
 {
     int heal = 0, slow = 0;
+
+    if (is_mp_player(mon)) return; /* nothing happens for now */
 
     if (mon->data == &mons[PM_FLESH_GOLEM]) {
 	if (damtype == AD_ELEC) heal = dam / 6;

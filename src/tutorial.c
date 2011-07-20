@@ -125,6 +125,9 @@ int y;
   if (glyph_is_monster(glyph)) {
     if (x == u.ux && y == u.uy) return; /* you aren't hostile */
     if (!MON_AT(x,y)) return; /* to prevent null pointer deref */
+    /* TODO: Do we want a "that's another player" message if someone
+       invites in tutorial mode? Or should tutorial/multiplayer be
+       incompatible? */
     if (m_at(x,y)->mpeaceful)
       check_tutorial_message(QT_T_LOOK_PEACEFUL);
     else if (m_at(x,y)->mtame) /* without showpet on */

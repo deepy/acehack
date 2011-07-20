@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mthrowu.c	3.4	2003/05/09	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Aug 2011 by Alex Smith */
+/* Modified 17 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -166,10 +166,14 @@ boolean verbose;  /* give message(s) even when you can't see what happened */
 	vis = cansee(bhitpos.x, bhitpos.y);
 
 	tmp = 5 + find_mac(mtmp) + omon_adj(mtmp, otmp, FALSE);
-	if (tmp < rnd(20)) {
+        /* We force misses on nondriving players, even if they're
+           accidentally targeted, to avoid having to transmit the
+           effects. */
+	if (tmp < rnd(20) || is_mp_player(mtmp)) {
 	    if (!ismimic) {
-		if (vis) miss(distant_name(otmp, mshot_xname), mtmp);
+                if (vis) miss(distant_name(otmp, mshot_xname), mtmp);
 		else if (verbose) pline("It is missed.");
+                message_monster(mtmp, "A thrown object misses you.");
 	    }
 	    if (!range) { /* Last position; object drops */
 	        if (is_pole(otmp)) return 1;
@@ -482,6 +486,7 @@ m_useup(mon, obj)
 struct monst *mon;
 struct obj *obj;
 {
+        if (is_mp_player(mon)) impossible("Item used up by nondriving player?");
 	if (obj->quan > 1L) {
 		obj->quan--;
 		obj->owt = weight(obj);
@@ -647,7 +652,7 @@ struct monst *mtmp;
     struct monst *mat, *mret;
 
     if (!mtmp->mpeaceful && lined_up(mtmp))
-        return &youmonst;  // kludge - attack the player first if possible
+        return &youmonst;  /* kludge - attack the player first if possible */
 
     for (dir = rn2(8); dir != origdir; dir = ((dir + 1) % 8))
     {
@@ -668,18 +673,23 @@ struct monst *mtmp;
 	    tby = (y - mtmp->my);
 
 	    if (!isok(x, y) || !ZAP_POS(levl[x][y].typ) || closed_door(x, y))
-	        break; //off the map or otherwise bad
+	        break; /* off the map or otherwise bad */
 
 	    if ((mtmp->mpeaceful && (x == mtmp->mux && y == mtmp->muy)) ||
 	        (mtmp->mtame && x == u.ux && y == u.uy))
 	    {
 	        mret = (struct monst *)0;
-	        break; // don't attack you if peaceful
+	        break; /* don't attack you if peaceful */
 	    }
 
 	    if ((mat = m_at(x, y)))
 	    {
-	        // i > 0 ensures this is not a close range attack
+                /* don't target nondriving players ever; the game
+                   already chose one player that can be our only
+                   target this round, don't target another */
+                if (is_mp_player(mat)) { mret = 0; break; }
+
+	        /* i > 0 ensures this is not a close range attack */
 	        if (mtmp->mtame && !mat->mtame && i > 0)
 		    mret = mat;
 		else if ((mm_aggression(mtmp, mat) & ALLOW_M)
@@ -696,11 +706,11 @@ struct monst *mtmp;
 			  mat->mpeaceful)))
 		    {
 		        mret = (struct monst *)0;
-		        break; // not willing to attack in that direction
+		        break; /* not willing to attack in that direction */
 		    }
 
-		    // Can't make some pairs work together
-		    // if they hate each other on principle.
+		    /* Can't make some pairs work together
+		       if they hate each other on principle. */
 		    if (Conflict ||
 		        !(mtmp->mtame && mat->mtame) ||
                         (!rn2(5) && i > 0))
@@ -710,14 +720,14 @@ struct monst *mtmp;
 		if (mtmp->mtame && mat->mtame)
 		{
 		    mret = (struct monst *)0;
-		    break;  // Not going to hit friendlies
-		            // unless they already hate them,
-			    // as above.
+		    break;  /* Not going to hit friendlies
+		               unless they already hate them,
+			       as above. */
 	        }
 	    }
 	}
 	if (mret != (struct monst *)0)
-	    return mret; //nothing friendly in that direction
+	    return mret; /* nothing friendly in that direction */
     }
 
     /* Nothing lined up? */
@@ -736,6 +746,11 @@ struct monst *mdef;
 	schar skill;
 	int multishot;
 	const char *onm;
+
+        /* Nondriving players cannot be attacked (this is paranoia, the
+           monster AI shouldn't be deliberately targeting them, and the
+           code for an accidental target is elsewhere) */
+        if (is_mp_player(mdef)) return;
 
 	/* Rearranged beginning so monsters can use polearms not in a line */
 	if (mtmp->weapon_check == NEED_WEAPON || !MON_WEP(mtmp)) {
@@ -896,6 +911,8 @@ register struct attack *mattk;
 {
 	register struct obj *otmp;
 
+        if(is_mp_player(mdef)) return 0; /* nondriving player */
+
 	if(mtmp->mcan) {
 
 	    if(flags.soundok)
@@ -985,7 +1002,9 @@ breamm(mtmp, mdef, mattk)		/* monster breathes at monst (ranged) */
 	int typ = (mattk->adtyp == AD_RBRE) ? rnd(AD_ACID) : mattk->adtyp ;
 
 	if (distmin(mtmp->mx, mtmp->my, mdef->mx, mdef->my) < 3)
-	    return 0;  //not at close range
+	    return 0;  /* not at close range */
+
+        if (is_mp_player(mdef)) return 0; /* targeting nondriving player */
 
 	if(mlined_up(mtmp, mdef, TRUE)) {
 
@@ -1077,7 +1096,7 @@ mlined_up(mtmp, mdef, breath)	/* is mtmp in position to use ranged attack? */
 	    x += dx;
 	    y += dy;
 	    if (!isok(x, y)) break;
-		
+
             if (x == u.ux && y == u.uy) 
 	        return FALSE;
 

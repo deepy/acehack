@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pickup.c	3.4	2003/07/27	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Aug 2011 by Alex Smith */
+/* Modified 18 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -1695,6 +1695,7 @@ gotit:
 	    return timepassed;
 	}
 	mtmp = m_at(cc.x, cc.y);
+        if (mtmp && is_mp_player(mtmp)) mtmp = (struct monst *) 0; /* PvP check */
 	if (mtmp) timepassed = loot_mon(mtmp, &prev_inquiry, &prev_loot);
 
 	/* Preserve pre-3.3.1 behaviour for containers.
@@ -1736,6 +1737,10 @@ boolean *prev_loot;
 #ifdef STEED
     struct obj *otmp;
     char qbuf[QBUFSZ];
+
+    /* PvP check done in callers; doloot disallows this on other
+       players, and the other method to loot, , while engulfed, is
+       protected due to the way engulfing works in mutiplayer */
 
     /* 3.3.1 introduced the ability to remove saddle from a steed             */
     /* 	*passed_info is set to TRUE if a loot query was given.               */

@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)mondata.c	3.4	2003/06/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
+/* Modified 18 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -542,6 +543,9 @@ struct monst *mtmp;
 {
 	/* monsters with the Amulet--even pets--won't follow across levels */
 	if (mon_has_amulet(mtmp)) return FALSE;
+
+        /* other players won't follow */
+        if (is_mp_player(mtmp)) return FALSE;
 
 	/* some monsters will follow even while intending to flee from you */
 	if (mtmp->mtame || mtmp->iswiz || is_fshk(mtmp)) return TRUE;

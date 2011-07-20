@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)worn.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Dec 2011 by Alex Smith */
+/* Modified 19 Jul 2010 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -134,6 +134,8 @@ void
 mon_set_minvis(mon)
 struct monst *mon;
 {
+	if (is_mp_player(mon)) return; /* PvP check */
+
 	mon->perminvis = 1;
 	if (!mon->invis_blkd) {
 	    mon->minvis = 1;
@@ -151,6 +153,8 @@ struct obj *obj;	/* item to make known if effect can be seen */
     struct obj *otmp;
     boolean give_msg = !in_mklev, petrify = FALSE;
     unsigned int oldspeed = mon->mspeed;
+
+    if (is_mp_player(mon)) return; /* PvP check */
 
     switch (adjust) {
      case  2:
@@ -222,6 +226,8 @@ boolean on, silently;
     uchar mask;
     struct obj *otmp;
     int which = (int) objects[obj->otyp].oc_oprop;
+
+    if (is_mp_player(mon)) return; /* sanity */
 
     unseen = !canseemon(mon);
     if (!which) goto maybe_blocks;
@@ -373,6 +379,9 @@ register struct monst *mon;
 boolean creation;
 {
 #define RACE_EXCEPTION TRUE
+
+        if (is_mp_player(mon)) return; /* sanity */
+
 	/* Note the restrictions here are the same as in dowear in do_wear.c
 	 * except for the additional restriction on intelligence.  (Players
 	 * are always intelligent, even if polymorphed).
@@ -420,6 +429,7 @@ boolean racialexception;
 	char nambuf[BUFSZ];
 
 	if (mon->mfrozen) return; /* probably putting previous item on */
+        if (is_mp_player(mon)) return; /* sanity */
 
 	/* Get a copy of monster's name before altering its visibility */
 	Strcpy(nambuf, See_invisible ? Monnam(mon) : mon_nam(mon));
@@ -614,6 +624,8 @@ boolean polyspot;
 	const char *pronoun = mhim(mon),
 			*ppronoun = mhis(mon);
 
+        if (is_mp_player(mon)) return; /* sanity */
+
 	if (breakarm(mdat)) {
 	    if ((otmp = which_armor(mon, W_ARM)) != 0) {
 		if ((Is_dragon_scales(otmp) &&
@@ -767,7 +779,7 @@ boolean polyspot;
 /* bias a monster's preferences towards armor that has special benefits. */
 /* currently only does speed boots, but might be expanded if monsters get to
    use more armor abilities */
-//static
+/* static */
 int
 extra_pref(mon, obj)
 struct monst *mon;

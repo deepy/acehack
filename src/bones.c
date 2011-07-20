@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)bones.c	3.4	2003/09/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985,1993. */
-/* Modified 28 Mar 2010 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -205,6 +205,8 @@ struct obj *corpse;
 
 	/* caller has already checked `can_make_bones()' */
 
+        if (iflags.multiplayer) return; /* sanity */
+
 	clear_bypasses();
 	fd = open_bonesfile(&u.uz, &bonesid);
 	if (fd >= 0) {
@@ -385,6 +387,10 @@ getbones()
 
 	if(discover)		/* save bones files for real games */
 		return(0);
+
+        /* prevent items in bones files (particularly quest artifacts)
+           breaking multiplayer logic */
+        if(iflags.multiplayer) return(0);
 
 	/* wizard check added by GAN 02/05/87 */
 	if(rn2(3)	/* only once in three times do we find bones */

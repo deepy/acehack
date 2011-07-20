@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dog.c	3.4	2002/09/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Jul 2011 by Alex Smith */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -486,11 +486,15 @@ long nmv;		/* number of moves */
 #ifdef OVL2
 
 /* check to see if a monster is a placeholder for a player;
-   return value is NULL if they aren't, or lockname if they are */
+   return value is NULL if they aren't, or lockname if they are;
+   &youmonst and NULL do not count as other players (in particular,
+   passing &youmonst does not return mplock) */
 char *
 is_mp_player(mtmp)
 struct monst *mtmp;
 {
+  if (!mtmp) return NULL;
+  if (mtmp == &youmonst) return NULL;
   if (DEADMONSTER(mtmp)) return NULL;
   if (!mtmp->mtame) return NULL;
   if (!is_mplayer(mtmp->data)) return NULL;
@@ -620,6 +624,9 @@ migrate_to_level(mtmp, tolev, xyloc, cc)
 	d_level new_lev;
 	xchar xyflags;
 	int num_segs = 0;	/* count of worm segments */
+
+        if (is_mp_player(mtmp))
+            impossible("Migrating a nondriving player?"); /* but do it anyway */
 
 	if (mtmp->isshk)
 	    set_residency(mtmp, TRUE);
@@ -789,9 +796,11 @@ register struct obj *obj;
 {
 	register struct monst *mtmp2;
 
-	/* The Wiz, Medusa and the quest nemeses aren't even made peaceful. */
+	/* The Wiz, Medusa and the quest nemeses aren't even made
+           peaceful. Other players are already flagged tame, and we
+           don't want to mess with their stats. */
 	if (mtmp->iswiz || mtmp->data == &mons[PM_MEDUSA]
-				|| (mtmp->data->mflags3 & M3_WANTSARTI))
+            || (mtmp->data->mflags3 & M3_WANTSARTI) || is_mp_player(mtmp))
 		return((struct monst *)0);
 
 	/* worst case, at least it'll be peaceful. */
@@ -906,6 +915,11 @@ boolean was_dead;
     struct edog *edog;
     boolean quietly = was_dead;
 
+    if (is_mp_player(mtmp)) {
+      impossible("reviving another player?");
+      mtmp->mtame = 0; /* necessary to avoid crashing the game */
+      return; 
+    }
     mtmp->meating = 0;
     if (!mtmp->mtame) return;
     edog = !mtmp->isminion ? EDOG(mtmp) : 0;
@@ -969,6 +983,7 @@ abuse_dog(mtmp)
 struct monst *mtmp;
 {
 	if (!mtmp->mtame) return;
+        if (is_mp_player(mtmp)) return; /* sanity */
 
 	if (Aggravate_monster || Conflict) mtmp->mtame /=2;
 	else mtmp->mtame--;

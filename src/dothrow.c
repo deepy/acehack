@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dothrow.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 't' (throw) */
@@ -511,7 +511,7 @@ hurtle_step(arg, x, y)
 
     if ((mon = m_at(x, y)) != 0) {
 	You("bump into %s.", a_monnam(mon));
-	wakeup(mon);
+	if (!is_mp_player(mon)) wakeup(mon);
 	return FALSE;
     }
     if ((u.ux - x) && (u.uy - y) &&
@@ -571,6 +571,11 @@ mhurtle_step(arg, x, y)
     int x, y;
 {
 	struct monst *mon = (struct monst *)arg;
+
+        if (is_mp_player(mon)) {
+          impossible("hurtling nondriving player?");
+          return FALSE;
+        }
 
 	/* TODO: Treat walls, doors, iron bars, pools, lava, etc. specially
 	 * rather than just stopping before.
@@ -655,6 +660,8 @@ mhurtle(mon, dx, dy, range)
 	int dx, dy, range;
 {
     coord mc, cc;
+
+    if (is_mp_player(mon)) return; /* PvP check */
 
 	/* At the very least, debilitate the monster */
 	mon->movement = 0;
@@ -1005,6 +1012,7 @@ boolean twoweap; /* used to restore twoweapon mode if wielded weapon returns */
 		    thrownobj = (struct obj*)0;
 		    return;		/* alert shk caught it */
 		}
+                /* PvP check: let thitmonst handle it */
 		(void) snuff_candle(obj);
 		notonhead = (bhitpos.x != mon->mx || bhitpos.y != mon->my);
 		obj_gone = thitmonst(mon, obj);
@@ -1165,11 +1173,12 @@ struct monst *mon;
        An attentive player will still notice that this is different from
        an arrow just landing short of any target (no message in that case),
        so will realize that there is a valid target here anyway. */
-    if (!canseemon(mon) || (mon->m_ap_type && mon->m_ap_type != M_AP_MONSTER))
+    if ((!canseemon(mon) || (mon->m_ap_type && mon->m_ap_type != M_AP_MONSTER)) &&
+        !is_mp_player(mon)) /* PvP check: force a miss via miss() */
 	pline("%s %s.", The(missile), otense(obj, "miss"));
     else
 	miss(missile, mon);
-    if (!rn2(3)) wakeup(mon);
+    if (!rn2(3) && !is_mp_player(mon)) wakeup(mon);
     return;
 }
 
@@ -1316,7 +1325,7 @@ register struct obj   *obj;
 		tmp += weapon_hit_bonus(obj);
 	    }
 
-	    if (tmp >= rnd(20)) {
+	    if (tmp >= rnd(20) && !is_mp_player(mon)) { /* PvP check */
 		if (hmon(mon,obj,1)) {	/* mon still alive */
 		    cutworm(mon, bhitpos.x, bhitpos.y, obj);
 		}
@@ -1353,7 +1362,7 @@ register struct obj   *obj;
 
 	} else if (otyp == HEAVY_IRON_BALL) {
 	    exercise(A_STR, TRUE);
-	    if (tmp >= rnd(20)) {
+	    if (tmp >= rnd(20) && !is_mp_player(mon)) { /* PvP check */
 		int was_swallowed = guaranteed_hit;
 
 		exercise(A_DEX, TRUE);
@@ -1367,7 +1376,7 @@ register struct obj   *obj;
 
 	} else if (otyp == BOULDER) {
 	    exercise(A_STR, TRUE);
-	    if (tmp >= rnd(20)) {
+	    if (tmp >= rnd(20) && !is_mp_player(mon)) { /* PvP check */
 		exercise(A_DEX, TRUE);
 		(void) hmon(mon,obj,1);
 	    } else {
@@ -1376,18 +1385,20 @@ register struct obj   *obj;
 
 	} else if ((otyp == EGG || otyp == CREAM_PIE ||
 		    otyp == BLINDING_VENOM || otyp == ACID_VENOM) &&
-		(guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
+                   (guaranteed_hit || ACURR(A_DEX) > rnd(25)) &&
+                   !is_mp_player(mon)) { /* PvP check */
 	    (void) hmon(mon, obj, 1);
 	    return 1;	/* hmon used it up */
 
 	} else if (obj->oclass == POTION_CLASS &&
-		(guaranteed_hit || ACURR(A_DEX) > rnd(25))) {
+                   (guaranteed_hit || ACURR(A_DEX) > rnd(25)) &&
+                   !is_mp_player(mon)) { /* PvP check */
 	    potionhit(mon, obj, TRUE);
 	    return 1;
 
 	} else if (befriend_with_obj(mon->data, obj) ||
 		   (mon->mtame && dogfood(mon, obj) <= ACCFOOD)) {
-	    if (tamedog(mon, obj))
+          if (!is_mp_player(mon) && tamedog(mon, obj))
 		return 1;           	/* obj is gone */
 	    else {
 		/* not tmiss(), which angers non-tame monsters */
@@ -1395,7 +1406,7 @@ register struct obj   *obj;
 		mon->msleeping = 0;
 		mon->mstrategy &= ~STRAT_WAITMASK;
 	    }
-	} else if (guaranteed_hit) {
+	} else if (guaranteed_hit && !is_mp_player(mon)) {
 	    /* this assumes that guaranteed_hit is due to swallowing */
 	    wakeup(mon);
 	    if (obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm])) {
@@ -1481,12 +1492,14 @@ register struct obj *obj;
 	}
 	Strcat(buf,acceptgift);
 	if(*u.ushops) check_shop_obj(obj, mon->mx, mon->my, TRUE);
-	(void) mpickobj(mon, obj);	/* may merge and free obj */
+        if (!is_mp_player(mon)) /* sanity */
+          (void) mpickobj(mon, obj);	/* may merge and free obj */
 	ret = 1;
 
 nopick:
 	if(!Blind) pline("%s", buf);
-	if (!tele_restrict(mon)) (void) rloc(mon, FALSE);
+	if (!tele_restrict(mon) && !is_mp_player(mon))
+          (void) rloc(mon, FALSE);
 	return(ret);
 }
 
@@ -1760,6 +1773,7 @@ struct obj *obj;
 				   (int FDECL((*),(OBJ_P,OBJ_P)))0,
 				   obj, NULL);
 			if(mon) {
+                            /* PvP check done in ghitm */
 			    if (ghitm(mon, obj))	/* was it caught? */
 				return 1;
 			} else {

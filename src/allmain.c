@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Jul 2011 by Alex Smith */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -137,6 +137,10 @@ moveloop()
                                 (depth(&u.uz) > depth(&stronghold_level)) ? 50 : 70))
                             (void) makemon((struct permonst *)0, 0, 0, NO_MM_FLAGS);
 
+                        /* TODO: stinking cloud damage on nondriving player,
+                           and stinking cloud interaction with anti-PvP. For
+                           the time being, use of stinking cloud scrolls is
+                           just forced to fail in multiplayer. */
                         run_regions();
 
                         if (Is_waterlevel(&u.uz))

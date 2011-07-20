@@ -169,11 +169,19 @@ const char *verb;
 				vtense((const char *)0, verb),
 				(mtmp) ? "" : " with you");
 		    if (mtmp) {
+                        /* We let other players phase through boulders, in
+                           order to avoid transmitting to the other game
+                           what just happened. (TODO: transmit trapped
+                           status so that this works.) */
 			if (!passes_walls(mtmp->data) &&
-				!throws_rocks(mtmp->data)) {
+                            !throws_rocks(mtmp->data) &&
+                            !is_mp_player(mtmp)) {
 			    if (hmon(mtmp, obj, TRUE) && !is_whirly(mtmp->data))
 				return FALSE;	/* still alive */
 			}
+                        message_monster(mtmp,
+                                        "You climb out of danger as a boulder "
+                                        "falls past you.");
 			mtmp->mtrapped = 0;
 		    } else {
 			if (!Passes_walls && !throws_rocks(youmonst.data)) {
@@ -1068,17 +1076,17 @@ checkpoint_level()
   bufon(fd);
   in_mklev = TRUE; /* turn off normal sanity checks,
                       we're about to do something insane */
-  mtmp = makemon(youmonst.data, u.ux, u.uy,
+  mtmp = makemon(&mons[u.umonster], u.ux, u.uy, /* i.e. original form */
                  NO_MINVENT | MM_NOCOUNTBIRTH | MM_IGNOREWATER | MM_EDOG);
   in_mklev = FALSE;
   if (!mtmp) {
     /* Self-genocide while polymorphed is the most plausible reason to
        get here, in which case, there's not much we can do to
-
        continue. So just die in spectacular fashion, by having a
        monster genocide the player's current form too. Ideally, this
        will also eventually happen upon one player genociding
-       another. */
+       another. (That is, if we don't disable genocides on @ altogether
+       in multiplayer to prevent fatal logic issues.) */
     pline("You hear the sound of a genocide approaching in the distance.");
     pline("Wiped out all %s.", youmonst.data->mname);
     killer_format = KILLED_BY_AN;
@@ -1148,6 +1156,13 @@ uncheckpoint_level()
      the other game's PID. */
   getlev(fd, 0, ledger_no(&u.uz), FALSE);
   (void) close(fd);
+
+  /* Genocide should extend from one game onto the next. Multiplayer
+     reveals its true horror: instead of just conquering the whole
+     world instantly, it places a permanent curse on its user that
+     wipes out any of the sort of monster in question that they end
+     up sharing a level with. */
+  kill_genocided_monsters();
 
   /* For the time being, redraw the screen. (Eventually, it'd be nice
      to get incremental updates sent from the other game while it's in
@@ -1807,7 +1822,10 @@ boolean at_stairs, falling, portal;
                 /* This can be a bit ridiculous, but is better than the
                    alternative (which always, rather than very rarely,
                    places two players on the same square, leading to
-                   one of them getting genocided) */
+                   one of them getting genocided). No doubt someone
+                   will come up with an ingenious way to abuse this
+                   to phase through walls or something; it's easiest
+                   to let them have their fun in that case. */
                 u_on_newpos(cc.x, cc.y);
             else
 		mnexto(mtmp);
@@ -1910,7 +1928,8 @@ boolean at_stairs, falling, portal;
 		You("penetrated a high security area!");
 		pline("An alarm sounds!");
 		for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-		    if (!DEADMONSTER(mtmp) && mtmp->msleeping) mtmp->msleeping = 0;
+		    if (!DEADMONSTER(mtmp) && mtmp->msleeping &&
+                        !is_mp_player(mtmp)) mtmp->msleeping = 0;
 	}
 
 	if (on_level(&u.uz, &astral_level))
@@ -1951,7 +1970,8 @@ final_level()
 
 	/* reset monster hostility relative to player */
 	for (mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-	    if (!DEADMONSTER(mtmp)) reset_hostility(mtmp);
+            if (!DEADMONSTER(mtmp) && !is_mp_player(mtmp))
+                reset_hostility(mtmp);
 
 	/* create some player-monsters */
 	create_mplayers(rn1(4, 3), TRUE);
@@ -2091,6 +2111,10 @@ struct obj *corpse;
     	mtmp2 = get_container_location(container, &container_where, (int *)0);
 	/* container_where is the outermost container's location even if nested */
 	if (container_where == OBJ_MINVENT && mtmp2) mcarry = mtmp2;
+        if (mtmp2 && is_mp_player(mtmp2)) { /* sanity */
+            impossible("Nondriving player holding a container?");
+            return FALSE;
+        }
     }
     mtmp = revive(corpse);	/* corpse is gone if successful */
 

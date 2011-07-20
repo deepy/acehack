@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)dbridge.c	3.4	2003/02/08	*/
 /*	Copyright (c) 1989 by Jean-Christophe Collet		  */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -444,7 +445,9 @@ automiss(etmp)
 struct entity *etmp;
 {
 	return (boolean)((is_u(etmp) ? Passes_walls :
-			passes_walls(etmp->edata)) || noncorporeal(etmp->edata));
+                          (passes_walls(etmp->edata) ||
+                           is_mp_player(m_at(etmp->ex, etmp->ey)))) ||
+                         noncorporeal(etmp->edata));
 }
 
 /*
@@ -597,6 +600,11 @@ struct entity *etmp;
 	    }
 	}
 
+        if (relocates && !is_u(etmp) &&
+            is_mp_player(m_at(etmp->ex, etmp->ey))) {
+            relocates = FALSE; /* we leave other players in-place */
+        }
+
 /*
  * Here's where we try to do relocation.  Assumes that etmp is not arriving
  * at the portcullis square while the drawbridge is falling, since this square
@@ -659,9 +667,14 @@ struct entity *etmp;
 		pline("Moving %s", e_nam(etmp));
 #endif
 		if (!is_u(etmp)) {
-			remove_monster(etmp->ex, etmp->ey);
-			place_monster(etmp->emon, newx, newy);
-			update_monster_region(etmp->emon);
+                  /* PvP check: we just leave other players hanging in
+                     midair, which is a bit unusual but which makes
+                     sense if we're trying to ban PvP */
+                  if (!is_mp_player(m_at(etmp->ex, etmp->ey))) {
+                    remove_monster(etmp->ex, etmp->ey);
+                    place_monster(etmp->emon, newx, newy);
+                    update_monster_region(etmp->emon);
+                  }
 		} else {
 			u.ux = newx;
 			u.uy = newy;
@@ -690,7 +703,8 @@ struct entity *etmp;
 				pline("%s behind the drawbridge.",
 				      E_phrase(etmp, "disappear"));
 		}
-		if (!e_survives_at(etmp, etmp->ex, etmp->ey)) {
+		if (!e_survives_at(etmp, etmp->ex, etmp->ey) &&
+                    (is_u(etmp) && is_mp_player(m_at(etmp->ex, etmp->ey)))) {
 			killer_format = KILLED_BY_AN;
 			killer = "closing drawbridge";
 			e_died(etmp, 0, CRUSHING);	       /* no message */
@@ -706,7 +720,8 @@ struct entity *etmp;
 		if (is_pool(etmp->ex, etmp->ey) && !e_inview)
 			if (flags.soundok)
 				You_hear("a splash.");
-		if (e_survives_at(etmp, etmp->ex, etmp->ey)) {
+		if (e_survives_at(etmp, etmp->ex, etmp->ey) ||
+                    (!is_u(etmp) && is_mp_player(m_at(etmp->ex, etmp->ey)))) {
 			if (e_inview && !is_flyer(etmp->edata) &&
 			    !is_floater(etmp->edata))
 				pline("%s from the bridge.",

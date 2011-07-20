@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)explode.c	3.4	2002/11/10	*/
 /*	Copyright (C) 1990 by Ken Arromdee */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -135,7 +136,9 @@ int expltype;
 			mtmp = u.usteed;
 #endif
 		if (mtmp) {
-		    if (mtmp->mhp < 1) explmask[i][j] = 2;
+                    /* PvP check, dead monster check; setting to 2
+                       exempts the monster from damage */
+                    if (mtmp->mhp < 1 || is_mp_player(mtmp)) explmask[i][j] = 2;
 		    else switch(adtyp) {
 			case AD_PHYS:                        
 				break;
@@ -502,7 +505,8 @@ struct obj *obj;			/* only scatter this obj        */
 				bhitpos.y -= stmp->dy;
 				stmp->stopped = TRUE;
 			} else if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
-				if (scflags & MAY_HITMON) {
+				if ((scflags & MAY_HITMON) &&
+                                    !is_mp_player(mtmp)) { /* PvP check */
 				    stmp->range--;
 				    if (ohitmon(mtmp, stmp->obj, 1, FALSE)) {
 					stmp->obj = (struct obj *)0;

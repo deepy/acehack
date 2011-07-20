@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)read.c	3.4	2003/10/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Dec 2011 by Alex Smith */
+/* Modified 24 Mar 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -605,6 +605,7 @@ maybe_tame(mtmp, sobj)
 struct monst *mtmp;
 struct obj *sobj;
 {
+        if (is_mp_player(mtmp)) return; /* PvP check */
 	if (sobj->cursed) {
 	    setmangry(mtmp);
 	} else {
@@ -846,7 +847,8 @@ register struct obj	*sobj;
 
 		for(mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
 		    if (DEADMONSTER(mtmp)) continue;
-		    if(cansee(mtmp->mx,mtmp->my)) {
+                    if (is_mp_player(mtmp)) continue; /* PvP check */
+		    if (cansee(mtmp->mx,mtmp->my)) {
 			if(confused || sobj->cursed) {
 			    mtmp->mflee = mtmp->mfrozen = mtmp->msleeping = 0;
 			    mtmp->mcanmove = 1;
@@ -980,7 +982,7 @@ register struct obj	*sobj;
 		    for (i = -bd; i <= bd; i++) for(j = -bd; j <= bd; j++) {
 			if (!isok(u.ux + i, u.uy + j)) continue;
 			if ((mtmp = m_at(u.ux + i, u.uy + j)) != 0)
-			    maybe_tame(mtmp, sobj);
+			    maybe_tame(mtmp, sobj); /* does PvP check */
 		    }
 		}
 		break;
@@ -1171,12 +1173,20 @@ register struct obj	*sobj;
 	    	    	    otmp2->quan = confused ? rn1(5,2) : 1;
 	    	    	    otmp2->owt = weight(otmp2);
 
-	    	    	    /* Find the monster here (won't be player) */
+	    	    	    /* Find the monster here, and produce a suitable
+                               message if PvP is blocked on it */
 	    	    	    mtmp = m_at(x, y);
+                            if (confused)
+                              message_monster(mtmp,
+                                              "A rock falls and just misses you!");
+                            else
+                              message_monster(mtmp,
+                                              "A boulder falls and just misses you!");
 	    	    	    if (mtmp && !amorphous(mtmp->data) &&
 	    	    	    		!passes_walls(mtmp->data) &&
 	    	    	    		!noncorporeal(mtmp->data) &&
-	    	    	    		!unsolid(mtmp->data)) {
+	    	    	    		!unsolid(mtmp->data) &&
+                                        !is_mp_player(mtmp)) { /* PvP check */
 				struct obj *helmet = which_armor(mtmp, W_ARMH);
 				int mdmg;
 
@@ -1276,8 +1286,14 @@ register struct obj	*sobj;
 		    You("smell rotten eggs.");
 		    return 0;
 		}
-		(void) create_gas_cloud(cc.x, cc.y, 3+bcsign(sobj),
-						8+4*bcsign(sobj));
+                /* TODO: these are broken in multiplayer at the moment
+                   (besides, it's unclear how to do a PvP check) */
+                if (iflags.multiplayer) {
+                    pline("Strange, the scroll seems not to work in "
+                          "a dungeon this crowded.");
+                } else
+                  (void) create_gas_cloud(cc.x, cc.y, 3+bcsign(sobj),
+                                          8+4*bcsign(sobj));
 		break;
 	}
 	default:
@@ -1456,14 +1472,25 @@ do_class_genocide()
 		 * TODO[?]: If user's input doesn't match any class
 		 *	    description, check individual species names.
 		 */
-		if (!goodcnt && class != mons[urole.malenum].mlet &&
-				class != mons[urace.malenum].mlet) {
+		if ((!goodcnt && (iflags.multiplayer || /* PvP check */
+                                  (class != mons[urole.malenum].mlet &&
+                                   class != mons[urace.malenum].mlet))) ||
+                    /* A more indirect PvP check: ban genoing player races */
+                    (iflags.multiplayer &&
+                     (class == S_HUMANOID ||
+                      class == S_ORC ||
+                      class == S_GNOME ||
+                      class == S_HUMAN))
+                  ) {
 			if (gonecnt)
 	pline("All such monsters are already nonexistent.");
 			else if (immunecnt ||
 				(buf[0] == DEF_INVISIBLE && buf[1] == '\0'))
 	You("aren't permitted to genocide such monsters.");
-			else
+			else if (iflags.multiplayer && class > 0 &&
+                                 class < MAXMCLASSES)
+        pline("Genociding playable classes is disallowed in multiplayer.");
+                        else
 #ifdef WIZARD	/* to aid in topology testing; remove pesky monsters */
 			  if (wizard && buf[0] == '*') {
 			    register struct monst *mtmp, *mtmp2;
@@ -1492,8 +1519,8 @@ do_class_genocide()
 			 * from both race and role; thus genocide affects either.
 			 */
 			if (Your_Own_Role(i) || Your_Own_Race(i) ||
-				((mons[i].geno & G_GENO)
-				&& !(mvitals[i].mvflags & G_GENOD))) {
+                            ((mons[i].geno & G_GENO)
+                             && !(mvitals[i].mvflags & G_GENOD))) {
 			/* This check must be first since player monsters might
 			 * have G_GENOD or !G_GENO.
 			 */
@@ -1580,6 +1607,14 @@ int how;
 	const char *which;
 
 	if (how & PLAYER) {
+                if (iflags.multiplayer) {
+                  /* Self-genocide is, perhaps unfortunately, PvP, as you
+                     can catch other players in the same effect. So we
+                     replace confused ?oGeno's effect with a no-op in
+                     multiplayer. */
+                  You("are asked what to genocide, but stammer some nonsense.");
+                  return;
+                }
 		mndx = u.umonster;	/* non-polymorphed mon num */
 		ptr = &mons[mndx];
 		Strcpy(buf, ptr->mname);
@@ -1610,6 +1645,19 @@ int how;
 			      (mndx == NON_PM) ? "do not" : "no longer");
 			continue;
 		}
+
+                /* Ban geno of playable races/classes in multiplayer */
+                if (iflags.multiplayer &&
+                    (mndx == PM_HUMAN ||
+                     mndx == PM_ELF ||
+                     mndx == PM_DWARF ||
+                     mndx == PM_GNOME ||
+                     mndx == PM_ORC ||
+                     (mndx >= PM_ARCHEOLOGIST && mndx <= PM_WIZARD))) {
+                        pline("Genociding playable characters is "
+                              "disallowed in multiplayer.");
+                }
+
 		ptr = &mons[mndx];
 		/* Although "genus" is Latin for race, the hero benefits
 		 * from both race and role; thus genocide affects either.

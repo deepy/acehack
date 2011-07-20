@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do_wear.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1742,6 +1742,9 @@ some_armor(victim)
 struct monst *victim;
 {
 	register struct obj *otmph, *otmp;
+
+        if (victim && victim != &youmonst && is_mp_player(victim))
+          return (struct obj *)0; /* probably redundant PvP check */
 
 	otmph = (victim == &youmonst) ? uarmc : which_armor(victim, W_ARMC);
 	if (!otmph)

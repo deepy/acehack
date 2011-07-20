@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)teleport.c	3.4	2003/08/11	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Jul 2011 by Alex Smith */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -376,6 +376,7 @@ boolean force_it;
 	if (mtmp == u.usteed)
 		return (FALSE);
 #endif
+        if (is_mp_player(mtmp)) return FALSE; /* PvP check */
 
 	if (mtmp->mleashed) {
 	    otmp = get_mleash(mtmp);
@@ -914,7 +915,11 @@ struct monst *mtmp;
 {
 	register int xx, yy;
 
+        /* Nondriving players cannot be moved at all. */
+        if (is_mp_player(mtmp)) return FALSE;
+
 	if (!goodpos(x, y, mtmp, 0)) return FALSE;
+
 	/*
 	 * Check for restricted areas present in some special levels.
 	 *
@@ -967,6 +972,11 @@ register int x, y;
 	register int oldx = mtmp->mx, oldy = mtmp->my;
 	boolean resident_shk = mtmp->isshk && inhishop(mtmp);
 
+        if (is_mp_player(mtmp))
+          impossible("Relocating nondriving player?");
+        /* but do it anyway, it'll leave the game less broken than the
+           alternative */
+
 	if (x == mtmp->mx && y == mtmp->my)	/* that was easy */
 		return;
 
@@ -1010,6 +1020,11 @@ struct monst *mtmp;	/* mx==0 implies migrating monster arrival */
 boolean suppress_impossible;
 {
 	register int x, y, trycount;
+
+        if (is_mp_player(mtmp)) {
+            if (!suppress_impossible) impossible("teleporting another player?");
+            return FALSE;
+        }
 
 #ifdef STEED
 	if (mtmp == u.usteed) {
@@ -1306,7 +1321,8 @@ boolean give_feedback;
 {
 	coord cc;
 
-	if (mtmp->ispriest && *in_rooms(mtmp->mx, mtmp->my, TEMPLE)) {
+	if ((mtmp->ispriest && *in_rooms(mtmp->mx, mtmp->my, TEMPLE)) ||
+            is_mp_player(mtmp)) { /* PvP check */
 	    if (give_feedback)
 		pline("%s resists your magic!", Monnam(mtmp));
 	    return FALSE;

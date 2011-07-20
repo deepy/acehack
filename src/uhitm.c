@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)uhitm.c	3.4	2003/02/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 May 2011 by Alex Smith */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -40,6 +40,8 @@ int attk;
 {
 	int	hurt;
 	struct obj *target;
+
+        if (is_mp_player(mdef)) return; /* sanity */
 
 	switch(attk) {
 	    /* 0 is burning, which we should never be called with */
@@ -104,6 +106,10 @@ struct obj *wep;	/* uwep for attack(), null for kick_monster() */
 
 	/* if you're close enough to attack, alert any waiting monster */
 	mtmp->mstrategy &= ~STRAT_WAITMASK;
+
+        /* PvP check: attacking another player is impossible, no
+           matter what (even with prefix F) */
+        if (is_mp_player(mtmp)) return TRUE;
 
 	if (u.uswallow && mtmp == u.ustuck) return FALSE;
 
@@ -362,6 +368,9 @@ register struct monst *mtmp;
 	/* possibly set in attack_checks;
 	   examined in known_hitum, called via hitum or hmonas below */
 	override_confirmation = FALSE;
+
+        /* attack_checks does the PvP check, among other checks to see
+           if the attack is possible */
 	if (attack_checks(mtmp, uwep)) return(TRUE);
 
 	if (Upolyd) {
@@ -452,7 +461,10 @@ struct attack *uattk;
                suitably scary --More-- after the first message.) */
             pline("You manage to look away just in time; "
                   "but that disturbs your aim, and you miss.");
-        } else if(!*mhit) {
+        } else if(!*mhit || is_mp_player(mon)) {
+            /* The PvP check above is potentially redundant, but
+               should help if I've missed a case, or a later patcher
+               does */
 	    missum(mon, uattk);
 	} else {
 	    int oldhp = mon->mhp,
@@ -521,6 +533,8 @@ int thrown;
 {
 	boolean result, anger_guards;
 
+        if (is_mp_player(mon)) return TRUE; /* sanity */
+
 	anger_guards = (mon->mpeaceful &&
 			    (mon->ispriest || mon->isshk ||
 			     mon->data == &mons[PM_WATCHMAN] ||
@@ -561,6 +575,8 @@ int thrown;
 	char yourbuf[BUFSZ];
 	char unconventional[BUFSZ];	/* substituted for word "attack" in msg */
 	char saved_oname[BUFSZ];
+
+        /* no PvP check needed; hmon() does one before calling us */
 
 	unconventional[0] = '\0';
 	saved_oname[0] = '\0';
@@ -1240,6 +1256,7 @@ struct attack *mattk;
 	struct obj *otmp, *stealoid, **minvent_ptr;
 	long unwornmask;
 
+        if (is_mp_player(mdef)) return;         /* sanity */
 	if (!mdef->minvent) return;		/* nothing to take */
 
 	/* look for worn body armor */
@@ -1324,6 +1341,8 @@ register struct attack *mattk;
 	armpro = magic_negation(mdef);
 	/* since hero can't be cancelled, only defender's armor applies */
 	negated = !((rn2(3) >= armpro) || !rn2(50));
+
+        if (is_mp_player(mdef)) return(0); /* sanity */
 
 	if (is_demon(youmonst.data) && !rn2(13) && !uwep
 		&& u.umonnum != PM_SUCCUBUS && u.umonnum != PM_INCUBUS
@@ -1700,6 +1719,11 @@ register struct attack *mattk;
 {
 	register int tmp = d((int)mattk->damn, (int)mattk->damd);
 
+        if (is_mp_player(mdef)) {
+          impossible("Exploding on another player?");
+          return 1;
+        }
+
 	You("explode!");
 	switch(mattk->adtyp) {
 	    boolean resistance; /* only for cold/fire/elec */
@@ -1788,6 +1812,7 @@ register struct attack *mattk;
 	 * after exactly 1 round of attack otherwise.  -KAA
 	 */
 
+        if(is_mp_player(mdef)) return 0; /* sanity */
 	if(mdef->data->msize >= MZ_HUGE) return 0;
 
 	if(u.uhunger < 1500 && !u.uswallow) {
@@ -1964,7 +1989,9 @@ register struct attack *mattk;
 		You("miss %s.", mon_nam(mdef));
 	else
 		You("miss it.");
-	if (!mdef->msleeping && mdef->mcanmove)
+        if (is_mp_player(mdef))
+                message_monster(mdef, "An attack misses you.");
+	else if (!mdef->msleeping && mdef->mcanmove)
 		wakeup(mdef);
 }
 
@@ -1977,6 +2004,8 @@ register int tmp;
 	int	i, sum[NATTK], hittmp = 0;
 	int	nsum = 0;
 	int	dhit = 0;
+
+        if (is_mp_player(mon)) return FALSE; /* sanity */
 
 	for(i = 0; i < NATTK; i++) {
 
@@ -2184,6 +2213,10 @@ uchar aatyp;
 {
 	register struct permonst *ptr = mon->data;
 	register int i, tmp;
+
+        /* A sort of "reverse" PvP check; you can't attack other players,
+           and they can't retaliate */
+        if (is_mp_player(mon)) return (malive | mhit);
 
 	for(i = 0; ; i++) {
 	    if(i >= NATTK) return(malive | mhit);	/* no passive attacks */
@@ -2510,6 +2543,11 @@ struct monst *mtmp;
 struct obj *otmp;	/* source of flash */
 {
 	int tmp, amt, res = 0, useeit = canseemon(mtmp);
+
+        /* PvP check; more necessary than usual, because functions
+           that would normally do the PvP check themselves can fall
+           through to here */
+        if (is_mp_player(mtmp)) return 0;
 
 	if (mtmp->msleeping) {
 	    mtmp->msleeping = 0;

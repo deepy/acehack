@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dokick.c	3.4	2003/12/04	*/
 /* Copyright (c) Izchak Miller, Mike Stephenson, Steve Linhart, 1989. */
-/* Modified 3 Jan 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -68,6 +68,11 @@ register boolean clumsy;
         if (mon->data == &mons[PM_FLOATING_EYE] && canseemon(mon) &&
             !Free_action && !Reflecting && mon->mcansee) {
             pline("But it glares at you, making your kick go wild!");
+            return;
+        }
+
+        if (is_mp_player(mon)) { /* PvP check */
+            pline("But you lose balance, making your kick go wild.");
             return;
         }
 
@@ -164,7 +169,7 @@ register xchar x, y;
 		       and shades have no passive counterattack */
 		    Your("%s %s.", kick_passes_thru, mon_nam(mon));
 		    break;	/* skip any additional kicks */
-		} else if (tmp > rnd(20)) {
+		} else if (tmp > rnd(20) && !is_mp_player(mon)) { /* PvP check */
 		    You("kick %s.", mon_nam(mon));
 		    sum = damageum(mon, uattk);
 		    (void)passive(mon, (boolean)(sum > 0), (sum != 2), AT_KICK);
@@ -210,7 +215,7 @@ doit:
 	   mon->mcansee && !mon->mtrapped && !thick_skinned(mon->data) &&
 	   mon->data->mlet != S_EEL && haseyes(mon->data) && mon->mcanmove &&
 	   !mon->mstun && !mon->mconf && !mon->msleeping &&
-	   mon->data->mmove >= 12) {
+	   mon->data->mmove >= 12 && !is_mp_player(mon)) {
 		if(!nohands(mon->data) && !rn2(martial() ? 5 : 3)) {
 		    pline("%s blocks your %skick.", Monnam(mon),
 				clumsy ? "clumsy " : "");
@@ -250,8 +255,10 @@ register struct obj *gold;
 {
 	boolean msg_given = FALSE;
 
-	if(!likes_gold(mtmp->data) && !mtmp->isshk && !mtmp->ispriest
-			&& !is_mercenary(mtmp->data)) {
+        if (is_mp_player(mtmp)) { /* PvP check */
+          /* do nothing to force miss message */
+        } else if (!likes_gold(mtmp->data) && !mtmp->isshk &&
+                   !mtmp->ispriest && !is_mercenary(mtmp->data)) {
 		wakeup(mtmp);
 	} else if (!mtmp->mcanmove) {
 		/* too light to do real damage */
@@ -571,6 +578,7 @@ xchar x, y;
 		    kickobj->where == OBJ_MINVENT && kickobj->ocarry == mon)
 		return 1;	/* alert shk caught it */
 	    notonhead = (mon->mx != bhitpos.x || mon->my != bhitpos.y);
+            /* thitmonst does PvP check */
 	    if (isgold ? ghitm(mon, kickobj) :	/* caught? */
 		    thitmonst(mon, kickobj))	/* hit && used up? */
 		return(1);
@@ -753,6 +761,7 @@ dokick()
 		mdat = mtmp->data;
 		if (!mtmp->mpeaceful || !canspotmon(mtmp))
 		    flags.forcefight = TRUE; /* attack even if invisible */
+                /* kick_monster does (directly or indirectly) PvP check */
 		kick_monster(x, y);
 		flags.forcefight = FALSE;
 		/* see comment in attack_checks() */

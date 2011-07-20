@@ -82,6 +82,10 @@ use_camera(obj)
 				(int FDECL((*),(MONST_P,OBJ_P)))0,
 				(int FDECL((*),(OBJ_P,OBJ_P)))0,
 				obj, NULL)) != 0) {
+                /* We can't safely do a PvP check here due to the way
+                   bhit works (even though one is needed, as
+                   camera'ing another player is an offensive
+                   action). We do it in flash_hits_mon instead. */
 		obj->ox = u.ux,  obj->oy = u.uy;
 		(void) flash_hits_mon(mtmp, obj);
 	}
@@ -276,6 +280,14 @@ use_stethoscope(obj)
 		return 0;
 	}
 	if ((mtmp = m_at(rx,ry)) != 0) {
+                if (is_mp_player(mtmp)) {
+                  /* A reasonable action, but we don't actually have
+                     the stats to give, so come up with a dubious
+                     excuse instead (then try to justify it as PvP
+                     check...) */
+                  pline("%s has an unusually complex heartbeat.", Monnam(mtmp));
+                  return res;
+                }
 		mstatusline(mtmp);
 		if (mtmp->mundetected) {
 			mtmp->mundetected = 0;
@@ -337,6 +349,7 @@ struct obj *obj;
 		for(mtmp = fmon; mtmp; mtmp = nextmon) {
 		    nextmon = mtmp->nmon; /* trap might kill mon */
 		    if (DEADMONSTER(mtmp)) continue;
+                    if (is_mp_player(mtmp)) continue; /* PvP check */
 		    if (mtmp->mtame) {
 			if (mtmp->mtrapped) {
 			    /* no longer in previous trap (affects mintrap) */
@@ -522,7 +535,8 @@ next_to_u()
 
 	for(mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
 		if (DEADMONSTER(mtmp)) continue;
-		if(mtmp->mleashed) {
+                if (is_mp_player(mtmp)) continue; /* sanity */
+		if (mtmp->mleashed) {
 			if (distu(mtmp->mx,mtmp->my) > 2) mnexto(mtmp);
 			if (distu(mtmp->mx,mtmp->my) > 2) {
 			    for(otmp = invent; otmp; otmp = otmp->nobj)
@@ -681,7 +695,7 @@ struct obj *obj;
 		    (int FDECL((*),(MONST_P,OBJ_P)))0,
 		    (int FDECL((*),(OBJ_P,OBJ_P)))0,
 		    obj, NULL);
-	if (!mtmp || !haseyes(mtmp->data))
+	if (!mtmp || !haseyes(mtmp->data) || is_mp_player(mtmp) /* PvP check */)
 		return 1;
 
 	vis = canseemon(mtmp);
@@ -2283,7 +2297,10 @@ struct obj *obj;
 	const char *wrapped_what = (char *)0;
 
 	if (mtmp) {
-	    if (bigmonst(mtmp->data)) {
+            /* PvP check: you can use other players as anchors to drag
+               yourself towards them (as it doesn't affect them, but
+               not attack them. */
+	    if (bigmonst(mtmp->data) || is_mp_player(mtmp)) {
 		wrapped_what = strcpy(buf, mon_nam(mtmp));
 	    } else if (proficient) {
 		if (attack(mtmp)) return 1;
@@ -2314,7 +2331,7 @@ struct obj *obj;
 	    if (mtmp) wakeup(mtmp);
 	} else pline("%s",msg_snap);
 
-    } else if (mtmp) {
+    } else if (mtmp && !is_mp_player(mtmp)) {
 	if (!canspotmon(mtmp) &&
 		!glyph_is_invisible(levl[rx][ry].glyph)) {
 	   pline("A monster is there that you couldn't see.");
@@ -2489,6 +2506,12 @@ use_pole (obj)
 	if ((mtmp = m_at(cc.x, cc.y)) != (struct monst *)0) {
 	    int oldhp = mtmp->mhp;
 
+            if (is_mp_player(mtmp)) { /* PvP check */
+              pline("I doubt %s would like to be poked with a polearm.",
+                    mon_nam(mtmp));
+              return res;
+            }
+
 	    bhitpos = cc;
 	    check_caitiff(mtmp);
 	    (void) thitmonst(mtmp, uwep);
@@ -2633,6 +2656,7 @@ use_grapple (obj)
 	    break;
 	case 2:	/* Monster */
 	    if ((mtmp = m_at(cc.x, cc.y)) == (struct monst *)0) break;
+            if (is_mp_player(mtmp)) break; /* PvP check */
 	    if (verysmall(mtmp->data) && !rn2(4) &&
 			enexto(&cc, u.ux, u.uy, (struct permonst *)0)) {
 		You("pull in %s!", mon_nam(mtmp));
@@ -2802,7 +2826,9 @@ do_break_wand(obj)
 		}
 		if (flags.botl) bot();		/* blindness */
 	    } else if ((mon = m_at(x, y)) != 0) {
-		(void) bhitm(mon, obj);
+                if (!is_mp_player(mon))
+                  (void) bhitm(mon, obj);
+                message_monster(mon, "A wand explodes nearby!");
 	     /* if (flags.botl) bot(); */
 	    }
 	    if (affects_objects && level.objects[x][y]) {

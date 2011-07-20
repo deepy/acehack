@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)muse.c	3.4	2002/12/23	*/
 /*	Copyright (C) 1990 by Ken Arromdee			   */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details.  */
 
 /*
@@ -60,6 +60,8 @@ struct monst *mon;
 struct obj *obj;
 {
 	boolean vis;
+
+        if (is_mp_player(mon)) return 2; /* sanity; why are we in AI code? */
 
 	if (!obj) return 0;
 	vis = cansee(mon->mx, mon->my);
@@ -531,6 +533,11 @@ struct monst *mtmp;
 	struct obj *otmp = m.defensive;
 	boolean vis, vismon, oseen;
 	const char *mcsa = "%s can see again.";
+
+        if (is_mp_player(mtmp)) {
+          impossible("finding defensive AI action for human-controlled player?");
+          return 2;
+        }
 
 	if ((i = precheck(mtmp, otmp)) != 0) return i;
 	vis = cansee(mtmp->mx, mtmp->my);
@@ -1116,6 +1123,11 @@ register struct obj *otmp;
 	int tmp;
 
 	boolean reveal_invis = FALSE;
+
+        /* can happen if a monster targets one player and hits another by
+           mistake; we force a miss */
+        boolean nondriving = !!is_mp_player(mtmp);
+
 	if (mtmp != &youmonst) {
 		mtmp->msleeping = 0;
 		if (mtmp->m_ap_type) seemimic(mtmp);
@@ -1136,10 +1148,10 @@ register struct obj *otmp;
 			} else pline_The("wand misses you.");
 			stop_occupation();
 			nomul(0);
-		} else if (resists_magm(mtmp)) {
+		} else if (!nondriving && resists_magm(mtmp)) {
 			shieldeff(mtmp->mx, mtmp->my);
 			pline("Boing!");
-		} else if (rnd(20) < 10+find_mac(mtmp)) {
+		} else if (!nondriving && rnd(20) < 10+find_mac(mtmp)) {
 			tmp = d(2,12);
 			hit("wand", mtmp, exclam(tmp));
 			(void) resist(mtmp, otmp->oclass, tmp, TELL);
@@ -1155,7 +1167,7 @@ register struct obj *otmp;
 		if (mtmp == &youmonst) {
 			if (zap_oseen) makeknown(WAN_TELEPORTATION);
 			tele();
-		} else {
+		} else if (!nondriving) {
 			/* for consistency with zap.c, don't identify */
 			if (mtmp->ispriest &&
 				*in_rooms(mtmp->mx, mtmp->my, TEMPLE)) {
@@ -1169,7 +1181,8 @@ register struct obj *otmp;
 		break;
 	case WAN_CANCELLATION:
 	case SPE_CANCELLATION:
-		(void) cancel_monst(mtmp, otmp, FALSE, TRUE, FALSE);
+                if (!nondriving)
+                  (void) cancel_monst(mtmp, otmp, FALSE, TRUE, FALSE);
 		break;
 	}
 	if (reveal_invis) {
@@ -1283,6 +1296,11 @@ struct monst *mtmp;
 	int i;
 	struct obj *otmp = m.offensive;
 	boolean oseen;
+
+        if (is_mp_player(mtmp)) {
+          impossible("calling offensive AI code for player?");
+          return 2;
+        }
 
 	/* offensive potions are not drunk, they're thrown */
 	if (otmp->oclass != POTION_CLASS && (i = precheck(mtmp, otmp)) != 0)
@@ -1729,6 +1747,11 @@ struct monst *mtmp;
 	struct obj *otmp = m.misc;
 	boolean vis, vismon, oseen;
 	char nambuf[BUFSZ];
+
+        if (is_mp_player(mtmp)) {
+          impossible("calling misc monster AI for a player?");
+          return 2;
+        }
 
 	if ((i = precheck(mtmp, otmp)) != 0) return i;
 	vis = cansee(mtmp->mx, mtmp->my);

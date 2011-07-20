@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)potion.c	3.4	2002/10/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Dec 2011 by Alex Smith */
+/* Modified 23 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -972,6 +972,23 @@ bottlename()
 	return bottlenames[rn2(SIZE(bottlenames))];
 }
 
+STATIC_DCL void
+potion_dissipates(mon, bnam)
+struct monst *mon;
+const char *bnam;
+{
+  if (is_pool(mon->mx, mon->my))
+    pline_The("%s falls into the water, smashes, and dilutes away.", bnam);
+  else if (is_lava(mon->mx, mon->my))
+    pline_The("%s falls into the lava and vanishes.", bnam);
+  else if (is_ice(mon->mx, mon->my))
+    pline_The("%s lands on the ice, freezes, and shatters.", bnam);
+  else if (Is_airlevel(&u.uz))
+    pline_The("%s gets caught in a gust of wind and vanishes out of sight.", bnam);
+  else
+    pline_The("%s breaks on the ground, and the puddle quickly dries.", bnam);
+}
+
 void
 potionhit(mon, obj, your_fault)
 register struct monst *mon;
@@ -982,7 +999,17 @@ boolean your_fault;
 	boolean isyou = (mon == &youmonst);
 	int distance;
 
-	if(isyou) {
+        if (is_mp_player(mon)) {
+          /* This one's tricky. I think it can trigger (although there
+             are is_mp_player checks on so many things it's hard to be
+             sure...), and it's not clear how to force the potion to
+             miss, break, and do nothing else. We use a helper function
+             potion_dissipates, because it's the sort of thing that
+             might plausibly be reusable elsewhere. */
+          potion_dissipates(mon, botlnam);
+          message_monster(mon, "A potion bottle hurtles towards you, but misses.");
+          return;
+        } else if (isyou) {
 		distance = 0;
 		pline_The("%s crashes on your %s and breaks into shards.",
 			botlnam, body_part(HEAD));
@@ -2022,6 +2049,11 @@ struct monst *mon,	/* monster being split */
 {
 	struct monst *mtmp2;
 	char reason[BUFSZ];
+
+        if (is_mp_player(mon)) {
+          impossible("splitting non-driving player?");
+          return (struct monst *)0;
+        }
 
 	reason[0] = '\0';
 	if (mtmp) Sprintf(reason, " from %s heat",

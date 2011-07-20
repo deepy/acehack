@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)zap.c	3.4	2003/08/24	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -107,6 +107,7 @@ struct obj *otmp;
 {
 	boolean wake = TRUE;	/* Most 'zaps' should wake monster */
 	boolean reveal_invis = FALSE;
+        boolean pvp = FALSE;
 	boolean dbldam = Role_if(PM_KNIGHT) && u.uhave.questart;
 	int dmg, otyp = otmp->otyp;
 	const char *zap_type_text = "spell";
@@ -117,16 +118,19 @@ struct obj *otmp;
 	if (u.uswallow && mtmp == u.ustuck)
 	    reveal_invis = FALSE;
 
+        /* For all detrimental beams, we force a miss in attempted PvP. */
+        if (is_mp_player(mtmp)) pvp = TRUE;
+
 	switch(otyp) {
 	case WAN_STRIKING:
 		zap_type_text = "wand";
 		/* fall through */
 	case SPE_FORCE_BOLT:
 		reveal_invis = TRUE;
-		if (resists_magm(mtmp)) {	/* match effect on player */
+		if (resists_magm(mtmp) && !pvp) {	/* match effect on player */
 			shieldeff(mtmp->mx, mtmp->my);
 			break;	/* skip makeknown */
-		} else if (u.uswallow || rnd(20) < 10 + find_mac(mtmp)) {
+		} else if ((u.uswallow || rnd(20) < 10 + find_mac(mtmp)) && !pvp) {
 			dmg = d(2,12);
 			if(dbldam) dmg *= 2;
 			if (otyp == SPE_FORCE_BOLT)
@@ -138,7 +142,7 @@ struct obj *otmp;
 		break;
 	case WAN_SLOW_MONSTER:
 	case SPE_SLOW_MONSTER:
-		if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
+		if (!pvp && !resist(mtmp, otmp->oclass, 0, NOTELL)) {
 			mon_adjust_speed(mtmp, -1, otmp);
 			m_dowear(mtmp, FALSE); /* might want speed boots */
 			if (u.uswallow && (mtmp == u.ustuck) &&
@@ -150,7 +154,9 @@ struct obj *otmp;
 		}
 		break;
 	case WAN_SPEED_MONSTER:
-		if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
+                if (pvp)
+                  mp_message_and_reply(is_mp_player(mtmp), "b", "speed", FALSE);
+		else if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
 			mon_adjust_speed(mtmp, 1, otmp);
 			m_dowear(mtmp, FALSE); /* might want speed boots */
 		}
@@ -158,8 +164,8 @@ struct obj *otmp;
 	case WAN_UNDEAD_TURNING:
 	case SPE_TURN_UNDEAD:
 		wake = FALSE;
-		if (unturn_dead(mtmp)) wake = TRUE;
-		if (is_undead(mtmp->data)) {
+		if (!pvp && unturn_dead(mtmp)) wake = TRUE;
+		if (!pvp && is_undead(mtmp->data)) {
 			reveal_invis = TRUE;
 			wake = TRUE;
 			dmg = rnd(8);
@@ -175,11 +181,11 @@ struct obj *otmp;
 	case WAN_POLYMORPH:
 	case SPE_POLYMORPH:
 	case POT_POLYMORPH:
-		if (resists_magm(mtmp)) {
+		if (!pvp && resists_magm(mtmp)) {
 		    /* magic resistance protects from polymorph traps, so make
 		       it guard against involuntary polymorph attacks too... */
 		    shieldeff(mtmp->mx, mtmp->my);
-		} else if (!resist(mtmp, otmp->oclass, 0, NOTELL)) {
+		} else if (!pvp && !resist(mtmp, otmp->oclass, 0, NOTELL)) {
 		    /* natural shapechangers aren't affected by system shock
 		       (unless protection from shapechangers is interfering
 		       with their metabolism...) */
@@ -203,24 +209,40 @@ struct obj *otmp;
 		break;
 	case WAN_CANCELLATION:
 	case SPE_CANCELLATION:
+                if (!pvp)
 		(void) cancel_monst(mtmp, otmp, TRUE, TRUE, FALSE);
 		break;
 	case WAN_TELEPORTATION:
 	case SPE_TELEPORT_AWAY:
-		reveal_invis = !u_teleport_mon(mtmp, TRUE);
+                /* This is arguably a beneficial effect, at least sometimes.
+                   But block it in multiplayer as it causes too many problems
+                   (in particular, things that change location can't be safely
+                   handled when flushing the multiplayer action log). */
+                if (!pvp)
+		  reveal_invis = !u_teleport_mon(mtmp, TRUE);
+                else You_cant("teleport an ally.");
 		break;
 	case WAN_MAKE_INVISIBLE:
 	    {
 		int oldinvis = mtmp->minvis;
 		char nambuf[BUFSZ];
 
-		/* format monster's name before altering its visibility */
-		Strcpy(nambuf, Monnam(mtmp));
-		mon_set_minvis(mtmp);
-		if (!oldinvis && knowninvisible(mtmp)) {
+                /* However, this effect, arguably sometimes negative, does
+                   work in multiplayer. Note that placeholder monsters are
+                   always visible when inside LOS; players can communicate
+                   and share map memory, so it's assumed they can determine
+                   the others' presence somehow. */
+                if (pvp)
+                  mp_message_and_reply(is_mp_player(mtmp), "b", "invis", FALSE);
+                else {
+                  /* format monster's name before altering its visibility */
+                  Strcpy(nambuf, Monnam(mtmp));
+                  mon_set_minvis(mtmp);
+                  if (!oldinvis && knowninvisible(mtmp)) {
 		    pline("%s turns transparent!", nambuf);
 		    makeknown(otyp);
-		}
+                  }
+                }
 		break;
 	    }
 	case WAN_NOTHING:
@@ -231,7 +253,8 @@ struct obj *otmp;
 	case WAN_PROBING:
 		wake = FALSE;
 		reveal_invis = TRUE;
-		probe_monster(mtmp);
+		if (!pvp) probe_monster(mtmp);
+                else pline("That monster is too intelligent to be probed.");
 		makeknown(otyp);
 		break;
 	case WAN_OPENING:
@@ -258,7 +281,12 @@ struct obj *otmp;
 	case SPE_HEALING:
 	case SPE_EXTRA_HEALING:
 		reveal_invis = TRUE;
-	    if (mtmp->data != &mons[PM_PESTILENCE]) {
+            if (pvp)
+                mp_message_and_reply(is_mp_player(mtmp), "b",
+                                     otyp == SPE_EXTRA_HEALING ? "eheal" : "heal",
+                                     FALSE);
+
+	    else if (mtmp->data != &mons[PM_PESTILENCE]) {
 		wake = FALSE;		/* wakeup() makes the target angry */
 		mtmp->mhp += d(6, otyp == SPE_EXTRA_HEALING ? 8 : 4);
 		if (mtmp->mhp > mtmp->mhpmax)
@@ -289,7 +317,7 @@ struct obj *otmp;
 	    }
 		break;
 	case WAN_LIGHT:	/* (broken wand) */
-		if (flash_hits_mon(mtmp, otmp)) {
+		if (!pvp && flash_hits_mon(mtmp, otmp)) {
 		    makeknown(WAN_LIGHT);
 		    reveal_invis = TRUE;
 		}
@@ -298,12 +326,18 @@ struct obj *otmp;
 		/* [wakeup() doesn't rouse victims of temporary sleep,
 		    so it's okay to leave `wake' set to TRUE here] */
 		reveal_invis = TRUE;
-		if (sleep_monst(mtmp, d(1 + otmp->spe, 12), WAND_CLASS))
+                if (!pvp) {
+                  if (sleep_monst(mtmp, d(1 + otmp->spe, 12), WAND_CLASS))
 		    slept_monst(mtmp);
-		if (!Blind) makeknown(WAN_SLEEP);
+                  if (!Blind) makeknown(WAN_SLEEP);
+                }
 		break;
 	case SPE_STONE_TO_FLESH:
-		if (monsndx(mtmp->data) == PM_STONE_GOLEM) {
+                /* Stone-to-fleshing an ally is not banned in no-PvP, but
+                   has no effect but stopping slow stoning. */
+                if (pvp)
+                  mp_message_and_reply(is_mp_player(mtmp), "b", "s2f", FALSE);
+		else if (monsndx(mtmp->data) == PM_STONE_GOLEM) {
 		    char *name = Monnam(mtmp);
 		    /* turn into flesh golem */
 		    if (newcham(mtmp, &mons[PM_FLESH_GOLEM], FALSE, FALSE)) {
@@ -322,9 +356,9 @@ struct obj *otmp;
 		if(dbldam) dmg *= 2;
 		if (otyp == SPE_DRAIN_LIFE)
 			dmg += spell_damage_bonus();
-		if (resists_drli(mtmp))
+		if (!pvp && resists_drli(mtmp))
 		    shieldeff(mtmp->mx, mtmp->my);
-		else if (!resist(mtmp, otmp->oclass, dmg, NOTELL) &&
+		else if (!pvp && !resist(mtmp, otmp->oclass, dmg, NOTELL) &&
 				mtmp->mhp > 0) {
 		    mtmp->mhp -= dmg;
 		    mtmp->mhpmax -= dmg;
@@ -341,7 +375,7 @@ struct obj *otmp;
 		impossible("What an interesting effect (%d)", otyp);
 		break;
 	}
-	if(wake) {
+	if(wake && !pvp) {
 	    if(mtmp->mhp > 0) {
 		wakeup(mtmp);
 		m_respond(mtmp);
@@ -368,6 +402,7 @@ struct monst *mtmp;
 	struct obj *otmp;
 
 	mstatusline(mtmp);
+        if (is_mp_player(mtmp)) return; /* inventory not known */
 	if (notonhead) return;	/* don't show minvent for long worm tail */
 
 #ifndef GOLDOBJ
@@ -664,6 +699,13 @@ register struct obj *obj;
 			    }
 			    /* don't mess with obj->oxlth here */
 			    obj->oattached = OATTACHED_NOTHING;
+
+                            /* don't allow revival to create something that looks
+                               like a nondriving player, it'll crash the game */
+                            if (is_mplayer(mtmp->data) && savetame) {
+                              savetame = 0;
+                              mtmp->mpeaceful = TRUE;
+                            }
 			}
 			/* Monster retains its name */
 			if (obj->onamelth)
@@ -743,6 +785,8 @@ struct monst *mon;
 	char owner[BUFSZ], corpse[BUFSZ];
 	boolean youseeit;
 	int once = 0, res = 0;
+
+        if (mon != &youmonst && is_mp_player(mon)) return 0; /* sanity */
 
 	youseeit = (mon == &youmonst) ? TRUE : canseemon(mon);
 	otmp2 = (mon == &youmonst) ? invent : mon->minvent;
@@ -2172,6 +2216,57 @@ boolean ordinary;
 	return(damage);
 }
 
+void
+handle_mp_zap(ecode)
+const char *ecode;
+{
+  /* TODO: make rYou only transmit messages to players that can see
+     us (not quite the same as transmitting only to player that we
+     can see */
+  /* speed monster: "speed" */
+  if (!strcmp(ecode, "speed")) {
+    if (!(HFast & INTRINSIC)) {
+      if (!Fast) {
+        You("speed up.");
+        rYou("seems to be moving more quickly.");
+      } else
+        Your("quickness feels more natural.");
+      makeknown(WAN_SPEED_MONSTER);
+      exercise(A_DEX, TRUE);
+    }
+    HFast |= FROMOUTSIDE;
+  }
+  /* make invisible: "invis" */
+  else if (!strcmp(ecode, "invis")) {
+    /* make this only temporary if inflicted by someone else */
+    boolean was_invisible = !!Invis;
+    if (!BInvis) { /* not blocked */
+      incr_itimeout(&HInvis, d(4, 250));
+      if (!was_invisible) {
+        self_invis_message();
+        /* explain the lack of PvP invisibility */
+        rYou(" vanishes; but you can sense the location of your nearby allies.");
+      }
+    }
+  }
+  /* healing: "heal" */
+  /* extra healing: "eheal" */
+  else if (!strcmp(ecode, "heal") || !strcmp(ecode, "eheal")) {
+    healup(d(6, *ecode == 'e' ? 8 : 4),
+           0, FALSE, (*ecode == 'e'));
+    You_feel("%sbetter.",
+             *ecode == 'e' ? "much " : "");
+    rYou(" seems healthier.");
+  }
+  /* stone-to-flesh: "s2f" */
+  else if (!strcmp(ecode, "s2f")) {
+    if (Stoned) {
+      fix_petrification();
+      rYou(" seems more limber.");
+    }
+  }
+}
+
 #ifdef STEED
 /* you've zapped a wand downwards while riding
  * Return TRUE if the steed was hit by the wand.
@@ -2257,6 +2352,8 @@ boolean			youattack, allow_cancel_kill, self_cancel;
 	if (youdefend ? (!youattack && Antimagic)
 		      : resist(mdef, obj->oclass, 0, NOTELL))
 		return FALSE;	/* resisted cancellation */
+
+        if (is_mp_player(mdef)) return FALSE; /* sanity */
 
 	if (self_cancel) {	/* 1st cancel inventory */
 	    struct obj *otmp;
@@ -2596,6 +2693,11 @@ register const char *str;
 register struct monst *mtmp;
 register const char *force;		/* usually either "." or "!" */
 {
+        /* Non driving players shouldn't be hit by anything at all.
+           If they are, that indicates a bug elsewhere in the code;
+           warn about it so that the offending bit of code can be
+           made PvP-safe. */
+        if (is_mp_player(mtmp)) impossible("nondriving player hit?");
 	if((!cansee(bhitpos.x,bhitpos.y) && !canspotmon(mtmp) &&
 	     !(u.uswallow && mtmp == u.ustuck))
 	   || !flags.verbose)
@@ -2613,6 +2715,15 @@ register struct monst *mtmp;
 	      ((cansee(bhitpos.x,bhitpos.y) || canspotmon(mtmp))
 	       && flags.verbose) ?
 	      mon_nam(mtmp) : "it");
+        if (is_mp_player(mtmp)) {
+          /* Tell the player that was missed that they were missed.
+             Of course, the miss was forced due to the player being
+             nondriving (either PvP ban or monster AI screwup), but
+             that isn't necessarily apparent to the player. */
+            char buf[BUFSZ];
+            Sprintf(buf, "%s %s you.", An(str), vtense(str, "miss"));
+            message_monster(mtmp, buf);
+        }
 }
 #endif /*OVL0*/
 #ifdef OVL1
@@ -2928,6 +3039,8 @@ struct obj **ootmp;	/* to return worn armor for caller to disintegrate */
 	register int abstype = abs(type) % 10;
 	boolean sho_shieldeff = FALSE;
 	boolean spellcaster = is_hero_spell(type); /* maybe get a bonus! */
+
+        if (is_mp_player(mon)) return 0; /* sanity */
 
 	*ootmp = (struct obj *)0;
 	switch(abstype) {
@@ -3366,7 +3479,7 @@ register int dx,dy;
 #ifdef STEED
 	    buzzmonst:
 #endif
-	    if (zap_hit(find_mac(mon), spell_type)) {
+	    if (zap_hit(find_mac(mon), spell_type) && !is_mp_player(mon)) {
 		if (mon_reflects(mon, (char *)0)) {
 		    if(cansee(mon->mx,mon->my)) {
 			hit(fltxt, mon, exclam(0));
@@ -3984,7 +4097,9 @@ int osym, dmgtyp;
 	if (mtmp == &youmonst) {	/* this simplifies artifact_hit() */
 	    destroy_item(osym, dmgtyp);
 	    return 0;	/* arbitrary; value doesn't matter to artifact_hit() */
-	}
+	} else if (is_mp_player(mtmp)) {
+            return 0;   /* can't destroy nondriving players' items */
+        }
 
 	vis = canseemon(mtmp);
 	for(obj = mtmp->minvent; obj; obj = obj2) {
@@ -4094,6 +4209,11 @@ int damage, tell;
 	dlev = (int)mtmp->m_lev;
 	if (dlev > 50) dlev = 50;
 	else if (dlev < 1) dlev = is_mplayer(mtmp->data) ? u.ulevel : 1;
+
+        /* this function shouldn't really be called for nondriving
+           players, but just in case it is, force a resistance and
+           neutralize damage */
+        if (is_mp_player(mtmp)) return 1; /* why not a boolean? */
 
 	resisted = rn2(100 + alev - dlev) < mtmp->data->mr;
 	if (resisted) {

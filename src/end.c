@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)end.c	3.4	2003/03/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Jul 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS	/* comment line for pre-compiled headers */
@@ -211,6 +211,9 @@ register struct monst *mtmp;
 {
 	char buf[BUFSZ];
 	boolean distorted = (boolean)(Hallucination && canspotmon(mtmp));
+
+        if (mtmp && is_mp_player(mtmp))
+          impossible("killed by PvP while driving?");
 
 	You("die...");
 	mark_synch();	/* flush buffered screen output */

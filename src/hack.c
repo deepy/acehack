@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)hack.c	3.4	2003/04/30	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 3 Jul 2011 by Alex Smith */
+/* Modified 18 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -37,8 +37,10 @@ const char *msg;
 	if (otmp->otyp == CORPSE &&
 	    (is_rider(&mons[otmp->corpsenm]) ||
 	     otmp->corpsenm == PM_WIZARD_OF_YENDOR)) {
-	    /* move any living monster already at that location */
-	    if((mtmp = m_at(x,y)) && enexto(&cc, x, y, mtmp->data))
+	    /* move any living monster already at that location,
+               except for other players */
+	    if((mtmp = m_at(x,y)) && enexto(&cc, x, y, mtmp->data) &&
+               !is_mp_player(mtmp))
 		rloc_to(mtmp, cc.x, cc.y);
 	    if(msg) Norep("%s", msg);
 	    revived = revive_corpse(otmp);
@@ -48,7 +50,9 @@ const char *msg;
     /* this location might not be safe, if not, move revived monster */
     if (revived) {
 	mtmp = m_at(x,y);
-	if (mtmp && !goodpos(x, y, mtmp, 0) &&
+        /* is_mp_player case can happen when another player was standing
+           on the corpse */
+	if (mtmp && !is_mp_player(mtmp) && !goodpos(x, y, mtmp, 0) &&
 	    enexto(&cc, x, y, mtmp->data)) {
 	    rloc_to(mtmp, cc.x, cc.y);
 	}
@@ -112,9 +116,9 @@ moverock()
 		return (-1);
 
 	    if (mtmp && !noncorporeal(mtmp->data) &&
-		    (!mtmp->mtrapped ||
-			 !(ttmp && ((ttmp->ttyp == PIT) ||
-				    (ttmp->ttyp == SPIKED_PIT))))) {
+                (!mtmp->mtrapped || is_mp_player(mtmp) || /* PvP check */
+                 !(ttmp && ((ttmp->ttyp == PIT) ||
+                            (ttmp->ttyp == SPIKED_PIT))))) {
 		if (Blind) feel_location(sx, sy);
 		if (canspotmon(mtmp))
 		    pline("There's %s on the other side.", a_monnam(mtmp));
@@ -1161,10 +1165,11 @@ domove()
 		}
 
 		mtmp = m_at(x,y);
-		if (mtmp && !is_safepet(mtmp)) {
+		if (mtmp && !is_safepet(mtmp) && !is_mp_player(mtmp)) {
 			/* Don't attack if you're running, and can see it */
                         /* It's fine to displace pets, though */
-			/* We should never get here if forcefight */
+			/* We should never get here if forcefight, except
+                           in the case of is_mp_player which overrides that */
 			if (flags.run &&
 			    ((!Blind && mon_visible(mtmp) &&
 			      ((mtmp->m_ap_type != M_AP_FURNITURE &&
@@ -1211,7 +1216,8 @@ domove()
 	     * if the monster is unseen and the player doesn't remember an
 	     * invisible monster--then, we fall through to attack() and
 	     * attack_check(), which still wastes a turn, but prints a
-	     * different message and makes the player remember the monster.		     */
+	     * different message and makes the player remember the monster.
+             */
 	    if(flags.nopick && !flags.travel &&
 		  (canspotmon(mtmp) || glyph_is_invisible(levl[x][y].glyph))){
 		if(mtmp->m_ap_type && !Protection_from_shape_changers
@@ -1444,8 +1450,12 @@ domove()
 	if (!in_out_region(x,y))
 	    return;
 
- 	/* now move the hero */
+        /* sanity: prevent displacing another player even if there's some
+           obscure key input that gets this far */
 	mtmp = m_at(x, y);
+        if (is_mp_player(mtmp)) {flags.move = 0; nomul(0); return;}
+
+ 	/* now move the hero */
 	u.ux += u.dx;
 	u.uy += u.dy;
 #ifdef STEED
@@ -2022,7 +2032,8 @@ register boolean newlev;
 		}
 		if (rt == COURT || rt == SWAMP || rt == MORGUE || rt == ZOO)
 		    for(mtmp = fmon; mtmp; mtmp = mtmp->nmon)
-			if (!DEADMONSTER(mtmp) && !Stealth && !rn2(3)) mtmp->msleeping = 0;
+			if (!DEADMONSTER(mtmp) && !Stealth && !rn2(3) &&
+                            !is_mp_player(mtmp)) mtmp->msleeping = 0;
 	    }
 	}
 

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)spell.c	3.4	2003/01/17	*/
 /*	Copyright (c) M. Stephenson 1988			  */
-/* Modified 4 Jul 2011 by Alex Smith */
+/* Modified 15 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -253,6 +253,7 @@ struct obj *book2;
 	    u.uevent.invoked = 1;
 	    /* in case you haven't killed the Wizard yet, behave as if
 	       you just did */
+
 	    u.uevent.udemigod = 1;	/* wizdead() */
 	    if (!u.udg_cnt || u.udg_cnt > soon) u.udg_cnt = soon;
 	} else {	/* at least one artifact not prepared properly */
@@ -285,6 +286,7 @@ raise_dead:
 	for(mtmp = fmon; mtmp; mtmp = mtmp2) {
 	    mtmp2 = mtmp->nmon;		/* tamedog() changes chain */
 	    if (DEADMONSTER(mtmp)) continue;
+            if (is_mp_player(mtmp)) continue;
 
 	    if (is_undead(mtmp->data) && cansee(mtmp->mx, mtmp->my)) {
 		mtmp->mpeaceful = TRUE;

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)steal.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 20 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -439,6 +439,11 @@ register struct obj *otmp;
 {
     int freed_otmp;
 
+    if (is_mp_player(mtmp)) { /* sanity */
+      impossible("Adding to inventory of another player?");
+      return 0;
+    }
+
 #ifndef GOLDOBJ
     if (otmp->oclass == COIN_CLASS) {
 	mtmp->mgold += otmp->quan;
@@ -489,7 +494,10 @@ struct monst *mtmp;
 	for(otmp = invent; otmp; otmp = otmp->nobj)
 	    if(is_quest_artifact(otmp)) break;
 	if (!otmp) return;	/* should we panic instead? */
-    } else if(u.uhave.bell) {
+    } else if(u.uhave.bell && !iflags.multiplayer) {
+      /* u.uhave.bell is not used in multiplayer, because there can be
+         multiple Bells in the game, and thus it can get out of sync.
+         So we just make the Bell ineligible for covetous theft. */
 	real = BELL_OF_OPENING;
 	fake = BELL;
     } else if(u.uhave.book) {
@@ -529,6 +537,11 @@ struct obj *obj;
 boolean verbosely;
 {
     int omx = mon->mx, omy = mon->my;
+
+    if (is_mp_player(mon)) {
+      impossible("Nondriving player dropping object?");
+      return;
+    }
 
     if (obj->owornmask) {
 	/* perform worn item handling if the monster is still alive */

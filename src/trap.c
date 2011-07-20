@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)trap.c	3.4	2003/10/20	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Mar 2011 by Alex Smith */
+/* Modified 16 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -60,7 +60,8 @@ struct monst *victim;
     char buf[BUFSZ];
     int mat_idx;
     
-    if (!victim) return 0;
+    if (!victim) return FALSE;
+    if (is_mp_player(victim)) return FALSE; /* sanity */
 #define burn_dmg(obj,descr) rust_dmg(obj, descr, 0, FALSE, victim)
     while (1) {
 	switch (rn2(5)) {
@@ -130,6 +131,7 @@ struct monst *victim;
 	int erosion;
 
 	if (!otmp) return(FALSE);
+        if (victim && is_mp_player(victim)) return(FALSE); /* just in case */
 	switch(type) {
 		case 0: vulnerable = is_flammable(otmp);
 			break;
@@ -209,6 +211,8 @@ struct monst *victim;
 {
 	static const char txt[] = "protected by the layer of grease!";
 	boolean vismon = victim && (victim != &youmonst) && canseemon(victim);
+
+        if (victim && is_mp_player(victim)) return; /* just in case */
 
 	if (ostr) {
 	    if (victim == &youmonst)
@@ -510,6 +514,10 @@ int *fail_reason;
 	if (x == u.ux && y == u.uy &&
 		Upolyd && hides_under(youmonst.data) && !OBJ_AT(x, y))
 	    u.uundetected = 0;
+
+        /* probably unneccessary, but Very Bad Things would happen if this
+           happened somehow */
+        if (is_mplayer(mon->data)) mon->mtame = 0;
 
 	if (fail_reason) *fail_reason = AS_OK;
 	return mon;
@@ -1400,6 +1408,12 @@ int style;
 		t = t_at(bhitpos.x, bhitpos.y);
 		
 		if ((mtmp = m_at(bhitpos.x, bhitpos.y)) != 0) {
+                    if (is_mp_player(mtmp)) {
+                        /* Ban PvP */
+                        pline("%s deftly dodges the boulder.",
+                              Monnam(mtmp));
+                        message_monster(mtmp, "A boulder rolls at you, but you dodge.");
+                    } else {
 			if (otyp == BOULDER && throws_rocks(mtmp->data)) {
 			    if (rn2(3)) {
 				pline("%s snatches the boulder.",
@@ -1415,6 +1429,7 @@ int style;
 				used_up = TRUE;
 				break;
 			}
+                    }
 		} else if (bhitpos.x == u.ux && bhitpos.y == u.uy) {
 			if (multi) nomul(0);
 			if (thitu(9 + singleobj->spe,
@@ -1651,6 +1666,12 @@ register struct monst *mtmp;
 	boolean trapkilled = FALSE;
 	struct permonst *mptr = mtmp->data;
 	struct obj *otmp;
+
+        if (is_mp_player(mtmp)) {
+          /* The player will get trap effects on their own turn.
+             So we don't do them now. */
+          return mtmp->mtrapped;
+        }
 
 	if (!trap) {
 	    mtmp->mtrapped = 0;	/* perhaps teleported? */
@@ -2557,6 +2578,10 @@ domagictrap()
 		       for(i = -1; i <= 1; i++) for(j = -1; j <= 1; j++) {
 			   if(!isok(u.ux+i, u.uy+j)) continue;
 			   mtmp = m_at(u.ux+i, u.uy+j);
+                           /* redundant unless the exact value of
+                              mp_player tameness means something in
+                              the future */
+                           if(is_mp_player(mtmp)) continue;
 			   if(mtmp)
 			       (void) tamedog(mtmp, (struct obj *)0);
 		       }
@@ -3125,6 +3150,15 @@ boolean force_failure;
 		return 0;
 	}
 
+        if (mtmp && is_mp_player(mtmp)) {
+          /* TODO: It would be nice to actually implement untrapping
+             other players, but a little complex. For the time being,
+             just PvP-block it even though it isn't a hostile action
+             at all, and refund the action. */
+          pline("It doesn't seem to be helping much...");
+          return 0;
+        }
+
 	/* Will our hero succeed? */
 	if (force_failure || untrap_prob(ttmp)) {
 		if (rnl(5)) {
@@ -3202,6 +3236,7 @@ struct trap *ttmp;
 	/* untrap the monster, if any.
 	   There's no need for a cockatrice test, only the trap is touched */
 	if ((mtmp = m_at(ttmp->tx,ttmp->ty)) != 0) {
+                /* is_mp_player checked in try_disarm */
 		mtmp->mtrapped = 0;
 		You("remove %s %s from %s.", the_your[ttmp->madeby_u],
 			(ttmp->ttyp == BEAR_TRAP) ? "bear trap" : "webbing",
@@ -3328,6 +3363,10 @@ struct trap *ttmp;
 	 *
 	 * Test the monster first - monsters are displayed before traps.
 	 */
+        if (is_mp_player(mtmp)) {
+                pline("It doesn't seem to be helping much...");
+                return 0;
+        }
 	if (!mtmp->mtrapped) {
 		pline("%s isn't trapped.", Monnam(mtmp));
 		return 0;
@@ -3920,12 +3959,16 @@ boolean nocorpse;
 	else if (obj) strike = (find_mac(mon) + tlev + obj->spe <= rnd(20));
 	else strike = (find_mac(mon) + tlev <= rnd(20));
 
+        /* PvP/nondriving check: force misses on nondriving players */
+        if (is_mp_player(mon)) strike = FALSE;
+
 	/* Actually more accurate than thitu, which doesn't take
 	 * obj->spe into account.
 	 */
 	if(!strike) {
 		if (obj && cansee(mon->mx, mon->my))
 		    pline("%s is almost hit by %s!", Monnam(mon), doname(obj));
+                message_monster(mon, "You are almost hit by a trap!");
 	} else {
 		int dam = 1;
 

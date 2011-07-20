@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)dogmove.c	3.4	2002/09/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 May 2011 by Alex Smith */
+/* Modified 18 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -307,6 +307,9 @@ boolean devour;
 #ifdef PET_SATIATION
 	boolean can_choke = (edog->hungrytime >= monstermoves + DOG_SATIATED);
 #else
+
+        if (is_mp_player(mtmp)) return 1; /* sanity */
+
         // disabled if pets can choke;
 	// if they're really hungry you should feed them big food!
 	if(edog->hungrytime < monstermoves)
@@ -410,6 +413,8 @@ dog_hunger(mtmp, edog)
 register struct monst *mtmp;
 register struct edog *edog;
 {
+        /* starvation handled separately for other players */
+        if (is_mp_player(mtmp)) return FALSE;
         if (monstermoves > edog->hungrytime)
 	{
 	    // We're hungry; check if we're carrying anything we can eat
@@ -493,6 +498,7 @@ int udist;
 	boolean droppables = FALSE;
 
 	if (mtmp->msleeping || !mtmp->mcanmove) return(0);
+        if (is_mp_player(mtmp)) return 0; /* no AI for allies */
 
 	omx = mtmp->mx;
 	omy = mtmp->my;
@@ -579,6 +585,9 @@ int after, udist, whappr;
 	if (mtmp == u.usteed)
 		return (-2);
 #endif
+        /* and other players don't move according to the AI */
+        if (is_mp_player(mtmp))
+                return (-2);
 
 	omx = mtmp->mx;
 	omy = mtmp->my;
@@ -733,6 +742,8 @@ register int after;	/* this is extra fast monster movement */
 	long info[9], allowflags;
 #define GDIST(x,y) (dist2(x,y,gx,gy))
 
+        if (is_mp_player(mtmp)) return 0; /* no AI for other players */
+
 	/*
 	 * Tame Angels have isminion set and an ispriest structure instead of
 	 * an edog structure.  Fortunately, guardian Angels need not worry
@@ -843,7 +854,7 @@ register int after;	/* this is extra fast monster movement */
 	    mtmp->mlstmv != monstermoves)
 	{
 	    struct monst *mon = mfind_target(mtmp);
-	    if (mon)
+	    if (mon && !is_mp_player(mon) /* sanity */)
 	    {
 	        if (mattackm(mtmp, mon) & MM_AGR_DIED)
 		    return 2; // died
@@ -902,8 +913,9 @@ register int after;	/* this is extra fast monster movement */
 			  || mtmp2->data->msound == MS_GUARDIAN
 			  || mtmp2->data->msound == MS_LEADER) &&
 			 mtmp2->mpeaceful && !Conflict) ||
-			   (touch_petrifies(mtmp2->data) &&
-				!resists_ston(mtmp)))
+                        (touch_petrifies(mtmp2->data) &&
+                         !resists_ston(mtmp)) ||
+                        is_mp_player(mtmp2))
 			continue;
 
 		    if (after) return(0); /* hit only once each move */
