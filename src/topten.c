@@ -498,7 +498,7 @@ int how;
 #endif /* LOGFILE */
 
 #ifdef XLOGFILE
-	if(lock_file(XLOGFILE, SCOREPREFIX, 10)) {
+	if(!wizard && !discover && lock_file(XLOGFILE, SCOREPREFIX, 10)) {
 		if(!(xlfile = fopen_datafile(XLOGFILE, "a", SCOREPREFIX))) {
 			HUP raw_print("Cannot open extended log file!");
 		} else {
