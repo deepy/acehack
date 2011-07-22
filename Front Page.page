@@ -1,5 +1,7 @@
 **AceHack** is a variant of the computer game [NetHack](http://nethack.org), aimed to keep similar (although not necessarily identical) gameplay to the original game, while improving its interface.
 
+Sorry for the lack of polish; although playable, this fork is still under development and has not yet had an official release (mostly because it still retains some rather weird bugs, that may make the game less enjoyable, or more, depending on your point of view).
+
 You may be interested in the following links:
 
 - [Manually-updated log of differences between NetHack and AceHack](http://patch-tag.com/r/ais523/acehack/snapshot/current/content/raw/doc/fixes36.0)
