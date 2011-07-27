@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Jun 2011 by Alex Smith */
+/* Modified 27 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -323,7 +323,8 @@ doextcmd()	/* here after # - now read a full-word command */
             }
 
             if (extcmdlist[idx].ef_funct == 0)
-              return -REPARSE_AS_KEY - extcmdlist[idx].replacewithkey;
+              return -(int)REPARSE_AS_KEY -
+                (int)(unsigned char)extcmdlist[idx].replacewithkey;
 
             accessed_via_extcmd = TRUE;
 	    retval = (*extcmdlist[idx].ef_funct)();
@@ -1571,9 +1572,9 @@ encode_conduct()
 
 #ifndef M
 # ifndef NHSTDC
-#  define M(c)		(0x80 | (c))
+#  define M(c)		(0x80 | ((unsigned char)c))
 # else
-#  define M(c)		((c) - 128)
+#  define M(c)		(((unsigned char)c) - (unsigned char)128)
 # endif /* NHSTDC */
 #endif
 #ifndef C
@@ -1606,6 +1607,8 @@ struct ext_func_tab extcmdlist[] = {
   {"eastfar", "move east as far as possible", 0, FALSE, 22, 'L', 0, 0, 'L'},
   {"eastfarcareful", "move east until something interesting happens",
    0, FALSE, 23, C('l'), 0, 0, C('l')},
+  {"eastmove", "move east unless it would attack", 0, FALSE, 23,
+   0, 0, 0, M(C('l'))},
   {"eat", "eat an item from inventory or the floor", doeat, FALSE, 10, 'e', 0, 0, 0},
   {"engrave", "write on the floor", doengrave, FALSE, 11, 'E', 0, 0, 0},
   {"enhance", "advance or check weapons skills", enhance_weapon_skill,
@@ -1643,14 +1646,20 @@ struct ext_func_tab extcmdlist[] = {
   {"northfar", "move south as far as possible", 0, FALSE, 22, 'K', 0, 0, 'K'},
   {"northfarcareful", "move south until something interesting happens",
    0, FALSE, 23, C('k'), 0, 0, C('k')},
+  {"northmove", "move north unless it would attack", 0, FALSE, 23,
+   0, 0, 0, M(C('k'))},
   {"northeast", "move, attack, or interact northeast", 0, FALSE, 21, 'u', '9', 0, 'u'},
   {"northeastfar", "move northeast as far as possible", 0, FALSE, 22, 'U', 0, 0, 'U'},
   {"northeastfarcareful", "move northeast until something interesting happens",
    0, FALSE, 23, C('u'), 0, 0, C('u')},
+  {"northeastmove", "move northeast unless it would attack", 0, FALSE, 23,
+   0, 0, 0, M(C('u'))},
   {"northwest", "move, attack, or interact northwest", 0, FALSE, 21, 'y', '7', 0, 'y'},
   {"northwestfar", "move northwest as far as possible", 0, FALSE, 22, 'Y', 0, 0, 'Y'},
   {"northwestfarcareful", "move northwest until something interesting happens",
    0, FALSE, 23, C('y'), 0, 0, C('y')},
+  {"northwestmove", "move northwest unless it would attack", 0, FALSE, 23,
+   0, 0, 0, M(C('y'))},
   {"offer", "offer a sacrifice to the gods", dosacrifice, FALSE, 1, M('o'), 0, 0, 0},
   {"open", "open, close, or unlock a door", doopen, FALSE, 11, 'o', M('l'), 0, 0},
   {"options", "change game options", doset, TRUE, 10, 'O', 0, 0, 0},
@@ -1676,16 +1685,22 @@ struct ext_func_tab extcmdlist[] = {
   {"southfar", "move south as far as possible", 0, FALSE, 22, 'J', 0, 0, 'J'},
   {"southfarcareful", "move south until something interesting happens",
    0, FALSE, 23, C('j'), 0, 0, C('j')},
+  {"southmove", "move south unless it would attack", 0, FALSE, 23,
+   0, 0, 0, M(C('j'))},
   {"southeast", "move, attack, or interact southeast", 0, FALSE, 21, 'n', '3', 0, 'n'},
   {"southeastfar", "move southeast as far as possible", 0, FALSE, 22, 'N', 0, 0,
    'N'},
   {"southeastfarcareful", "move southeast until something interesting happens",
    0, FALSE, 23, C('n'), 0, 0, C('n')},
+  {"southeastmove", "move southeast unless it would attack", 0, FALSE, 23,
+   0, 0, 0, M(C('n'))},
   {"southwest", "move, attack, or interact southwest", 0, FALSE, 21, 'b', '1', 0, 'b'},
   {"southwestfar", "move southwest as far as possible", 0, FALSE, 22, 'B', 0, 0,
    'B'},
   {"southwestfarcareful", "move southwest until something interesting happens",
    0, FALSE, 23, C('b'), 0, 0, C('b')},
+  {"southwestmove", "move southwest unless it would attack", 0, FALSE, 23,
+   0, 0, 0, M(C('b'))},
   {"spellbook", "display and change letters of spells", dovspell, TRUE,
    11, '+', 0, 0, 0},
   {"stats", "show your statistics and intrinsics", doattributes, TRUE,
@@ -1726,6 +1741,8 @@ struct ext_func_tab extcmdlist[] = {
   {"westfar", "move west as far as possible", 0, FALSE, 22, 'H', 0, 0, 'H'},
   {"westfarcareful", "move west until something interesting happens",
    0, FALSE, 23, C('h'), 0, 0, C('h')},
+  {"westmove", "move west unless it would attack", 0, FALSE, 23,
+   0, 0, 0, M(C('h'))},
   {"whatis", "describe what a symbol means", dowhatis, TRUE, 10, '/', 0, 0, 0},
   {"whatdoes", "describe what a key does", dowhatdoes, TRUE, 10, '&', 0, 0, 0},
   {"wield", "hold an item in your hands", dowield, FALSE, 11, 'w', 0, 0, 0},
@@ -2300,10 +2317,21 @@ reparse:
 		    } else if (movecmd(lowc(*cmd))) {
 			flags.run = 1;
 			do_rush = TRUE;
-		    } else if (movecmd(unctrl(*cmd))) {
+		    } else if (movecmd(unctrl(*cmd)) && *cmd == unmeta(*cmd)) {
 			flags.run = 3;
 			do_rush = TRUE;
-		    }
+		    } else if (movecmd(unctrl(unmeta(*cmd)))) {
+                        /* Must be that way round; unmeta(unctrl())
+                           doesn't work. flags.run = 1 and do_walk =
+                           "run one square", which is basically like
+                           shift-moving; no combat, but items are
+                           still picked up */
+			flags.run = 1;
+                        do_walk = TRUE;
+                    } else {
+                      *cmd = 033;
+                      impossible("Reparsing to non-movement command?");
+                    }
 		    break;
 	}
 
@@ -2319,6 +2347,7 @@ reparse:
 	    check_tutorial_command('m');
 	    domove();
 	    flags.forcefight = 0;
+            flags.run = 0;
 	    return;
 	} else if (do_rush) {
 	    if (firsttime) {
@@ -2350,6 +2379,7 @@ reparse:
             for (tlist = extcmdlist; tlist->ef_txt; tlist++) {
                 func = ((struct ext_func_tab *)tlist)->ef_funct;
                 if (!strcmp(cmd+1, tlist->ef_txt)) {
+                    if (!func) continue; /* sanity, shouldn't be reachable */
 		    res = (*func)();		/* perform the command */
                     if (func == doextcmd && res < -REPARSE_AS_KEY &&
                         res > -REPARSE_AS_KEY-256) { /* bouncing a key onto us */
@@ -2490,6 +2520,7 @@ movecmdui(sym)
 char sym;
 {
         register const struct ext_func_tab *tlist;
+        int i;
 
         /* We use replacewithkey to translate the pressed key into
            traditional vikeys, and then use the internal movecmd. */
@@ -2503,7 +2534,9 @@ char sym;
              as aiming downwards */
           if(tlist->ef_funct == doterrain) return movecmd('>');
           if (!tlist->replacewithkey) return 0;
-          return movecmd(tlist->replacewithkey);
+          i = unmeta((unsigned char)tlist->replacewithkey);
+          if (unctrl(i)) i = unctrl(i);
+          return movecmd(lowc(i));
         }
         return 0;
 }

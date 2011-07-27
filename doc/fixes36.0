@@ -571,7 +571,13 @@ followed by an arbitrary character to represent combinations involving
 the Meta modifier (which may not work on all keyboards). See qwertz.nh
 in the doc/ folder for an example rebinding (that swaps z and y,
 common for vi-keys play on German keyboards). You can also rebind a
-key to #donothing to cause it to have no effect.
+key to #donothing to cause it to have no effect; and extra movement
+commands #westmove, #southeastmove etc. (with no keybindings by
+default) have been added to help out pacifist players (they do the
+same thing as regular movement commands, and are recognised as
+directions at ; and in-which-direction prompts, but do not interact
+with monsters other than to displace pets). See pacifist.nh in the
+doc/ folder for an example of the use of these commands.
 
 Color changes:
 

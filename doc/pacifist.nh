@@ -1,0 +1,21 @@
+# A sample options file for pacifists
+# This removes all interactions with monsters, other than pet displacements,
+# from the standard movement commands, but otherwise leaves them unchanged
+# (they can even be used for direction selection).
+
+REBIND=l:#eastmove
+REBIND=h:#westmove
+REBIND=k:#northmove
+REBIND=j:#southmove
+REBIND=y:#northwestmove
+REBIND=u:#northeastmove
+REBIND=b:#southwestmove
+REBIND=n:#southeastmove
+REBIND=6:#eastmove
+REBIND=4:#westmove
+REBIND=8:#northmove
+REBIND=2:#southmove
+REBIND=7:#northwestmove
+REBIND=9:#northeastmove
+REBIND=1:#southwestmove
+REBIND=3:#southeastmove
