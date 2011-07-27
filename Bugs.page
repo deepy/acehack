@@ -7,7 +7,13 @@ If you find a bug, or have more information on the causes of a bug (or just a mo
 Bugs will be removed from this list as soon as they are fixed in the repository and on public servers, so this list will typically be empty. 
 
 - In one game, two stairs to every branch generated. (It's unclear why.)
-- Sometimes putting gold in a bag leaves it not stacking with other gold in the same bag. (Apparently this is happening in vanilla too.)
+- Sometimes putting gold in a bag leaves it not stacking with other gold in the same bag. (Apparently this is happening in vanilla too. I've seen it happen with items other than gold in Ace too; gold's just the most noticeable.)
+- Thrown !oPara doesn't trigger CV
+- Venom sometimes ends up as a real object on the ground (rawrmage hints: "something to do with drop_throw and commented logic", but can't remember the details)
+- Gold is autopickedup even if it would burden you
+- "The corpse it too old"...
+- Fullscreen messages misplace the cursor
+- Conflict works way too well
 
 # Vanilla NetHack bugs also in AceHack
 

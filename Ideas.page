@@ -2,6 +2,8 @@ Many people have ideas for variants. If there's something you think would be par
 
 Note that AceHack is mostly focused on improving NetHack's interface, while keeping gameplay much the same. If you have ideas that would make significant changes to the game's gameplay, especially if it would make it harder, you might want to consider suggesting it to a different variant instead; such changes are interesting, but not the aim of this project.  
 
+Most of the ideas from here are moved to the TODO page, or deleted, when ais523 has had a look at them and decided whether to use them or not.
+
 ## List of ideas
   
-- Add the [Additional items categories](http://nh.gmuf.com/#itemcat) patch (or a homebrewn version of it). With it, when you for example press D, you can choose to drop "Items just picked up" or "Items just taken out". This is extremely useful for hoarding items into piles and working with shops and stashes. It's also purely an UI change.
+- *currently empty* (they've all been moved to TODO)

@@ -3,7 +3,7 @@ This is a mostly unsorted and vague list of changes which will probably eventual
 If you have ideas of your own, add them to the [Ideas]() page.
 
 - default DEC/IBM/Unicode graphics
-- calling wands just after engrave-IDing with them
+- formally ID wands just after engrave-IDing with them, if there's only one option
 - stash tracking
 - some way to save notes with the character
 - unequip one item to equip another
@@ -29,3 +29,24 @@ If you have ideas of your own, add them to the [Ideas]() page.
 - track down nooodl's double-branch thing
 - livelog
 - make c close doors if there's nothing to chat to
+- Windows support (far in the future)
+- use targethighlight to show range on jumps/pounds (even with the option off?)
+- allow E and . over h in the engrave menu (different people think this should be on different keys...)
+- list wishes in ^Xc (and thus dumplog)
+- fix wresting somehow
+- fix m-move into shopkeepers/trices (I consider this a vanilla bug, the devteam probably don't)
+- do something about autopickup picking up the player's stash
+- make drawbridges more visible, now that floor is generally crazy colors
+- warn on self-zaps of known dangerous wands
+- ID base types of wished-for items
+- farlooking doors in tutorial mode should trigger the talk about doors
+- tutorial shouldn't recomment force bolt to valks if they find a random book of it
+- show turncounts in ^P
+- [Itemcat patch](http://nh.gmuf.com/#itemcat)
+- applying a potion shouldn't give a dip prompt on fountains
+- shift-move should be saner (especially wrt boulders)
+- control-move should also be saner (especially wrt diagonal corridors)
+- heptagram counter should show burnt heptagrams as Hept:*
+- critically low stats / large changes in stats should look different from small changes
+- make #untrap less in need of repetition/spamming
+- blanking sickness should formally ID it and fruit juice
