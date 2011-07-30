@@ -272,6 +272,14 @@ being IDed that way), but is no longer as catastrophically bad as it
 was in vanilla NetHack; the item that would destroy the bag is instead
 drained of all charges.
 
+At in-which-direction prompts and at-which-location prompts, instead
+of hardcoding the list of movement keys, any input that's bound to a
+movement key can be used. Keys bound to the commands that
+shift-direction is bound to in vanilla move 8 squares in
+at-which-location prompts; keys bound to the commands that
+control-direction is bound to in vanilla move 3 squares in
+at-which-location prompts.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

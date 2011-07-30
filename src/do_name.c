@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do_name.c	3.4	2003/01/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 30 Jul 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -91,12 +91,12 @@ const char *goal;
         do {
             int odx = u.dx, ody = u.dy, odz = u.dz;
             int dx = 0, dy = 0;
+            /* I can declare an external global here and you can't stop
+               me... */
+            extern int movecmdui_distance;
             if (movecmdui(c)) {
-                dx = u.dx;
-                dy = u.dy;
-            } else if (movecmdui(lowc((char)c))) {
-                dx = u.dx*8;
-                dy = u.dy*8;
+                dx = u.dx*movecmdui_distance;
+                dy = u.dy*movecmdui_distance;
             }
             u.dx = odx; u.dy = ody; u.dz = odz;
             if (!dx && !dy) break;
