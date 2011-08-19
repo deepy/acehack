@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)botl.c	3.4	1996/07/15	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Mar 2011 by Alex Smith */
+/* Modified 19 Aug 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -313,6 +313,7 @@ bot2()
    * Delayed instadeaths (e.g. Ill) are bright magenta
    * Warnings (e.g. Weak) are orange, or red if less urgent (e.g. Hungry)
    * Things that the player can live with for ages are darker:
+   * Especially good statuses (e.g. Hept:*) are bright green
    * Good statuses (e.g. St+) are green
    * Bad statuses (e.g. St-) are magenta
    * Neutral statuses (e.g. Lev) are brown
@@ -330,17 +331,32 @@ bot2()
     if(heptagram_count(u.ux, u.uy)) {
       int hc = heptagram_count(u.ux, u.uy);
       char bf[20];
-      Sprintf(bf, "Hept:%d", hc);
-      draw_status(bf, &spos, CLR_GREEN);
+      if (burnt_heptagram_count(u.ux, u.uy)) {
+        draw_status("Hept:*", &spos, CLR_BRIGHT_GREEN);
+      } else {
+        Sprintf(bf, "Hept:%d", hc);
+        draw_status(bf, &spos, CLR_GREEN);
+      }
     }
     if(Levitation)     draw_status("Lev", &spos, CLR_BROWN);
     if(unweapon)       draw_status("Unarmed", &spos, CLR_MAGENTA);
-    if(ACURR(A_STR) < AMAX(A_STR)) draw_status("St-", &spos, CLR_MAGENTA);
-    if(ACURR(A_DEX) < AMAX(A_DEX)) draw_status("Dx-", &spos, CLR_MAGENTA);
-    if(ACURR(A_CON) < AMAX(A_CON)) draw_status("Co-", &spos, CLR_MAGENTA);
-    if(ACURR(A_INT) < AMAX(A_INT)) draw_status("In-", &spos, CLR_MAGENTA);
-    if(ACURR(A_WIS) < AMAX(A_WIS)) draw_status("Wi-", &spos, CLR_MAGENTA);
-    if(ACURR(A_CHA) < AMAX(A_CHA)) draw_status("Ch-", &spos, CLR_MAGENTA);
+    {
+      int a;
+      static const char *anames[] = {"St-","In-","Wi-","Dx-","Co-","Ch-"};
+      for (a = A_STR; a <= A_CHA; a++) {
+        if (ACURR(a) >= AMAX(a)) continue;
+        if (ACURR(a) >= 8) draw_status(anames[a-A_STR], &spos, CLR_MAGENTA);
+        else {
+          /* When abilities are down to 7 or less, it can be an
+             emergency (especially during mind flayer combat), so we
+             flag the ability in orange and show the exact number. */
+          char bf[20];
+          strcpy(bf,anames[a-A_STR]);
+          sprintf(bf+2,":%d",ACURR(a));
+          draw_status(bf, &spos, CLR_ORANGE);
+        }
+      }
+    }
     if(cap > UNENCUMBERED)
       draw_status(enc_stat[cap], &spos, CLR_MAGENTA);
     if(u.utrap)       draw_status("Trap", &spos, u.utraptype == TT_LAVA ?

@@ -241,6 +241,16 @@ sengr_at(s, x, y)
 }
 
 int
+burnt_heptagram_count(x, y)
+{
+	struct engr *ep = engr_at(x,y);
+        if (ep && ep->engr_time <= moves &&
+            ep->engr_type == BURN) {
+            return heptagram_count(x,y);
+        }
+        return 0;
+}
+int
 heptagram_count(x, y)
 {
 	struct engr *ep = engr_at(x,y);

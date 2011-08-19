@@ -2,7 +2,7 @@ Changes in AceHack 3.6.0.  Emacs, this is a -*- text -*- file.
 
 This is a list of changes between NetHack 3.4.3 and AceHack 3.6.0.
 These are in no particular order, and every change is listed, even
-though some are likely much bigger than others. Changes here that are
+though some are likely much bigger than others.  Changes here that are
 not credited use code specific to AceHack, and were likely made by
 Alex Smith.
 
@@ -55,7 +55,8 @@ bhaak via UnNetHack for some fixes, others are original to AceHack.)
 
 Many messages have been corrected to be more accurate; YAFMs have been
 added in certain special cases where a generic message wouldn't make
-much sense. Likewise, there are also some extra hallucination messages.
+much sense.  Likewise, there are also some extra hallucination
+messages.
 
 Some actions now take 1 action rather than 0: manipulating a
 drawbridge with music, kicking at nothing.  (Patch credits: bhaak via
@@ -71,7 +72,7 @@ rings are now made of bone; leather spellbooks are now "leather-bound"
 to signify they're really made of paper).
 
 Wielded silver arrows now deal silver damage the same way wielded
-silver nonweapons do. (Even though bashing with arrows isn't
+silver nonweapons do.  (Even though bashing with arrows isn't
 particularly affective, the silver is enough to hurt certain
 monsters no matter how clumsily it makes contact.)
 
@@ -177,7 +178,7 @@ allowing the player to choose to walk through it or continue.
 It's no longer possible to fail to choose a direction for a spell;
 NetHack 3.4.3 just repeats the last direction (perhaps killing the
 player arbitrarily), AceHack 3.6.0 will keep prompting until a
-direction is given. Similar fixes apply to all other direction
+direction is given.  Similar fixes apply to all other direction
 prompts, which will keep prompting repeatedly until explicitly
 cancelled (as spellcasting always requires a direction, it'll keep
 prompting until one is given even /if/ explicitly cancelled).
@@ -250,7 +251,7 @@ Picking up items warns whenever it would make your burden level
 increase.
 
 Cursed light-sources become marked as cursed when they fail to light
-as a result. (Patch credits: patch by rawrmage).
+as a result.  (Patch credits: patch by rawrmage).
 
 The "Things that are here:" list now shows only if blind (or if
 there's only one item, when it's just an ordinary message rather than
@@ -274,7 +275,7 @@ drained of all charges.
 
 At in-which-direction prompts and at-which-location prompts, instead
 of hardcoding the list of movement keys, any input that's bound to a
-movement key can be used. Keys bound to the commands that
+movement key can be used.  Keys bound to the commands that
 shift-direction is bound to in vanilla move 8 squares in
 at-which-location prompts; keys bound to the commands that
 control-direction is bound to in vanilla move 3 squares in
@@ -295,8 +296,8 @@ show things like statuses.  It also now shows semi-graphical Hp and Pw
 bars that change colour according to how wounded or exhausted you are.
 Statuses are now coloured according to severity, and many more things
 are shown as statuses than were before (e.g. levitation, greasy hands,
-poisoned).  (Credits: Thanks to Squolly for suggesting the expansion
-of statuses.)
+poisoned, dusted/burnt heptagrams, ability changes).  (Credits: Thanks
+to Squolly for suggesting the expansion of statuses.)
 
 New centralised routines are used for drawing things to the screen;
 although potentially slightly less efficient than the old ones,
@@ -336,7 +337,7 @@ it's played.
 A new "solo mode" lets the player play without interference from other
 player's games (although mail can still be sent unless that is also
 disabled in the options), meaning that bones files are not loaded
-(although can still be left). It also prevents viewing a character's
+(although can still be left).  It also prevents viewing a character's
 stats before play starts, meaning that startscumming will be visible
 in the logfile.
 
@@ -373,7 +374,7 @@ will give more information about the map or a stack of items).
 However, NetHack is not nearly as suited to autoexplore as Crawl is; I
 find that using the command leads to exploration considerably less
 efficient than I could manage by hand, and so I must caution people to
-use this at their own risk. Autoexplore stops upon encountering an
+use this at their own risk.  Autoexplore stops upon encountering an
 item, upon exploring into a dead end or next to a boulder (situations
 which the player will likely want to handle themselves), upon
 encountering a door for the first time, or upon failing to displace a
@@ -382,21 +383,21 @@ open a locked door will ignore the door).  (Patch credits: mostly by
 me, but with some contributions by bhaak.)
 
 The set of things that stop travel and/or command repeat by default
-has changed. In particular, pets will now be displaced rather than
+has changed.  In particular, pets will now be displaced rather than
 stopping travel, and taking damage for any reason will stop command
 repeat and travel.
 
 Inventory lists now show the weight of each item in them, with a
 couple of exceptions (specifically, items that the character couldn't
 safely pick up to determine their weight, like unidentified gray
-stones and cockatrice corpses). The weight of gauntlets of power was
+stones and cockatrice corpses).  The weight of gauntlets of power was
 changed to 10 to prevent this leaking information that isn't readily
-available in vanilla NetHack. (Credits: this feature was inspired by
+available in vanilla NetHack.  (Credits: this feature was inspired by
 Vulture, although AceHack uses different code.)
 
 Formally identifying light sources, or seeing them flicker, now makes
 their remaining burn time visible (much like charges on formally
-identified wands). Likewise, attempting to zap an empty wand marks it
+identified wands).  Likewise, attempting to zap an empty wand marks it
 as empty, and scrolls of charging also identify the number of charges
 in the thing they charge (as a side-effect).
 
@@ -408,7 +409,7 @@ Dumplogs are saved in a directory, allowing players to review the ends
 of their previous games.
 
 An extended logfile "xlogfile" provides more machine-readable
-information about what happened in a game. (Credits: based on a patch
+information about what happened in a game.  (Credits: based on a patch
 by Aardvark Joe, via UnNetHack.)
 
 Platform- and/or Interface-Specific New Features
@@ -439,7 +440,7 @@ kerio's idea.)
 
 Background colors are also used to signify other things, e.g. detected
 monsters, pets, peaceful monsters.  (Credits: This idea was inspired
-by Dungeon Crawl Stone Soup.) Likewise, squares which contain known
+by Dungeon Crawl Stone Soup.)  Likewise, squares which contain known
 traps are shown with a cyan background no matter what is actually on
 the square, to warn the player against stumbling into them, and
 squares containing known stairs, ladders, and portals are shown with a
@@ -452,7 +453,7 @@ the usual brown for unsure).
 
 The last message shown is now always shown at the top of the screen in
 dark blue, to make it easier to figure out what just happened when
-moving quickly. (Control-P still works for reviewing messages, if you
+moving quickly.  (Control-P still works for reviewing messages, if you
 want to check further back.)
 
 Change Detail
@@ -478,13 +479,13 @@ Command changes:
 
 1,2,3,4,6,7,8,9,y,u,h,j,k,l,b,n: Numbers now have numpad meanings by
 default, letters now have vikeys meanings by default.  So either the
-numpad or the letter keys can be used to move. For command repeat,
+numpad or the letter keys can be used to move.  For command repeat,
 type # before the repeat count.
 a: No longer breaks wands (use V).  Use a, to loot containers on the
 ground.  a can also be used to dip into potions.  (Credits: The use of
-, this way was inspired by Slash'EM, although the code is
-mine. Certain other commands have the same change, using , to indicate
-floor items.)
+, this way was inspired by Slash'EM, although the code is mine.
+Certain other commands have the same change, using , to indicate floor
+items.)
 A: Now allows equipping items to arbitrary slots, as well as
 unequipping them from those slots.
 c, #chat: c now means #chat (the old meaning of c, "close door", has
@@ -499,7 +500,7 @@ e: Allows , as an argument to eat from the floor.
 E: Allows drawing heptagrams as well as text.
 ^E: Now a synonym for #enhance.
 G: A combined command for controlled teleportation, jumping, and
-riding. (They're all forms of jump, if you think about it.)
+riding.  (They're all forms of jump, if you think about it.)
 I: Now also describes items if they are selected from the list shown,
 in addition to just listing parts of the inventory.
 ^I: Now a synonym for #adjust.
@@ -516,7 +517,7 @@ press by mistake, in order to hopefully prevent accidents; I had
 trouble typing it in order to write this changelog!)
 T, R: These commands have been merged; either will allow armor or
 accessories to be removed, with R now being deprecated.
-v: Now does autoexplore. (The old v was moved to #versionshort, or the
+v: Now does autoexplore.  (The old v was moved to #versionshort, or the
 ? menu.)
 V: A new command that merges #rub, #invoke, and wand-breaking; it can
 also be used to ignite a potion of oil (as a would mean dipping into
@@ -534,7 +535,7 @@ idea.)  The old meaning of X, "enter explore mode", was moved to
 current and "natural" (i.e. without the effects of items or poison);
 some messages have been changed to allow for this (e.g. eating giants
 now produces a message rather than increasing strength silently, a
-patch by rawrmage). Additionally, it shows a count of your total
+patch by rawrmage).  Additionally, it shows a count of your total
 inventory weight, together with the nearest encumberance breakpoint.
 Also lists information shown at game end, like inventory and conducts,
 although it does not identify your possessions for you; likewise, it
@@ -552,7 +553,7 @@ something on the map).
 >: Now interacts with any sort of terrain on the square, to go down or
 up stairs, dip into fountains/water, sacrifice on altars, or sit on
 other sorts of terrain.
-.: Now draws a magic heptagram. (You can use s to wait one turn, or
+.: Now draws a magic heptagram.  (You can use s to wait one turn, or
 #wait if you really need to wait one turn without searching.)
 
 The following commands still have their old meanings, or are mapped to
@@ -566,7 +567,7 @@ The following commands were deleted: !vV)[="(GM
 v is now available as #versionshort (and V as #versionhistory);
 something similar to ! should likely be provided by your operating
 system (you can also use ^Z on systems that support it); and the
-remaining equipment commands are all special cases of A. Instead of
+remaining equipment commands are all special cases of A.  Instead of
 using G or M, just use g, or control-letter or shift-letter if you
 really need exactly the same functionality.
 
@@ -578,19 +579,19 @@ Each command in the game has a representation as an extended command
 and you can choose which keys are bound to which commands (apart from
 # itself, which is necessary so that it's always possible to, e.g.,
 save or quit the game; however, you are allowed to bind additional
-keys to #repeat). The syntax is to write REBIND=key:#command (with no
+keys to #repeat).  The syntax is to write REBIND=key:#command (with no
 spaces), where the key in question is a single character, or ^
 followed by a capital letter to represent control-letter, or M-
 followed by an arbitrary character to represent combinations involving
-the Meta modifier (which may not work on all keyboards). See qwertz.nh
-in the doc/ folder for an example rebinding (that swaps z and y,
-common for vi-keys play on German keyboards). You can also rebind a
-key to #donothing to cause it to have no effect; and extra movement
-commands #westmove, #southeastmove etc. (with no keybindings by
-default) have been added to help out pacifist players (they do the
+the Meta modifier (which may not work on all keyboards).  See
+qwertz.nh in the doc/ folder for an example rebinding (that swaps z
+and y, common for vi-keys play on German keyboards).  You can also
+rebind a key to #donothing to cause it to have no effect; and extra
+movement commands #westmove, #southeastmove etc. (with no keybindings
+by default) have been added to help out pacifist players (they do the
 same thing as regular movement commands, and are recognised as
 directions at ; and in-which-direction prompts, but do not interact
-with monsters other than to displace pets). See pacifist.nh in the
+with monsters other than to displace pets).  See pacifist.nh in the
 doc/ folder for an example of the use of these commands.
 
 Color changes:

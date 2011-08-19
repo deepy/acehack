@@ -607,6 +607,7 @@ E void FDECL(del_engr_at, (int,int));
 E int NDECL(freehand);
 E int NDECL(doengrave);
 E int NDECL(doheptagram);
+E int FDECL(burnt_heptagram_count, (int,int));
 E int FDECL(heptagram_count, (int,int));
 E void FDECL(save_engravings, (int,int));
 E void FDECL(rest_engravings, (int));
