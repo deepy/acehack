@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mthrowu.c	3.4	2003/05/09	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Jun 2011 by Alex Smith */
+/* Modified 19 Aug 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -683,7 +683,9 @@ struct monst *mtmp;
 	        if (mtmp->mtame && !mat->mtame && i > 0)
 		    mret = mat;
 		else if ((mm_aggression(mtmp, mat) & ALLOW_M)
-		    || (Conflict && !resist(mtmp, RING_CLASS, 0, 0)))
+		    || (Conflict && !resist(mtmp, RING_CLASS, 0, 0) &&
+                        couldsee(mtmp->mx, mtmp->my) &&
+                        distu(mtmp->mx, mtmp->my) <= BOLT_LIM * BOLT_LIM))
 		{
 		    if (mtmp->mtame && !Conflict &&
 			((int)mat->m_lev >= (int)mtmp->m_lev+2 ||
