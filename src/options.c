@@ -565,7 +565,7 @@ initoptions()
 	flags.pickup_types[5] = def_char_to_objclass('%');
 	flags.pickup_types[6] = def_char_to_objclass('$');
         flags.pickup_types[7] = 0;
-	flags.pickup_burden = MOD_ENCUMBER;
+	flags.pickup_burden = UNENCUMBERED;
 
 #ifdef SORTLOOT
 	iflags.sortloot = 'f';
