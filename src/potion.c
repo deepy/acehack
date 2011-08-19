@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)potion.c	3.4	2002/10/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 23 Apr 2011 by Alex Smith */
+/* Modified 19 Aug 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -362,7 +362,7 @@ dodrink()
           {drinkfountain(); return 1;}
 #ifdef SINKS
           if (IS_SINK(levl[u.ux][u.uy].typ) && !Levitation)
-          {drinkfountain(); return 1;}
+          {drinksink(); return 1;}
 #endif
           if (Underwater)
           {pline("Do you know what lives in this water?!"); return 0;}
