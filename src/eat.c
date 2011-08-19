@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)eat.c	3.4	2003/02/13	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 1 Jul 2011 by Alex Smith */
+/* Modified 19 Aug 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1800,7 +1800,7 @@ struct obj *otmp;
 
         /* Without edibility, you can't gauge the exact age and BCU. */
 	if (cadaver && mnum != PM_ACID_BLOB &&
-            rotted > (u.uedibility ? 5L : 1L) && !Sick_resistance) {
+            rotted > (u.uedibility ? 5L : 2L) && !Sick_resistance) {
 		/* Tainted meat */
                 if (u.uedibility) {
 			Sprintf(buf, "%s like %s could be tainted! %s",
@@ -1808,7 +1808,7 @@ struct obj *otmp;
                 } else {
 			Sprintf(buf, "%s %s too old for you to be certain %s "
                                 "safe. %s", Tobjnam(otmp, NULL),
-                                (otmp->quan == 1L) ? "it" : "they",
+                                (otmp->quan == 1L) ? "is" : "are",
 				(otmp->quan == 1L) ? "it is" : "they are",
                                 eat_it_anyway);
                 }
