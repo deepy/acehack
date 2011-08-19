@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)invent.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Jun 2011 by Alex Smith */
+/* Modified 19 Aug 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -13,7 +13,6 @@ extern struct menucoloring *menu_colorings;
 #endif
 
 #ifdef OVL1
-STATIC_DCL void NDECL(reorder_invent);
 STATIC_DCL boolean FDECL(mergable,(struct obj *,struct obj *));
 STATIC_DCL void FDECL(invdisp_nothing, (const char *,const char *));
 STATIC_DCL boolean FDECL(worn_wield_only, (struct obj *));
@@ -99,7 +98,7 @@ register struct obj *otmp;
 #define inv_rank(o) ((o)->invlet ^ 040)
 
 /* sort the inventory; used by addinv() and doorganize() */
-STATIC_OVL void
+void
 reorder_invent()
 {
 	struct obj *otmp, *prev, *next;
@@ -178,6 +177,7 @@ struct obj **potmp, **pobj;
 		 * do it "accurately" (merge only when ages are identical)
 		 * we'd wind up never merging any corpses.
 		 * otmp->age = otmp->age*(1-proportion) + obj->age*proportion;
+
 		 *
 		 * Don't do the age manipulation if lit.  We would need
 		 * to stop the burn on both items, then merge the age,
@@ -2826,10 +2826,8 @@ mergable(otmp, obj)	/* returns TRUE if obj  & otmp can be merged */
 	register struct obj *otmp, *obj;
 {
 	if (obj->otyp != otmp->otyp) return FALSE;
-#ifdef GOLDOBJ
-	/* coins of the same kind will always merge */
+	/* coins of the same kind will always merge, even in containers */
 	if (obj->oclass == COIN_CLASS) return TRUE;
-#endif
 	if (obj->unpaid != otmp->unpaid ||
 	    obj->spe != otmp->spe || obj->dknown != otmp->dknown ||
 	    (obj->bknown != otmp->bknown && !Role_if(PM_PRIEST)) ||
@@ -2882,9 +2880,7 @@ mergable(otmp, obj)	/* returns TRUE if obj  & otmp can be merged */
 	    return FALSE;
 
 	/* if they have names, make sure they're the same */
-	if ( (obj->onamelth != otmp->onamelth &&
-		((obj->onamelth && otmp->onamelth) || obj->otyp == CORPSE)
-	     ) ||
+	if ((obj->onamelth != otmp->onamelth) ||
 	    (obj->onamelth && otmp->onamelth &&
 		    strncmp(ONAME(obj), ONAME(otmp), (int)obj->onamelth)))
 		return FALSE;

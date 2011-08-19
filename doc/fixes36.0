@@ -280,6 +280,12 @@ at-which-location prompts; keys bound to the commands that
 control-direction is bound to in vanilla move 3 squares in
 at-which-location prompts.
 
+Named items no longer merge unless both items have the same name.
+(This is intended to make it easier to split stacks of objects.) The
+merging rules for candles have also changed; they're now more inclined
+to merge, and automatically merge with other candles in inventory if
+unlit and they would be able to merge.
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)apply.c	3.4	2003/11/18	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 16 Jun 2011 by Alex Smith */
+/* Modified 19 Aug 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1082,6 +1082,26 @@ struct obj *obj;
 		else
 		    You("snuff out %s.", yname(obj));
 		end_burn(obj, TRUE);
+                /* Repeatedly unlighting candles after picking them up
+                   leaves them all in separate inventory slots unless
+                   we explicitly merge them once they're unlit */
+                if (obj->where == OBJ_INVENT) {
+                  struct obj *otmp;
+                  /* Use the same trick as in doorganize. */
+                  extract_nobj(obj, &invent);
+                  for (otmp = invent; otmp;) {
+                    if (merged(&otmp,&obj)) {
+                      obj = otmp;
+                      otmp = otmp->nobj;
+                      extract_nobj(obj, &invent);
+                    } else otmp = otmp->nobj;
+                  }
+                  obj->nobj = invent;
+                  obj->where = OBJ_INVENT;
+                  invent = obj;
+                  reorder_invent();
+                  update_inventory();
+                }
 		return;
 	}
 	/* magic lamps with an spe == 0 (wished for) cannot be lit */
