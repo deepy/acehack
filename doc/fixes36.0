@@ -526,8 +526,8 @@ accessories to be worn, with P now being deprecated.
 ^W: Shows a menu, allowing #offer, #pray, or #turn.
 x: No longer costs a turn.
 X: Now a synonym for #twoweapon.  (Credits: Another nethack.alt.org
-idea.)  The old meaning of X, "enter explore mode", was moved to
-#xplore.
+idea.)  The old meaning of X, "enter explore mode", can no longer be
+done during a game (there are various security issues with that).
 ^X: Now shows ability scores (as they're no longer on the botl), both
 current and "natural" (i.e. without the effects of items or poison);
 some messages have been changed to allow for this (e.g. eating giants

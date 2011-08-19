@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Jul 2011 by Alex Smith */
+/* Modified 19 Aug 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -147,7 +147,6 @@ STATIC_DCL int NDECL(wiz_port_debug);
 # else
 extern int NDECL(tutorial_redisplay);
 # endif
-STATIC_PTR int NDECL(enter_explore_mode);
 STATIC_PTR int NDECL(doattributes);
 STATIC_PTR int NDECL(doconduct); /**/
 
@@ -524,6 +523,7 @@ domonability()
 	return 0;
 }
 
+#if 0 /* OBSOLETE */
 STATIC_PTR int
 enter_explore_mode()
 {
@@ -541,6 +541,7 @@ enter_explore_mode()
 	}
 	return 0;
 }
+#endif
 
 #ifdef WIZARD
 
@@ -1750,7 +1751,6 @@ struct ext_func_tab extcmdlist[] = {
 #if defined(WIZARD)
 #endif
   {"worship", "communicate with the gods", doworship, TRUE, 10, C('w'), 0, 0, 0},
-  {"xplore", "enter discovery mode", enter_explore_mode, TRUE, 10, 0, 0, 0, 0},
   {"zap", "zap a wand to use its magic", dozap, FALSE, 10, 'z', 0, 0, 0},
   {"?", "get this list of extended commands", doextlist, TRUE, 0, 0, 0, 0, 0},
 #if defined(WIZARD)
