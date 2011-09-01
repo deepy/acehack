@@ -293,6 +293,10 @@ compare the items to see if they're identical or if they have
 different beatitudes, even if you can't tell the subtle signs of a
 blessing or curse on an individual object.)
 
+Uncursed items are marked as "uncursed" even if that can be inferred
+from other information in the item name, like known enchantment.
+(Credits: patch by Pasi Kallinen.)
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

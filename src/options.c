@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)options.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 1 Sep 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifdef OPTION_LISTS_ONLY	/* (AMIGA) external program for opt lists */
@@ -173,6 +173,7 @@ static struct Bool_Opt
 #else
 	{"showexp", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
+        {"showbuc", &iflags.show_buc, TRUE, SET_IN_FILE},
 	{"showrace", &iflags.showrace, TRUE, SET_IN_FILE},
 #ifdef SCORE_ON_BOTL
 	{"showscore", &flags.showscore, TRUE, SET_IN_FILE},
