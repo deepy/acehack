@@ -2821,6 +2821,7 @@ struct obj *obj;
 	return;
 }
 
+static boolean adjusting = FALSE;
 STATIC_OVL boolean
 mergable(otmp, obj)	/* returns TRUE if obj  & otmp can be merged */
 	register struct obj *otmp, *obj;
@@ -2879,11 +2880,13 @@ mergable(otmp, obj)	/* returns TRUE if obj  & otmp can be merged */
 	if (obj->unpaid && !same_price(obj, otmp))
 	    return FALSE;
 
-	/* if they have names, make sure they're the same */
-	if ((obj->onamelth != otmp->onamelth) ||
+	/* if they have names, make sure they're the same; name +
+           unnamed only merge in #adjust with equal letters */
+	if ((obj->onamelth != otmp->onamelth &&
+             (!adjusting || (obj->onamelth && otmp->onamelth))) ||
 	    (obj->onamelth && otmp->onamelth &&
-		    strncmp(ONAME(obj), ONAME(otmp), (int)obj->onamelth)))
-		return FALSE;
+             strncmp(ONAME(obj), ONAME(otmp), (int)obj->onamelth)))
+	    return FALSE;
 
 	/* for the moment, any additional information is incompatible */
 	if (obj->oxlth || otmp->oxlth) return FALSE;
@@ -3204,6 +3207,7 @@ doorganize()	/* inventory organizer by Del Lamb */
 	 */
 	extract_nobj(obj, &invent);
 
+        adjusting = TRUE;
 	for (otmp = invent; otmp;)
 		if (merged(&otmp,&obj)) {
 			adj_type = "Merging:";
@@ -3217,6 +3221,7 @@ doorganize()	/* inventory organizer by Del Lamb */
 			}
 			otmp = otmp->nobj;
 		}
+        adjusting = FALSE;
 
 	/* inline addinv (assuming flags.invlet_constant and !merged) */
 	obj->invlet = let;
