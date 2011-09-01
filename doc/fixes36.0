@@ -287,6 +287,12 @@ candles have also changed; they're now more inclined to merge, and
 automatically merge with other candles in inventory if unlit and they
 would be able to merge.
 
+Items can now merge with each other even if exactly one of the items
+is identified for blessedness/cursedness. (The idea's that you can
+compare the items to see if they're identical or if they have
+different beatitudes, even if you can't tell the subtle signs of a
+blessing or curse on an individual object.)
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 

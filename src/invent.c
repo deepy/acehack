@@ -187,6 +187,9 @@ struct obj **potmp, **pobj;
 		    otmp->age = ((otmp->age*otmp->quan) + (obj->age*obj->quan))
 			    / (otmp->quan + obj->quan);
 
+                /* if either is BCUed we know the BCU of the result */
+                if (obj->bknown) otmp->bknown = 1;
+
 		otmp->quan += obj->quan;
 #ifdef GOLDOBJ
                 /* temporary special case for gold objects!!!! */
@@ -2831,7 +2834,6 @@ mergable(otmp, obj)	/* returns TRUE if obj  & otmp can be merged */
 	if (obj->oclass == COIN_CLASS) return TRUE;
 	if (obj->unpaid != otmp->unpaid ||
 	    obj->spe != otmp->spe || obj->dknown != otmp->dknown ||
-	    (obj->bknown != otmp->bknown && !Role_if(PM_PRIEST)) ||
 	    obj->cursed != otmp->cursed || obj->blessed != otmp->blessed ||
 	    obj->no_charge != otmp->no_charge ||
 	    obj->obroken != otmp->obroken ||
