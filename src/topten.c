@@ -376,6 +376,11 @@ struct toptenentry *tt;
   (void)fprintf(rfile, SEP "gender0=%s", genders[flags.initgend].filecode);
   (void)fprintf(rfile, SEP "align0=%s", aligns[1 - u.ualignbase[A_ORIGINAL]].filecode);
 
+  (void)fprintf(rfile, SEP "mode=%s", (flags.debug ? "debug" :
+				       flags.explore ? "explore" :
+				       flags.solomode ? "solo" :
+				       "normal"));
+
   (void)fprintf(rfile, "\n");
 }
 
@@ -498,7 +503,7 @@ int how;
 #endif /* LOGFILE */
 
 #ifdef XLOGFILE
-	if(!wizard && !discover && lock_file(XLOGFILE, SCOREPREFIX, 10)) {
+	if(lock_file(XLOGFILE, SCOREPREFIX, 10)) {
 		if(!(xlfile = fopen_datafile(XLOGFILE, "a", SCOREPREFIX))) {
 			HUP raw_print("Cannot open extended log file!");
 		} else {
