@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pline.c	3.4	1999/11/28	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 16 Jul 2011 by Alex Smith */
+/* Modified 26 Aug 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS /* Uses ... */	/* comment line for pre-compiled headers */
@@ -713,7 +713,6 @@ mp_flush_log()
     if (this_mpple->entry_data) free(this_mpple->entry_data);
     free(this_mpple);
   }
-  curs(WIN_MESSAGE, 1, 0);
 }
 
 /* Logging for yielders, for use in the joingame sequence. */
@@ -822,11 +821,6 @@ boolean allow_errors;
    waiting. (Several commands are meaningful while waiting for a yield,
    for instance, such as 'i'; while waiting for an acknowledgement,
    though, a timeout would be more sensible.)
-
-   TODO: This should ideally change screen appearance to mark the
-   change of driving mode, which is a player-visible concept ("it's
-   not my turn"). Moving the cursor to the corner is OK, but not
-   visible enough.
 */
 int
 mp_await_reply_or_yield()
@@ -838,6 +832,9 @@ mp_await_reply_or_yield()
         old_mp_input_handler = mp_input_handler;
         mp_input_handler = mp_log_and_handle_now;
         mp_flush_log();
+        tmp_at(DISP_ALWAYS, GLYPH_PET_OFF + (youmonst.data - mons));
+        tmp_at(u.ux, u.uy);
+        curs_on_u();
 
         /* Repeatedly listen for user commands until one of the
            ack/err/yield commands comes in. */
@@ -845,7 +842,6 @@ mp_await_reply_or_yield()
         mp_ackflag = mp_errflag = mp_yieldflag = FALSE;
         /* TODO: Implement some commands */
         while (!mp_stopgetch) {
-          curs(WIN_MESSAGE, 1, 0);
           if (nhgetch() == '\033') break;
           if (!mp_stopgetch) {
             pline("Communicating...");
@@ -867,6 +863,7 @@ mp_await_reply_or_yield()
 
         /* Switch back to the original driving mode. */
         mp_input_handler = old_mp_input_handler;
+        tmp_at(DISP_END, 0);
 
         return rv;
 }
