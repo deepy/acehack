@@ -38,6 +38,7 @@ extern void msmsg(const char *,...);
 #include <signal.h>
 # endif
 #endif
+#include <errno.h>
 
 extern char mapped_menu_cmds[]; /* from options.c */
 
@@ -2812,6 +2813,8 @@ tty_nhgetch()
       FD_SET(fd2, &readfds);
       if (fd > fd2) fd2 = fd;
       if (select(fd2+1, &readfds, NULL, NULL, NULL) < 0) {
+        /* EINTR is perhaps not normal, but at least recoverable. */
+        if (errno == EINTR) continue;
         /* Tear down communication pipes to avoid a potential infinite loop
            involving multiplayer activity during the panic. */
         teardown_multiplayer_pipe('a');

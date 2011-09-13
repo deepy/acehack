@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)end.c	3.4	2003/03/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 16 Jul 2011 by Alex Smith */
+/* Modified 13 Sep 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS	/* comment line for pre-compiled headers */
@@ -118,6 +118,10 @@ void
 done1(sig_unused)   /* called as signal() handler, so sent at least one arg */
 int sig_unused;
 {
+        /* This function causes an instant panic in multiplayer.
+           TODO: Perhaps keep the quit-on-control-C feature with some
+           other implementation? */
+        if (iflags.multiplayer) return;
 #ifndef NO_SIGNAL
 	(void) signal(SIGINT,SIG_IGN);
 #endif
