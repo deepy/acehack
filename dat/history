@@ -117,7 +117,6 @@ publicly available web-site listing all the bugs that had been discovered.
 Despite that constantly growing bug list, 3.3 proved stable enough to last for
 more than a year and a half.
 
-
 The 3.4 development team initially consisted of Michael Allison, Ken Arromdee,
 David Cohrs, Jessie Collet, Kevin Hugo, Ken Lorber, Dean Luick, Pat Rankin,
 Mike Stephenson, Janet Walz, and Paul Winner, with Warwick Allison joining
@@ -217,8 +216,8 @@ NetHack contributors
 
 AceHack contributors
 
-    Aardvark Joe              Grunt                     Patric Mueller
-    Alex Smith                Hojita Discordia          rawrmage
-    Brent Dalager             Jeroen Demeyer            Roderick Schertler
-    Clive Crous               Jukka Lahtinen            Sgeo
-    Derek Ray                 Pasi Kallinnen            
+    Aardvark Joe              Edoardo Spadolini         Pasi Kallinnen
+    Alex Smith                Grunt                     Patric Mueller
+    Brent Dalager             Hojita Discordia          rawrmage
+    Clive Crous               Jeroen Demeyer            Roderick Schertler
+    Derek Ray                 Jukka Lahtinen            Sgeo
