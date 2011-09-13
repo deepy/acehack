@@ -1,6 +1,7 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 18 Jun 2011 by Alex Smith */
+/* Modified 1 Sep 2011 by Alex Smith */
+
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
