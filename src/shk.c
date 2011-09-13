@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)shk.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 4 Jul 2011 by Alex Smith */
+/* Modified 26 Aug 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1406,6 +1406,7 @@ proceed:
 	/* now check items on bill */
 	if (eshkp->billct) {
 	    register boolean itemize;
+            int buyables = 0;
 #ifndef GOLDOBJ
 	    if (!u.ugold && !eshkp->credit) {
 #else
@@ -1447,6 +1448,12 @@ proceed:
 			   restoring it to its original value here avoids
 			   making the partly-used-up code more complicated */
 			if (bp->useup) otmp->quan = bp->bquan;
+                        buyables++;
+                    } else if (iflags.multiplayer) {
+                        /* This happens when someone tries to pay a bill
+                           and another player has unpaid items. */
+                        tmp++;
+                        continue;
 		    } else {
 			impossible("Shopkeeper administration out of order.");
 			setpaid(shkp);	/* be nice to the player */
@@ -1481,6 +1488,11 @@ proceed:
 		    }
 		}
 	    }
+            /* In multiplayer, you can only pay for items in your own
+               inventory (as otherwise we can't remove the unpaid flag
+               from them. */
+            if (!buyables)
+              pline("You aren't holding any items the shopkeeper wants payment for.");
 	thanks:
 	    if (!itemize)
 	        update_inventory(); /* Done in dopayobj() if itemize. */
