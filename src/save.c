@@ -167,14 +167,14 @@ dosave0()
 #endif
 
 	HUP if (iflags.window_inited) {
-	    uncompress(fq_save);
+	    nhuncompress(fq_save);
 	    fd = open_savefile();
 	    if (fd > 0) {
 		(void) close(fd);
 		clear_nhwindow(WIN_MESSAGE);
 		There("seems to be an old save file.");
 		if (yn("Overwrite the old file?") == 'n') {
-		    compress(fq_save);
+		    nhcompress(fq_save);
 		    return 0;
 		}
 	    }
@@ -297,7 +297,7 @@ dosave0()
 	/* get rid of current level --jgm */
 	delete_levelfile(ledger_no(&u.uz));
 	delete_levelfile(0);
-	compress(fq_save);
+	nhcompress(fq_save);
 	return(1);
 }
 

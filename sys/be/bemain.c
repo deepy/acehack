@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)bemain.c	3.4	1998/07/15	*/
 /* Copyright (c) Dean Luick, 1996. */
+/* Modified 15 Sep 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -106,7 +107,7 @@ int MAIN(int argc, char **argv)
 			if(yn("Do you want to keep the save file?") == 'n')
 			    (void) delete_savefile();
 			else {
-			    compress(fqname(SAVEF, SAVEPREFIX, 0));
+			    nhcompress(fqname(SAVEF, SAVEPREFIX, 0));
 			}
 		}
 

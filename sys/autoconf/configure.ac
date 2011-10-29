@@ -28,6 +28,8 @@ nethack_default_win=""
 # Note: Order is important: The last listed enabled port will be the default.
 NETHACK_WIN_ENABLE(tty, auto)
 NETHACK_WIN_ENABLE(x11, no)
+NETHACK_WIN_ENABLE(sdl, no)
+NETHACK_WIN_ENABLE(gl, no)
 NETHACK_WIN_ENABLE(mswin, no, [use Microsoft Window's native graphics])
 
 dnl  ----- Figure out a C compiler to use; set @CC@
@@ -210,6 +212,29 @@ if test "$enable_x11_graphics" != "no"; then
     OPTIONS_FILES="options"
 fi
 
+if test "$enable_sdl_graphics" != "no"; then
+    CFLAGS="${CFLAGS} \${SDLGL_CFLAGS}"
+    WINSRC="${WINSRC} \$(WINGLSRC)"
+    WINOBJ="${WINOBJ} \$(WINGLOBJ)"
+    WINLIB="${WINLIB} \${WINSDLLIB}"
+    CNF_SHARE_DATND="${CNF_SHARE_DATND} \$(CNF_SHARE_GLND)"
+    AC_DEFINE(SDL_GRAPHICS, [], [SDL graphics with software renderer])
+
+    OPTIONS_FILE="options"
+    OPTIONS_FILES="options"
+fi
+if test "$enable_gl_graphics" != "no"; then
+    CFLAGS="${CFLAGS} \${SDLGL_CFLAGS}"
+    WINSRC="${WINSRC} \$(WINGLSRC)"
+    WINOBJ="${WINOBJ} \$(WINGLOBJ)"
+    WINLIB="${WINLIB} \${WINGLLIB}"
+    CNF_SHARE_DATND="${CNF_SHARE_DATND} \$(CNF_SHARE_GLND)"
+    AC_DEFINE(GL_GRAPHICS, [], [SDL graphics with hardware renderer])
+
+    OPTIONS_FILE="options"
+    OPTIONS_FILES="options"
+fi
+
 if test "$enable_mswin_graphics" != "no"; then
     AC_MINGW32
 
@@ -273,7 +298,9 @@ if test "$have_regex_h" = "yes"; then
 	#include <regex.h>
       ])
 fi
-AC_CHECK_TYPE(void,,AC_DEFINE(NOVOID, [], [No void type available]))
+dnl This check is never going to fail on modern systems, and seems
+dnl buggy when combined with SDL, so it's disabled.
+dnl AC_CHECK_TYPE(void,,AC_DEFINE(NOVOID, [], [No void type available]))
 
 
 dnl  ----- Check for library functions

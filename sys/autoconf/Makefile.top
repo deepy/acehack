@@ -1,7 +1,7 @@
 #	NetHack Makefile.
 #       @configure_input@
 #	SCCS Id: @(#)Makefile.top	3.4	1995/01/05
-#	Modified by Alex Smith, 21 Apr 2010
+#	Modified by Alex Smith, 29 Oct 2010
 
 VPATH=@srcdir@
 srcdir=@srcdir@
@@ -74,6 +74,7 @@ CNF_SHARE_GLND = gltile16.png gltile32.png gltile64.png gllogo.png glrip.png \
                  glfont8.png glfont14.png glfont20.png glfont22.png
 # for Gnome
 CNF_SHARE_GNOMEND = x11tiles pet_mark.xbm rip.xpm mapbg.xpm
+# for X11
 # for Proxy
 CNF_SHARE_PROXYND = gltile64.png gltile32.png gltile16.png \
 	gltile64.map gltile32.map gltile16.map
@@ -179,6 +180,25 @@ tiles.bmp: $(GAME)
 x11tiles: $(GAME)
 	( cd util ; $(MAKE) tile2x11 )
 	( cd dat ; $(MAKE) x11tiles )
+
+gltile16.png: $(GAME)
+	( cd dat ; $(MAKE) gltile16.png)
+gltile32.png: $(GAME)
+	( cd dat ; $(MAKE) gltile32.png)
+gltile64.png: $(GAME)
+	( cd dat ; $(MAKE) gltile64.png)
+gllogo.png: $(GAME)
+	( cd dat ; $(MAKE) gllogo.png)
+glrip.png: $(GAME)
+	( cd dat ; $(MAKE) glrip.png)
+glfont8.png: $(GAME)
+	( cd dat ; $(MAKE) glfont8.png)
+glfont14.png: $(GAME)
+	( cd dat ; $(MAKE) glfont14.png)
+glfont20.png: $(GAME)
+	( cd dat ; $(MAKE) glfont20.png)
+glfont22.png: $(GAME)
+	( cd dat ; $(MAKE) glfont22.png)
 
 beostiles: $(GAME)
 	( cd util ; $(MAKE) tile2beos )

@@ -36,6 +36,9 @@
 /* Show experience on bottom line */
 #undef EXP_ON_BOTL
 
+/* SDL graphics with hardware renderer */
+#undef GL_GRAPHICS
+
 /* Gold is kept on object chains (experimental) */
 #undef GOLDOBJ
 
@@ -107,9 +110,6 @@
 /* Microsoft Window's native graphics */
 #undef MSWIN_GRAPHICS
 
-/* No void type available */
-#undef NOVOID
-
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
@@ -136,6 +136,9 @@
 
 /* Show score on bottom line */
 #undef SCORE_ON_BOTL
+
+/* SDL graphics with software renderer */
+#undef SDL_GRAPHICS
 
 /* Succubi/incubi seduction */
 #undef SEDUCE

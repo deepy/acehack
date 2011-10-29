@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Aug 2011 by Alex Smith */
+/* Modified 15 Sep 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -366,7 +366,7 @@ doextlist()	/* here after #? - now list all commands */
 	return 0;
 }
 
-#ifdef TTY_GRAPHICS
+#if defined(TTY_GRAPHICS) || defined(GL_GRAPHICS) || defined(SDL_GRAPHICS)
 #define MAX_EXT_CMD 90		/* Change if we ever have > 90 ext cmds */
 /*
  * This is currently used only by the tty port and is

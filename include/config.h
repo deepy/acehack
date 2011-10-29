@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)config.h	3.4	2003/12/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 16 Jun 2011 by Alex Smith */
+/* Modified 15 Sep 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef CONFIG_H /* make sure the compiler does not see the typedefs twice */
@@ -42,13 +42,14 @@
 # include "autoconf.h"
 #endif
 
-
 /* Windowing systems...
  * Define all of those you want supported in your binary.
  * Some combinations make no sense.  See the installation document.
  */
 /* #define TTY_GRAPHICS */	/* good old tty based graphics */
 /* #define X11_GRAPHICS */	/* X11 interface */
+/* #define SDL_GRAPHICS */      /* SDL interface (software renderer) */
+/* #define GL_GRAPHICS */       /* SDL interface (OpenGL renderer) */
 /* #define QT_GRAPHICS */	/* Qt interface */
 /* #define GNOME_GRAPHICS */	/* Gnome interface */
 /* #define MSWIN_GRAPHICS */	/* Windows NT, CE, Graphics */
@@ -118,6 +119,17 @@
 # define HACKDIR "\\nethack"
 #endif
 
+#ifdef GL_GRAPHICS
+# ifndef DEFAULT_WINDOW_SYS
+#  define DEFAULT_WINDOW_SYS "GL"
+# endif
+#endif
+#ifdef SDL_GRAPHICS
+# ifndef DEFAULT_WINDOW_SYS
+#  define DEFAULT_WINDOW_SYS "SDL"
+# endif
+#endif
+
 #ifndef DEFAULT_WINDOW_SYS
 # define DEFAULT_WINDOW_SYS "tty"
 #endif
@@ -136,7 +148,6 @@
 #  define GRAPHIC_TOMBSTONE	/* Use graphical tombstone (rip.xpm) */
 # endif
 #endif
-
 
 /*
  * Section 2:	Some global parameters and filenames.
@@ -374,7 +385,8 @@ typedef unsigned char	uchar;
  * bugs left here.
  */
 
-#if defined(TTY_GRAPHICS) || defined(MSWIN_GRAPHICS)
+#if defined(TTY_GRAPHICS) || defined(MSWIN_GRAPHICS) || \
+    defined(SDL_GRAPHICS) || defined(GL_GRAPHICS)
 # define MENU_COLOR
 # define MENU_COLOR_REGEX
 /*# define MENU_COLOR_REGEX_POSIX */

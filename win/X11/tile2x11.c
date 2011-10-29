@@ -7,7 +7,7 @@
  *	  between rows (x11_colormap[][]).
  */
 #include "hack.h"		/* for MAX_GLYPH */
-#include "tile.h"
+#include "../win/share/tile.h"
 #include "tile2x11.h"		/* x11 output file header structure */
 
 #define OUTNAME "x11tiles"	/* output file name */

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)unixmain.c	3.4	1997/01/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 25 Mar 2011 by Alex Smith */
+/* Modified 15 Sep 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* main.c - Unix NetHack */
@@ -275,7 +275,7 @@ char *argv[];
 			    (void) delete_savefile();
 			else {
 			    (void) chmod(fq_save,FCMASK); /* back to readable */
-			    compress(fq_save);
+			    nhcompress(fq_save);
 			}
 		}
 		flags.move = 0;

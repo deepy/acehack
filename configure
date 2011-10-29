@@ -699,6 +699,8 @@ ac_user_opts='
 enable_option_checking
 enable_tty_graphics
 enable_x11_graphics
+enable_sdl_graphics
+enable_gl_graphics
 enable_mswin_graphics
 with_compression
 enable_data_librarian
@@ -1359,6 +1361,8 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-tty-graphics   use tty-graphics (default=auto)
   --enable-x11-graphics   use x11-graphics (default=no)
+  --enable-sdl-graphics   use sdl-graphics (default=no)
+  --enable-gl-graphics    use gl-graphics (default=no)
   --enable-mswin-graphics use Microsoft Window's native graphics (default=no)
   --enable-data-librarian Data librarian (default=auto)
   --enable-sinks          Kitchen sinks (default=yes)
@@ -2410,6 +2414,26 @@ fi
 
   if test "$enable_x11_graphics" != "no"; then
     nethack_wins="x11 $nethack_wins"
+  fi
+# Check whether --enable-sdl-graphics was given.
+if test "${enable_sdl_graphics+set}" = set; then :
+  enableval=$enable_sdl_graphics; enable_sdl_graphics="$enableval"
+else
+  enable_sdl_graphics="no"
+fi
+
+  if test "$enable_sdl_graphics" != "no"; then
+    nethack_wins="sdl $nethack_wins"
+  fi
+# Check whether --enable-gl-graphics was given.
+if test "${enable_gl_graphics+set}" = set; then :
+  enableval=$enable_gl_graphics; enable_gl_graphics="$enableval"
+else
+  enable_gl_graphics="no"
+fi
+
+  if test "$enable_gl_graphics" != "no"; then
+    nethack_wins="gl $nethack_wins"
   fi
 # Check whether --enable-mswin-graphics was given.
 if test "${enable_mswin_graphics+set}" = set; then :
@@ -5058,6 +5082,33 @@ $as_echo "#define X11_GRAPHICS /**/" >>confdefs.h
     OPTIONS_FILES="options"
 fi
 
+if test "$enable_sdl_graphics" != "no"; then
+    CFLAGS="${CFLAGS} \${SDLGL_CFLAGS}"
+    WINSRC="${WINSRC} \$(WINGLSRC)"
+    WINOBJ="${WINOBJ} \$(WINGLOBJ)"
+    WINLIB="${WINLIB} \${WINSDLLIB}"
+    CNF_SHARE_DATND="${CNF_SHARE_DATND} \$(CNF_SHARE_GLND)"
+
+$as_echo "#define SDL_GRAPHICS /**/" >>confdefs.h
+
+
+    OPTIONS_FILE="options"
+    OPTIONS_FILES="options"
+fi
+if test "$enable_gl_graphics" != "no"; then
+    CFLAGS="${CFLAGS} \${SDLGL_CFLAGS}"
+    WINSRC="${WINSRC} \$(WINGLSRC)"
+    WINOBJ="${WINOBJ} \$(WINGLOBJ)"
+    WINLIB="${WINLIB} \${WINGLLIB}"
+    CNF_SHARE_DATND="${CNF_SHARE_DATND} \$(CNF_SHARE_GLND)"
+
+$as_echo "#define GL_GRAPHICS /**/" >>confdefs.h
+
+
+    OPTIONS_FILE="options"
+    OPTIONS_FILES="options"
+fi
+
 if test "$enable_mswin_graphics" != "no"; then
 
 case $host_os in
@@ -5277,15 +5328,6 @@ fi
 fi
 
 fi
-ac_fn_c_check_type "$LINENO" "void" "ac_cv_type_void" "$ac_includes_default"
-if test "x$ac_cv_type_void" = x""yes; then :
-
-else
-
-$as_echo "#define NOVOID /**/" >>confdefs.h
-
-fi
-
 
 
 ac_fn_c_check_decl "$LINENO" "strncmpi" "ac_cv_have_decl_strncmpi" "$ac_includes_default"

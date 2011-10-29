@@ -60,6 +60,18 @@ WINX11SRC = $(srcdir)/../win/X11/Window.c $(srcdir)/../win/X11/dialogs.c $(srcdi
 	$(srcdir)/../win/X11/winval.c
 WINX11OBJ = Window.o dialogs.o winX.o winmap.o winmenu.o winmesg.o \
 	winmisc.o winstat.o wintext.o winval.o nhwin.a
+# Files for the SDL/GL window port
+WINGLSRC = ../win/gl/gl_conf.c ../win/gl/gl_emul.c  \
+    ../win/gl/gl_font.c ../win/gl/gl_hardw.c ../win/gl/gl_image.c  \
+    ../win/gl/gl_main.c ../win/gl/gl_map.c ../win/gl/gl_menu.c  \
+    ../win/gl/gl_opt.c ../win/gl/gl_role.c ../win/gl/gl_rendu.c  \
+    ../win/gl/gl_softw.c ../win/gl/gl_stat.c ../win/gl/gl_text.c  \
+    ../win/gl/gl_tile.c  ../win/gl/gl_unit.c ../win/gl/gl_win.c
+WINGLOBJ = gl_conf.o gl_emul.o gl_font.o gl_hardw.o \
+    gl_image.o gl_main.o gl_map.o gl_menu.o gl_opt.o \
+    gl_rendu.o gl_role.o gl_softw.o gl_stat.o \
+    gl_text.o gl_tile.o gl_unit.o gl_win.o nhwin.a
+SDLGL_CFLAGS = `sdl-config --cflags`
 #
 # Files for a Qt port
 #
@@ -95,10 +107,10 @@ WINBEOBJ =
 WINMSSRC = $(srcdir)/../win/win32/mswproc.c $(srcdir)/../win/win32/winhack.c \
 	 $(srcdir)/../win/win32/mhdlg.c $(srcdir)/../win/win32/mhaskyn.c \
 	 $(srcdir)/../win/win32/mhfont.c $(srcdir)/../win/win32/mhinput.c \
-         $(srcdir)/../win/win32/mhmain.c $(srcdir)/../win/win32/mhmsgwnd.c \
+	 $(srcdir)/../win/win32/mhmain.c $(srcdir)/../win/win32/mhmsgwnd.c \
 	 $(srcdir)/../win/win32/mhsplash.c $(srcdir)/../win/win32/mhstatus.c \
 	 $(srcdir)/../win/win32/mhtext.c $(srcdir)/../win/win32/mhmenu.c \
-         $(srcdir)/../win/win32/mhmap.c $(srcdir)/../win/win32/mhrip.c
+	 $(srcdir)/../win/win32/mhmap.c $(srcdir)/../win/win32/mhrip.c
 WINMSOBJ = mswproc.o winhack.o mhdlg.o mhaskyn.o mhfont.o mhinput.o mhmain.o \
 	mhmsgwnd.o mhsplash.o mhstatus.o mhtext.o mhmenu.o mhmap.o mhrip.o \
 	winres.o nhwin.a
@@ -117,6 +129,10 @@ WINKDELIB = -lkdecore -lkdeui -lXext
 #
 # libraries for Gnome
 WINGNOMELIB = -lgnomeui -lgnome -lart_lgpl -lgtk -lgdk -lpopt
+#
+# libraries for SDL/GL window port
+WINSDLLIB = `sdl-config --libs` -lz -lpng
+WINGLLIB =
 #
 # libraries for Gem port
 WINGEMLIB = -le_gem -lgem
@@ -175,7 +191,7 @@ HACKCSRC = $(srcdir)/allmain.c $(srcdir)/alloc.c $(srcdir)/apply.c \
 	$(srcdir)/sp_lev.c $(srcdir)/spell.c $(srcdir)/steal.c \
 	$(srcdir)/steed.c $(srcdir)/teleport.c $(srcdir)/timeout.c \
 	$(srcdir)/topten.c $(srcdir)/track.c $(srcdir)/trap.c \
-        $(srcdir)/tutorial.c \
+	$(srcdir)/tutorial.c \
 	$(srcdir)/u_init.c $(srcdir)/uhitm.c $(srcdir)/vault.c \
 	$(srcdir)/version.c $(srcdir)/vision.c $(srcdir)/weapon.c \
 	$(srcdir)/were.c $(srcdir)/wield.c $(srcdir)/windows.c \
@@ -670,6 +686,55 @@ qt_clust.o: $(srcdir)/../win/Qt/qt_clust.cpp ../include/qt_clust.h
 	$(CXX) $(CXXFLAGS) -c $(srcdir)/../win/Qt/qt_clust.cpp
 qttableview.o: $(srcdir)/../win/Qt/qttableview.cpp ../include/qttableview.h
 	$(CXX) $(CXXFLAGS) -c $(srcdir)/../win/Qt/qttableview.cpp
+gl_conf.o: ../win/gl/gl_conf.c $(HACK_H) ../include/dlb.h \
+		../include/patchlevel.h ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_conf.c
+gl_emul.o: ../win/gl/gl_emul.c $(HACK_H) ../include/winGL.h \
+		../include/func_tab.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_emul.c
+gl_font.o: ../win/gl/gl_font.c $(HACK_H) ../include/patchlevel.h \
+		../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_font.c
+gl_hardw.o: ../win/gl/gl_hardw.c $(HACK_H) ../include/patchlevel.h \
+		../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_hardw.c
+gl_image.o: ../win/gl/gl_image.c $(HACK_H) ../include/patchlevel.h \
+		../include/dlb.h ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_image.c
+gl_main.o: ../win/gl/gl_main.c $(HACK_H) ../include/dlb.h \
+		../include/patchlevel.h ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_main.c
+gl_map.o: ../win/gl/gl_map.c $(HACK_H) ../include/patchlevel.h \
+		../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_map.c
+gl_menu.o: ../win/gl/gl_menu.c $(HACK_H) ../include/dlb.h \
+		../include/patchlevel.h ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_menu.c
+gl_opt.o: ../win/gl/gl_opt.c $(HACK_H) ../include/dlb.h \
+		../include/patchlevel.h ../include/date.h ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_opt.c
+gl_role.o: ../win/gl/gl_role.c $(HACK_H) ../include/dlb.h \
+		../include/patchlevel.h ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_role.c
+gl_rendu.o: ../win/gl/gl_rendu.c $(HACK_H) ../include/patchlevel.h \
+		../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_rendu.c
+gl_softw.o: ../win/gl/gl_softw.c $(HACK_H) ../include/patchlevel.h \
+		../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_softw.c
+gl_stat.o: ../win/gl/gl_stat.c $(HACK_H) ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_stat.c
+gl_text.o: ../win/gl/gl_text.c $(HACK_H) ../include/dlb.h \
+		../include/patchlevel.h ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_text.c
+gl_tile.o: ../win/gl/gl_tile.c $(HACK_H) ../include/patchlevel.h \
+		../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_tile.c
+gl_unit.o: ../win/gl/gl_unit.c $(HACK_H) ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_unit.c
+gl_win.o: ../win/gl/gl_win.c $(HACK_H) ../include/dlb.h \
+		../include/patchlevel.h ../include/winGL.h
+	$(CC) $(CFLAGS) $(SDLGL_CFLAGS) -c ../win/gl/gl_win.c
 monstr.o: monstr.c $(CONFIG_H)
 vis_tab.o: vis_tab.c $(CONFIG_H) ../include/vis_tab.h
 allmain.o: $(srcdir)/allmain.c $(HACK_H) ../include/patchlevel.h

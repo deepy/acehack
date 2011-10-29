@@ -1,5 +1,6 @@
 /*	SCCS Id: @(#)windows.c	3.4	1996/05/19	*/
 /* Copyright (c) D. Cohrs, 1993. */
+/* Modified 15 Sep 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -11,6 +12,14 @@
 /* and must get the order of include files right.  Don't bother */
 extern struct window_procs X11_procs;
 extern void NDECL(win_X11_init);
+#endif
+#ifdef SDL_GRAPHICS
+#include "winGL.h"
+extern struct window_procs sdlgl_softw_procs;
+#endif
+#ifdef GL_GRAPHICS
+#include "winGL.h"
+extern struct window_procs sdlgl_hardw_procs;
 #endif
 #ifdef QT_GRAPHICS
 extern struct window_procs Qt_procs;
@@ -55,6 +64,12 @@ struct win_choices {
 #endif
 #ifdef X11_GRAPHICS
     { &X11_procs, win_X11_init },
+#endif
+#ifdef GL_GRAPHICS
+    { &sflgl_hardw_procs, 0 },
+#endif
+#ifdef SDL_GRAPHICS
+    { &sdlgl_softw_procs, 0 },
 #endif
 #ifdef QT_GRAPHICS
     { &Qt_procs, 0 },

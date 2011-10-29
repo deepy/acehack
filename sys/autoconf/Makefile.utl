@@ -1,6 +1,7 @@
 #	Makefile for NetHack's utility programs.
 #       @configure_input@
 #	SCCS Id: @(#)Makefile.utl	3.4	1997/04/19
+#	Modified 29 Oct 2010 by Alex Smith
 
 VPATH=@srcdir@
 srcdir=@srcdir@
@@ -312,7 +313,8 @@ TEXT_IO = tiletext.o tiletxt.o $(ONAMING)
 GIFREADERS = gifread.o $(OALLOC)
 PPMWRITERS = ppmwrite.o $(OALLOC)
 
-tileutils: tilemap gif2txt txt2ppm tile2x11
+tileutils: tilemap gif2txt txt2ppm tile2x11 txtbg txtmerge tile2png \
+           magtile bigtile
 
 gif2txt: $(GIFREADERS) $(TEXT_IO)
 	$(CC) $(LFLAGS) -o gif2txt $(GIFREADERS) $(TEXT_IO) $(LIBS)
@@ -328,6 +330,19 @@ tile2img.ttp: tile2img.o bitmfile.o $(TEXT_IO)
 tile2bmp$(EXEEXT): tile2bmp.o $(TEXT_IO)
 	$(CC) $(LFLAGS) -o $@ tile2bmp.o $(TEXT_IO)
 
+tile2png$(EXEEXT): tile2png.o $(TEXT_IO)
+	$(CC) $(LFLAGS) -o tile2png tile2png.o $(TEXT_IO) -lz -lpng
+
+txtbg$(EXEEXT): txtbg.o $(TEXT_IO)
+	$(CC) $(LFLAGS) -o txtbg txtbg.o $(TEXT_IO) $(LIBS)
+txtmerge$(EXEEXT): txtmerge.o $(TEXT_IO)
+	$(CC) $(LFLAGS) -o txtmerge txtmerge.o $(TEXT_IO) $(LIBS)
+
+bigtile$(EXEEXT): bigtile.o $(TEXT_IO)
+	$(CC) $(LFLAGS) -o bigtile bigtile.o $(TEXT_IO) $(LIBS)
+magtile$(EXEEXT): magtile.o $(TEXT_IO)
+	$(CC) $(LFLAGS) -o magtile magtile.o $(TEXT_IO) $(LIBS)
+
 xpm2img.ttp: xpm2img.o bitmfile.o
 	$(CC) $(LFLAGS) -o xpm2img.ttp xpm2img.o bitmfile.o $(LIBS)
 
@@ -338,12 +353,9 @@ tilemap: $(srcdir)/../win/share/tilemap.c $(HACK_H)
 	$(CC) $(CFLAGS) $(LFLAGS) -o tilemap $(srcdir)/../win/share/tilemap.c $(LIBS)
 $(srcdir)/../src/tile.c: tilemap
 	./tilemap
-#../include/tile.h: ../win/share/tile.h tilemap
-#	./tilemap
 
-../include/tile.h: ../win/share/tile.h tilemap
+../include/tile.h: ../win/share/tile_t.h tilemap
 	./tilemap
-#	cp ../win/share/tile.h ../include/tile.h
 
 tiletext.o: $(srcdir)/../win/share/tiletext.c $(CONFIG_H) ../include/tile.h
 	$(CC) $(CFLAGS) -c $(srcdir)/../win/share/tiletext.c
@@ -358,6 +370,18 @@ ppmwrite.o: $(srcdir)/../win/share/ppmwrite.c $(CONFIG_H) ../include/tile.h
 
 tile2bmp.o: $(srcdir)/../win/share/tile2bmp.c $(HACK_H) ../include/tile.h
 	$(CC) $(CFLAGS) -c $(srcdir)/../win/share/tile2bmp.c
+tile2png.o: $(srcdir)/../win/share/tile2png.c $(HACK_H) ../include/tile.h
+	$(CC) $(CFLAGS) -c ../win/share/tile2png.c
+
+txtbg.o: $(srcdir)/../win/share/txtbg.c $(HACK_H) ../include/tile.h
+	$(CC) $(CFLAGS) -c ../win/share/txtbg.c
+txtmerge.o: $(srcdir)/../win/share/txtmerge.c $(CONFIG_H) ../include/tile.h
+	$(CC) $(CFLAGS) -c ../win/share/txtmerge.c
+
+magtile.o: $(srcdir)/../win/share/magtile.c $(CONFIG_H) ../include/tile.h
+	$(CC) $(CFLAGS) -c ../win/share/magtile.c
+bigtile.o: $(srcdir)/../win/share/bigtile.c $(CONFIG_H) ../include/tile.h
+	$(CC) $(CFLAGS) -c ../win/share/bigtile.c
 
 tile2x11.o: $(srcdir)/../win/X11/tile2x11.c $(HACK_H) ../include/tile.h \
 						../include/tile2x11.h
@@ -417,7 +441,7 @@ spotless: clean
 	-rm -f ../include/lev_comp.h ../include/dgn_comp.h
 	-rm -f ../include/tile.h
 	-rm -f makedefs$(EXEEXT) lev_comp$(EXEEXT) dgn_comp$(EXEEXT) recover$(EXEEXT) dlb$(EXEEXT) uudecode$(EXEEXT)
-	-rm -f gif2txt txt2ppm tile2x11$(EXEEXT) tile2img.ttp xpm2img.ttp tilemap$(EXEEXT) tile2bmp$(EXEEXT)
+	-rm -f gif2txt txt2ppm tile2x11$(EXEEXT) tile2img.ttp xpm2img.ttp tilemap$(EXEEXT) tile2bmp$(EXEEXT) tile2png$(EXEEXT) txtbg$(EXEEXT)
 	-rm -f Makefile
 
 tileedit: tileedit.cpp $(TEXT_IO)

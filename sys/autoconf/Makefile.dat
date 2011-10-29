@@ -1,6 +1,7 @@
 #	NetHack Makefile.
 #       @configure_input@
 #	SCCS Id: @(#)Makefile.dat	3.4	1992/09/18
+#	Modified 29 Oct 2010 by Alex Smith
 
 VPATH=@srcdir@
 srcdir=@srcdir@
@@ -164,26 +165,26 @@ glrip.png:	../util/tile2png $(srcdir)/../win/gl/rip.txt
 
 ../win/share/mon32-t.txt:	../util/txtmerge ../win/share/monmag.txt \
 		$(srcdir)/../win/share/mon32mi.txt $(srcdir)/../win/share/mon32alg.txt \
-		$(srcdir)/../win/share/mon32aw.txt $(srcdir)/../win/share/mon32se.txt \
+		$(srcdir)/../win/share/mon32aw.txt \
 		$(srcdir)/../win/share/palette.txt
 	../util/txtmerge -p $(srcdir)/../win/share/palette.txt ../win/share/mon32-t.txt \
 		../win/share/monmag.txt -b $(srcdir)/../win/share/mon32mi.txt \
-		-b $(srcdir)/../win/share/mon32se.txt -bff00ff $(srcdir)/../win/share/mon32alg.txt \
+		-bff00ff $(srcdir)/../win/share/mon32alg.txt \
 		-bff00ff $(srcdir)/../win/share/mon32aw.txt 
 
 ../win/share/obj32-t.txt:	../util/txtmerge ../win/share/objmag.txt \
-		$(srcdir)/../win/share/obj32mi.txt $(srcdir)/../win/share/obj32se.txt \
+		$(srcdir)/../win/share/obj32mi.txt \
 		$(srcdir)/../win/share/obj32alg.txt $(srcdir)/../win/share/palette.txt
 	../util/txtmerge -p $(srcdir)/../win/share/palette.txt ../win/share/obj32-t.txt \
 		../win/share/objmag.txt -b $(srcdir)/../win/share/obj32mi.txt \
-		-b $(srcdir)/../win/share/obj32se.txt -bff00ff $(srcdir)/../win/share/obj32alg.txt
+		-bff00ff $(srcdir)/../win/share/obj32alg.txt
 
 ../win/share/oth32-t.txt:	../util/txtmerge ../win/share/othmag.txt \
-		$(srcdir)/../win/share/oth32mi.txt $(srcdir)/../win/share/oth32se.txt \
+		$(srcdir)/../win/share/oth32mi.txt \
 		$(srcdir)/../win/share/oth32alg.txt $(srcdir)/../win/share/palette.txt
 	../util/txtmerge -p $(srcdir)/../win/share/palette.txt ../win/share/oth32-t.txt \
 		../win/share/othmag.txt -b $(srcdir)/../win/share/oth32mi.txt \
-		-b $(srcdir)/../win/share/oth32se.txt -bff00ff $(srcdir)/../win/share/oth32alg.txt
+		-bff00ff $(srcdir)/../win/share/oth32alg.txt
 
 ../win/share/mon3d.txt:	../util/txtmerge ../win/share/monbig.txt \
 		$(srcdir)/../win/share/mon3dmi.txt $(srcdir)/../win/share/palette.txt
@@ -195,10 +196,10 @@ glrip.png:	../util/tile2png $(srcdir)/../win/gl/rip.txt
 
 ../win/share/oth3d.txt:	../util/txtmerge ../win/share/othbig.txt \
 		$(srcdir)/../win/share/oth3dmi.txt $(srcdir)/../win/share/oth-2kmi.txt \
-		$(srcdir)/../win/share/oth3dse.txt $(srcdir)/../win/share/palette.txt
+		$(srcdir)/../win/share/palette.txt
 	../util/txtmerge -p $(srcdir)/../win/share/palette.txt ../win/share/oth3d.txt \
 		../win/share/othbig.txt -b $(srcdir)/../win/share/oth3dmi.txt \
-		-b $(srcdir)/../win/share/oth-2kmi.txt -b $(srcdir)/../win/share/oth3dse.txt
+		-b $(srcdir)/../win/share/oth-2kmi.txt
 
 tiles.bmp: ../util/tile2bmp$(EXEEXT) $(srcdir)/../win/share/monsters.txt \
 		$(srcdir)/../win/share/objects.txt \
