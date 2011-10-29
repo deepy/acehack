@@ -34,15 +34,16 @@ struct conditionals {
 	int sequence, predecessor;
 	const char *name;
 } conditionals[] = {
+
 #if 0 /* Slash'EM-specific change */
 	{ MON_GLYPH, PM_BLACK_LIGHT, "zruty" },
 #endif
 
 #ifndef KOPS
-	{ MON_GLYPH, PM_VORPAL_JABBERWOCK, "Keystone Kop" },
-	{ MON_GLYPH, PM_VORPAL_JABBERWOCK, "Kop Sergeant" },
-	{ MON_GLYPH, PM_VORPAL_JABBERWOCK, "Kop Lieutenant" },
-	{ MON_GLYPH, PM_VORPAL_JABBERWOCK, "Kop Kaptain" },
+	{ MON_GLYPH, PM_JABBERWOCK, "Keystone Kop" },
+	{ MON_GLYPH, PM_JABBERWOCK, "Kop Sergeant" },
+	{ MON_GLYPH, PM_JABBERWOCK, "Kop Lieutenant" },
+	{ MON_GLYPH, PM_JABBERWOCK, "Kop Kaptain" },
 #endif
 
 #ifndef MAIL
