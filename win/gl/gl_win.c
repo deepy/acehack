@@ -1,5 +1,6 @@
 /* Copyright (C) 2002 Andrew Apted <ajapted@users.sourceforge.net> */
 /* NetHack may be freely redistributed.  See license for details.  */
+/* Modified 29 Oct 2010 by Alex Smith */
 
 /*
  * SDL/GL window port for NetHack & Slash'EM.
@@ -117,6 +118,13 @@ void Sdlgl_destroy_nhwindow(winid window)
 
   if (iflags.window_inited)
     sdlgl_update_mouse_location(0);
+}
+
+void Sdlgl_suppress_more()
+{
+  text_wins[WIN_MESSAGE]->fresh_lines = 0;
+  text_wins[WIN_MESSAGE]->more_escaped = 0;
+  sdlgl_home(text_wins[WIN_MESSAGE]);
 }
 
 void Sdlgl_clear_nhwindow(winid window)
@@ -577,7 +585,7 @@ static int important_message(const char *str)
 }
 
 static void do_message_putstr(struct TextWindow *win,
-    int attr, const char *str)
+    int attr, int color, const char *str)
 {
   int len = strlen(str);
   int use_len;
@@ -665,6 +673,10 @@ static void do_message_putstr(struct TextWindow *win,
 
 void Sdlgl_putstr(winid window, int attr, const char *str)
 {
+  Sdlgl_putstr_colored(window, attr, NO_COLOR, str);
+}
+void Sdlgl_putstr_colored(winid window, int attr, int color, const char *str)
+{
   struct TextWindow *win;
   
   if (window == WIN_ERR)
@@ -679,7 +691,7 @@ void Sdlgl_putstr(winid window, int attr, const char *str)
       strncpy(toplines, str, TBUFSZ);   /* for Norep() */
       toplines[TBUFSZ - 1] = 0;
 
-      do_message_putstr(win, attr, str);
+      do_message_putstr(win, attr, color, str);
       break;
 
     case NHW_STATUS:
@@ -700,7 +712,7 @@ void Sdlgl_putstr(winid window, int attr, const char *str)
 
     case NHW_TEXT:
     {
-      sdlgl_insert_text_item(win, NULL, 0, attr, str);
+      sdlgl_insert_text_item(win, NULL, 0, attr, color, str);
       break;
     }
      
@@ -709,8 +721,31 @@ void Sdlgl_putstr(winid window, int attr, const char *str)
   }
 }
 
-tilecol_t sdlgl_attr_to_tilecol(int attr)
+tilecol_t sdlgl_attr_to_tilecol(int attr, int color)
 {
+  if (color != NO_COLOR) {
+    if (attr == ATR_BOLD) color |= BRIGHT;
+    switch (color) {
+    case CLR_BLACK:   return BLACK;
+    case CLR_RED:     return RED;
+    case CLR_GREEN:   return GREEN;
+    case CLR_BROWN:   return BROWN;
+    case CLR_BLUE:    return BLUE;
+    case CLR_MAGENTA: return MAGENTA;
+    case CLR_CYAN:    return CYAN;
+    case CLR_GRAY:    return L_GREY;
+    case NO_COLOR:    return D_GREY; /* bold black */
+    case CLR_ORANGE:         return B_ORANGE;
+    case CLR_YELLOW:         return B_YELLOW;
+    case CLR_BRIGHT_BLUE:    return B_BLUE;
+    case CLR_BRIGHT_GREEN:   return B_GREEN;
+    case CLR_BRIGHT_MAGENTA: return B_MAGENTA;
+    case CLR_BRIGHT_CYAN:    return B_CYAN;
+    case CLR_WHITE:          return WHITE;
+      /* otherwise fall through */
+    }
+  }
+
   switch (attr)
   {
     case ATR_BOLD:    return WHITE;

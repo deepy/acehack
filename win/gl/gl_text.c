@@ -1,5 +1,6 @@
 /* Copyright (C) 2002 Andrew Apted <ajapted@users.sourceforge.net> */
 /* NetHack may be freely redistributed.  See license for details.  */
+/* Modified 29 Oct 2011 by Alex Smith */
 
 /*
  * SDL/GL window port for NetHack & Slash'EM.
@@ -120,7 +121,7 @@ static void show_aligns(unsigned short *aligns)
 #endif
 
 void sdlgl_insert_text_item(struct TextWindow *win,
-    struct TextItem *pred, int align, int attr, const char *str)
+    struct TextItem *pred, int align, int attr, int color, const char *str)
 {
   struct TextItem *item;
 
@@ -128,6 +129,7 @@ void sdlgl_insert_text_item(struct TextWindow *win,
   memset(item, 0, sizeof(struct TextItem));
 
   item->attr = attr;
+  item->color = color;
   item->str = strdup(str ? str : "");
   item->align = align;
 
@@ -287,7 +289,7 @@ static void do_reformat_text(struct TextWindow *win, int avail_w)
   struct TextItem *item, *Z, *succ;
 
   int reformatting;
-  int cur_align, cur_attr;
+  int cur_align, cur_attr, cur_color;
   int len, pos_x;
 
   char buf[BUFSZ * 2];
@@ -356,6 +358,7 @@ static void do_reformat_text(struct TextWindow *win, int avail_w)
 
       cur_align = item->align;
       cur_attr  = item->attr;
+      cur_color = item->color;
        
       reformatting = 1;
       continue;
@@ -401,6 +404,7 @@ static void do_reformat_text(struct TextWindow *win, int avail_w)
       Z->str   = strdup(buf);
       Z->attr  = cur_attr;
       Z->align = cur_align;
+      Z->color = cur_color;
 
       Z->next = item;
       item = Z;
@@ -413,6 +417,7 @@ static void do_reformat_text(struct TextWindow *win, int avail_w)
     if (! item->next ||
         item->next->align != cur_align || 
         item->next->attr  != cur_attr ||
+        item->next->color != cur_color ||
         is_line_blank(item->next->str) || 
         ! is_initial_blank(item->next->str, cur_align))
     {
@@ -520,7 +525,7 @@ static void draw_text_items(struct TextWindow *win)
   {
     assert(y >= 0);
 
-    tilecol = sdlgl_attr_to_tilecol(item->attr);
+    tilecol = sdlgl_attr_to_tilecol(item->attr, item->color);
 
     x = 0;
     

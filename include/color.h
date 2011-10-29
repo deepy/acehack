@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)color.h	3.4	1992/02/02	*/
 /* Copyright (c) Steve Linhart, Eric Raymond, 1989. */
-/* Modified 7 Aug 2010 by Alex Smith */
+/* Modified 29 Oct 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef COLOR_H
@@ -36,8 +36,9 @@
 #define CLR_WHITE		15
 #define CLR_MAX			16
 
-/* The "half-way" point for tty based color systems.  This is used in */
-/* the tty color setup code.  (IMHO, it should be removed - dean).    */
+/* The "half-way" point for tty based color systems.  This is used in  */
+/* the tty color setup code; and in other window ports to work out the */
+/* meaning of bold + color. */
 #define BRIGHT		8
 
 /* these can be configured */

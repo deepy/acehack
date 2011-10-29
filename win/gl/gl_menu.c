@@ -1,5 +1,6 @@
 /* Copyright (C) 2002 Andrew Apted <ajapted@users.sourceforge.net> */
 /* NetHack may be freely redistributed.  See license for details.  */
+/* Modified 29 Oct 2010 by Alex Smith */
 
 /*
  * SDL/GL window port for NetHack & Slash'EM.
@@ -546,7 +547,7 @@ static void draw_menu_items(struct TextWindow *win, int how)
     strncpy(buffer+strlen(buffer), item->str, BUFSZ-strlen(buffer)-1);
     buffer[BUFSZ-1] = 0;
         
-    tilecol = sdlgl_attr_to_tilecol(item->attr);
+    tilecol = sdlgl_attr_to_tilecol(item->attr, item->color);
     
     x = 0;
 
@@ -591,6 +592,17 @@ void Sdlgl_add_menu(winid window, int glyph, const anything *identifier,
     CHAR_P ch, CHAR_P groupacc, int attr, const char *str, 
     BOOLEAN_P preselected)
 {
+  Sdlgl_add_menu_colored(window, glyph, identifier, ch, groupacc,
+                         attr, NO_COLOR, str, preselected);
+}
+
+/*
+ * Add a menu item to the menu list.
+ */
+void Sdlgl_add_menu_colored(winid window, int glyph, const anything *identifier, 
+    CHAR_P ch, CHAR_P groupacc, int attr, int color, const char *str, 
+    BOOLEAN_P preselected)
+{
   struct TextWindow *win;
   struct MenuItem *item;
   
@@ -617,6 +629,7 @@ void Sdlgl_add_menu(winid window, int glyph, const anything *identifier,
   item->accelerator = ch;
   item->groupacc = groupacc;
   item->attr = attr;
+  item->color = color;
   item->str = strdup(str ? str : "");
 
   item->selected = preselected;

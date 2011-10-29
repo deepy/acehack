@@ -1,10 +1,12 @@
 /* Copyright (C) 2002 Andrew Apted <ajapted@users.sourceforge.net> */
 /* NetHack may be freely redistributed.  See license for details.  */
+/* Modified 29 Oct 2011 by Alex Smith */
 
 /*
  * SDL/GL window port for NetHack & Slash'EM.
  *
- * Character selection code (Role, Race, Gender, Alignment).
+ * Character selection code (Role, Race, Gender, Alignment),
+ * and game mode selection code (main, tutorial, etc).
  */
 
 #include "hack.h"
@@ -574,6 +576,220 @@ void Sdlgl_player_selection(void)
 
     /* do nothing -- let init_role() deal with it */
   }
+}
+
+/**
+   Runs before player selection, and is used to determine which game
+   mode to play in. If the choice is to continue or start a new game, it
+   sets the character name to determine which (currently unused name for
+   the player = new game, currently used name = continue that game);
+   otherwise, it implements the choice itself then either loops or
+   exits.
+
+   This is based on the tty code, except that it uses a menu rather
+   than rendering the game mode selection by hand.
+*/
+void
+Sdlgl_game_mode_selection()
+{
+  int c;
+  char** saved;
+  char** sp;
+  int plname_in_saved = 0;
+  int plname_was_explicit = !!*plname;
+  (void) plname_was_explicit; /* TODO: use this */
+
+  winid menuwin;
+  int n;
+  menu_item *selected;
+  anything any;
+
+  saved = get_saved_games();
+
+  if (*plname && saved && *saved) {
+    for (sp = saved; *sp; sp++) {
+      /* Note that this means that public servers need to prevent two
+         users with the same name but different capitalisation. (If
+         they aren't, it's likely to cause problems anyway...) */
+      if (!strcmpi(plname, *sp)) {
+        plname_in_saved = 1;
+        /* Fix capitalisation of the name to match the saved game. */
+        strncpy(plname, *sp, sizeof(plname)-1);
+      }
+    }
+  } else if (*plname) {
+    set_savefile_name();
+    /* Let's just try to open the savefile directly to see if it exists */
+    plname_in_saved = verify_savefile();
+  }
+
+retry_mode_selection:;
+reread_char:
+  menuwin = create_nhwindow(NHW_MENU);
+  any.a_void = 0;
+  start_menu(menuwin);
+
+  any.a_int = 'c';
+  add_menu(menuwin, NO_GLYPH, &any, 'c', 0, ATR_NONE,
+           "Continue game", MENU_UNSELECTED);
+  any.a_int = 'n';
+  add_menu(menuwin, NO_GLYPH, &any, 'n', 0, ATR_NONE,
+           "New game", MENU_UNSELECTED);
+  any.a_int = 't';
+  add_menu(menuwin, NO_GLYPH, &any, 't', 0, ATR_NONE,
+           "Tutorial", MENU_UNSELECTED);
+  any.a_int = 'm';
+  add_menu(menuwin, NO_GLYPH, &any, 'm', 0, ATR_NONE,
+           "Other modes", MENU_UNSELECTED);
+
+  any.a_void = 0;
+  add_menu(menuwin, NO_GLYPH, &any, 0, 0, ATR_NONE, "", FALSE);
+
+  any.a_int = 's';
+  add_menu(menuwin, NO_GLYPH, &any, 's', 0, ATR_NONE,
+           "Continue game", MENU_UNSELECTED);
+  any.a_int = 'o';
+  add_menu(menuwin, NO_GLYPH, &any, 'o', 0, ATR_NONE,
+           "New game", MENU_UNSELECTED);
+  any.a_int = '?';
+  add_menu(menuwin, NO_GLYPH, &any, '?', 0, ATR_NONE,
+           "Tutorial", MENU_UNSELECTED);
+  any.a_int = 'q';
+  add_menu(menuwin, NO_GLYPH, &any, 'q', 0, ATR_NONE,
+           "Other modes", MENU_UNSELECTED);
+
+  end_menu(menuwin, "Welcome to AceHack!");
+  n = select_menu(menuwin, PICK_ONE, &selected);
+  destroy_nhwindow(menuwin);
+
+  if (n > 0) {
+    c = selected[0].item.a_int;
+    free((genericptr_t)selected);
+  } else goto retry_mode_selection;
+
+#if 0
+  /* TODO: This is tty code for graying out unavailable options;
+     we should do that in SDL/GL code too */
+  {
+    if (c == 1) { /* gray out if there's no game to continue */
+      if (!*plname && (!saved || !*saved)) xputs("\033[31m");
+      else if (*plname && !plname_in_saved) xputs("\033[31m");
+      /* and bold if there is */
+      else xputs("\033[1m");
+    }
+    else if (c == 2) { /* gray out if a game must be continued */
+      if (*plname && plname_in_saved) xputs("\033[31m");
+    }
+    else xputc(c); /* low-level as codes are in the file itself */
+  }
+#endif
+
+  switch (c) {
+  case 'c': /* continue game */
+    if (*plname && plname_in_saved) break; /* just load by name */
+    if (!saved || !*saved) goto reread_char;
+    if (*plname && !plname_in_saved) goto reread_char;
+    if (!saved[1]) {
+      /* only one game to continue */
+      (void) strncpy(plname, *saved, sizeof(plname)-1);
+    } else {
+      /* we'll have to ask which game to continue */
+      winid win;
+      win = create_nhwindow(NHW_MENU);
+      start_menu(win);
+      any.a_void = 0;
+      for (sp = saved; *sp; sp++) {
+        any.a_void = (void*) *sp;
+        add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, *sp, MENU_UNSELECTED);
+      }
+      end_menu(win, "Continue which saved game?");
+      c = select_menu(win, PICK_ONE, &selected);
+      destroy_nhwindow(win);
+      if (c != 1) {
+        free((genericptr_t) selected);
+        goto retry_mode_selection;
+      }
+      (void) strncpy(plname, (char*)selected[0].item.a_void, sizeof(plname)-1);
+      free((genericptr_t) selected);
+    }
+    break;
+  case 'n': case 't': case 'm': /* the new game options */
+    /* if the name is forced by the -u option, don't give an option to
+       start a new game, as we're forced onto the existing game */
+    if (*plname && plname_in_saved) goto reread_char;
+    if (!*plname) {
+      Sdlgl_askname();
+      if (saved)
+        for (sp = saved; *sp; sp++) {
+          if (!strcmpi(plname, *sp)) {
+            pline("A game is running with that name already.");
+            Sdlgl_dismiss_nhwindow(NHW_MESSAGE); /* force a --More-- */
+            *plname = 0;
+            goto retry_mode_selection;
+          }
+        }
+    }
+    if (c == 'm') {
+      pline("TODO: implement game mode selection here");
+      goto retry_mode_selection;
+      do {
+        c = 0; /* read from keyboard */
+        switch(c) {
+          /* -D, -X on command line are overriden by selecting a normal game
+             explicitly */
+        case 'n': wizard = FALSE; discover = FALSE; break;
+        case 't': break;
+        case 'd':
+#ifdef WIZARD
+          /* The rules here are a little complex:
+             - with no -u (local play, private server play), anyone
+               can enter debug mode;
+             - with -u set (generally public server play), only an
+               authorized user can enter debug mode.
+             Thus people can enter it freely in their own compiles,
+             but on public servers likely only the admin can enter it,
+             as only they can tweak the command line. (-D works too
+             to enter wizmode, whatever the -u option, as if it's
+             given the player has control over the command line anyway.) */
+          if (plname_was_explicit && strcmpi(plname,WIZARD)) {
+            extern int wiz_error_flag; /* from unixmain.c */
+            wiz_error_flag = TRUE;
+          } else {
+            wizard = TRUE;
+            c = 'n';
+            break;
+          }
+          /*FALLTHRU*/
+#endif /* otherwise fall through, as debug mode isn't compiled in */
+        case 'x': discover = TRUE; c = 'n'; break;
+        case 's': solo = TRUE; c = 'n'; break;
+        case '\033': goto retry_mode_selection;
+        default: continue;
+        }
+      } while (c != 'n' && c != 't');
+    }
+    if (c == 't') flags.tutorial = 1;
+    break;
+  case 's': /* show high score list */
+    prscore_interactive();
+    goto retry_mode_selection;
+  case 'o': /* options */
+    doset();
+    goto retry_mode_selection;
+  case '?': /* help */
+    dohelp();
+    Sdlgl_dismiss_nhwindow(NHW_MESSAGE); /* force a --More-- */
+    goto retry_mode_selection;
+  case 'q': case '\033': /* exit */
+    /* This is the standard Sdlgl method of exiting. */
+    Sdlgl_exit_nhwindows(0);
+    terminate(EXIT_SUCCESS);
+    /*NOTREACHED*/
+  default:
+    goto reread_char;
+  }
+
+  if (saved) free_saved_games(saved);
 }
 
 #endif /* GL_GRAPHICS */
