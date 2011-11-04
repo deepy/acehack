@@ -331,10 +331,15 @@ static int choose_best_video_mode(SDL_Rect **modes)
       continue;
 
     /* Pick the largest mode available, as it's likely to fill the
-       screen best. (TODO: Pick a smaller mode if it's still possible
-       to fit an entire level on it.) */
+       screen best, when in fullscreen mode. In windowed mode, we
+       default to 800x600 (or as near as possible), a reasonable size
+       for modern desktops. (TODO: Pick a smaller mode if it's still
+       possible to fit an entire level on it.) */
 
-    dist = 10000 - w - h;
+    if (sdlgl_windowed)
+      dist = (800-w)*(800-w) + (600-h)*(600-h);
+    else
+      dist = 10000 - w - h;
 
     /* modes smaller than 800x600 are a bit uncomfortable when using
      * the 32x32 or isometric tilesets.  Hence we add this penalty.
