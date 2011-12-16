@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)engrave.c	3.4	2001/11/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 16 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -687,20 +687,18 @@ boolean hept;
 			/* If wand is "IMMEDIATE", remember to affect the
 			 * previous engraving even if turning to dust.
 			 */
-		    case WAN_STRIKING: {
-			    Strcpy(post_engr_text,
-			"The wand unsuccessfully fights your attempt to write!"
-			);
-                doknown = TRUE;
-                
-            }
-			break;
+		    case WAN_STRIKING:
+                        Strcpy(post_engr_text,
+                               "The wand unsuccessfully fights your attempt to write!"
+                        );
+                        doknown = TRUE;
+                        break;
 		    case WAN_SLOW_MONSTER:
 			if (!Blind) {
 			   Sprintf(post_engr_text,
 				   "The bugs on the %s slow down!",
 				   surface(u.ux, u.uy));
-                doknown = TRUE;
+                           doknown = TRUE;
 			}
 			break;
 		    case WAN_SPEED_MONSTER:
@@ -708,7 +706,7 @@ boolean hept;
 			   Sprintf(post_engr_text,
 				   "The bugs on the %s speed up!",
 				   surface(u.ux, u.uy));
-                doknown = TRUE;
+                           doknown = TRUE;
 			}
 			break;
 		    case WAN_POLYMORPH:
@@ -716,7 +714,7 @@ boolean hept;
 			    if (!Blind) {
 				type = (xchar)0;	/* random */
 				(void) random_engraving(buf);
-                    doknown = TRUE;
+                                doknown = TRUE;
 			    }
 			    dengr = TRUE;
 			}
@@ -735,7 +733,7 @@ boolean hept;
 			   Sprintf(post_engr_text,
 				   "The %s is riddled by bullet holes!",
 				   surface(u.ux, u.uy));
-                    doknown = TRUE;
+                           doknown = TRUE;
 			}
 			break;
 
@@ -753,8 +751,8 @@ boolean hept;
 			if (!Blind) {
 			    Strcpy(post_engr_text,
 				"A few ice cubes drop from the wand.");
-                doknown = TRUE;
-            }
+                            doknown = TRUE;
+                        }
 			if(!oep || (oep->engr_type != BURN))
 			    break;
 		    case WAN_CANCELLATION:
@@ -801,9 +799,9 @@ boolean hept;
 			ptext = TRUE;
 			type  = BURN;
 			if(!objects[otmp->otyp].oc_name_known) {
-			if (flags.verbose)
-			    pline("This %s is a wand of fire!", xname(otmp));
-			    doknown = TRUE;
+                            if (flags.verbose)
+			      pline("This %s is a wand of fire!", xname(otmp));
+                            doknown = TRUE;
 			}
 			Strcpy(post_engr_text,
 				Blind ? "You feel the wand heat up." :

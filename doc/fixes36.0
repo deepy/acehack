@@ -297,6 +297,11 @@ Uncursed items are marked as "uncursed" even if that can be inferred
 from other information in the item name, like known enchantment.
 (Credits: patch by Pasi Kallinen.)
 
+Wands become formally identified upon engraving with them, if they
+produce an effect that could only have one possible source (such as
+unsuccessfully fighting your attempt to right). (Credits: patch by
+Christian Stegen.)
+
 Platform- and/or Interface-Specific Fixes
 -----------------------------------------
 
