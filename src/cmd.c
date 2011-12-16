@@ -2895,7 +2895,8 @@ parse()
 #else
 	static char in_line[COLNO];
 #endif
-	register int foo;
+	int foo;
+        int extcmd_char1 = 0;
 	boolean prezero = FALSE;
         struct ext_func_tab* ecl_extcmd = extcmdlist;
 
@@ -2924,11 +2925,17 @@ parse()
 		    if (!multi && foo == '0') prezero = TRUE;
 		} else {	/* not a digit */
                     if (multi == 0 && !prezero) {
-                        /* TODO: This almost certainly breaks on tiles. */
 # ifdef REDO
                         if (!in_doagain)
-# endif                      
+                          extcmd_char1 = foo;
+# else
+                        /* TODO: This almost certainly breaks on tiles.
+                           And it also breaks on multiplayer, because
+                           select() doesn't see ungetc. Perhaps just
+                           use pgetchar() as the input function no
+                           matter what? */
                         ungetc(foo, stdin);
+#endif
                         foo = ecl_extcmd->binding1;
                     }
                     /* otherwise we need another # to mark an extended
@@ -2948,6 +2955,7 @@ parse()
 	    last_multi = multi;
 	    savech(0);	/* reset input queue */
 	    savech((char)foo);
+            if (extcmd_char1) pushch(extcmd_char1); /* must be after savech(0) */
 # endif
 	}
 
