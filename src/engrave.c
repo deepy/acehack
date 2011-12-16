@@ -687,16 +687,20 @@ boolean hept;
 			/* If wand is "IMMEDIATE", remember to affect the
 			 * previous engraving even if turning to dust.
 			 */
-		    case WAN_STRIKING:
-			Strcpy(post_engr_text,
+		    case WAN_STRIKING: {
+			    Strcpy(post_engr_text,
 			"The wand unsuccessfully fights your attempt to write!"
 			);
+                doknown = TRUE;
+                
+            }
 			break;
 		    case WAN_SLOW_MONSTER:
 			if (!Blind) {
 			   Sprintf(post_engr_text,
 				   "The bugs on the %s slow down!",
 				   surface(u.ux, u.uy));
+                doknown = TRUE;
 			}
 			break;
 		    case WAN_SPEED_MONSTER:
@@ -704,6 +708,7 @@ boolean hept;
 			   Sprintf(post_engr_text,
 				   "The bugs on the %s speed up!",
 				   surface(u.ux, u.uy));
+                doknown = TRUE;
 			}
 			break;
 		    case WAN_POLYMORPH:
@@ -711,6 +716,7 @@ boolean hept;
 			    if (!Blind) {
 				type = (xchar)0;	/* random */
 				(void) random_engraving(buf);
+                    doknown = TRUE;
 			    }
 			    dengr = TRUE;
 			}
@@ -729,6 +735,7 @@ boolean hept;
 			   Sprintf(post_engr_text,
 				   "The %s is riddled by bullet holes!",
 				   surface(u.ux, u.uy));
+                    doknown = TRUE;
 			}
 			break;
 
@@ -743,9 +750,11 @@ boolean hept;
 			break;
 
 		    case WAN_COLD:
-			if (!Blind)
+			if (!Blind) {
 			    Strcpy(post_engr_text,
 				"A few ice cubes drop from the wand.");
+                doknown = TRUE;
+            }
 			if(!oep || (oep->engr_type != BURN))
 			    break;
 		    case WAN_CANCELLATION:
