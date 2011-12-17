@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)potion.c	3.4	2002/10/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Aug 2011 by Alex Smith */
+/* Modified 17 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1578,12 +1578,12 @@ dodip()
 		return(0);
 
 	/* Is there a fountain to dip into here? */
-	if (IS_FOUNTAIN(here)) {
+	if (IS_FOUNTAIN(here) && (!ddi || ddi == &zeroobj)) {
 		if(ddi == &zeroobj || yn("Dip it into the fountain?") == 'y') {
 			dipfountain(obj);
 			return(1);
 		}
-	} else if (is_pool(u.ux,u.uy)) {
+	} else if (is_pool(u.ux,u.uy) && (!ddi || ddi == &zeroobj)) {
 		tmp = waterbody_name(u.ux,u.uy);
 		Sprintf(qbuf, "Dip it into the %s?", tmp);
 		if (ddi == &zeroobj || yn(qbuf) == 'y') {
