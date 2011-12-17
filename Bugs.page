@@ -11,6 +11,7 @@ Bugs will be removed from this list as soon as they are fixed in the repository 
 - Venom sometimes ends up as a real object on the ground (rawrmage hints: "something to do with drop_throw and commented logic", but can't remember the details)
 - Gold is autopickedup even if it would burden you
 - Fullscreen messages misplace the cursor
+- #overview acts oddly when it can't see anything
 
 # Vanilla NetHack bugs also in AceHack
 
