@@ -93,8 +93,11 @@ hopefully, this will put a stop to score being meaningless (or worse,
 a low score being considered more impressive than a high one).
 
 The AI for pets has been improved, meaning that intelligent pets are
-now capable of actually using many of their attacks.  (Patch credits:
-code by Grunt)
+now capable of actually using many of their attacks.  In order to
+prevent this unbalancing pacifist games, wounded pets are now harder
+to hit, and also worse at hitting, which maintains the effect of the
+behaviour of pets not attacking and not being attacked when
+injured. (Patch credits: code originally by Grunt)
 
 Most of the options in the game have been removed or hidden; they
 still exist if anyone really wants to change them, but most of them

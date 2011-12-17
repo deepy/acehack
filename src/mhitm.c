@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mhitm.c	3.4	2003/01/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 17 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -218,6 +218,12 @@ mattackm(magr, mdef)
 
     /* Calculate the armour class differential. */
     tmp = find_mac(mdef) + magr->m_lev;
+    if (magr->mtame) {
+      /* AceHack balance: tame monsters act more defensively when
+         injured */
+      tmp -= (21 * (magr->mhpmax - magr->mhp)) / magr->mhpmax;
+    }
+
     if (mdef->mconf || !mdef->mcanmove || mdef->msleeping) {
 	tmp += 4;
 	mdef->msleeping = 0;
