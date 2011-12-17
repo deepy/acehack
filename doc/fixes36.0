@@ -323,7 +323,10 @@ problem where graphics can't be seen properly due to unusual terminal
 settings such as a white background.
 
 The default character used to represent web traps is now ^ rather than
-".
+" (in order to make them more visible). Likewise, drawbridges are now,
+by default, represented with a brown # when open and a yellow + when
+closed, in order to make them show up better amongst the general
+coloring of the floor.
 
 (tty interface on all platforms but DOS, OS/2, WIN32)
 IBMgraphics now sends signals to the terminal telling it to select a

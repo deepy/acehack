@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)drawing.c	3.4	1999/12/02	*/
 /* Copyright (c) NetHack Development Team 1992.			  */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 17 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -244,10 +244,10 @@ const struct symdef defsyms[MAXPCHARS] = {
 	{'}', "water",		C(CLR_BLUE)},	/* pool */
 	{'.', "ice",		C(CLR_CYAN)},	/* ice */
 	{'}', "molten lava",	C(CLR_RED)},	/* lava */
-	{'.', "lowered drawbridge",C(CLR_BROWN)},	/* vodbridge */
-	{'.', "lowered drawbridge",C(CLR_BROWN)},	/* hodbridge */
-	{'#', "raised drawbridge",C(CLR_BROWN)},/* vcdbridge */
-	{'#', "raised drawbridge",C(CLR_BROWN)},/* hcdbridge */
+	{'#', "lowered drawbridge",C(CLR_BROWN)},	/* vodbridge */
+	{'#', "lowered drawbridge",C(CLR_BROWN)},	/* hodbridge */
+	{'+', "raised drawbridge",C(CLR_YELLOW)},/* vcdbridge */
+	{'+', "raised drawbridge",C(CLR_YELLOW)},/* hcdbridge */
 	{' ', "air",		C(CLR_CYAN)},	/* open air */
 	{'#', "cloud",		C(CLR_GRAY)},	/* [part of] a cloud */
 /*40*/	{'}', "water",		C(CLR_BLUE)},	/* under water */
