@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)options.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Sep 2011 by Alex Smith */
+/* Modified 17 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifdef OPTION_LISTS_ONLY	/* (AMIGA) external program for opt lists */
@@ -284,13 +284,14 @@ static struct Comp_Opt
 						MAXMCLASSES, SET_IN_FILE },
 	{ "msghistory", "number of top line messages to save",
 						5, SET_IN_FILE },
-# ifdef TTY_GRAPHICS
-	{"msg_window", "the type of message window required",1, SET_IN_FILE},
-# else
-	{"msg_window", "the type of message window required", 1, SET_IN_FILE},
-# endif
+	{ "msg_window", "the type of message window required", 1, SET_IN_FILE},
 	{ "name",     "your character's name (e.g., name:Merlin-W)",
 						PL_NSIZ, SET_IN_FILE },
+# ifdef TTY_GRAPHICS
+        { "nativebg", "what to use native colors for",
+          sizeof "everything", SET_IN_GAME },
+# endif
+
 	{ "number_pad", "use the number pad", 1, SET_IN_FILE},
 	{ "objects",  "the symbols to use for objects",
 						MAXOCLASSES, SET_IN_FILE },
@@ -537,6 +538,7 @@ initoptions()
 	iflags.msg_history = 1000;
 #ifdef TTY_GRAPHICS
 	iflags.prevmsg_window = 'r';
+        iflags.nativebg = 'n';
 #endif
 	iflags.menu_headings = ATR_INVERSE;
 
@@ -1267,6 +1269,23 @@ boolean tinitial, tfrom_file;
 			nmcpy(horsename, op, PL_PSIZ);
 		return;
 	}
+
+#ifdef TTY_GRAPHICS
+        fullname = "nativebg";
+        if (match_optname(opts, fullname, 6, TRUE)) {
+        	if (negated) iflags.nativebg = 'n';
+                else if ((op = string_for_opt(opts, FALSE)) != 0) {
+                    if (!strncmpi(op, "nothing", strlen(op)))
+                      iflags.nativebg = 'n';
+                    else if (!strncmpi(op, "everything", strlen(op)))
+                      iflags.nativebg = 'e';
+                    else if (!strncmpi(op, "background", strlen(op)))
+                      iflags.nativebg = 'b';
+                    else
+                      badoption(opts);
+                }
+        }
+#endif
 
 	fullname = "animation";
 	if (match_optname(opts, fullname, 4, TRUE)) {
@@ -2447,10 +2466,16 @@ static NEARDATA const char *burdentype[] = {
 	"strained", "overtaxed", "overloaded"
 };
 
-// Now used for all animation (runmode, timed_delay, sparkle).
+/* Now used for all animation (runmode, timed_delay, sparkle). */
 static NEARDATA const char *runmodes[] = {
 	"instant", "fast", "nosparkle", "timed"
 };
+
+#ifdef TTY_GRAPHICS
+static NEARDATA const char *nativebgtypes[] = {
+        "nothing", "background", "everything"
+};
+#endif
 
 #ifdef SORTLOOT
 static NEARDATA const char *sortltype[] = {
@@ -2854,7 +2879,26 @@ boolean setinitial,setfromfile;
 	retval = TRUE;
     } 
 #ifdef TTY_GRAPHICS
-      else if (!strcmp("msg_window", optname)) {
+      else if (!strcmp("nativebg", optname)) {
+	const char *mode_name;
+	menu_item *mode_pick = (menu_item *)0;
+	tmpwin = create_nhwindow(NHW_MENU);
+	start_menu(tmpwin);
+	for (i = 0; i < SIZE(nativebgtypes); i++) {
+		mode_name = nativebgtypes[i];
+		any.a_int = nativebgtypes[i][0];
+		add_menu(tmpwin, NO_GLYPH, &any, *mode_name, 0,
+			 ATR_NONE, mode_name, MENU_UNSELECTED);
+	}
+	end_menu(tmpwin, "Use native terminal colors for:");
+	if (select_menu(tmpwin, PICK_ONE, &mode_pick) > 0) {
+		iflags.nativebg = mode_pick->item.a_int;
+		free((genericptr_t)mode_pick);
+                docrt();
+	}
+	destroy_nhwindow(tmpwin);
+	retval = TRUE;
+    } else if (!strcmp("msg_window", optname)) {
 	/* by Christian W. Cooper */
 	menu_item *window_pick = (menu_item *)0;
 	tmpwin = create_nhwindow(NHW_MENU);
@@ -3225,6 +3269,9 @@ char *buf;
 		Sprintf(buf, "%s", rolestring(flags.initrole, roles, name.m));
 	else if (!strcmp(optname, "animation"))
 		Sprintf(buf, "%s", runmodes[iflags.runmode]);
+	else if (!strcmp(optname, "nativebg"))
+		Sprintf(buf, "%s", iflags.nativebg == 'n' ? "nothing" :
+                        iflags.nativebg == 'b' ? "background" : "everything");
 	else if (!strcmp(optname, "scores")) {
 		Sprintf(buf, "%d top/%d around%s", flags.end_top,
 				flags.end_around, flags.end_own ? "/own" : "");

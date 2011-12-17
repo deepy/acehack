@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)flag.h	3.4	2002/08/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 1 Sep 2011 by Alex Smith */
+/* Modified 17 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you change the flag structure make sure you increment EDITLEVEL in   */
@@ -277,7 +277,9 @@ struct instance_flags {
 	boolean wc2_softkeyboard;	/* use software keyboard */
 	boolean wc2_wraptext;		/* wrap text */
 
-	boolean show_buc;	/* always show BUC status */
+        char    nativebg;               /* how to set background color */
+
+	boolean  show_buc;	/* always show BUC status */
 	boolean  cmdassist;	/* provide detailed assistance for some commands */
 	boolean	 obsolete;	/* obsolete options can point at this, it isn't used */
 	/* Items which belong in flags, but are here to allow save compatibility */

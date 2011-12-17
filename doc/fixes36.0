@@ -320,7 +320,10 @@ they make it much easier to extend the drawing code to do new sorts of
 drawing.  They also now set both the foreground and background colors
 explicitly if the color option is turned on; this should avoid the
 problem where graphics can't be seen properly due to unusual terminal
-settings such as a white background.
+settings such as a white background. This override of the colors can
+be turned off using the new "nativebg" option, that lets you use your
+terminal's default colors for nothing, to replace black backgrounds,
+or to replace black backgrounds and white foregrounds.
 
 The default character used to represent web traps is now ^ rather than
 " (in order to make them more visible). Likewise, drawbridges are now,

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)wintty.c	3.4	2002/09/27	*/
 /* Copyright (c) David Cohrs, 1991				  */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 17 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.	 See license for details. */
 
 /*
@@ -2861,11 +2861,12 @@ copy_of(s)
  * write characters from the user's point of view; xputs/xputc is used
  * for control codes).
  */
+#define NATIVE_COLOR 64
 static int current_color = CLR_GRAY;
 static int current_background = CLR_BLACK;
 static int current_attrs = 0;
-static int last_color = NO_COLOR;
-static int last_background = NO_COLOR;
+static int last_color = NATIVE_COLOR;
+static int last_background = NATIVE_COLOR;
 static boolean last_wc_color = FALSE;
 static int last_attrs = 0;
 void
@@ -2883,17 +2884,34 @@ int c;
             term_end_background();
         }
         last_wc_color = iflags.wc_color;
-        last_color = NO_COLOR;
-        last_background = NO_COLOR;
+        last_color = NATIVE_COLOR;
+        last_background = NATIVE_COLOR;
     } else {
         /* Check for, say, green-on-green; change it to inverse green. */
         if (temp_fg == temp_bg) {
           temp_fg = CLR_BLACK;
         }
+        /* Should we replace black background (and possibly white
+           foreground) with the terminal's default instead? */
+        if (temp_bg == CLR_BLACK && iflags.nativebg != 'n') {
+          temp_bg = NATIVE_COLOR;
+          if (iflags.nativebg == 'e' &&
+              (temp_fg == CLR_GRAY || temp_fg == CLR_WHITE)) {
+            if (temp_fg == CLR_WHITE) temp_ca |= 1;
+            temp_fg = NATIVE_COLOR;
+          }
+        }
     }
     /* This is asymmetrical, in that turning one attr off sometimes
        (but not always) turns other attrs and color off too, but turning
        an attr on always works fine. */
+    if (iflags.wc_color && temp_bg == NATIVE_COLOR && 
+        (temp_bg != last_background || repeatattrs)) {
+        /* Unset the background color */
+        term_end_background();
+        last_background = temp_bg;
+        repeatattrs = TRUE;
+    }
     if (temp_ca != last_attrs || repeatattrs) {
         /* Anything turned off? */
         if ((last_attrs & 32) && !(temp_fg & BRIGHT)) {
@@ -2913,7 +2931,10 @@ int c;
         if (repeatattrs) last_attrs = 0; /* do them all again */
     }
     if (iflags.wc_color && (temp_fg != last_color || repeatattrs)) {
-        term_start_color(temp_fg);
+        if (temp_fg != NATIVE_COLOR)
+            term_start_color(temp_fg);
+        else
+            term_end_color();
         last_color = temp_fg;
         /* Setting the color to a bright one may implicitly turn on bold. */
         if (temp_fg & BRIGHT) last_attrs |= 32;
@@ -2928,7 +2949,8 @@ int c;
         if (~last_attrs & temp_ca & 16) term_start_attr(ATR_INVERSE);
         last_attrs = temp_ca | (last_attrs & 32);
     }
-    if (iflags.wc_color && (temp_bg != last_background || repeatattrs)) {
+    if (iflags.wc_color && temp_bg != NATIVE_COLOR &&
+        (temp_bg != last_background || repeatattrs)) {
         /* Set the background color */
         term_start_background(temp_bg);
         last_background = temp_bg;
@@ -2975,9 +2997,6 @@ int c;
 static void
 tty_end_color()
 {
-    /* We no longer use NO_COLOR, except with color turned off, because
-       if you set the background explicitly, you should also set the
-       foreground explicitly. */
     current_color = CLR_GRAY;
     current_background = CLR_BLACK;
 }
