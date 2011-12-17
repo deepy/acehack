@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)engrave.c	3.4	2001/11/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 16 Dec 2011 by Alex Smith */
+/* Modified 17 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -974,7 +974,10 @@ boolean hept;
 
               /* Deliberately breaking key compat with 3.4.3 here, so that
                  people trying to engrave Elbereth will notice things have
-                 changed. */
+                 changed. Deliberately not breaking it by running the menu
+                 in a loop, so that typing the "wrong" keys won't lose the
+                 player their turn. */
+            redo_menu:
               win = create_nhwindow(NHW_MENU);
               start_menu(win);
               if (!oep || type == oep->engr_type) {
@@ -992,9 +995,9 @@ boolean hept;
                          MENU_UNSELECTED);
               }
               if (oep) {
-                any.a_int = 'r';
-                add_menu(win, NO_GLYPH, &any, 'r', 0, ATR_NONE,
-                         "Replace the current engraving with text",
+                any.a_int = 'o';
+                add_menu(win, NO_GLYPH, &any, 'o', 0, ATR_NONE,
+                         "Overwrite the current engraving with text",
                          MENU_UNSELECTED);
               }
               any.a_int = 'q';
@@ -1006,7 +1009,7 @@ boolean hept;
               if (n == 1) {
                 c = selected[0].item.a_int;
                 free((genericptr_t) selected);
-              } else c = 'q';
+              } else goto redo_menu;
               if (c == 'q') {
                 pline("%s",Never_mind);
                 return(0);
