@@ -434,7 +434,8 @@ of their previous games.
 
 An extended logfile "xlogfile" provides more machine-readable
 information about what happened in a game.  (Credits: based on a patch
-by Aardvark Joe, via UnNetHack.)
+by Aardvark Joe, via UnNetHack; with enhancements by Alex Smith and
+Christian Stegen)
 
 Platform- and/or Interface-Specific New Features
 ------------------------------------------------
