@@ -376,6 +376,9 @@ struct toptenentry *tt;
   (void)fprintf(rfile, SEP "gender0=%s", genders[flags.initgend].filecode);
   (void)fprintf(rfile, SEP "align0=%s", aligns[1 - u.ualignbase[A_ORIGINAL]].filecode);
 
+  (void)fprintf(rfile, SEP "xplevel=%d", u.ulevel); /* XP level */
+  (void)fprintf(rfile, SEP "exp=%d", u.uexp);       /* Experience points */
+
   (void)fprintf(rfile, SEP "mode=%s", (flags.debug ? "debug" :
 				       flags.explore ? "explore" :
 				       flags.solomode ? "solo" :
