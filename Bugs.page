@@ -134,6 +134,8 @@ C343-258 Grammar error in samurai quest: "wakarimasu?" instead of "wakarimasu ka
 :   In Samurai quest messages 18 and 24.
 C343-259 "Dr. Dolittle" is spelled incorrectly.
 :   In two places: a comment in the list of hallu monsters, and in the list of zoo messages.
+C343-267 Game says monster speed changes even if monster can't move at all.
+:   In mon_adjust_speed in worn.c.
 C343-305 Attacking with an applied polearm ignores the "confirm" option.
 :   Although potentially problematic in vanilla NetHack, AceHack has a visual clue to the peacefulness or tameness of monsters, which would almost certainly be noticed while confirming the target (the cursor has to be moved by hand), so it's unlikely this would be done by mistake. A confirmation is thus less important.
 C343-318 Opening or closing the castle drawbridge using music takes no time.

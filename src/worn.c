@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)worn.c	3.4	2003/01/08	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Dec 2010 by Alex Smith */
+/* Modified 21 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -195,7 +195,10 @@ struct obj *obj;	/* item to make known if effect can be seen */
 	    /* mimic the player's petrification countdown; "slowing down"
 	       even if fast movement rate retained via worn speed boots */
 	    if (flags.verbose) pline("%s is slowing down.", Monnam(mon));
-	} else if (adjust > 0 || mon->mspeed == MFAST)
+	} else if (!mon->data->mmove) {
+            pline("%s seems to move no %s than before.", Monnam(mon),
+                  (adjust > 0 || mon->mspeed == MFAST ? "faster" : "slower"));
+        } else if (adjust > 0 || mon->mspeed == MFAST)
 	    pline("%s is suddenly moving %sfaster.", Monnam(mon), howmuch);
 	else
 	    pline("%s seems to be moving %sslower.", Monnam(mon), howmuch);
