@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)sounds.c	3.4	2002/05/06	*/
 /*	Copyright (c) 1989 Janet Walz, Mike Threepoint */
-/* Modified 23 Dec 2010 by Alex Smith */
+/* Modified 21 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -906,6 +906,13 @@ dochat()
 
     tx = u.ux+u.dx; ty = u.uy+u.dy;
     mtmp = m_at(tx, ty);
+
+    /* Make chatting to a door open/close it, because vanilla players
+       are used to using 'c' to close doors */
+    if (!mtmp && IS_DOOR(levl[tx][ty].typ)) {
+        setnextgetdirdxdy(u.dx,u.dy);
+        return(doopen());
+    }
 
     if (!mtmp || mtmp->mundetected ||
 		mtmp->m_ap_type == M_AP_FURNITURE ||

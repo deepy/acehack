@@ -514,8 +514,9 @@ items.)
 A: Now allows equipping items to arbitrary slots, as well as
 unequipping them from those slots.
 c, #chat: c now means #chat (the old meaning of c, "close door", has
-been moved to o).  These commands can now be used to pay your bill in
-a shop (which takes precedence over ordinary chatting).
+been moved to o, although c at a door will still close it for
+backwards compatibility).  These commands can now be used to pay your
+bill in a shop (which takes precedence over ordinary chatting).
 C, #name: These commands have been merged, and display a menu to ask
 what to do.  (Credits: nethack.alt.org for the idea, although the code
 is mine.)  They also allow naming of recently destroyed items (so that
