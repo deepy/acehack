@@ -65,6 +65,8 @@ C343-337 It's possible to create an object of 0 gold pieces.
 :   With at least one gold piece in inventory, type "d4294967296$". (Doing it twice crashes the game, as it tries to average the age of two 0-gold-pieces objects, weighted on their stack sizes, leading to a division by zero.)
 C343-371 Stethoscopes can sometimes be used more often than intended.
 :   You can rewind the stethoscope use timer by saving and reloading the game.
+C343-379 Spelling errors "sprit" and "truely" in quest text.
+:   Neither of these words appears in 3.4.3's quest text, so it's unclear where the bug comes from.
 C343-395 Spelling errors at the genocide prompt may have unintended consequences.
 :   (AceHack considers this a bug even if the vanilla NetHack devteam doesn't.) The parser has weird error handling, so that, say, "master mindflayer" is parsed as "master" which is parsed as "monk".
 SC343-10 Player can raise HP and Pw by dancing with vampires.
