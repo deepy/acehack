@@ -150,6 +150,8 @@ C343-374 When ploymorphed into a grid bug, attempting to move in an illegal dire
 :   The relevant code was rewritten in AceHack, but amusingly had the same bug for a different reason. There's now a YAFM for the situation.
 C343-386 Pearl rings can rust.
 :   Fixed by flagging them as bone, which has similar mechanical properties to pearl.
+C343-387 T-shirts can be read when covered.
+:   AceHack doesn't let you read a T-shirt if it's worn, and so is a suit and/or cloak.
 C343-398 The game may crash if a wielded potion of polymorph is drunk.
 :   This is actually a different bug from other bugs with similar causes and symptoms. It isn't a dangling pointer bug, but rather a panic. What's happening is that the potion is dropped when polymorphing into a creature with no hands, and that's before it's used up; so when useup() is called after the potion is finished being drunk, it fails to find the potion in inventory and panics.
 C343-399 Messages referring to a named vault gaurd have grammatical errors.

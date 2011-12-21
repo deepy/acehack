@@ -83,6 +83,8 @@ The game no longer goes into an infinite loop upon an input error at a
 
 The game will now try to recover from some sorts of trickery.
 
+T-shirts can no longer be read if obscured by armour.
+
 Modified Features
 -----------------
 

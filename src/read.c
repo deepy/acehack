@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)read.c	3.4	2003/10/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 24 Mar 2011 by Alex Smith */
+/* Modified 21 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -82,6 +82,11 @@ doread()
 		You_cant("feel any Braille writing.");
 		return 0;
 	    }
+            if (scroll == uarmu && (uarm || uarmc)) {
+                pline("Your shirt is not visible beneath your %s.",
+                      (uarmc ? "cloak" : "armour"));
+                return 0;
+            }
 	    u.uconduct.literate++;
 	    if(flags.verbose)
 		pline("It reads:");
