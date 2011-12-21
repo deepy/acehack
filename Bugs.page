@@ -128,6 +128,8 @@ C343-160 Name "leather spellbook" is misleading.
 :   It's been changed to "leather-bound spellbook" in AceHack, to avoid the misleading implication that it isn't made of paper.
 C343-178 Wisdom is mishandled when rumors are used for random graffiti.
 :   In vanilla NetHack, you get wisdom exercised upon polymorphing an engraving into "Elbereth". Heptagrams don't exercise wisdom in AceHack, though, and nor does the word "Elbereth", which no longer has an effect, so this doesn't happen.
+C343-199 The database entry for "monk" has a typo.
+:   That database isn't used in AceHack.
 C343-218 Applying a wielded cream pie can crash the game.
 :   Because the game neglects to reset the "wielded" pointer when you apply it, leading to a dangling pointer.
 C343-248 You can't put candles in a candelabrum while underwater.
