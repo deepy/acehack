@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)sit.c	3.4	2002/09/21	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Jul 2010 by Alex Smith */
+/* Modified 21 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -61,6 +61,17 @@ dosit()
 	    goto in_water;
 	}
 
+        if ((trap = t_at(u.ux, u.uy)) != 0 && !u.utrap &&
+            (trap->ttyp == HOLE || trap->ttyp == TRAPDOOR ||
+             trap->ttyp == PIT || trap->ttyp == SPIKED_PIT) &&
+            trap->tseen) {
+            You("sit on the edge of the %s.",
+                trap->ttyp == HOLE ? "hole" :
+                trap->ttyp == TRAPDOOR ? "trapdoor" :
+                trap->ttyp == PIT ? "pit" :
+                "spiked pit");
+            return 1;
+        }
 	if(OBJ_AT(u.ux, u.uy)) {
 	    register struct obj *obj;
 

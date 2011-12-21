@@ -86,6 +86,8 @@ C343-2 Wielded silver arrows don't cause silver damage on some silver-haters.
 :   There are separate codepaths for weapon silver damage and nonweapon silver damage. Wielded arrows manage to miss both of them, so silver arrows don't apply silver damage in vanilla NetHack.
 C343-5 In wizard mode, level teleport in the endgame can cause a crash if confused.
 :   Debug mode bug.
+C343-6 You can #sit on an object at the bottom of a pit you are not in.
+:   Fixed by disallowing this when the pit is seen (implying the object is at the bottom of the pit) but allowing it when the pit is not seen (implying the pit is still covered, and the object is lying on the covering).
 C343-7 When a steed pushes a boulder into a pool, the message misuses "you".
 :   The message claims that it's you who pushed the boulder, rather than the steed.
 C343-8 Plural of Nazgul is Nazgul - not Nazguls.
