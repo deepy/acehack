@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Jun 2011 by Alex Smith */
+/* Modified 21 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -823,6 +823,14 @@ dodown()
 			(trap->ttyp != TRAPDOOR && trap->ttyp != HOLE)
 			|| !Can_fall_thru(&u.uz) || !trap->tseen) {
 
+                        if (trap && (trap->ttyp == PIT ||
+                                     trap->ttyp == SPIKED_PIT) &&
+                            !u.utrap) {
+                                /* deliberately entering the pit */
+                                dotrap(trap, FORCEBUNGLE);
+                                return(1);
+                        }
+
 			if (flags.autodig && !flags.nopick &&
 				uwep && is_pick(uwep)) {
 				return use_pick_axe2(uwep);
@@ -917,14 +925,21 @@ doup()
    downstairs         dodown()
    water/fountain     dodip()
    altar              dosacrifice()
+   pit/hole/etc       dodown()
    autodig with pick  dodown(), which autodigs
-   throne/floor       dosit() */
+   throne/floor       dosit()
+   We assume even unseen traps are interacted with, because the
+   player is putting a lot of pressure on the ground to perform the
+   action (dosit) they'd otherwise perform.
+*/
 int
 doterrain()
 {
 	struct trap *ttmp = t_at(u.ux, u.uy);
 	if (Levitation) return dodown(); /* end levitation or error out */
-        if (ttmp && (ttmp->ttyp == TRAPDOOR || ttmp->ttyp == HOLE))
+        if (ttmp && (ttmp->ttyp == TRAPDOOR || ttmp->ttyp == HOLE ||
+                     ttmp->ttyp == PIT || ttmp->ttyp == SPIKED_PIT) &&
+            !u.utrap)
           return dodown();
 	switch (levl[u.ux][u.uy].typ) {
           /* 0..15: impassable terrain, use default #sit */

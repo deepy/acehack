@@ -86,7 +86,7 @@ The game will now try to recover from some sorts of trickery.
 T-shirts can no longer be read if obscured by armour.
 
 You can no longer sit on objects at the bottom of a pit, without being
-there yourself.
+there yourself. You can, however, deliberately fall into a pit using >.
 
 Modified Features
 -----------------
@@ -582,8 +582,8 @@ the additional info while targeting mentioned earlier).
 /: Now only describes strings typed in by the user (use ; to describe
 something on the map).
 >: Now interacts with any sort of terrain on the square, to go down or
-up stairs, dip into fountains/water, sacrifice on altars, or sit on
-other sorts of terrain.
+up stairs, dip into fountains/water, sacrifice on altars, deliberately
+fall into a pit, or sit on other sorts of terrain.
 .: Now draws a magic heptagram.  (You can use s to wait one turn, or
 #wait if you really need to wait one turn without searching.)
 

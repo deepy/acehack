@@ -94,6 +94,8 @@ C343-8 Plural of Nazgul is Nazgul - not Nazguls.
 :   makeplural (objnam.c) needed an extra special case for this.
 C343-11 If you ask for help ('?') at a "what direction" prompt, you don't get to enter a direction afterward if the cmdassist option is set.
 :   The getdir function that handles this doesn't contain a loop in vanilla NetHack. AceHack adds a loop, not exiting the function until either a direction is pressed, or Esc is used to deliberately cancel.
+C343-12 You can't use '>' to enter a pit.
+:   #down and #terrain now both cause you to fall into a pit you're standing on top of.
 C343-15 You can get a message that an invisible monster looks much better.
 :   This happens when an invisible monster lifesaves when the player doesn't have see invisible; the relevant function in mon.c checks to see whether the monster's location is visible, rather than whether the monster is visible.
 C343-18 Scaring a mimicing mimic gives an incorrect "turns to flee" message.
