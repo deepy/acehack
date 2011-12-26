@@ -632,6 +632,7 @@ HOST_MSWIN
 PKG_CONFIG
 LIBXAW_LIBS
 LIBXAW_CFLAGS
+MPLOCKLOC
 host_os
 host_vendor
 host_cpu
@@ -3308,6 +3309,22 @@ shift; shift
 host_os=$*
 IFS=$ac_save_IFS
 case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
+
+
+
+# We need to find a multiplayer lockfile location that we can write to
+# without constantly grinding the hard disk. We want the first of
+# /var/lock, /var/run, /dev/shm, and /tmp that exists and that we can
+# write to without special permissions, and also that is mounted on a
+# partition of type shmfs or tmpfs. If none of them work, we fall back
+# to FILE_AREA_LEVL, which should be PREFIX/acehackdir.
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking the appropriate location for multiplayer lockfiles" >&5
+$as_echo_n "checking the appropriate location for multiplayer lockfiles... " >&6; }
+MPLOCKLOC=`(find /var/lock /var/run /dev/shm /tmp -maxdepth 0 '-(' -fstype shmfs -or -fstype shm -or -fstype tmpfs -or -fstype tmp '-)' -and -writable; echo "\${PREFIX}/acehackdir") | head -n 1`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $MPLOCKLOC" >&5
+$as_echo "$MPLOCKLOC" >&6; }
+
+$as_echo "#define MPLOCKLOC \$MPLOCKLOC" >>confdefs.h
 
 
 

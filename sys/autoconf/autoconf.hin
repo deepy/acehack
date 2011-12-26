@@ -107,6 +107,9 @@
 /* Posix regex is available */
 #undef MENU_COLOR_REGEX_POSIX
 
+/* Define to an appropriate directory for multiplayer lockfiles. */
+#undef MPLOCKLOC
+
 /* Microsoft Window's native graphics */
 #undef MSWIN_GRAPHICS
 
