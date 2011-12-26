@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 17 Jun 2011 by Alex Smith */
+/* Modified 26 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -3141,11 +3141,17 @@ parse()
                     break;
                 } else {	/* not a digit */
                     if (multi == 0 && !prezero) {
-                        /* TODO: This almost certainly breaks on tiles. */
 # ifdef REDO
                         if (!in_doagain)
-# endif                      
+                          extcmd_char1 = foo;
+# else
+                        /* TODO: This almost certainly breaks on tiles.
+                           And it also breaks on multiplayer, because
+                           select() doesn't see ungetc. Perhaps just
+                           use pgetchar() as the input function no
+                           matter what? */
                         ungetc(foo, stdin);
+# endif
                         foo = ecl_extcmd->binding1;
                     }
                     /* otherwise we need another # to mark an extended
