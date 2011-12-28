@@ -1,0 +1,9 @@
+Vanilla AceHack:
+darcs get http://patch-tag.com/r/ais523/acehack 
+darcs get ais523@patch-tag.com:/r/ais523/acehack
+darcs get http://darcsden.com/ais523/acehack
+darcs get ais523@darcsden.com:acehack
+
+Multiplayer AceHack:
+darcs get http://darcsden.com/ais523/acehack-multiplayer
+darcs get ais523@darcsden.com:acehack-multiplayer
