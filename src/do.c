@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Dec 2011 by Alex Smith */
+/* Modified 28 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -1106,10 +1106,11 @@ checkpoint_level()
   mtmp->movement = youmonst.movement;
   christen_monst(mtmp, mplock);
 
+  vision_reset();
+
   /* In multiplayer, lock the file that we're checkpointing, so that
      we don't have someone trying to merge with the level due to a
      level change reading a partial level file and crashing*/
-
   if (iflags.multiplayer) {
     Strcpy(lock, iflags.mp_lock_name);
     set_levelfile_name(lock, ledger_no(&u.uz));
@@ -1148,6 +1149,17 @@ uncheckpoint_level()
     return fd;
   }
   minit(); /* needed to reset compression status */
+
+  /* The lock is required, in case we try to uncheckpoint the file while
+     another process is checkpointing the same file (possible due to
+     vision updates). */
+  if (iflags.multiplayer) {
+    Strcpy(lock, iflags.mp_lock_name);
+    set_levelfile_name(lock, ledger_no(&u.uz));
+    if (!lock_file_silently(lock, LEVELPREFIX, 20))
+      panic("Stale lockfile lock when uncheckpointing level!");
+  }
+
   /* free the old version of the level */
   dmonsfree();
   savelev(0, ledger_no(&u.uz), FREE_SAVE);
@@ -1157,6 +1169,13 @@ uncheckpoint_level()
   getlev(fd, 0, ledger_no(&u.uz), FALSE);
   (void) close(fd);
 
+  if (iflags.multiplayer) {
+    /* lock may have changed value by now */
+    Strcpy(lock, iflags.mp_lock_name);
+    set_levelfile_name(lock, ledger_no(&u.uz));
+    unlock_file(lock);
+  }
+
   /* Genocide should extend from one game onto the next. Multiplayer
      reveals its true horror: instead of just conquering the whole
      world instantly, it places a permanent curse on its user that
@@ -1164,9 +1183,7 @@ uncheckpoint_level()
      up sharing a level with. */
   kill_genocided_monsters();
 
-  /* For the time being, redraw the screen. (Eventually, it'd be nice
-     to get incremental updates sent from the other game while it's in
-     control.) */
+  /* Redraw the screen to reflect the new information. */
   vision_reset();
   docrt();
   flush_screen(1);  

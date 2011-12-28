@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)pline.c	3.4	1999/11/28	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Aug 2011 by Alex Smith */
+/* Modified 28 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS /* Uses ... */	/* comment line for pre-compiled headers */
@@ -555,6 +555,10 @@ static int turns_behind = 0;
    query presence; we respond to this with the standard newline,
    because we are here, and don't log it
 
+   lockname space v newline
+   update view; we log this, and uncheckpoint/redraw when the log is
+   flushed
+
    lockname space t newline
    "time passes"; respond with standard newline, and immediately
    log that we're a turn behind (the turn itself will be played out
@@ -642,6 +646,7 @@ const char *s;
   case 'q': log = FALSE; break;
   case 'p': break;
   case 'b': break;
+  case 'v': break;
   case 't': log = FALSE; turns_behind++; break;
   default: panic("Invalid multiplayer message type");
   }
@@ -663,6 +668,9 @@ const char *s;
     } else newmpple->entry_data = NULL;
   }
 }
+
+boolean safe_to_uncheckpoint = FALSE;
+static boolean in_tmp_at = FALSE;
 
 /* The equivalent of the above, for remote-driving.
    Much simpler, because we can just reuse the code from two other
@@ -705,7 +713,21 @@ mp_flush_log()
       pline("%s",*(this_mpple->entry_data) == '!' ?
             this_mpple->entry_data+1 :
             this_mpple->entry_data);
-      if (*(this_mpple->entry_data) == '!') suppress_more();
+      /* Experimental: never show --More-- or the like while not
+         active, so that things always happen in realtime; this
+         means we don't have to log past screen views */
+      /*if (*(this_mpple->entry_data) == '!')*/ suppress_more();
+      break;
+    case 'v':
+      if (safe_to_uncheckpoint) {
+        if (in_tmp_at) tmp_at(DISP_END,0);
+        uncheckpoint_level();
+        if (in_tmp_at) {
+          tmp_at(DISP_ALWAYS, GLYPH_PET_OFF + (youmonst.data - mons));
+          tmp_at(u.ux, u.uy);
+          curs_on_u();
+        }
+      }
       break;
     case 'b': handle_mp_zap(this_mpple->entry_data); break;
     default: panic("Impossible mpple logged");
@@ -784,8 +806,9 @@ const char *msgstr;
    This should be null-terminated; the lockname will be prefixed and a
    newline will be suffixed. Then waits for an acknowledgement.
    Returns 0 for error acknowledgement, 1 for OK acknowledgement. If
-   the third argument is false, ignores error acknowledgements on the
-   basis that they're likely spurious.
+   the fourth argument is false, ignores error acknowledgements on the
+   basis that they're likely spurious. The third argument can be null,
+   if no argument is desired.
 
    TODO: Perhaps place an alarm here? The acknowledgement should be
    near-instant, the only thing that can potentially hold it up is
@@ -832,6 +855,7 @@ mp_await_reply_or_yield()
         old_mp_input_handler = mp_input_handler;
         mp_input_handler = mp_log_and_handle_now;
         mp_flush_log();
+        in_tmp_at = TRUE;
         tmp_at(DISP_ALWAYS, GLYPH_PET_OFF + (youmonst.data - mons));
         tmp_at(u.ux, u.uy);
         curs_on_u();
@@ -864,6 +888,7 @@ mp_await_reply_or_yield()
         /* Switch back to the original driving mode. */
         mp_input_handler = old_mp_input_handler;
         tmp_at(DISP_END, 0);
+        in_tmp_at = FALSE;
 
         return rv;
 }
@@ -918,6 +943,20 @@ rpline VA_DECL(const char *, line)
             if (!is_mp_player(mtmp)) continue;
 
             mp_message_and_reply(is_mp_player(mtmp), "p", line, FALSE);
+        }
+}
+
+void
+rdocrt() {
+	struct monst *mtmp, *nmtmp;
+
+	checkpoint_level();
+        for(mtmp = fmon; mtmp; mtmp = nmtmp) {
+            nmtmp = mtmp->nmon;
+
+            if (!is_mp_player(mtmp)) continue;
+
+            mp_message_and_reply(is_mp_player(mtmp), "v", 0, FALSE);
         }
 
 }

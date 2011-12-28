@@ -774,10 +774,13 @@ movemon()
     }
     if (should_yield && *lockname_copy) {
         char buf[BUFSZ];
+        extern boolean safe_to_uncheckpoint;
         checkpoint_level();
         Sprintf(buf, "%s y\n", mplock);
         mp_message(lockname_copy, buf);
+        safe_to_uncheckpoint = TRUE;
         while (mp_await_reply_or_yield() != 2) {}
+        safe_to_uncheckpoint = FALSE; /* that is, without warning */
         uncheckpoint_level();
         /* flag somebody_can_move as true, because we don't know
            whether it's true or not after other players messing with

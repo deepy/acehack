@@ -523,6 +523,10 @@ moveloop()
 	cliparound(u.ux, u.uy);
 #endif
 
+        if (iflags.multiplayer) {
+          rdocrt();
+        }
+
 	u.umoved = FALSE;
 
 	if (multi > 0) {

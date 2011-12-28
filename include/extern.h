@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)extern.h	3.4	2003/03/10	*/
 /* Copyright (c) Steve Creps, 1988.				  */
-/* Modified 26 Dec 2011 by Alex Smith */
+/* Modified 28 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef EXTERN_H
@@ -1605,6 +1605,7 @@ E const char *NDECL(mp_levelmerger_name);
 E int  NDECL(mp_turns_behind);
 E void VDECL(rpline, (const char *,...)) PRINTF_F(1,2);
 E void VDECL(rYou, (const char *,...)) PRINTF_F(1,2);
+E void NDECL(rdocrt);
 E void FDECL(message_monster, (struct monst *,char *));
 
 /* ### polyself.c ### */
