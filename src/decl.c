@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)decl.c	3.2	2001/12/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 5 Jul 2011 by Alex Smith */
+/* Modified 28 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -275,13 +275,13 @@ char toplines[TBUFSZ];
 /* Windowing stuff that's really tty oriented, but present for all ports */
 struct tc_gbl_data tc_gbl_data = { 0,0, 0,0 };	/* AS,AE, LI,CO */
 
-char *fqn_prefix[PREFIX_COUNT] = { (char *)0, (char *)0, (char *)0, (char *)0,
-				(char *)0, (char *)0, (char *)0, (char *)0, (char *)0 };
+char *fqn_prefix[PREFIX_COUNT] = { 0 };
 
 #ifdef PREFIXES_IN_USE
 char *fqn_prefix_names[PREFIX_COUNT] = { "hackdir", "leveldir", "savedir",
-					"bonesdir", "datadir", "scoredir",
-					"lockdir", "configdir", "troubledir" };
+                                         "bonesdir", "datadir", "scoredir",
+                                         "lockdir", "configdir", "troubledir",
+                                         "mplockdir"};
 #endif
 
 /* dummy routine used to force linkage */

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)files.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Sep 2011 by Alex Smith */
+/* Modified 28 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -291,10 +291,28 @@ const char *basename;
 int whichprefix, buffnum;
 {
 #ifndef PREFIXES_IN_USE
-        /* rename_levelfile relies on this making a copy. */
-        Strcpy(fqn_filename_buffer[buffnum], basename);
-	return fqn_filename_buffer[buffnum];
-#else
+	if (!iflags.multiplayer || (whichprefix != LEVELPREFIX &&
+                                    whichprefix != LOCKPREFIX)) {
+            /* rename_levelfile relies on this making a copy. */
+            Strcpy(fqn_filename_buffer[buffnum], basename);
+            return fqn_filename_buffer[buffnum];
+        }
+#endif
+        /* Move a lockfile to the multiplayer lockfile directory if
+           it's based on mp_lock_name. */
+        if (iflags.multiplayer && *iflags.mp_lock_name &&
+            strstr(basename, iflags.mp_lock_name) == basename &&
+            (whichprefix == LEVELPREFIX || whichprefix == LOCKPREFIX)) {
+                whichprefix = MPLOCKPREFIX;
+                /* and create the directory if it doesn't exist */
+                if (fqn_prefix[whichprefix] &&
+                    access(fqn_prefix[whichprefix],F_OK) < 0) {
+                        if (mkdir(fqn_prefix[whichprefix],0775) < 0) {
+                                panic("Could not create multiplayer "
+                                        "lockfile directory (errno %d)", errno);
+                        }
+                }
+        }
 	if (!basename || whichprefix < 0 || whichprefix >= PREFIX_COUNT)
 		return basename;
 	if (!fqn_prefix[whichprefix])
@@ -312,7 +330,6 @@ int whichprefix, buffnum;
 	}
 	Strcpy(fqn_filename_buffer[buffnum], fqn_prefix[whichprefix]);
 	return strcat(fqn_filename_buffer[buffnum], basename);
-#endif
 }
 
 /* reasonbuf must be at least BUFSZ, supplied by caller */
@@ -483,7 +500,10 @@ char errbuf[];
 /* Attempts to rename the levelfile from its existing name, to
    one that uses the given lockname. Returns 0 if successful or
    if it failed solely because the file didn't exist; -1 on
-   failure. */
+   other failures. Note that this assumes that if mp_lock_name
+   is nonempty, anything starting with mp_lock_name is destined
+   for multiplayer even we aren't in multiplayer mode yet, in
+   case we're currently switching to multiplayer mode. */
 int
 rename_levelfile(lev, lockname, errbuf)
 int lev;
@@ -491,6 +511,7 @@ char *lockname;
 char errbuf[];
 {
   const char *oldfqname, *newfqname;
+  int old_multiplayer;
   if (errbuf) *errbuf = '\0';
   if (iflags.multiplayer)
     Strcpy(lock, !ledger_is_local(lev) ? iflags.mp_lock_name : mplock);
@@ -498,10 +519,36 @@ char errbuf[];
   oldfqname = fqname(lock, LEVELPREFIX, 0);
   Strcpy(lock, lockname);
   set_levelfile_name(lock, lev);
+  old_multiplayer = iflags.multiplayer;
+  iflags.multiplayer = TRUE;
   newfqname = fqname(lock, LEVELPREFIX, 1);
+  iflags.multiplayer = old_multiplayer;
   Strcpy(lock, mplock); /* avoid lockfile name corruption in singleplayer */
   errno = 0;
   if (rename(oldfqname, newfqname) < 0) {
+    if (errno == EXDEV) {
+      /* This isn't necessarily fatal; we can't rename the file
+         atomically, but it may still be possible to rename it by
+         hand. So that's what we do. */
+      int fd1 = -1, fd2 = -1, c = -1, e = -1;
+      char buf[BUFSZ];
+      errno = 0;
+      fd1 = open(oldfqname, O_RDONLY | O_BINARY, 0);
+      if (fd1 >= 0) fd2 = open(newfqname, O_WRONLY | O_BINARY | O_CREAT | O_EXCL, FCMASK);
+      if (fd1 >= 0 && fd2 >= 0) {
+        while ((c = read(fd1,buf,BUFSZ)) > 0)
+          if ((c = write(fd2,buf,c)) < 0) break;
+      }
+      if (c < 0 || fd2 < 0 || fd1 < 0) e = errno;
+      if (fd1 >= 0) fd1 = close(fd1);
+      if (fd2 >= 0) fd2 = close(fd2);
+      if (c >= 0 && fd2 >= 0 && fd1 >= 0) {
+        errno = 0;
+        if (unlink(oldfqname) >= 0) return 0;
+        e = errno;
+      }
+      if (e > -1) errno = e;
+    }
     if (errno == ENOENT) return 0;
     if (errbuf)
       Sprintf(errbuf,

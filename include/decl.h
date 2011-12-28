@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)decl.h	3.4	2001/12/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 2 Jul 2011 by Alex Smith */
+/* Modified 28 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef DECL_H
@@ -359,6 +359,9 @@ E const char * const monexplain[], invisexplain[], * const objexplain[], * const
  * rather than assuming that they're all in the current directory.  This
  * provides all the subclasses that seem reasonable, and sets up for all
  * prefixes being null.  Port code can set those that it wants.
+ *
+ * MPLOCKPREFIX is used even if the others aren't, because those files
+ * need to be on a special sort of filesystem.
  */
 #define HACKPREFIX	0
 #define LEVELPREFIX	1
@@ -370,7 +373,8 @@ E const char * const monexplain[], invisexplain[], * const objexplain[], * const
 #define CONFIGPREFIX	7
 #define TROUBLEPREFIX	8
 #define DUMPPREFIX      9
-#define PREFIX_COUNT	10
+#define MPLOCKPREFIX    10
+#define PREFIX_COUNT	11
 /* used in files.c; xxconf.h can override if needed */
 # ifndef FQN_MAX_FILENAME
 #define FQN_MAX_FILENAME 512

@@ -1,5 +1,5 @@
 dnl	ACEHACK autoconf template
-dnl     Modified 26 Dec 2011 by Alex Smith
+dnl     Modified 28 Dec 2011 by Alex Smith
 AC_INIT(ACEHACK, 3.6.0, ais523@bham.ac.uk)
 dnl Avoid AC_REVISION() because we check configure into CVS
 dnl and it will cause confusing revision numbers to be included
@@ -17,6 +17,7 @@ AC_ARG_VAR(CHOWN, [sets GAMEGRP (set this to true as a no op)])
 AC_ARG_VAR(CHMOD, [sets file modes (set this to true as a no op)])
 AC_ARG_VAR(ZLIB_CFLAGS, [Compiler flags to find zlib header files])
 AC_ARG_VAR(ZLIB_LIBS, [Linker flags to find zlib library files])
+AC_ARG_VAR(MPLOCKLOC, [Directory to place multiplayer communication files in])
 
 AC_PROG_LN_S
 AC_PROG_AWK
@@ -47,10 +48,17 @@ dnl  ----- Check location to store multiplayer lockfiles
 # write to without special permissions, and also that is mounted on a
 # partition of type shmfs or tmpfs. If none of them work, we fall back
 # to FILE_AREA_LEVL, which should be PREFIX/acehackdir.
+#
+# We also want the user to be able to override the location. We do
+# this using the MPLOCKLOC shell variable.
 AC_MSG_CHECKING([the appropriate location for multiplayer lockfiles])
-MPLOCKLOC=`(find /var/lock /var/run /dev/shm /tmp -maxdepth 0 '-(' -fstype shmfs -or -fstype shm -or -fstype tmpfs -or -fstype tmp '-)' -and -writable; echo "\${PREFIX}/acehackdir") | head -n 1`
-AC_MSG_RESULT($MPLOCKLOC)
-AC_DEFINE(MPLOCKLOC, [$MPLOCKLOC], [Define to an appropriate directory for multiplayer lockfiles.])
+# According to autoconf docs, this is the only portable way to do this
+# sort of thing. (And even then, it fails on directory names that
+# contain spaces/tabs/newlines, on some shells, but I wouldn't expect
+# that to work anyway.)
+MPLOCKLOC=${MPLOCKLOC=`(find /var/lock /var/run /dev/shm /tmp -maxdepth 0 '-(' -fstype shmfs -or -fstype shm -or -fstype tmpfs -or -fstype tmp '-)' -and -writable -printf '%p/acehack\n'; echo "\${PREFIX}/acehackdir") | head -n 1`}
+AC_MSG_RESULT(${MPLOCKLOC})
+AC_DEFINE_UNQUOTED(MPLOCKLOC, "${MPLOCKLOC}", [Define to an appropriate directory for multiplayer lockfiles.])
 AC_SUBST(MPLOCKLOC)
 
 dnl  ----- Early checks for libraries, as needed

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)unixmain.c	3.4	1997/01/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 15 Sep 2011 by Alex Smith */
+/* Modified 28 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* main.c - Unix NetHack */
@@ -88,7 +88,7 @@ char *argv[];
 
 	hname = argv[0];
 	hackpid = getpid();
-	(void) umask(0777 & ~FCMASK);
+	(void) umask(0667 & ~FCMASK);
 
 	choose_windows(DEFAULT_WINDOW_SYS);
 
@@ -457,6 +457,7 @@ boolean wr;
 	    fqn_prefix[TROUBLEPREFIX] = fqn_prefix[SCOREPREFIX];
             fqn_prefix[DUMPPREFIX] = fqn_prefix[SCOREPREFIX];
 # endif
+            fqn_prefix[MPLOCKPREFIX] = MPLOCKLOC "/";
 	    check_recordfile(dir);
 	}
 }

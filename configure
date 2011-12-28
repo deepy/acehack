@@ -632,7 +632,6 @@ HOST_MSWIN
 PKG_CONFIG
 LIBXAW_LIBS
 LIBXAW_CFLAGS
-MPLOCKLOC
 host_os
 host_vendor
 host_cpu
@@ -650,6 +649,7 @@ LDFLAGS
 CFLAGS
 AWK
 LN_S
+MPLOCKLOC
 ZLIB_LIBS
 ZLIB_CFLAGS
 CHMOD
@@ -736,6 +736,7 @@ CHOWN
 CHMOD
 ZLIB_CFLAGS
 ZLIB_LIBS
+MPLOCKLOC
 CFLAGS
 LDFLAGS
 LIBS
@@ -1409,6 +1410,7 @@ Some influential environment variables:
   CHMOD       sets file modes (set this to true as a no op)
   ZLIB_CFLAGS Compiler flags to find zlib header files
   ZLIB_LIBS   Linker flags to find zlib library files
+  MPLOCKLOC   Directory to place multiplayer communication files in
   CFLAGS      C compiler flags
   LDFLAGS     linker flags, e.g. -L<lib dir> if you have libraries in a
               nonstandard directory <lib dir>
@@ -2328,6 +2330,7 @@ fi
 ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
+
 
 
 
@@ -3318,13 +3321,22 @@ case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
 # write to without special permissions, and also that is mounted on a
 # partition of type shmfs or tmpfs. If none of them work, we fall back
 # to FILE_AREA_LEVL, which should be PREFIX/acehackdir.
+#
+# We also want the user to be able to override the location. We do
+# this using the MPLOCKLOC shell variable.
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking the appropriate location for multiplayer lockfiles" >&5
 $as_echo_n "checking the appropriate location for multiplayer lockfiles... " >&6; }
-MPLOCKLOC=`(find /var/lock /var/run /dev/shm /tmp -maxdepth 0 '-(' -fstype shmfs -or -fstype shm -or -fstype tmpfs -or -fstype tmp '-)' -and -writable; echo "\${PREFIX}/acehackdir") | head -n 1`
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $MPLOCKLOC" >&5
-$as_echo "$MPLOCKLOC" >&6; }
+# According to autoconf docs, this is the only portable way to do this
+# sort of thing. (And even then, it fails on directory names that
+# contain spaces/tabs/newlines, on some shells, but I wouldn't expect
+# that to work anyway.)
+MPLOCKLOC=${MPLOCKLOC=`(find /var/lock /var/run /dev/shm /tmp -maxdepth 0 '-(' -fstype shmfs -or -fstype shm -or -fstype tmpfs -or -fstype tmp '-)' -and -writable -printf '%p/acehack\n'; echo "\${PREFIX}/acehackdir") | head -n 1`}
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${MPLOCKLOC}" >&5
+$as_echo "${MPLOCKLOC}" >&6; }
 
-$as_echo "#define MPLOCKLOC \$MPLOCKLOC" >>confdefs.h
+cat >>confdefs.h <<_ACEOF
+#define MPLOCKLOC "${MPLOCKLOC}"
+_ACEOF
 
 
 
