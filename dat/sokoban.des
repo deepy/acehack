@@ -622,3 +622,23 @@ DOOR:closed,(17,14)
 REGION:(18,09,22,15),lit,"zoo",filled,true
 OBJECT:'"',"amulet of reflection",place[0],identified,random
 ENGRAVING:place[0],burn,""
+
+### Multiplayer waiting room ###
+MAZE:"wait",' '
+FLAGS:noteleport,hardfloor
+GEOMETRY:center,center
+#12345678901234567890123456789012345678901234567890
+MAP
+---------
+|.......|
+|.......|
+|.......|
+|.......|
+|.......|
+|.......|
+|.......|
+---------
+ENDMAP
+REGION:(00,00,08,08),lit,"ordinary"
+NON_DIGGABLE:(00,00,08,08)
+NON_PASSWALL:(00,00,08,08)
