@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 20 Jul 2011 by Alex Smith */
+/* Modified 28 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -81,23 +81,56 @@ moveloop()
 
 		flags.mon_moving = TRUE;
                 do {
+		    monscanmove = movemon();
+
                     /* Note that monsters might choose not to move
                        right now, in order to target a different
                        player. This is fine if they do so by the end
                        of the turn; if they don't, they lose their
                        move. This is also where we yield to players
-                       who still have movement left. The way this
-                       works is that if we have movement left, we'll
-                       be yielded to with turns_behind == 0, and we
-                       continue our turn as normal; if we have no
-                       movement left, we won't be yielded to until
-                       some other game has moved onto its next turn
-                       and turns_behind will equal 1, in which case
-                       we follow up by breaking out of this loop and
-                       into the next-turn loop. */
-		    monscanmove = movemon();
+                       who still have movement left. The options:
+
+                       turns_behind == 0, movement >= NORMAL_SPEED
+                       The player's action. We break out of this loop,
+                       do the player's-action behaviour but not the
+                       end-of-turn codepath, then come back into this
+                       loop and run monster and other player turns.
+
+                       turns_behind == 0, movement < NORMAL_SPEED,
+                       monscanmove == TRUE
+
+                       Monster extra actions at end of turn, because
+                       they're faster than the player, or because this
+                       player hasn't acted yet and needs to do a
+                       monster AI update. We just call monscanmove()
+                       again, updating monsters and then (if necessary
+                       yielding).
+
+                       turns_behind == 0, movement < NORMAL_SPEED,
+                       monscanmove == FALSE
+
+                       End of turn. We go straight into the global end
+                       of turn update, re-energizing every monster and
+                       ourself, and marking other players as one turn
+                       out of sync. Then we take a turn ourself if we
+                       have movement, but not if we don't (that is,
+                       we're slower than NORMAL_SPEED and also don't
+                       get an action this turn). Then we fall into
+                       the top of this loop and do movemon again,
+                       which causes every other player in turn to do
+                       a movement ration recalculation.
+
+                       turns_behind == 1
+
+                       Calculating movement energy for the turn for
+                       this player specifically, and then taking an
+                       action if it reaches at least NORMAL_SPEED.
+                       This also causes monster AI to run if and only
+                       if this is the last player to do the
+                       start-of-turn routine.
+                    */
                     turns_behind += mp_turns_behind();
-		    if (youmonst.movement > NORMAL_SPEED || turns_behind)
+		    if (youmonst.movement >= NORMAL_SPEED || turns_behind)
                       break;	/* it's now your action or the next turn */
                 } while (monscanmove);
 		flags.mon_moving = FALSE;

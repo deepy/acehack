@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mon.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 16 Jul 2011 by Alex Smith */
+/* Modified 28 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* If you're using precompiled headers, you don't want this either */
@@ -512,11 +512,7 @@ struct monst *mon;
            the exception of the turn updator's action (which has to
            happen first, if it exists, in order to maintain
            alternation of turns); it doesn't reflect the actual number
-           of actions left in this case, nor does it have to.
-
-           TODO: This isn't having the desired effect (as in, it's
-           doing what's described above, but that isn't actually
-           helpful). Multiplayer turn order needs a rethink. */
+           of actions left in this case, nor does it have to. */
         return 1000;
     }
 
@@ -589,7 +585,17 @@ movemon()
 
     const char* lockname = NULL;
     char lockname_copy[BUFSZ] = ""; /* lockname is a temporary buffer */
-    int lockname_mvpts = 0;
+    int lockname_mvpts = -1;
+    int lockname_pm = 0;
+    int should_yield = FALSE;
+
+#define MAX_MPPLAYERS_ON_LEVEL 30
+    xchar mppx[MAX_MPPLAYERS_ON_LEVEL];
+    xchar mppy[MAX_MPPLAYERS_ON_LEVEL];
+    short mppm[MAX_MPPLAYERS_ON_LEVEL];
+    char *mppl[MAX_MPPLAYERS_ON_LEVEL];
+    int mppi = 0, i, ti;
+    int nearest_mppi, nearest_mppi_dist;
 
     /*
     Some of you may remember the former assertion here that
@@ -617,19 +623,35 @@ movemon()
     /* Work out who it is we want to yield to. If they have more
        movement points left than any monster, then they move before
        the monster does; this prevents alternations of a monster
-       moving twice in a row and a player moving twice in a row,
-       which would be unintuitive and confusing. */
+       moving twice in a row and a player moving twice in a row, which
+       would be unintuitive and confusing. Additionally, if a player
+       is out of movement energy, they can still be yielded to for
+       monster AI purposes if they're the closest player to a monster
+       (and their energy is considered to be the monster's movement
+       energy for that purpose). Ties are broken by permonst number,
+       so that we always get a consistent order of actions with
+       everything else being equal. */
     if (!u.ustuck) { /* cannot yield while stuck */
       for(mtmp = fmon; mtmp; mtmp = nmtmp) {
 	nmtmp = mtmp->nmon;
         
         if (!is_mp_player(mtmp)) continue;
 
+        mppx[mppi] = mtmp->mx;
+        mppy[mppi] = mtmp->my;
+        mppl[mppi] = is_mp_player(mtmp);
+        mppm[mppi] = mtmp->movement;
+        mppi++;
+
         if (mtmp->movement < lockname_mvpts) continue;
-        if (mtmp->movement < NORMAL_SPEED) continue; /* unyieldable */
+        if (mtmp->movement == lockname_mvpts &&
+            mtmp->data - mons > lockname_pm) continue;
+        if (mtmp->movement >= NORMAL_SPEED)
+          should_yield = TRUE;
 
         lockname = is_mp_player(mtmp);
         lockname_mvpts = mtmp->movement;
+        lockname_pm = mtmp->data - mons;
       }
     }
 
@@ -655,6 +677,37 @@ movemon()
            player timings.) */
         if(mtmp->movement < lockname_mvpts)
             continue;
+
+        /* If the monster is nearer to some other player than us, then
+           be prepared to yield to that player. (We know that the
+           monster has at least lockname_mvpts movement; but we don't
+           yield to that player unless they have less than normal
+           movement, i.e. the yield will be interpreted as a request
+           to run AI rather than a request to give that player a
+           turn. In any case, we don't process the monster ourselves;
+           we let that player do it. The issue is just as to whether
+           that happens now or later. */
+        nearest_mppi = -1;
+        nearest_mppi_dist = distu(mtmp->mx,mtmp->my);
+        for (i = 0; i < mppi; i++) {
+            if ((ti = dist2(mtmp->mx, mtmp->my, mppx[i], mppy[i])) <
+                nearest_mppi_dist) {
+                nearest_mppi_dist = ti;
+                nearest_mppi = i;
+            }
+        }
+        if (nearest_mppi != -1) {
+            somebody_can_move = TRUE;
+            if (mppm[nearest_mppi] < NORMAL_SPEED) {
+                should_yield = TRUE;
+                lockname_mvpts = mtmp->movement;
+                /* lockname_pm doesn't matter in this case; nothing
+                   will read it because should_yield is set to TRUE */
+                lockname = mppl[nearest_mppi];
+                Strcpy(lockname_copy, lockname);
+            }
+            continue;
+        }
 
 	mtmp->movement -= NORMAL_SPEED;
 	if (mtmp->movement >= NORMAL_SPEED)
@@ -704,14 +757,33 @@ movemon()
     }
 
     /* Yield, a safe distance after the dmonsfree(), if there's anyone
-       to yield to. At this point, lockname is invalid. */
-    if (*lockname_copy) {
+       to yield to. At this point, lockname is invalid.
+
+       We yield if:
+       - players can act (and thus we need to give them their actions)
+       - somebody can move, and a player other than us is responsible
+         for moving it
+       - nobody can move (and thus should_yield is false), but we're
+         the wrong player to do the start-of-turn update, due to not
+         being first in movement/pm number order
+    */
+    if (!should_yield) {
+      if (lockname_mvpts > youmonst.movement) should_yield = TRUE;
+      if (lockname_mvpts == youmonst.movement &&
+          lockname_pm < youmonst.data - mons) should_yield = TRUE;
+    }
+    if (should_yield && *lockname_copy) {
         char buf[BUFSZ];
         checkpoint_level();
         Sprintf(buf, "%s y\n", mplock);
         mp_message(lockname_copy, buf);
         while (mp_await_reply_or_yield() != 2) {}
         uncheckpoint_level();
+        /* flag somebody_can_move as true, because we don't know
+           whether it's true or not after other players messing with
+           the level; this will cause it to be recalculated if it
+           matters */
+        somebody_can_move = TRUE;
     }
 
     return somebody_can_move;
