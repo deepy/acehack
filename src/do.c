@@ -1632,10 +1632,12 @@ boolean at_stairs, falling, portal;
                 set_levelfile_name(lock, new_ledger);
                 unlock_file(lock);
 
-                /* Encode the level we want to arrive on */
+                /* Encode the level we want to arrive on. Note that
+                   newlevel is no longer valid, as it might have been
+                   a pointer into the old level (e.g. sstairs). */
                 mergebuf[2] = 0;
-                mergebuf[0] = newlevel->dnum + 11;
-                mergebuf[1] = newlevel->dlevel + 11;
+                mergebuf[0] = u.uz.dnum + 11;
+                mergebuf[1] = u.uz.dlevel + 11;
 
                 if (mp_message_and_reply(
                       is_mp_player(mtmp), "g", mergebuf, TRUE)) {

@@ -12,6 +12,8 @@
 
 #include <errno.h>
 
+/* #define DEBUG */
+
 #ifdef OVLB
 
 static boolean no_repeat = FALSE;
@@ -800,6 +802,16 @@ const char *msgstr;
     panic("Cannot write to remote multiplayer control pipe");
   }
   close(fd);
+
+#ifdef DEBUG
+  fd = open("/tmp/acehack-mp-debug.txt", O_WRONLY | O_APPEND | O_CREAT, 0666);
+  write(fd, mplock, strlen(mplock));
+  write(fd, " > ", 3);
+  write(fd, lockname, strlen(lockname));
+  write(fd, ": ", 2);
+  write(fd, msgstr, strlen(msgstr));
+  close(fd);
+#endif
 }
 
 /* Sends a message to a single process on a multiplayer control pipe.
