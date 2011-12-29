@@ -1150,7 +1150,11 @@ checkpoint_level()
   /* We uncheckpoint as part of checkpointing, in order to handle
      things like light sources being renamed. */
   if (iflags.multiplayer) return uncheckpoint_level();
-  else return 0; /* successful */
+  else {
+    docrt();
+    flush_screen(1);
+    return 0; /* successful */
+  }
 }
 
 int
@@ -1158,6 +1162,7 @@ uncheckpoint_level()
 {
   int fd;
   char whynot[BUFSZ];
+  extern boolean docrt_smooth;
 
   /* The lock is required, in case we try to uncheckpoint the file while
      another process is checkpointing the same file (possible due to
@@ -1207,7 +1212,10 @@ uncheckpoint_level()
 
   /* Redraw the screen to reflect the new information. */
   vision_reset();
+
+  docrt_smooth = TRUE;
   docrt();
+  docrt_smooth = FALSE;
   flush_screen(1);  
 
   return 0; /* successful */

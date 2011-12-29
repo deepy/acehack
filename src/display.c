@@ -1,7 +1,7 @@
 /*	SCCS Id: @(#)display.c	3.4	2003/02/19	*/
 /* Copyright (c) Dean Luick, with acknowledgements to Kevin Darcy */
 /* and Dave Cohrs, 1990.					  */
-/* Modified 25 Mar 2011 by Alex Smith */
+/* Modified 29 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /*
@@ -1147,6 +1147,19 @@ doredraw()
     return 0;
 }
 
+
+/* forward declare gbuf so that docrt can see it */
+typedef struct {
+    xchar new;		/* perhaps move this bit into the rm strucure. */
+    int   glyph;
+} gbuf_entry;
+
+static gbuf_entry gbuf[ROWNO][COLNO];
+static char gbuf_start[ROWNO];
+static char gbuf_stop[ROWNO];
+
+
+boolean docrt_smooth = FALSE;
 void
 docrt()
 {
@@ -1171,14 +1184,18 @@ docrt()
     /* shut down vision */
     vision_recalc(2);
 
-    clear_nhwindow(WIN_MAP);	/* clear physical screen */
-    clear_glyph_buffer();
+    if (!docrt_smooth) {
+      clear_nhwindow(WIN_MAP);	/* clear physical screen */
+      clear_glyph_buffer();
+    }
 
     /* display memory */
     for (x = 1; x < COLNO; x++) {
 	lev = &levl[x][0];
 	for (y = 0; y < ROWNO; y++, lev++)
-	    if (lev->glyph != cmap_to_glyph(S_stone))
+	    if (lev->glyph !=
+                (!docrt_smooth ? cmap_to_glyph(S_stone)
+                 : gbuf[y][x].glyph))
 		show_glyph(x,y,lev->glyph);
     }
 
@@ -1194,15 +1211,6 @@ docrt()
 
 /* ========================================================================= */
 /* Glyph Buffering (3rd screen) ============================================ */
-
-typedef struct {
-    xchar new;		/* perhaps move this bit into the rm strucure. */
-    int   glyph;
-} gbuf_entry;
-
-static gbuf_entry gbuf[ROWNO][COLNO];
-static char gbuf_start[ROWNO];
-static char gbuf_stop[ROWNO];
 
 /*
  * Store the glyph in the 3rd screen for later flushing.
