@@ -837,6 +837,7 @@ long umoney;
           calculate_score(how, TRUE, umoney);
           coda(how, 0, umoney);
           putstr_or_dump = putstr;
+	  (void) chmod(dumplogname, 0644); /* KERIO: force dumplogs 644 */
         }
         if (dumpfd < 0 || close(dumpfd) < 0) {
           pline("Warning: Attempt to open or close dumplog failed.");
