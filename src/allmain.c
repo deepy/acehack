@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Dec 2011 by Alex Smith */
+/* Modified 29 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -523,7 +523,7 @@ moveloop()
 	cliparound(u.ux, u.uy);
 #endif
 
-        if (iflags.multiplayer) {
+        if (iflags.multiplayer && !u.ustuck) {
           rdocrt();
         }
 
