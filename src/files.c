@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)files.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 21 Apr 2011 by Alex Smith */
+/* Modified 29 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1582,7 +1582,8 @@ const char *filename;
 /* ----------  BEGIN FILE LOCKING HANDLING ----------- */
 
 static int nesting = 0;
-static boolean silently = FALSE;
+static int touchfd = -1;
+static int lockprefix = 0;
 
 #if defined(NO_FILE_LINKS) || defined(HAVE_FLOCK)	/* implies UNIX */
 static int lockfd;	/* for lock_file() to pass to unlock_file() */
@@ -1624,7 +1625,7 @@ char *lockname;
 # endif  /* UNIX || VMS || AMIGA || WIN32 || MSDOS */
 #endif
 }
-
+#endif
 
 /* lock a file */
 boolean
@@ -1637,9 +1638,11 @@ int retryct;
 # pragma unused(filename, retryct)
 #endif
 
+        int origretryct = retryct;
 #ifndef HAVE_FLOCK
 	char locknambuf[BUFSZ];
 	const char *lockname;
+#endif
 
 	nesting++;
 	if (nesting > 1) {
@@ -1651,15 +1654,20 @@ int retryct;
 	lockname = make_lockname(filename, locknambuf);
 #endif
 	filename = fqname(filename, whichprefix, 0);
+        lockprefix = whichprefix;
 #if !defined(NO_FILE_LINKS) && !defined(HAVE_FLOCK)
 	lockname = fqname(lockname, LOCKPREFIX, 2);
 #endif
 
 #ifdef HAVE_FLOCK
-        /* We need to open the file so that we can lock it, and to verify
-           that it exists. */
+        /* We need to open the file so that we can lock it; if it doesn't
+           exist, this touches it so that it does. */
         errno = 0;
-        lockfd = open(filename, O_RDWR | O_BINARY, 0);
+        lockfd = open(filename, O_RDWR | O_BINARY, 0666);
+        if (lockfd < 0 && errno == ENOENT) {
+          lockfd = open(filename, O_RDWR | O_BINARY | O_CREAT | O_EXCL, 0666);
+          if (lockfd >= 0) touchfd = lockfd;
+        }
         if (lockfd < 0) {
           int errnosv = errno;
           switch (errnosv) {
@@ -1686,7 +1694,7 @@ int retryct;
             nesting--;
             return FALSE;
           }
-          if (retryct--) {
+          if (retryct-- != origretryct) {
             HUP pline("Waiting for access to %s (%d retries left).",
                       filename, retryct);
             if (iflags.window_inited) suppress_more();
@@ -1711,7 +1719,7 @@ int retryct;
 	    switch (errnosv) {	/* George Barbanis */
 	    case EEXIST:
 		if (retryct--) {
-                    HUP if (!silently) raw_printf(
+                    HUP raw_printf(
 			    "Waiting for access to %s.  (%d retries left).",
 			    filename, retryct);
 #  if defined(SYSV) || defined(ULTRIX) || defined(VMS)
@@ -1719,8 +1727,8 @@ int retryct;
 #  endif
 			sleep(1);
 		} else {
-		    HUP if (!silently) (void) raw_print("I give up.  Sorry.");
-		    HUP if (!silently) raw_printf("Perhaps there is an old %s around?",
+		    HUP (void) raw_print("I give up.  Sorry.");
+		    HUP raw_printf("Perhaps there is an old %s around?",
                                                   lockname);
 		    nesting--;
 		    return FALSE;
@@ -1728,20 +1736,14 @@ int retryct;
 
 		break;
 	    case ENOENT:
-                if (silently) {
-                  /* The file must exist to be able to lock it. So we
-                     touch it, and try again. If two processes try to lock
-                     it at once, it's theoretically possible both will
-                     touch it, but then only one will get the resulting
-                     lock. */
-                  int filefd = open(filename, O_RDWR | O_CREAT | O_EXCL, 0666);
-                  if (filefd < 0) {nesting--; return FALSE;}
-                  filetouched = TRUE;
-                  break; /* try again */
-                }
-		HUP if (!silently) raw_printf("Can't find file %s to lock!", filename);
-		nesting--;
-		return FALSE;
+                /* The file must exist to be able to lock it. So we
+                   touch it, and try again. If two processes try to lock
+                   it at once, it's theoretically possible both will
+                   touch it, but then only one will get the resulting
+                   lock. */
+                touchfd = open(filename, O_RDWR | O_CREAT | O_EXCL, 0666);
+                if (touchfd < 0) {nesting--; return FALSE;}
+                break; /* try again */
 	    case EACCES:
 		HUP raw_printf("No write permission to lock %s!", filename);
 		nesting--;
@@ -1749,21 +1751,22 @@ int retryct;
 #  ifdef VMS			/* c__translate(vmsfiles.c) */
 	    case EPERM:
 		/* could be misleading, but usually right */
-		HUP if (!silently) raw_printf("Can't lock %s due to directory protection.",
+		HUP raw_printf("Can't lock %s due to directory protection.",
                                               filename);
 		nesting--;
 		return FALSE;
 #  endif
 	    default:
-		HUP if (!silently) perror(lockname);
-		HUP if (!silently) raw_printf(
+		HUP perror(lockname);
+		HUP raw_printf(
 			     "Cannot lock %s for unknown reason (%d).",
 			       filename, errnosv);
 		nesting--;
 		return FALSE;
 	    }
 	}
-#endif  /* UNIX || VMS */
+# endif  /* UNIX || VMS */
+
 
 # if defined(AMIGA) || defined(WIN32) || defined(MSDOS)
 #  ifdef AMIGA
@@ -1815,6 +1818,19 @@ const char *filename;
 # pragma unused(filename)
 #endif
 {
+	if (touchfd >= 0) {
+                char testbuf[1];
+        	/* If we created the file to be able to lock it, we
+                   want to delete it unless it's been written to
+                   since. The way to check is to rely on the fact
+                   that touchfd is currently pointing to the first
+                   byte of the file, so we read one byte to see if
+                   we get EOF. */
+                if (read(touchfd,testbuf,1) <= 0) {
+	                filename = fqname(filename, lockprefix, 0);
+                        unlink(filename);
+                }
+        }
 #ifdef HAVE_FLOCK
 	if (nesting == 1) {
         	flock(lockfd, LOCK_UN);
@@ -1846,23 +1862,8 @@ const char *filename;
 # endif /* AMIGA || WIN32 || MSDOS */
 	}
 #endif
-
+        if (touchfd >= 0) close(touchfd);
 	nesting--;
-}
-
-/* For multiplayer, we may need to lock things interactively.
-   That means no raw printing to the screen. */
-boolean
-lock_file_silently(filename, whichprefix, retryct)
-const char *filename;
-int whichprefix;
-int retryct;
-{
-    boolean rv;
-    silently = TRUE;
-    rv = lock_file(filename, whichprefix, retryct);
-    silently = FALSE;
-    return rv;
 }
 
 /* ----------  END FILE LOCKING HANDLING ----------- */

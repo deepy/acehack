@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Dec 2011 by Alex Smith */
+/* Modified 29 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -1114,7 +1114,7 @@ checkpoint_level()
   if (iflags.multiplayer) {
     Strcpy(lock, iflags.mp_lock_name);
     set_levelfile_name(lock, ledger_no(&u.uz));
-    if (!lock_file_silently(lock, LEVELPREFIX, 20))
+    if (!lock_file(lock, LEVELPREFIX, 20))
       panic("Stale lockfile lock when checkpointing level!");
   }
 
@@ -1165,7 +1165,7 @@ uncheckpoint_level()
   if (iflags.multiplayer) {
     Strcpy(lock, iflags.mp_lock_name);
     set_levelfile_name(lock, ledger_no(&u.uz));
-    if (!lock_file_silently(lock, LEVELPREFIX, 20))
+    if (!lock_file(lock, LEVELPREFIX, 20))
       panic("Stale lockfile lock when uncheckpointing level!");
   }
 
@@ -1443,7 +1443,7 @@ boolean at_stairs, falling, portal;
         if (iflags.multiplayer) {
           Strcpy(lock, iflags.mp_lock_name);
           set_levelfile_name(lock, ledger_no(&u.uz));
-          if (!lock_file_silently(lock, LEVELPREFIX, 20)) {
+          if (!lock_file(lock, LEVELPREFIX, 20)) {
             /* This shouldn't happen. */
             panic("Stale lockfile lock when leaving level!");
           }
@@ -1580,7 +1580,7 @@ boolean at_stairs, falling, portal;
 
           Strcpy(lock, iflags.mp_lock_name);
           set_levelfile_name(lock, new_ledger);
-          if (!lock_file_silently(lock, LEVELPREFIX, 20)) {
+          if (!lock_file(lock, LEVELPREFIX, 20)) {
             /* This shouldn't happen. TODO: This is probably
                recoverable anyway, but just panic for now. */
             panic("Stale lockfile lock in level changes!");
@@ -1643,7 +1643,7 @@ boolean at_stairs, falling, portal;
                      on the level for a merge, then unlock the file
                      again, and that player won't reply until we're
                      done because they're waiting on our yield */
-                  if (!lock_file_silently(lock, LEVELPREFIX, 20))
+                  if (!lock_file(lock, LEVELPREFIX, 20))
                     panic("Stale lockfile lock in level merge!");
                   break;
                 } else {
@@ -1652,7 +1652,7 @@ boolean at_stairs, falling, portal;
                      to all enter the same level at once), then relock
                      and try again */
                   sleep(1);
-                  if (!lock_file_silently(lock, LEVELPREFIX, 20))
+                  if (!lock_file(lock, LEVELPREFIX, 20))
                     panic("Stale lockfile lock in level change retry!");
                   continue;
                 }

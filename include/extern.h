@@ -691,7 +691,6 @@ E void FDECL(nhcompress, (const char *));
 E void FDECL(nhuncompress, (const char *));
 E boolean FDECL(lock_file, (const char *,int,int));
 E void FDECL(unlock_file, (const char *));
-E boolean FDECL(lock_file_silently, (const char *,int,int));
 #ifdef USER_SOUNDS
 E boolean FDECL(can_read_file, (const char *));
 #endif

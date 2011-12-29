@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)end.c	3.4	2003/03/10	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 13 Sep 2011 by Alex Smith */
+/* Modified 29 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #define NEED_VARARGS	/* comment line for pre-compiled headers */
@@ -1156,7 +1156,7 @@ die:
           /* lock the level file (in case someone's trying to arrive on it) */
           Strcpy(lock, iflags.mp_lock_name);
           set_levelfile_name(lock, ledger_no(&u.uz));
-          lock_file_silently(lock, LEVELPREFIX, 5);
+          lock_file(lock, LEVELPREFIX, 5);
           /* save the level file, if possible */
           fd = create_levelfile(ledger_no(&u.uz), NULL);
           if (fd >= 0) savelev(fd, ledger_no(&u.uz), WRITE_SAVE);
