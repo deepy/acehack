@@ -179,9 +179,6 @@ struct instance_flags {
         boolean autoexplore;    /* in autoexplore */
 	boolean travel1;	/* first travel step */
 	coord	travelcc;	/* coordinates for travel_cache */
-        boolean multiplayer;    /* there is someone to yield to */
-        char    mp_lock_name[BUFSZ]; /* the lockfile name being used for multiplayer */
-        int     shared_lockfd;  /* the fd that counts players in multiplayer */
 #ifdef WIZARD
 	boolean sanity_check;	/* run sanity checks */
 	boolean mon_polycontrol;	/* debug: control monster polymorphs */
