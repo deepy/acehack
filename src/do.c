@@ -1071,9 +1071,11 @@ checkpoint_level()
 {
   int fd;
   struct monst *mtmp;
-  fd = currentlevel_rewrite();
-  if(fd < 0) return fd;
-  bufon(fd);
+
+  /* TODO: In singleplayer mode, don't create the placeholder creature
+     on our square. (The problem is that we can't use iflags.multiplayer
+     for the purpose, because we might be in the process of entering
+     multiplayer mode.) */
   in_mklev = TRUE; /* turn off normal sanity checks,
                       we're about to do something insane */
   mtmp = makemon(&mons[u.umonster], u.ux, u.uy, /* i.e. original form */
@@ -1106,17 +1108,29 @@ checkpoint_level()
   mtmp->movement = youmonst.movement;
   christen_monst(mtmp, mplock);
 
-  vision_reset();
-
   /* In multiplayer, lock the file that we're checkpointing, so that
      we don't have someone trying to merge with the level due to a
-     level change reading a partial level file and crashing*/
+     level change reading a partial level file and crashing */
   if (iflags.multiplayer) {
     Strcpy(lock, iflags.mp_lock_name);
     set_levelfile_name(lock, ledger_no(&u.uz));
     if (!lock_file_silently(lock, LEVELPREFIX, 20))
       panic("Stale lockfile lock when checkpointing level!");
   }
+
+  fd = currentlevel_rewrite();
+
+  if (iflags.multiplayer && fd < 0) {
+    /* lock may have changed value by now */
+    Strcpy(lock, iflags.mp_lock_name);
+    set_levelfile_name(lock, ledger_no(&u.uz));
+    unlock_file(lock);
+  } /* otherwise keep holding the lock */
+  if(fd < 0) return fd;
+
+  bufon(fd);
+
+  vision_reset();
 
   savelev(fd, ledger_no(&u.uz), WRITE_SAVE);
 
@@ -1143,12 +1157,6 @@ uncheckpoint_level()
 {
   int fd;
   char whynot[BUFSZ];
-  fd = open_levelfile(ledger_no(&u.uz), whynot);
-  if (fd < 0) {
-    pline("%s", whynot);
-    return fd;
-  }
-  minit(); /* needed to reset compression status */
 
   /* The lock is required, in case we try to uncheckpoint the file while
      another process is checkpointing the same file (possible due to
@@ -1159,6 +1167,19 @@ uncheckpoint_level()
     if (!lock_file_silently(lock, LEVELPREFIX, 20))
       panic("Stale lockfile lock when uncheckpointing level!");
   }
+
+  fd = open_levelfile(ledger_no(&u.uz), whynot);
+  if (fd < 0) {
+    if (iflags.multiplayer) {
+      /* lock may have changed value by now */
+      Strcpy(lock, iflags.mp_lock_name);
+      set_levelfile_name(lock, ledger_no(&u.uz));
+      unlock_file(lock);
+    }
+    pline("%s", whynot);
+    return fd;
+  }
+  minit(); /* needed to reset compression status */
 
   /* free the old version of the level */
   dmonsfree();
@@ -1521,12 +1542,7 @@ boolean at_stairs, falling, portal;
 
            This dilemma can only be resolved by, um, locking the
            lockfiles. This is arguably silly, but is the only solution
-           I can see to the problem. However, more problems arise; the
-           locking routines in vanilla NetHack assume that they're
-           running outside the windowing system (and so spew error
-           messages to stdout), and to lock a file, it must first
-           exist. As such, we use an AceHack extension to the locking
-           API.
+           I can see to the problem.
         */
 
         if (iflags.multiplayer) {
