@@ -39,8 +39,10 @@ static long final_fpos;
 #define POINTSMIN	1	/* must be > 0 */
 #define ENTRYMAX	2000	/* must be >= 10 */
 
+#if 0 /* KERIO: dgamelaunch has the same uid for everyone */
 #if !defined(MICRO) && !defined(MAC) && !defined(WIN32)
 #define PERS_IS_UID		/* delete for PERSMAX per name; now per uid */
+#endif
 #endif
 struct toptenentry {
 	struct toptenentry *tt_next;
