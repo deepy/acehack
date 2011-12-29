@@ -1694,9 +1694,10 @@ int retryct;
             nesting--;
             return FALSE;
           }
-          if (retryct-- != origretryct) {
-            HUP pline("Waiting for access to %s (%d retries left).",
-                      filename, retryct);
+          if (retryct--) {
+            if (retryct != origretryct-1)
+              HUP pline("Waiting for access to %s (%d retries left).",
+                        filename, retryct);
             if (iflags.window_inited) suppress_more();
             sleep(1);
           } else {
