@@ -89,7 +89,11 @@ static long laststattime;
 void
 getmailstatus()
 {
-	if(!mailbox && !(mailbox = nh_getenv("MAIL"))) {
+	if(!mailbox &&
+#ifdef SIMPLE_MAIL
+           !(mailbox = nh_getenv("SIMPLEMAIL")) &&
+#endif
+           !(mailbox = nh_getenv("MAIL"))) {
 #  ifdef MAILPATH
 #   ifdef AMS
 	        struct passwd ppasswd;
