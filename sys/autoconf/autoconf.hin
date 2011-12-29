@@ -53,6 +53,9 @@
    don't. */
 #undef HAVE_DECL_STRNICMP
 
+/* Define to 1 if you have the `flock' function. */
+#undef HAVE_FLOCK
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

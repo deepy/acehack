@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)files.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Dec 2011 by Alex Smith */
+/* Modified 21 Apr 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -39,6 +39,10 @@ extern int errno;
 
 #if defined(UNIX)
 #include <dirent.h>
+#endif
+
+#if defined(HAVE_FLOCK)
+#include <sys/file.h>
 #endif
 
 #if defined(UNIX) || defined(VMS)
@@ -162,7 +166,9 @@ STATIC_DCL char *NDECL(set_bonestemp_name);
 STATIC_DCL void FDECL(redirect, (const char *,const char *,FILE *,BOOLEAN_P));
 STATIC_DCL void FDECL(docompress_file, (const char *,BOOLEAN_P));
 #endif
+#ifndef HAVE_FLOCK
 STATIC_DCL char *FDECL(make_lockname, (const char *,char *));
+#endif
 STATIC_DCL FILE *FDECL(fopen_config_file, (const char *));
 STATIC_DCL int FDECL(get_uchars, (FILE *,char *,char *,uchar *,BOOLEAN_P,int,const char *));
 int FDECL(parse_config_line, (FILE *,char *,char *,char *));
@@ -1578,12 +1584,13 @@ const char *filename;
 static int nesting = 0;
 static boolean silently = FALSE;
 
-#ifdef NO_FILE_LINKS	/* implies UNIX */
+#if defined(NO_FILE_LINKS) || defined(HAVE_FLOCK)	/* implies UNIX */
 static int lockfd;	/* for lock_file() to pass to unlock_file() */
 #endif
 
 #define HUP	if (!program_state.done_hup)
 
+#ifndef HAVE_FLOCK
 STATIC_OVL char *
 make_lockname(filename, lockname)
 const char *filename;
@@ -1618,6 +1625,7 @@ char *lockname;
 #endif
 }
 
+
 /* lock a file */
 boolean
 lock_file(filename, whichprefix, retryct)
@@ -1628,9 +1636,10 @@ int retryct;
 #if (defined(macintosh) && (defined(__SC__) || defined(__MRC__))) || defined(__MWERKS__)
 # pragma unused(filename, retryct)
 #endif
+
+#ifndef HAVE_FLOCK
 	char locknambuf[BUFSZ];
 	const char *lockname;
-        boolean filetouched = FALSE;
 
 	nesting++;
 	if (nesting > 1) {
@@ -1638,18 +1647,65 @@ int retryct;
 	    return TRUE;
 	}
 
+#ifndef HAVE_FLOCK
 	lockname = make_lockname(filename, locknambuf);
+#endif
 	filename = fqname(filename, whichprefix, 0);
-#ifndef NO_FILE_LINKS	/* LOCKDIR should be subsumed by LOCKPREFIX */
+#if !defined(NO_FILE_LINKS) && !defined(HAVE_FLOCK)
 	lockname = fqname(lockname, LOCKPREFIX, 2);
 #endif
 
-#if defined(UNIX) || defined(VMS)
-# ifdef NO_FILE_LINKS
+#ifdef HAVE_FLOCK
+        /* We need to open the file so that we can lock it, and to verify
+           that it exists. */
+        errno = 0;
+        lockfd = open(filename, O_RDWR | O_BINARY, 0);
+        if (lockfd < 0) {
+          int errnosv = errno;
+          switch (errnosv) {
+	    case ENOENT:
+		impossible("Can't find file %s to lock!", filename);
+		nesting--;
+		return FALSE;
+	    case EACCES:
+		impossible("No write permission to lock %s!", filename);
+		nesting--;
+		return FALSE;
+	    default:
+		impossible("Cannot open %s for lock for unknown reason (%d).",
+                           filename, errnosv);
+		nesting--;
+		return FALSE;
+          }
+        }
+        while (flock(lockfd, LOCK_EX | LOCK_NB) < 0) {
+          if (errno != EAGAIN && errno != EWOULDBLOCK) {
+            int errnosv = errno;
+            impossible("Cannot lock %s (descriptor %d) with flock "
+                       "(errno %d)", filename, lockfd, errnosv);
+            nesting--;
+            return FALSE;
+          }
+          if (retryct--) {
+            HUP pline("Waiting for access to %s (%d retries left).",
+                      filename, retryct);
+            if (iflags.window_inited) suppress_more();
+            sleep(1);
+          } else {
+            impossible("Gave up trying to lock %s", filename);
+            nesting--;
+            return FALSE;
+          }
+        }
+        return TRUE;
+#else
+
+# if defined(UNIX) || defined(VMS)
+#  ifdef NO_FILE_LINKS
 	while ((lockfd = open(lockname, O_RDWR|O_CREAT|O_EXCL, 0666)) == -1) {
-# else
+#  else
 	while (link(filename, lockname) == -1) {
-# endif
+#  endif
 	    register int errnosv = errno;
 
 	    switch (errnosv) {	/* George Barbanis */
@@ -1658,9 +1714,9 @@ int retryct;
                     HUP if (!silently) raw_printf(
 			    "Waiting for access to %s.  (%d retries left).",
 			    filename, retryct);
-# if defined(SYSV) || defined(ULTRIX) || defined(VMS)
+#  if defined(SYSV) || defined(ULTRIX) || defined(VMS)
 		    (void)
-# endif
+#  endif
 			sleep(1);
 		} else {
 		    HUP if (!silently) (void) raw_print("I give up.  Sorry.");
@@ -1690,14 +1746,14 @@ int retryct;
 		HUP raw_printf("No write permission to lock %s!", filename);
 		nesting--;
 		return FALSE;
-# ifdef VMS			/* c__translate(vmsfiles.c) */
+#  ifdef VMS			/* c__translate(vmsfiles.c) */
 	    case EPERM:
 		/* could be misleading, but usually right */
 		HUP if (!silently) raw_printf("Can't lock %s due to directory protection.",
                                               filename);
 		nesting--;
 		return FALSE;
-# endif
+#  endif
 	    default:
 		HUP if (!silently) perror(lockname);
 		HUP if (!silently) raw_printf(
@@ -1706,37 +1762,28 @@ int retryct;
 		nesting--;
 		return FALSE;
 	    }
-
 	}
-
-        /* If we had to create the file to lock it, unlink the
-           filename (leaving the lock as the main name for the file). */
-        if (filetouched) {
-            if (unlink(filename) < -1)
-                panic("Could not uncreate nonexistent file in locking!");
-        }
-
 #endif  /* UNIX || VMS */
 
-#if defined(AMIGA) || defined(WIN32) || defined(MSDOS)
-# ifdef AMIGA
-#define OPENFAILURE(fd) (!fd)
-    lockptr = 0;
-# else
-#define OPENFAILURE(fd) (fd < 0)
-    lockptr = -1;
-# endif
-    while (--retryct && OPENFAILURE(lockptr)) {
-# if defined(WIN32) && !defined(WIN_CE)
-	lockptr = sopen(lockname, O_RDWR|O_CREAT, SH_DENYRW, S_IWRITE);
-# else
-	(void)DeleteFile(lockname); /* in case dead process was here first */
+# if defined(AMIGA) || defined(WIN32) || defined(MSDOS)
 #  ifdef AMIGA
-	lockptr = Open(lockname,MODE_NEWFILE);
+# define OPENFAILURE(fd) (!fd)
+    lockptr = 0;
 #  else
-	lockptr = open(lockname, O_RDWR|O_CREAT|O_EXCL, S_IWRITE);
+# define OPENFAILURE(fd) (fd < 0)
+    lockptr = -1;
 #  endif
-# endif
+    while (--retryct && OPENFAILURE(lockptr)) {
+#  if defined(WIN32) && !defined(WIN_CE)
+	lockptr = sopen(lockname, O_RDWR|O_CREAT, SH_DENYRW, S_IWRITE);
+#  else
+	(void)DeleteFile(lockname); /* in case dead process was here first */
+#   ifdef AMIGA
+	lockptr = Open(lockname,MODE_NEWFILE);
+#   else
+	lockptr = open(lockname, O_RDWR|O_CREAT|O_EXCL, S_IWRITE);
+#   endif
+#  endif
 	if (OPENFAILURE(lockptr)) {
 	    raw_printf("Waiting for access to %s.  (%d retries left).",
 			filename, retryct);
@@ -1748,7 +1795,8 @@ int retryct;
 	nesting--;
 	return FALSE;
     }
-#endif /* AMIGA || WIN32 || MSDOS */
+# endif /* AMIGA || WIN32 || MSDOS */
+#endif /* HAVE_FLOCK */
 	return TRUE;
 }
 
@@ -1767,30 +1815,37 @@ const char *filename;
 # pragma unused(filename)
 #endif
 {
+#ifdef HAVE_FLOCK
+	if (nesting == 1) {
+        	flock(lockfd, LOCK_UN);
+                close(lockfd);
+        }
+#else
 	char locknambuf[BUFSZ];
 	const char *lockname;
 
 	if (nesting == 1) {
 		lockname = make_lockname(filename, locknambuf);
-#ifndef NO_FILE_LINKS	/* LOCKDIR should be subsumed by LOCKPREFIX */
+# ifndef NO_FILE_LINKS	/* LOCKDIR should be subsumed by LOCKPREFIX */
 		lockname = fqname(lockname, LOCKPREFIX, 2);
-#endif
-
-#if defined(UNIX) || defined(VMS)
-		if (unlink(lockname) < 0)
-			HUP raw_printf("Can't unlink %s.", lockname);
-# ifdef NO_FILE_LINKS
-		(void) close(lockfd);
 # endif
 
-#endif  /* UNIX || VMS */
+# if defined(UNIX) || defined(VMS)
+		if (unlink(lockname) < 0)
+			HUP raw_printf("Can't unlink %s.", lockname);
+#  ifdef NO_FILE_LINKS
+		(void) close(lockfd);
+#  endif
 
-#if defined(AMIGA) || defined(WIN32) || defined(MSDOS)
+# endif  /* UNIX || VMS */
+
+# if defined(AMIGA) || defined(WIN32) || defined(MSDOS)
 		if (lockptr) Close(lockptr);
 		DeleteFile(lockname);
 		lockptr = 0;
-#endif /* AMIGA || WIN32 || MSDOS */
+# endif /* AMIGA || WIN32 || MSDOS */
 	}
+#endif
 
 	nesting--;
 }

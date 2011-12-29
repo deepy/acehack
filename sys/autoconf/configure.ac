@@ -135,6 +135,7 @@ AC_CHECK_TOOL(WINDRES,windres,no)
 NETHACK_PROG_COMPRESS
 
 dnl  ----- Check for libraries
+AC_CHECK_FUNCS(flock)
 
 dnl NETHACK_CHECK_LIBPNG(NETHACK_LIBPNG, have_libpng=yes, have_libpng=no)
 
