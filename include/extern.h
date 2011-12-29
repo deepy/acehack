@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)extern.h	3.4	2003/03/10	*/
 /* Copyright (c) Steve Creps, 1988.				  */
-/* Modified 28 Dec 2011 by Alex Smith */
+/* Modified 29 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #ifndef EXTERN_H
@@ -1864,6 +1864,10 @@ E void FDECL(bwrite, (int,genericptr_t,unsigned int));
 E void FDECL(bclose, (int));
 E void FDECL(savefruitchn, (int,int));
 E void FDECL(savelevchn, (int,int));
+E void FDECL(savedamage, (int,int));
+E void FDECL(saveobjchn, (int,struct obj *,int));
+E void FDECL(savemonchn, (int,struct monst *,int));
+E void FDECL(savetrapchn, (int,struct trap *,int));
 E void NDECL(free_dungeons);
 E void NDECL(freedynamicdata);
 

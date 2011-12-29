@@ -1134,6 +1134,8 @@ checkpoint_level()
 
   savelev(fd, ledger_no(&u.uz), WRITE_SAVE);
 
+  bclose(fd);
+
   if (iflags.multiplayer) {
     /* lock may have changed value by now */
     Strcpy(lock, iflags.mp_lock_name);
@@ -1145,11 +1147,10 @@ checkpoint_level()
   mongone(m_at(u.ux, u.uy));
   dmonsfree();
 
-  docrt();
-  flush_screen(1);
-
-  bclose(fd);
-  return 0; /* successful */
+  /* We uncheckpoint as part of checkpointing, in order to handle
+     things like light sources being renamed. */
+  if (iflags.multiplayer) return uncheckpoint_level();
+  else return 0; /* successful */
 }
 
 int

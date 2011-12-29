@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)restore.c	3.4	2003/09/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Jul 2011 by Alex Smith */
+/* Modified 29 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -401,7 +401,9 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	}
 
 	/* this stuff comes after potential aborted restore attempts */
+        save_timers(fd, FREE_SAVE, RANGE_GLOBAL);
 	restore_timers(fd, RANGE_GLOBAL, FALSE, 0L);
+        save_light_sources(fd, FREE_SAVE, RANGE_GLOBAL);
 	restore_light_sources(fd);
 	invent = restobjchn(fd, FALSE, FALSE);
 	migrating_objs = restobjchn(fd, FALSE, FALSE);
@@ -794,9 +796,12 @@ boolean ghostly;
 	    doorindex = 0;
 
         /* In multiplayer, don't time-dilate existing timers. */
+        save_timers(fd, FREE_SAVE, RANGE_LEVEL);
 	restore_timers(fd, RANGE_LEVEL, ghostly,
                        iflags.multiplayer ? 0 : monstermoves - omoves);
+        save_light_sources(fd, FREE_SAVE, RANGE_LEVEL);
 	restore_light_sources(fd);
+        savemonchn(fd, fmon, FREE_SAVE);
 	fmon = restmonchn(fd, ghostly);
 
 	/* regenerate animals while on another level */
@@ -820,7 +825,9 @@ boolean ghostly;
 	    }
 	}
 
+        save_worm(fd, FREE_SAVE);
 	rest_worm(fd);	/* restore worm information */
+        savetrapchn(fd, ftrap, FREE_SAVE);
 	ftrap = 0;
 	while (trap = newtrap(),
 	       mread(fd, (genericptr_t)trap, sizeof(struct trap)),
@@ -829,12 +836,16 @@ boolean ghostly;
 		ftrap = trap;
 	}
 	dealloc_trap(trap);
+        saveobjchn(fd, fobj, FREE_SAVE);
 	fobj = restobjchn(fd, ghostly, FALSE);
 	find_lev_obj();
 	/* restobjchn()'s `frozen' argument probably ought to be a callback
 	   routine so that we can check for objects being buried under ice */
+        saveobjchn(fd, level.buriedobjlist, FREE_SAVE);
 	level.buriedobjlist = restobjchn(fd, ghostly, FALSE);
+        saveobjchn(fd, billobjs, FREE_SAVE);
 	billobjs = restobjchn(fd, ghostly, FALSE);
+        save_engravings(fd, FREE_SAVE);
 	rest_engravings(fd);
 
 	/* reset level.monsters for new level */
@@ -847,8 +858,10 @@ boolean ghostly;
 	    place_monster(mtmp, mtmp->mx, mtmp->my);
 	    if (mtmp->wormno) place_wsegs(mtmp);
 	}
+        savedamage(fd, FREE_SAVE);
 	restdamage(fd, ghostly);
 
+        save_regions(fd, FREE_SAVE);
 	rest_regions(fd, ghostly);
 	if (ghostly) {
 	    /* Now get rid of all the temp fruits... */

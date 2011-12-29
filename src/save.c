@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)save.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 7 Jul 2011 by Alex Smith */
+/* Modified 29 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -26,10 +26,7 @@ int dotcnt, dotrow;	/* also used in restore */
 #ifdef ZEROCOMP
 STATIC_DCL void FDECL(bputc, (int));
 #endif
-STATIC_DCL void FDECL(savedamage, (int,int));
-STATIC_DCL void FDECL(saveobjchn, (int,struct obj *,int));
-STATIC_DCL void FDECL(savemonchn, (int,struct monst *,int));
-STATIC_DCL void FDECL(savetrapchn, (int,struct trap *,int));
+void FDECL(savetrapchn, (int,struct trap *,int));
 STATIC_DCL void FDECL(savegamestate, (int,int));
 #ifdef MFLOPPY
 STATIC_DCL void FDECL(savelev0, (int,XCHAR_P,int));
@@ -866,7 +863,7 @@ register int fd, mode;
 	    sp_levchn = 0;
 }
 
-STATIC_OVL void
+void
 savedamage(fd, mode)
 register int fd, mode;
 {
@@ -891,7 +888,7 @@ register int fd, mode;
 	    level.damagelist = 0;
 }
 
-STATIC_OVL void
+void
 saveobjchn(fd, otmp, mode)
 register int fd, mode;
 register struct obj *otmp;
@@ -923,7 +920,7 @@ register struct obj *otmp;
 	    bwrite(fd, (genericptr_t) &minusone, sizeof(int));
 }
 
-STATIC_OVL void
+void
 savemonchn(fd, mtmp, mode)
 register int fd, mode;
 register struct monst *mtmp;
@@ -953,7 +950,7 @@ register struct monst *mtmp;
 	    bwrite(fd, (genericptr_t) &minusone, sizeof(int));
 }
 
-STATIC_OVL void
+void
 savetrapchn(fd, trap, mode)
 register int fd, mode;
 register struct trap *trap;
