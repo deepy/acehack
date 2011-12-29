@@ -32,7 +32,7 @@ static long final_fpos;
 
 #define newttentry() (struct toptenentry *) alloc(sizeof(struct toptenentry))
 #define dealloc_ttentry(ttent) free((genericptr_t) (ttent))
-#define NAMSZ	10
+#define NAMSZ	12 /* KERIO: dgamelaunch and botl limit */
 #define DTHSZ	100
 #define ROLESZ   3
 #define PERSMAX	        2000    /* entries per name/uid per char. allowed */
