@@ -878,7 +878,10 @@ mp_await_reply_or_yield()
         mp_ackflag = mp_errflag = mp_yieldflag = FALSE;
         /* TODO: Implement some commands */
         while (!mp_stopgetch) {
-          if (nhgetch() == '\033') break;
+          if (nhgetch() == '\033') {
+            nomul(0);
+            break;
+          }
           if (!mp_stopgetch) {
             pline("Communicating...");
             suppress_more();
