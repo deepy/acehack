@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)files.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Dec 2011 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1586,7 +1586,7 @@ static int touchfd = -1;
 static int lockprefix = 0;
 
 #if defined(NO_FILE_LINKS) || defined(HAVE_FLOCK)	/* implies UNIX */
-static int lockfd;	/* for lock_file() to pass to unlock_file() */
+int lockfd;	/* for lock_file() to pass to unlock_file() */
 #endif
 
 #define HUP	if (!program_state.done_hup)

@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)unixunix.c	3.4	1994/11/07	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 8 Aug 2010 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* This file collects some Unix dependencies */
@@ -87,11 +87,19 @@ eraseoldlocks()
 	return(1);					/* success! */
 }
 
+#define HLOCKLEN 40
 void
 getlock()
 {
 	register int i = 0, fd, c;
 	const char *fq_lock;
+        time_t curtime;
+        char timebuf[HLOCKLEN];
+
+#ifdef HAVE_FLOCK
+        extern int lockfd; /* fd of hlock */
+        extern time_t recorded_birthday;
+#endif
 
 #ifdef TTY_GRAPHICS
 	/* idea from rpick%ucqais@uccba.uc.edu
@@ -111,6 +119,47 @@ getlock()
 		wait_synch();
 		error("%s", "");
 	}
+
+#ifdef HAVE_FLOCK
+        /* Disallow multiple games starting in the same second. This
+           is mostly for multiplayer purposes, so that u.ubirthday
+           uniquely determines the game. This is safe to do only
+           with flock locking, or we'd be writing to the wrong file
+           (and without flock locking, multiplayer wouldn't work
+           anyway). */
+# if defined(BSD) && !defined(POSIX_TYPES)
+        (void) time((long *)&curtime);
+# else
+        (void) time(&curtime);
+# endif
+        if(read(lockfd, timebuf, sizeof timebuf) > 0) {
+          time_t prevtime;
+          timebuf[sizeof timebuf - 1] = '\0'; /* just in case */
+          if (sizeof(time_t) == sizeof(long))
+            prevtime = strtol(timebuf, 0, 10);
+          else
+            prevtime = strtoll(timebuf, 0, 10);
+          /* Technically speaking this could just be an if, but
+             we make it a while instead in case something's gone
+             weird with the timer, and because there's no reason
+             not to. */
+          while (curtime == prevtime) {
+            pline("Loading...");
+            sleep(1);
+# if defined(BSD) && !defined(POSIX_TYPES)
+            (void) time((long *)&curtime);
+# else
+            (void) time(&curtime);
+# endif
+          } 
+        }
+        lseek(lockfd, 0, SEEK_SET);
+        Sprintf(timebuf, "%llu", (unsigned long long)curtime);
+        if (write(lockfd, timebuf, sizeof timebuf) < 0)
+          panic("Could not update perm timestamp");
+        /* Update the birthday field. */
+        recorded_birthday = curtime;
+#endif
 
 	regularize(lock);
 	set_levelfile_name(lock, 0);

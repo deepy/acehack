@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)u_init.c	3.4	2002/10/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 9 Aug 2010 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -514,6 +514,7 @@ register char sym;
 			knows_object(ct);
 }
 
+time_t recorded_birthday = 0;
 /* Set the character up sufficiently to know their inventory and stats.
    This function is quasi-idempotent: running it repeatedly does not
    necessarily return the same results, but only due to randomness; each
@@ -598,6 +599,9 @@ u_init_idempotent()
 #else
 	(void) time(&u.ubirthday);
 #endif
+        /* Use the recorded birthday if we're using locking to ensure
+           that all games have distinct birthdays. */
+        if (recorded_birthday) u.ubirthday = recorded_birthday;
 
 	/*
 	 *  For now, everyone starts out with a night vision range of 1 and
