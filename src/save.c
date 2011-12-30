@@ -166,8 +166,10 @@ dosave0()
           goto_level(&(find_level("wait")->dlevel), FALSE, FALSE, FALSE, TRUE);
           u.tx = oldx; u.ty = oldy;
           assign_level(&u.uz0, &uz_save);
-          /* Save only the data that pertains to us specifically. */
-          include_global_ledgers = FALSE;
+          /* Save only the data that pertains to us specifically,
+             unless we're the last player remaining, in which case
+             save everything. */
+          include_global_ledgers = last_player();
         }
 
 	if (!SAVEF[0])
@@ -337,6 +339,10 @@ dosave0()
 	delete_levelfile(ledger_no(&u.uz));
 	delete_levelfile(0);
 	nhcompress(fq_save);
+
+        /* Must be done while ledger_is_local is still valid */
+        if (iflags.multiplayer && include_global_ledgers)
+          delete_levelfile(-1);
 
         /* Now, it's safe to free the gamestate. */
 	savegamestate(-1, FREE_SAVE);

@@ -275,7 +275,7 @@ boolean ghostly;
 			int mndx = monsndx(mtmp->data);
 			if (propagate(mndx, TRUE, ghostly) == 0) {
 				/* cookie to trigger purge in getbones() */
-				mtmp->mhpmax = DEFUNCT_MONSTER;	
+				mtmp->mhpmax = DEFUNCT_MONSTER;
 			}
 		}
 		if(mtmp->minvent) {
@@ -554,6 +554,7 @@ register int fd;
 	xchar ltmp;
 	int rtmp;
 	struct obj *otmp;
+        boolean level_1_seen = FALSE;
 
 #ifdef STORE_PLNAME_IN_FILE
 	mread(fd, (genericptr_t) plname, PL_NSIZ);
@@ -617,6 +618,7 @@ register int fd;
 #endif
 			break;
 		getlev(fd, 0, ltmp, FALSE);
+                if (ltmp == 1) level_1_seen = TRUE;
 #ifdef MICRO
 		curs(WIN_MAP, 1+dotcnt++, dotrow);
 		if (dotcnt >= (COLNO - 1)) {
@@ -697,11 +699,85 @@ register int fd;
           int mpcfd;
           assign_level(&uz_restore, &u.uz0);
           setup_multiplayer_pipe('c');
-          mpcfd = open_levelfile(-1, 0);
-          if (mpcfd < 0) {
+
+          if (level_1_seen) {
+            xchar ln;
+            char errbuf[BUFSZ];
+            /* We're restoring the entire multiplayer machinery, not
+               just our own files. (Level 1 is a global level that
+               must always exist, so its presence in our save file
+               lets us know we did a global save.
+
+               This code is similar to that for an invite, for the
+               same reason that the rest of the restore code is
+               similar to that for being invited. The most notable
+               difference is the lack of checkpointing/uncheckpointing,
+               because we're in the waiting room, a local level. */
+            for (ln = maxledgerno(); ln; ln--) {
+              if (ledger_is_local(ln)) continue;
+              iflags.multiplayer = FALSE; /* temporarily for the rename */
+              if (rename_levelfile(ln, iflags.mp_lock_name, errbuf) < 0) {
+                panic("%s",errbuf);
+              }
+              iflags.multiplayer = TRUE;
+            }
+            mpcfd = create_levelfile(-1, errbuf);
+            if (mpcfd < 0) panic("%s", errbuf);
+          } else mpcfd = open_levelfile(-1, 0);
+          while (mpcfd < 0) {
+            winid win;
+            int n, ch = 'n';
+            anything any;
+            menu_item *selected = 0;
+
             /* The game we're trying to attach to doesn't exist... */
-            pline("The last player to save must be the first to restore.");
-            teardown_multiplayer_pipe('c');
+            clear_nhwindow(WIN_MESSAGE);
+
+            win = create_nhwindow(NHW_MENU);
+            start_menu(win);
+            any.a_void = 0;
+            add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                     "You cannot currently load this game, because the",
+                     MENU_UNSELECTED);
+            add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                     "game as a whole was saved by someone else. You need",
+                     MENU_UNSELECTED);
+            add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                     "to wait for the last player to save to reload the",
+                     MENU_UNSELECTED);
+            add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE,
+                     "game before you can rejoin it.",
+                     MENU_UNSELECTED);
+            add_menu(win, NO_GLYPH, &any, 0, 0, ATR_NONE, "", MENU_UNSELECTED);
+            any.a_int = 'y';
+            add_menu(win, NO_GLYPH, &any, 'q', 0, ATR_NONE,
+                     "Don't load the save file right now", MENU_UNSELECTED);
+            any.a_int = 'r';
+            add_menu(win, NO_GLYPH, &any, 'r', 0, ATR_NONE,
+                     "Try loading the save file again", MENU_UNSELECTED);
+            any.a_int = '!';
+            add_menu(win, NO_GLYPH, &any, '!', 0, ATR_NONE,
+                     "Abandon this game and delete its save file", MENU_UNSELECTED);
+            end_menu(win, "Cannot reload game...");
+            n = select_menu(win, PICK_ONE, &selected);
+            destroy_nhwindow(win);
+            if (n == 1) ch = selected[0].item.a_int;
+            if (n == 1) free((genericptr_t) selected);
+            if (ch == 'r') {
+              mpcfd = open_levelfile(-1, 0);
+              continue;
+            }
+            if (ch == '!') {
+              done2();
+              /* we get here if the player cancelled */
+              continue;
+            }
+            /* Avoid a nasty race condition, where someone else is loading
+               while we're cancelling the load, and delete their lockfiles
+               by mistake. This works because there are no global levels
+               in our save data. */
+            Strcpy(iflags.mp_lock_name, "0");
+            clearlocks();
             display_nhwindow(WIN_MESSAGE, TRUE);
             return(0);
           }
@@ -767,7 +843,10 @@ boolean ghostly;
 #else
 	mread(fd, (genericptr_t) &dlvl, sizeof(dlvl));
 #endif
-	if ((pid && pid != hpid) || (lev && dlvl != lev)) {
+        /* Note that in multiplayer, it's entirely plausible for the
+           PID to differ. So don't assume trickery then. */
+	if ((pid && pid != hpid && !iflags.multiplayer) ||
+            (lev && dlvl != lev)) {
 	    char trickbuf[BUFSZ];
 
 	    if (pid && pid != hpid)
@@ -786,7 +865,7 @@ boolean ghostly;
 		short	i, j;
 		uchar	len;
 		struct rm r;
-		
+
 #if defined(MAC)
 		/* Suppress warning about used before set */
 		(void) memset((genericptr_t) &r, 0, sizeof(r));
@@ -923,7 +1002,7 @@ boolean ghostly;
 		case BR_NO_END1:
 		case BR_NO_END2: /* OK to assign to sstairs if it's not used */
 		    assign_level(&sstairs.tolev, &ltmp);
-		    break;		
+		    break;
 		case BR_PORTAL: /* max of 1 portal per level */
 		    {
 			register struct trap *ttmp;

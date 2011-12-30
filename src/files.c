@@ -632,6 +632,31 @@ int lev;
 	}
 }
 
+boolean
+last_player()
+{
+	if (!iflags.multiplayer) return TRUE;
+        /* If we're in multiplayer mode, we don't want to delete
+           lockfiles that are still in use by other players. To
+           avoid that, we attempt to convert our shared lock on
+           iflags.shared_lockfd into an exclusive lock. If it
+           works, we're the last player remaining. If it doesn't,
+           there must be more players here. We can leave the
+           exclusive lock there until the process exits; we're
+           going to delete the filename anyway, and the file will
+           follow soon after. */
+        errno = 0;
+        if (flock(iflags.shared_lockfd, LOCK_EX | LOCK_NB) == 0)
+          return TRUE;
+        else if (errno == EWOULDBLOCK)
+          return FALSE;
+        else if (!program_state.panicking)
+          panic("Could not check lock on the main multiplayer lockfile");
+        /* otherwise we're in a panic already, leave the lockfiles
+           just in case other processes can recover */
+        return FALSE;
+}
+
 void
 clearlocks()
 {
@@ -641,30 +666,10 @@ clearlocks()
 		eraseall(permbones, alllevels);
 #else
 	register int x;
-        boolean last_player = TRUE;
+        boolean lplayer = last_player();
 
         if (iflags.multiplayer) {
-          /* If we're in multiplayer mode, we don't want to delete
-             lockfiles that are still in use by other players. To
-             avoid that, we attempt to convert our shared lock on
-             iflags.shared_lockfd into an exclusive lock. If it
-             works, we're the last player remaining. If it doesn't,
-             there must be more players here. We can leave the
-             exclusive lock there until the process exits; we're
-             going to delete the filename anyway, and the file will
-             follow soon after. */
-          errno = 0;
-          if (flock(iflags.shared_lockfd, LOCK_EX | LOCK_NB) == 0)
-            last_player = TRUE;
-          else if (errno == EWOULDBLOCK)
-            last_player = FALSE;
-          else if (!program_state.panicking)
-            panic("Could not check lock on the main multiplayer lockfile");
-          /* otherwise we're in a panic already, let's clear all the
-             lockfiles as the other processes are likely in a
-             messed-up state too */
-
-          if (last_player) delete_levelfile(-1);
+          if (lplayer) delete_levelfile(-1);
         }
 
 # if defined(UNIX) || defined(VMS)
@@ -672,7 +677,7 @@ clearlocks()
 # endif
 	/* can't access maxledgerno() before dungeons are created -dlc */
 	for (x = (n_dgns ? maxledgerno() : 0); x >= 0; x--)
-          if (last_player || ledger_is_local(x))
+          if (lplayer || ledger_is_local(x))
             delete_levelfile(x);     /* not all levels need be present */
 #endif
 
