@@ -821,7 +821,7 @@ long umoney;
         set_dumpfile_name();
         dumplogname = fqname(DUMPF, DUMPPREFIX, 0);
 	*/
-	Sprintf(qbuf, "/dgldir/userdata/%s/dumplog/%lu",
+	Sprintf(qbuf, "/dgldir/userdata/%s/mpdumplog/%lu",
 		plname, (long)u.ubirthday);
 	dumplogname = qbuf;
 
