@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)cmd.c	3.4	2003/02/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 26 Dec 2011 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -628,7 +628,8 @@ doinvite()
   Sprintf(buf, "%s y\n", mplock);
   /* TODO: SIGPIPE due to a really unlikely race condition */
   if(write(fd, buf, strlen(buf)) < 0) {
-    panic("Cannot write to remote multiplayer advertisement pipe");
+    impossible("The game you're trying to invite seems to have crashed.");
+    return 0;
   }
   close(fd);
   /* Now await the reply or user cancel. */
@@ -645,13 +646,11 @@ doinvite()
        to a name not associated with any player, so that if players die
        they can start a single-player game without filename clashes. */
     if (!iflags.multiplayer) {
-      /* We need to pick a currently unused name first time. This can
-         be done by combining our current lockfile name with the current
-         time; it's impossible to start more than one multiplayer game
-         in the same second due to the sleep(1) in newgame_mp. */
+      /* We need to pick a currently unused name first time. We ensure
+         that all games have a unique u.ubirthday, so we just use that. */
       int ln, fd;
       char errbuf[BUFSZ];  
-      Sprintf(iflags.mp_lock_name, "%lu_%s", u.ubirthday, mplock);
+      Sprintf(iflags.mp_lock_name, "%llu", (long long)u.ubirthday);
       /* Rename all nonlocal level files. */
       for (ln = maxledgerno(); ln; ln--) {
         if (ledger_is_local(ln)) continue;
@@ -690,12 +689,15 @@ doinvite()
        in the right order. x and y are the same size as u.ux and
        u.uy, or this wouldn't work. Likewise, we need to ensure that
        the games have a consistent view of time. Finally, we need
-       to tell it where to look for the lockfiles. */
+       to tell it where to look for the lockfiles; that is, the
+       current filename, and the birthday so that it can find them
+       after a save and restore. */
     x = sstairs.sx; y = sstairs.sy;
     if (write(fd, &x, sizeof(u.ux)) <= 0 ||
         write(fd, &y, sizeof(u.uy)) <= 0 ||
         write(fd, &monstermoves, sizeof(monstermoves)) <= 0 || 
-        write(fd, iflags.mp_lock_name, BUFSZ) <= 0) {
+        write(fd, iflags.mp_lock_name, BUFSZ) <= 0 ||
+        write(fd, &u.ubirthday, sizeof(u.ubirthday)) <= 0) {
       panic("Multiplayer control pipe write failure");
     }
     /* Now the other end has control, and we're just waiting on a

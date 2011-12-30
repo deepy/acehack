@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)artifact.c 3.4	2003/08/11	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 20 Jul 2011 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1352,7 +1352,7 @@ arti_invoke(obj)
 	    } else {
 		if(!Blind) You("are surrounded by a shimmering sphere!");
 		else You_feel("weightless for a moment.");
-		goto_level(&newlev, FALSE, FALSE, FALSE);
+		goto_level(&newlev, FALSE, FALSE, FALSE, FALSE);
 	    }
 	    break;
 	  }

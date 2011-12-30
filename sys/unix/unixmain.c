@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)unixmain.c	3.4	1997/01/22	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Dec 2011 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* main.c - Unix NetHack */
@@ -268,8 +268,18 @@ char *argv[];
 #endif
 		pline("Restoring save file...");
 		mark_synch();	/* flush output */
-		if(!dorecover(fd))
-			goto not_recovered;
+		if(!dorecover(fd)) {
+                    if (iflags.multiplayer) {
+                        /* The restore must have failed because the game
+                           wasn't currently running. Set the file back
+                           to readable, and exit the program. */
+                        (void) chmod(fq_save,FCMASK);
+                        nhcompress(fq_save);
+                        exit_nhwindows("Try again later.");
+                        exit(EXIT_SUCCESS);
+                    }
+		    goto not_recovered;
+                }
 #ifdef WIZARD
 		if(!wizard && remember_wiz_mode) wizard = TRUE;
 #endif

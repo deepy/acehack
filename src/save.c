@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)save.c	3.4	2003/11/14	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Dec 2011 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -78,7 +78,7 @@ dosave()
         destroy_nhwindow(win);
         if (n == 1) ch = selected[0].item.a_int;
         if (n == 1) free((genericptr_t) selected);
-        
+
 	if (ch != 'y' && ch != '!') {
 		clear_nhwindow(WIN_MESSAGE);
 		if(multi > 0) nomul(0);
@@ -90,11 +90,6 @@ dosave()
 #endif
 		if(dosave0()) {
 			program_state.something_worth_saving = 0;
-                        /* TODO: the clearlocks() call is necessary in
-                           multiplayer to avoid a corrupted playfield,
-                           but atm saving doesn't work in multiplayer
-                           anyway, so this should probably be adapted */
-                        clearlocks();
 			u.uhp = -1;		/* universal game's over indicator */
 			/* make sure they see the Saving message */
 			display_nhwindow(WIN_MESSAGE, TRUE);
@@ -142,7 +137,6 @@ int sig_unused;
 }
 #endif
 
-/* TODO: make this do remotely the right thing in multiplayer. */
 /* returns 1 if save successful */
 int
 dosave0()
@@ -152,10 +146,28 @@ dosave0()
 	xchar ltmp;
 	d_level uz_save;
 	char whynot[BUFSZ];
+        boolean include_global_ledgers = TRUE;
 
         if (iflags.multiplayer) {
-          pline("Saving in multiplayer is currently unimplemented.");
-          return 0;
+          /* We need to move the player to the waiting room before saving.
+             We also need to record enough information to do the restore
+             correctly. We record it all in u, as follows:
+             u.ubirthday - records iflags.mp_lock_name (already set)
+             u.uz        - set to waiting room to mark the game as multiplayer
+             u.uz0       - level of the player just before saving
+             u.tx, u.ty  - location of the player on the level before saving
+          */
+          int oldx = u.ux, oldy = u.uy;
+          /* These magic numbers correspond to the centre of the
+             waiting room. */
+          u.tx = 39; u.ty = 11;
+          /* Send the player to the waiting room */
+          assign_level(&uz_save, &u.uz);
+          goto_level(&(find_level("wait")->dlevel), FALSE, FALSE, FALSE, TRUE);
+          u.tx = oldx; u.ty = oldy;
+          assign_level(&u.uz0, &uz_save);
+          /* Save only the data that pertains to us specifically. */
+          include_global_ledgers = FALSE;
         }
 
 	if (!SAVEF[0])
@@ -193,12 +205,17 @@ dosave0()
 	if(fd < 0) {
 		HUP pline("Cannot open save file.");
 		(void) delete_savefile();	/* ab@unido */
+                if (iflags.multiplayer) {
+                  /* Place the player back on the map. */
+                  assign_level(&uz_save, &u.uz0);
+                  goto_level(&uz_save, FALSE, FALSE, FALSE, TRUE);
+                }
 		return(0);
 	}
 
 	vision_recalc(2);	/* shut down vision to prevent problems
 				   in the event of an impossible() call */
-	
+
 	/* undo date-dependent luck adjustments made at startup time */
 	if(flags.moonphase == FULL_MOON)	/* ut-sally!fletcher */
 		change_luck(-1);		/* and unido!ab */
@@ -235,6 +252,11 @@ dosave0()
 		flushout();
 		(void) close(fd);
 		(void) delete_savefile();
+                if (iflags.multiplayer) {
+                  /* Place the player back on the map. */
+                  assign_level(&uz_save, &u.uz0);
+                  goto_level(&uz_save, FALSE, FALSE, FALSE, TRUE);
+                }
 		return 0;
 	    }
 
@@ -250,8 +272,14 @@ dosave0()
 #ifdef STEED
 	usteed_id = (u.usteed ? u.usteed->m_id : 0);
 #endif
+        /* Current ledger is guaranteed local; either we're in a
+           single player game and thus every level is stored in this
+           game, or else we're in a multiplayer game, in which case
+           we're in the waiting room. */
 	savelev(fd, ledger_no(&u.uz), WRITE_SAVE | FREE_SAVE);
-	savegamestate(fd, WRITE_SAVE | FREE_SAVE);
+        /* We can't free the gamestate immediately as we need to keep
+           the dungeon structures around. */
+	savegamestate(fd, WRITE_SAVE);
 
 	/* While copying level files around, zero out u.uz to keep
 	 * parts of the restore code from completely initializing all
@@ -270,7 +298,9 @@ dosave0()
 
 	for(ltmp = (xchar)1; ltmp <= maxledgerno(); ltmp++) {
 		if (ltmp == ledger_no(&uz_save)) continue;
-		if (!(level_info[ltmp].flags & LFILE_EXISTS)) continue;
+                if (!include_global_ledgers && !ledger_is_local(ltmp)) continue;
+		if (!(level_info[ltmp].flags & LFILE_EXISTS) &&
+                    !iflags.multiplayer) continue;
 #ifdef MICRO
 		curs(WIN_MAP, 1 + dotcnt++, dotrow);
 		if (dotcnt >= (COLNO - 1)) {
@@ -284,10 +314,12 @@ dosave0()
 #endif
 		ofd = open_levelfile(ltmp, whynot);
 		if (ofd < 0) {
-                  pline("A level file was missing during an attempt to save...");
-                  pline("The game will regenerate the level the next time you"
-                        "visit it.");
-                  level_info[ltmp].flags &= ~LFILE_EXISTS;
+                  if (!iflags.multiplayer) {
+                    pline("A level file was missing during an attempt to save...");
+                    pline("The game will regenerate the level the next time you"
+                          "visit it.");
+                    level_info[ltmp].flags &= ~LFILE_EXISTS;
+                  }
                   continue;
 		}
 		minit();	/* ZEROCOMP */
@@ -305,6 +337,12 @@ dosave0()
 	delete_levelfile(ledger_no(&u.uz));
 	delete_levelfile(0);
 	nhcompress(fq_save);
+
+        /* Now, it's safe to free the gamestate. */
+	savegamestate(-1, FREE_SAVE);
+
+        teardown_multiplayer_pipe('c');
+
 	return(1);
 }
 
@@ -318,9 +356,11 @@ register int fd, mode;
 	count_only = (mode & COUNT_SAVE);
 #endif
 	uid = getuid();
-	bwrite(fd, (genericptr_t) &uid, sizeof uid);
-	bwrite(fd, (genericptr_t) &flags, sizeof(struct flag));
-	bwrite(fd, (genericptr_t) &u, sizeof(struct you));
+        if (mode & WRITE_SAVE) {
+          bwrite(fd, (genericptr_t) &uid, sizeof uid);
+          bwrite(fd, (genericptr_t) &flags, sizeof(struct flag));
+          bwrite(fd, (genericptr_t) &u, sizeof(struct you));
+        }
 
 	/* must come before migrating_objs and migrating_mons are freed */
 	save_timers(fd, mode, RANGE_GLOBAL);
@@ -334,32 +374,36 @@ register int fd, mode;
 	    migrating_objs = 0;
 	    migrating_mons = 0;
 	}
-	bwrite(fd, (genericptr_t) mvitals, sizeof(mvitals));
+	if (mode & WRITE_SAVE) bwrite(fd, (genericptr_t) mvitals, sizeof(mvitals));
 
 	save_dungeon(fd, (boolean)!!perform_bwrite(mode),
 			 (boolean)!!release_data(mode));
 	savelevchn(fd, mode);
-	bwrite(fd, (genericptr_t) &moves, sizeof moves);
-	bwrite(fd, (genericptr_t) &monstermoves, sizeof monstermoves);
-	bwrite(fd, (genericptr_t) &quest_status, sizeof(struct q_score));
-	bwrite(fd, (genericptr_t) spl_book,
-				sizeof(struct spell) * (MAXSPELL + 1));
-	save_artifacts(fd);
+        if (mode & WRITE_SAVE) {
+          bwrite(fd, (genericptr_t) &moves, sizeof moves);
+          bwrite(fd, (genericptr_t) &monstermoves, sizeof monstermoves);
+          bwrite(fd, (genericptr_t) &quest_status, sizeof(struct q_score));
+          bwrite(fd, (genericptr_t) spl_book,
+                 sizeof(struct spell) * (MAXSPELL + 1));
+        }
+	if (mode & WRITE_SAVE) save_artifacts(fd);
 	save_oracles(fd, mode);
-	if(ustuck_id)
+        if (mode & WRITE_SAVE) {
+          if(ustuck_id)
 	    bwrite(fd, (genericptr_t) &ustuck_id, sizeof ustuck_id);
 #ifdef STEED
-	if(usteed_id)
+          if(usteed_id)
 	    bwrite(fd, (genericptr_t) &usteed_id, sizeof usteed_id);
 #endif
-        bwrite(fd, (genericptr_t) pl_tutorial, sizeof pl_tutorial);
-	bwrite(fd, (genericptr_t) pl_character, sizeof pl_character);
-	bwrite(fd, (genericptr_t) pl_fruit, sizeof pl_fruit);
-	bwrite(fd, (genericptr_t) &current_fruit, sizeof current_fruit);
+          bwrite(fd, (genericptr_t) pl_tutorial, sizeof pl_tutorial);
+          bwrite(fd, (genericptr_t) pl_character, sizeof pl_character);
+          bwrite(fd, (genericptr_t) pl_fruit, sizeof pl_fruit);
+          bwrite(fd, (genericptr_t) &current_fruit, sizeof current_fruit);
+        }
 	savefruitchn(fd, mode);
 	savenames(fd, mode);
 	save_waterlevel(fd, mode);
-	bflush(fd);
+        if (mode & WRITE_SAVE) bflush(fd);
 }
 
 #ifdef INSURANCE

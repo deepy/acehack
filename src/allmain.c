@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)allmain.c	3.4	2003/04/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Dec 2011 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* various code that was replicated in *main.c */
@@ -877,12 +877,14 @@ found_game_to_attach_to: ;
            infinite loop. The solution is to get the coordinates from
            the other game. We also get the current local time from the
            other game, because the timings must be approximately in
-           sync; and the level lockfile name, as otherwise we wouldn't
-           be able to uncheckpoint. */
+           sync; the level lockfile name, as otherwise we wouldn't be
+           able to uncheckpoint; and the game's birthday, so that
+           saving and restoring works. */
         if (read(mpcfd, &u.ux, sizeof(u.ux)) <= 0 ||
             read(mpcfd, &u.uy, sizeof(u.uy)) <= 0 ||
             read(mpcfd, &monstermoves, sizeof(monstermoves)) <= 0 ||
-            read(mpcfd, iflags.mp_lock_name, BUFSZ) <= 0) {
+            read(mpcfd, iflags.mp_lock_name, BUFSZ) <= 0 ||
+            read(mpcfd, &u.ubirthday, sizeof(u.ubirthday)) <= 0) {
           panic("Multiplayer control pipe read failure");
         }
 

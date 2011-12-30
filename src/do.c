@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Dec 2011 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -1369,9 +1369,9 @@ register xchar x, y;
 */
 
 void
-goto_level(newlevel, at_stairs, falling, portal)
+goto_level(newlevel, at_stairs, falling, portal, mp_save)
 d_level *newlevel;
-boolean at_stairs, falling, portal;
+boolean at_stairs, falling, portal, mp_save;
 {
 	int fd, l_idx;
 	xchar new_ledger;
@@ -1493,7 +1493,10 @@ boolean at_stairs, falling, portal;
          * them, while continuing to execute. This increases the number
          * of drivers by one.
          */
-        rYou(" left the level.");
+        if (mp_save)
+          rYou(" saved the game and disappeared.");
+        else
+          rYou(" left the level.");
         if (iflags.multiplayer) {
           for (mtmp = fmon; mtmp; mtmp = mtmp->nmon) {
             if (is_mp_player(mtmp)) break;
@@ -1750,7 +1753,10 @@ boolean at_stairs, falling, portal;
 	    if (!ttrap) panic("goto_level: no corresponding portal!");
 	    seetrap(ttrap);
 	    u_on_newpos(ttrap->tx, ttrap->ty);
-	} else if (at_stairs && !In_endgame(&u.uz)) {
+	} else if (mp_save) {
+            u.ux = u.tx;
+            u.uy = u.ty;
+        } else if (at_stairs && !In_endgame(&u.uz)) {
 	    if (up) {
 		if (at_ladder && !newdungeon) {
                   u_on_dnladder();
@@ -1993,7 +1999,10 @@ boolean at_stairs, falling, portal;
 
         if (*yield_after) { /* can only happen in multiplayer */
           char buf[BUFSZ];
-          rYou(" arrives on this level.");
+          if (mp_save)
+            rYou(" reloads the game and reappears.");
+          else
+            rYou(" arrives on this level.");
           /* TODO: Should we boost our own movement energy a bit upon
              doing this? We're meshing two incompatible time systems,
              and everyone else ends up a turn ahead the current way */
@@ -2108,7 +2117,7 @@ deferred_goto()
 
 	    assign_level(&dest, &u.utolev);
 	    if (dfr_pre_msg) pline("%s",dfr_pre_msg);
-	    goto_level(&dest, !!(typmask&1), !!(typmask&2), !!(typmask&4));
+	    goto_level(&dest, !!(typmask&1), !!(typmask&2), !!(typmask&4), FALSE);
 	    if (typmask & 0200) {	/* remove portal */
 		struct trap *t = t_at(u.ux, u.uy);
 

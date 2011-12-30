@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)restore.c	3.4	2003/09/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 29 Dec 2011 by Alex Smith */
+/* Modified 30 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -644,7 +644,14 @@ register int fd;
 	getlev(fd, 0, (xchar)0, FALSE);
 	(void) close(fd);
 
-	if (!wizard && !discover)
+        /* Determine whether we're in multiplayer mode early, so that
+           we know when to delete the savefile. */
+        if (on_level(&u.uz, &(find_level("wait")->dlevel))) {
+          iflags.multiplayer = TRUE;
+          Sprintf(iflags.mp_lock_name, "%llu", (long long)u.ubirthday);
+        }
+
+	if (!wizard && !discover && !iflags.multiplayer)
 		(void) delete_savefile();
 #ifdef REINCARNATION
 	if (Is_rogue_level(&u.uz)) assign_rogue_graphics(TRUE);
@@ -682,6 +689,31 @@ register int fd;
 	restoring = FALSE;
 	clear_nhwindow(WIN_MESSAGE);
 	program_state.something_worth_saving++;	/* useful data now exists */
+
+        /* If in multiplayer mode, then try to connect back to the game
+           as a whole. */
+        if (iflags.multiplayer) {
+          d_level uz_restore;
+          int mpcfd;
+          assign_level(&uz_restore, &u.uz0);
+          setup_multiplayer_pipe('c');
+          mpcfd = open_levelfile(-1, 0);
+          if (mpcfd < 0) {
+            /* The game we're trying to attach to doesn't exist... */
+            pline("The last player to save must be the first to restore.");
+            teardown_multiplayer_pipe('c');
+            display_nhwindow(WIN_MESSAGE, TRUE);
+            return(0);
+          }
+          flock(mpcfd, LOCK_SH);
+          iflags.shared_lockfd = mpcfd;
+
+          /* Place us back on the map */
+          goto_level(&uz_restore, FALSE, FALSE, FALSE, TRUE);
+
+          /* And now it's safe to delete the save file. */
+          (void) delete_savefile();
+        }
 
 	/* Success! */
 	welcome(FALSE);
