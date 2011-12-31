@@ -252,6 +252,7 @@ describe_level(buf)
 char *buf;
 {
   int ret = 1;
+  d_level *waitlevel = &(find_level("wait")->dlevel);
 
   if (Is_knox(&u.uz))
     Sprintf(buf, "%s", dungeons[u.uz.dnum].dname);
@@ -261,6 +262,8 @@ char *buf;
     Sprintf(buf, Is_astralevel(&u.uz) ? "Astral Plane" : "End Game");
   else if (In_mines(&u.uz))
     Sprintf(buf, "Mines:%d", depth(&u.uz));
+  else if (waitlevel && on_level(waitlevel, &u.uz))
+    Sprintf(buf, "Waiting Room");
   else if (In_sokoban(&u.uz))
     Sprintf(buf, "Sokoban:%d", depth(&u.uz));
   else if (Is_valley(&u.uz))
