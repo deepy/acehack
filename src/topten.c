@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)topten.c	3.4	2000/01/21	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 19 Dec 2011 by Alex Smith */
+/* Modified 31 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -377,7 +377,7 @@ struct toptenentry *tt;
   (void)fprintf(rfile, SEP "align0=%s", aligns[1 - u.ualignbase[A_ORIGINAL]].filecode);
 
   (void)fprintf(rfile, SEP "xplevel=%d", u.ulevel); /* XP level */
-  (void)fprintf(rfile, SEP "exp=%d", u.uexp);       /* Experience points */
+  (void)fprintf(rfile, SEP "exp=%ld", (long)u.uexp); /* Experience points */
 
   (void)fprintf(rfile, SEP "mode=%s", (flags.debug ? "debug" :
 				       flags.explore ? "explore" :

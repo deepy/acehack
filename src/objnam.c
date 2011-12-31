@@ -1,7 +1,6 @@
 /*	SCCS Id: @(#)objnam.c	3.4	2003/12/04	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 1 Sep 2011 by Alex Smith */
-
+/* Modified 18 Jun 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -719,9 +718,10 @@ boolean with_weight;
 		Strcat(prefix, "cursed ");
 	    else if (obj->blessed)
 		Strcat(prefix, "blessed ");
-	    else if (iflags.show_buc || (!obj->known || !objects[obj->otyp].oc_charged ||
-		      (obj->oclass == ARMOR_CLASS ||
-		       obj->oclass == RING_CLASS))
+	    else if (iflags.show_buc ||
+                     ((!obj->known || !objects[obj->otyp].oc_charged ||
+                       (obj->oclass == ARMOR_CLASS ||
+                        obj->oclass == RING_CLASS))
 		/* For most items with charges or +/-, if you know how many
 		 * charges are left or what the +/- is, then you must have
 		 * totally identified the item, so "uncursed" is unneccesary,
@@ -733,11 +733,11 @@ boolean with_weight;
 		 * status is unknown, and an item known to be uncursed.
 		 */
 #ifdef MAIL
-			&& obj->otyp != SCR_MAIL
+                      && obj->otyp != SCR_MAIL
 #endif
-			&& obj->otyp != FAKE_AMULET_OF_YENDOR
-			&& obj->otyp != AMULET_OF_YENDOR
-			&& !Role_if(PM_PRIEST))
+                      && obj->otyp != FAKE_AMULET_OF_YENDOR
+                      && obj->otyp != AMULET_OF_YENDOR
+                      && !Role_if(PM_PRIEST)))
 		Strcat(prefix, "uncursed ");
 	}
 

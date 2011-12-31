@@ -1,5 +1,5 @@
 /*	SCCS Id: @(#)rnd.c	3.4	1996/02/07	*/
-/* Modified 20 Apr 2011 by Alex Smith */
+/* Modified 31 Dec 2011 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 
@@ -2061,7 +2061,7 @@ static void collect_entropy1(char* data)
 		return;
 	
 	/* Read 32 bytes. If it fails, well, can't help it. */
-	fread(data, 32, 1, f);
+	if (fread(data, 32, 1, f) != 1) {}
 	
 	fclose(f);
 	#endif
