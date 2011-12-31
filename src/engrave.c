@@ -1016,7 +1016,7 @@ boolean hept;
               }
 	    }
 
-	    if (oep && (c == 'r' || Blind || type != oep->engr_type)) {
+	    if (oep && (c == 'o' || Blind || type != oep->engr_type)) {
 		if( (oep->engr_type == DUST) || (oep->engr_type == ENGR_BLOOD) ||
 		    (oep->engr_type == MARK) ) {
 		    if (!Blind) {
@@ -1038,7 +1038,7 @@ boolean hept;
 			   "engraved in", surface(u.ux,u.uy));
 			return(1);
 		    } else
-			if ( (type != oep->engr_type) || (c == 'r') ) {
+			if ( (type != oep->engr_type) || (c == 'o') ) {
 			    if (!Blind || can_reach_floor())
 				You("will overwrite the current message.");
 			    eow = TRUE;
