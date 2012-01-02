@@ -520,13 +520,15 @@ int how;
 	}
 #endif /* XLOGFILE */
 
-	if (wizard || discover) {
+	if (wizard || discover || iflags.multiplayer) {
 	    if (how != PANICKED) HUP {
 		char pbuf[BUFSZ];
 		topten_print("");
 		Sprintf(pbuf,
 	      "Since you were in %s mode, the score list will not be checked.",
-		    wizard ? "debug" : "explore");
+		    wizard ? "debug" :
+                    discover ? "explore" :
+                    "multiplayer");
 		topten_print(pbuf);
 	    }
 	    goto showwin;
