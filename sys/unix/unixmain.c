@@ -55,7 +55,10 @@ char *argv[];
 	register char *dir;
 #endif
 	boolean exact_username;
-
+        char *bp;
+#ifdef SIMPLE_MAIL
+	char* e_simple = NULL;
+#endif
 #if defined(__APPLE__)
 	/* special hack to change working directory to a resource fork when
 	   running from finder --sam */
