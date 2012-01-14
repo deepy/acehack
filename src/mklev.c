@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)mklev.c	3.4	2001/11/29	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 28 Dec 2010 by Alex Smith */
+/* Modified 14 Jan 2012 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 #include "hack.h"
@@ -1569,6 +1569,10 @@ xchar x, y;
 	d_level *source;
 	branch *br;
 	schar u_depth;
+
+        /* this causes too many problems in multiplayer, disable it
+           for now */
+        if (iflags.multiplayer) return;
 
 	br = dungeon_branch("Fort Ludios");
 	if (on_level(&knox_level, &br->end1)) {
