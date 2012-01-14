@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)do.c	3.4	2003/12/02	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 30 Dec 2011 by Alex Smith */
+/* Modified 14 Jan 2012 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* Contains code for 'd', 'D' (drop), '>', '<' (up, down) */
@@ -1535,6 +1535,11 @@ boolean at_stairs, falling, portal, mp_save;
 	assign_level(&u.utolev, newlevel);
 	u.utotype = 0;
 
+	/* set default level change destination areas */
+	/* the special level code may override these */
+	(void) memset((genericptr_t) &updest, 0, sizeof updest);
+	(void) memset((genericptr_t) &dndest, 0, sizeof dndest);
+
         /* In multiplayer, we need careful synchronization handling
            between levels. When someone leaves a level, if anyone else
            is there, one of them should be yielded to, desynchronizing
@@ -1693,11 +1698,6 @@ boolean at_stairs, falling, portal, mp_save;
 	if (dunlev_reached(&u.uz) < dunlev(&u.uz))
 		dunlev_reached(&u.uz) = dunlev(&u.uz);
 	reset_rndmonst(NON_PM);   /* u.uz change affects monster generation */
-
-	/* set default level change destination areas */
-	/* the special level code may override these */
-	(void) memset((genericptr_t) &updest, 0, sizeof updest);
-	(void) memset((genericptr_t) &dndest, 0, sizeof dndest);
 
 	if (!(level_info[new_ledger].flags & LFILE_EXISTS)) {
 		/* entering this level for first time; make it now */
