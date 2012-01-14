@@ -1,6 +1,6 @@
 /*	SCCS Id: @(#)patchlevel.h	3.4	2003/12/06	*/
 /* Copyright (c) Stichting Mathematisch Centrum, Amsterdam, 1985. */
-/* Modified 24 Mar 2011 by Alex Smith */
+/* Modified 14 Jan 2012 by Alex Smith */
 /* NetHack may be freely redistributed.  See license for details. */
 
 /* AceHack 3.6.0 */
@@ -17,7 +17,7 @@
 #define EDITLEVEL	1
 
 #define COPYRIGHT_BANNER_A \
-"AceHack, Copyright 2009-2011; based on NetHack, Copyright 1985-2003"
+"AceHack, Copyright 2009-2012; based on NetHack, Copyright 1985-2003"
 
 #define COPYRIGHT_BANNER_B \
 "  AceHack by Alex Smith, with many contributions from other people."
