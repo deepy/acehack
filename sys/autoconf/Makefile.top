@@ -1,7 +1,7 @@
 #	NetHack Makefile.
 #       @configure_input@
 #	SCCS Id: @(#)Makefile.top	3.4	1995/01/05
-#	Modified by Alex Smith, 13 Sep 2011
+#	Modified by Alex Smith, 29 Oct 2010
 
 VPATH=@srcdir@
 srcdir=@srcdir@
@@ -130,6 +130,9 @@ $(GAME):
 
 all:	$(GAME) recover$(EXEEXT) @GUIDEBOOK@ $(CNF_SHARE_DAT) dungeon spec_levs check-dlb
 	@echo "Done."
+
+check-syntax: $(CHK_SOURCES)
+	$(CC) $(CFLAGS) -S $(CHK_SOURCES) -o /dev/null
 
 # Note: many of the dependencies below are here to allow parallel make
 # to generate valid output

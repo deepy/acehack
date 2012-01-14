@@ -1,7 +1,7 @@
 #	Makefile for NetHack's utility programs.
 #       @configure_input@
 #	SCCS Id: @(#)Makefile.utl	3.4	1997/04/19
-#	Modified 29 Oct 2010 by Alex Smith
+#	Modified 14 Jan 2012 by Alex Smith
 
 VPATH=@srcdir@
 srcdir=@srcdir@
@@ -429,6 +429,9 @@ $(HACK_H): $(CONFIG_H)
 	@( cd ../src ; $(MAKE) $(HACK_H) )
 $(CONFIG_H): ../include/config.h
 	@( cd ../src ; $(MAKE) $(CONFIG_H) )
+
+check-syntax: $(CHK_SOURCES)
+	$(CC) $(CFLAGS) -S $(CHK_SOURCES) -o /dev/null
 
 tags: $(UTILSRCS)
 	@ctags -tw $(UTILSRCS)

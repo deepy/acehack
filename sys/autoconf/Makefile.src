@@ -1,7 +1,7 @@
 #	NetHack Makefile.
 #       @configure_input@
 #	SCCS Id: @(#)Makefile.src	3.4	2002/03/02
-#	Modified by Alex Smith, 19 Aug 2010
+#	Modified by Alex Smith, 14 Jan 2012
 
 VPATH = @srcdir@
 srcdir = @srcdir@
@@ -423,6 +423,8 @@ lint:
 	@echo lint -axbh -DLINT ...
 	@lint -axbh -I../include -I$(srcdir)/../include -DLINT $(CSOURCES) | sed '/_flsbuf/d'
 
+check-syntax: $(CHK_SOURCES)
+	$(CC) $(CFLAGS) -S $(CHK_SOURCES) -o /dev/null
 
 tags: $(CSOURCES)
 	@echo ctags -tw ...
