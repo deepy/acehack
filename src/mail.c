@@ -555,7 +555,7 @@ struct obj *otmp;
 		  *msg = '\0';
 		  msg++;
 		  
-		  pline ("This message is from '%s'.", curline);
+		  pline ("This message is from \"%s\".", curline);
 
 		  msg[strlen(msg) - 1] = '\0'; /* kill newline */
 		  pline ("It reads: \"%s\".", msg);
