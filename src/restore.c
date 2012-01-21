@@ -760,7 +760,11 @@ register int fd;
               continue;
             }
             if (ch == '!') {
-              done2();
+              if (yn("Really abandon this game and delete its save file?") == 'y') {
+		(void) delete_savefile();
+		done(QUIT);
+		return(0);
+	      }
               /* we get here if the player cancelled */
               continue;
             }
