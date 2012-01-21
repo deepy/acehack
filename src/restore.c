@@ -364,15 +364,7 @@ unsigned int *stuckid, *steedid;	/* STEED */
 	int uid;
 
 	mread(fd, (genericptr_t) &uid, sizeof uid);
-	if (uid != getuid()) {		/* strange ... */
-	    /* for wizard mode, issue a reminder; for others, treat it
-	       as an attempt to cheat and refuse to restore this file */
-	    pline("Saved game was not yours.");
-#ifdef WIZARD
-	    if (!wizard)
-#endif
-		return FALSE;
-	}
+	uid = getuid();  /* there's no reason to prevent uid transfers */
 
 	mread(fd, (genericptr_t) &flags, sizeof(struct flag));
 	flags.bypasses = 0;	/* never use the saved value of bypasses */
