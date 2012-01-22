@@ -817,13 +817,13 @@ long umoney;
         const char* dumplogname;
 	boolean ask;
 
-	/* KERIO: ignore standard dumplog path
-        set_dumpfile_name();
-        dumplogname = fqname(DUMPF, DUMPPREFIX, 0);
-	*/
-	Sprintf(qbuf, "/dgldir/userdata/%s/dumplog/%lu",
-		plname, (long)u.ubirthday);
-	dumplogname = qbuf;
+	if (nh_getenv("DUMPLOG")) {
+	  Sprintf(qbuf, nh_getenv("DUMPLOG"), plname, (long)u.ubirthday);
+	  dumplogname = qbuf;
+	} else {
+	  set_dumpfile_name();
+	  dumplogname = fqname(DUMPF, DUMPPREFIX, 0);
+	}
 
         /* TODO: better dump locations */
         dumpfd = open(dumplogname, O_CREAT | O_WRONLY | O_TRUNC, 0644);
