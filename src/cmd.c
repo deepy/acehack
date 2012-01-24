@@ -559,6 +559,13 @@ doinvite()
   char buf[BUFSZ];
   int fd;
   xchar x, y; /* same type as u.ux, u.uy */
+  /* Save compatibility kludge - no inviting if there's no Waiting
+     Room, sign of a game started on a binary without multiplayer. */
+  if (!find_level("wait"))
+  {
+    pline("This dungeon is too old for you to have guests.");
+    return 0;
+  }
   /* The conditions for an invite: you must be within view of the dlvl
      1 upstairs, and that square must be unoccupied. Also, solo mode
      and explore mode disallow multiplayer, not for technical reasons,

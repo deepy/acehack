@@ -640,7 +640,8 @@ register int fd;
 
         /* Determine whether we're in multiplayer mode early, so that
            we know when to delete the savefile. */
-        if (on_level(&u.uz, &(find_level("wait")->dlevel))) {
+        s_level *waitingroom = find_level("wait");
+        if (waitingroom && on_level(&u.uz, &(waitingroom->dlevel))) {
           iflags.multiplayer = TRUE;
           Sprintf(iflags.mp_lock_name, "%llu", (long long)u.ubirthday);
         }

@@ -1076,8 +1076,8 @@ die:
 
 	if (how == QUIT) {
 		killer_format = NO_KILLER_PREFIX;
-		if (iflags.multiplayer &&
-		    on_level(&u.uz, &(find_level("wait")->dlevel)))
+		s_level *waitingroom = find_level("wait");
+		if (waitingroom && on_level(&u.uz, &(waitingroom->dlevel)))
 		  Strcpy(kilbuf, "quit, while stranded");
 		else if (u.uhp < 1) {
 			how = DIED;
