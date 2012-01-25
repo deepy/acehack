@@ -1389,8 +1389,11 @@ boolean at_stairs, falling, portal, mp_save;
 	if (dunlev(newlevel) > dunlevs_in_dungeon(newlevel))
 		newlevel->dlevel = dunlevs_in_dungeon(newlevel);
 	if (newdungeon && In_endgame(newlevel)) { /* 1st Endgame Level !!! */
-		if (u.uhave.amulet)
+		if (u.uhave.amulet) {
+		    if (iflags.multiplayer)  /* temporary endgame fix */
+		        mksobj_at(AMULET_OF_YENDOR, u.ux, u.uy, TRUE, FALSE);
 		    assign_level(newlevel, &earth_level);
+		}
 		else return;
 	}
 	new_ledger = ledger_no(newlevel);
