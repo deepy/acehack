@@ -551,11 +551,10 @@ STATIC_PTR int
 doinvite()
 {
   struct monst *mtmp;
-#ifndef FORCEINVITEPID
   char lockname[BUFSZ];
-#else
-  char lockname[BUFSZ] = FORCEINVITEPID;
-#endif
+  char *invitepid = getenv("INVITEPID");
+  int invitepidlen = invitepid ? strlen(invitepid) : 0;
+  if (invitepid) strcpy(lockname, invitepid);
   char buf[BUFSZ];
   int fd;
   xchar x, y; /* same type as u.ux, u.uy */
@@ -625,13 +624,9 @@ doinvite()
   /* If invitation is legal from this dungeon's point of view, ask who to
      invite. For the time being, use lockfile names. (Ideally we want a
      list eventually.) */
-#ifndef FORCEINVITEPID
-  getlin("What lockname to invite?",lockname);
-  if (!*lockname || *lockname == '\033') return 0; /* cancelled */
-#else
-  getlin("Who do you want to invite?", lockname + strlen(FORCEINVITEPID));
-  if (!lockname[strlen(FORCEINVITEPID)] || lockname[strlen(FORCEINVITEPID)] == '\033') return 0; /* cancelled */
-#endif
+  getlin("Who do you want to invite?", lockname + invitepidlen);
+  if (!lockname[invitepidlen] || lockname[invitepidlen] == '\033')
+    return 0; /* cancelled */
 
   /* If we don't have a control pipe yet, set one up now.
      If we cancel and continue as a single-player game from there, we just
@@ -641,11 +636,8 @@ doinvite()
 
   fd = other_multiplayer_pipe_fd(lockname, 'a');
   if (fd < 0) {
-#ifndef FORCEINVITEPID
-    pline("%s doesn't seem to be waiting to join a game.", lockname);
-#else
-    pline("%s doesn't seem to be waiting to join a game.", lockname + strlen(FORCEINVITEPID));
-#endif
+    pline("%s doesn't seem to be waiting to join a game.",
+	  lockname + invitepidlen);
     return 0;
   }
   /* mplock is the multiplayer lockname, that's used to identify a
@@ -662,11 +654,7 @@ doinvite()
   suppress_more();
   switch (mp_await_reply_or_yield()) {
   case 0: /* declined */
-#ifndef FORCEINVITEPID
-    pline("%s declined your invitation.", lockname);
-#else
-    pline("%s declined your invitation.", lockname + strlen(FORCEINVITEPID));
-#endif
+    pline("%s declined your invitation.", lockname + invitepidlen);
     break;
   case 1: /* accepted */
     pline("Invitation accepted, connecting...");
