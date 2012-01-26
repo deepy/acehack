@@ -2034,7 +2034,7 @@ final_level()
 	create_mplayers(rn1(4, 3), TRUE);
 
 	/* create a guardian angel next to player, if worthy */
-	if (Conflict) {
+	if (!iflags.multiplayer && Conflict) {
 	    pline(
 	     "A voice booms: \"Thy desire for conflict shall be fulfilled!\"");
 	    for (i = rnd(4); i > 0; --i) {
@@ -2045,7 +2045,7 @@ final_level()
 				     mm.x, mm.y, FALSE);
 	    }
 
-	} else if (u.ualign.record > 8) {	/* fervent */
+	} else if (!iflags.multiplayer && u.ualign.record > 8) { /* fervent */
 	    pline("A voice whispers: \"Thou hast been worthy of me!\"");
 	    mm.x = u.ux;
 	    mm.y = u.uy;

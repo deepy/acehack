@@ -1060,7 +1060,8 @@ xchar   ledgerno;
   if (!ledgerno) return TRUE;
   if (ledgerno == (xchar)-1) return FALSE;
   if (ledgerno == ledger_no(&(waitingroom->dlevel))) return TRUE;
-  if (ledger_to_dnum(ledgerno) == dname_to_dnum("The Elemental Planes"))
+  if (ledger_to_dnum(ledgerno) == dname_to_dnum("The Elemental Planes") &&
+      ledgerno != ledger_no(&(find_level("astral")->dlevel)))
     return TRUE;
   return ledger_to_dnum(ledgerno) == quest_dnum;
 }
