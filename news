@@ -1,0 +1,11 @@
+
+  WARNING: multiplayer mode is still incredibly experimental; when playing in
+  multiplayer mode, there's no way to recover a game in case of a crash, and
+  there are still plenty of game-breaking bugs. If you still want to try it,
+  please make sure your connection is good (disconnecting causes one of those
+  bugs) and #invite your friends; being engulfed while someone else is on the
+  level can also cause a panic - it won't crash the other person's game,
+  though; please report any weird behaviour you encounter to the #acehack
+  IRC channel on freenode.
+
+     --kerio
