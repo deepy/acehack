@@ -884,6 +884,7 @@ mp_await_reply_or_yield()
           }
           if (!mp_stopgetch) {
             pline("Communicating...");
+            if (program_state.done_hup) sleep(1); // FIXME: to avoid busyloops
             suppress_more();
           }
         }
