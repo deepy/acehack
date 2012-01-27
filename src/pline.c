@@ -878,13 +878,13 @@ mp_await_reply_or_yield()
         mp_ackflag = mp_errflag = mp_yieldflag = FALSE;
         /* TODO: Implement some commands */
         while (!mp_stopgetch) {
+          if (program_state.done_hup) sleep(1); // FIXME: to avoid busyloops
           if (nhgetch() == '\033') {
             nomul(0);
             break;
           }
           if (!mp_stopgetch) {
             pline("Communicating...");
-            if (program_state.done_hup) sleep(1); // FIXME: to avoid busyloops
             suppress_more();
           }
         }
