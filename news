@@ -5,7 +5,8 @@
   please make sure your connection is good (disconnecting causes one of those
   bugs) and #invite your friends; being engulfed while someone else is on the
   level can also cause a panic - it won't crash the other person's game,
-  though; please report any weird behaviour you encounter to the #acehack
-  IRC channel on freenode.
+  though - and trying to heal or haste another player will cause one side to
+  crash and the other to get stuck, so avoid doing that too; please report any
+  weird behaviour you encounter to the #acehack IRC channel on freenode.
 
      --kerio
