@@ -818,7 +818,7 @@ long umoney;
 	boolean ask;
 
 	if (nh_getenv("DUMPLOG")) {
-	  Sprintf(qbuf, nh_getenv("DUMPLOG"), (long)u.ubirthday);
+	  Sprintf(qbuf, nh_getenv("DUMPLOG"), plname, (long)u.ubirthday);
 	  dumplogname = qbuf;
 	} else {
 	  set_dumpfile_name();
