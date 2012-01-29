@@ -202,9 +202,7 @@ char *argv[];
 		Strcpy(plname, "wizard");
 	else
 #endif
-	if(!*plname || !strncmp(plname, "player", 4)
-		    || !strncmp(plname, "games", 4)) {
-		askname();
+	if(!*plname) { askname();
 	} else if (exact_username) {
 		/* guard against user names with hyphens in them */
 		int len = strlen(plname);
