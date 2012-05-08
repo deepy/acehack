@@ -66,7 +66,7 @@ struct win_choices {
     { &X11_procs, win_X11_init },
 #endif
 #ifdef GL_GRAPHICS
-    { &sflgl_hardw_procs, 0 },
+    { &sdlgl_hardw_procs, 0 },
 #endif
 #ifdef SDL_GRAPHICS
     { &sdlgl_softw_procs, 0 },

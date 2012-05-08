@@ -32,7 +32,7 @@ CC = @CC@ -DAUTOCONF
 WINDRES = @WINDRES@
 
 CFLAGS = -Wall -I../include -I$(srcdir)/../include -DGCC_WARN @CFLAGS@ #-fbounds-checking -fprofile-arcs -ftest-coverage
-LFLAGS = @LFLAGS@ -lm #-fbounds-checking
+LFLAGS = @LFLAGS@ #-fbounds-checking
 
 # Only used for the Gnome interface.
 GNOMEINC=`gnome-config gnome --cflags` -I$(srcdir)/../win/gnome
@@ -132,7 +132,7 @@ WINGNOMELIB = -lgnomeui -lgnome -lart_lgpl -lgtk -lgdk -lpopt
 #
 # libraries for SDL/GL window port
 WINSDLLIB = `sdl-config --libs` -lz -lpng
-WINGLLIB =
+WINGLLIB = `sdl-config --libs` -lz -lpng -lGL
 #
 # libraries for Gem port
 WINGEMLIB = -le_gem -lgem
@@ -144,7 +144,7 @@ WINMSLIB = -lcomctl32 -lgdi32
 
 WINLIB = @WINLIB@
 
-LIBS =
+LIBS = -lm
 
 # make NetHack
 GAME     = acehack$(EXEEXT)
