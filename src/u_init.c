@@ -587,6 +587,10 @@ u_init_idempotent()
 	u.uspellprot = 0;
 	u.ulevel = u.ulevelmax = 1;
 
+        if (iflags.multiplayer) {
+            iflags.heaven_or_hell = iflags.hell_and_hell = 0;
+        }
+
 	if (iflags.heaven_or_hell) {
 		heaven_or_hell_mode = TRUE;
 	}
