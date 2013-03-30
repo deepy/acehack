@@ -574,6 +574,10 @@ doinvite()
     You_cant("use other players to help you play solo!");
     return 0;
   }
+  if (heaven_or_hell_mode || hell_and_hell_mode) {
+      You_cant("seek help against the hordes of hell!");
+  }
+
   if (discover && !wizard)
   {
     You_cant("invite players in explore mode.");
