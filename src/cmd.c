@@ -576,6 +576,7 @@ doinvite()
   }
   if (heaven_or_hell_mode || hell_and_hell_mode) {
       You_cant("seek help against the hordes of hell!");
+      return 0;
   }
 
   if (discover && !wizard)
