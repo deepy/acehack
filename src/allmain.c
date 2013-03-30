@@ -865,6 +865,10 @@ found_game_to_attach_to: ;
         /* Affects just the character him/herself. */
         u_init_nonidempotent();
 
+        /* Disable HoH/HaH when joining a game. */
+        iflags.heaven_or_hell = heaven_or_hell_mode = FALSE;
+        iflags.hell_and_hell = hell_and_hell_mode = FALSE;
+
         /* We /cannot/ call init_dungeons, as that would lead to an
            incompatible dungeon layout between the games, which causes
            immense problems (both in terms of implementation, and in
