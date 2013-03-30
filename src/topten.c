@@ -384,6 +384,8 @@ struct toptenentry *tt;
   (void)fprintf(rfile, SEP "mode=%s", (flags.debug ? "debug" :
 				       flags.explore ? "explore" :
                                        iflags.multiplayer ? "multiplayer" :
+                                       hell_and_hell_mode ? "hah" :
+                                       heaven_or_hell_mode ? "hoh" :
 				       flags.solomode ? "solo" :
 				       "normal"));
 
