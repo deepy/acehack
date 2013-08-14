@@ -1890,7 +1890,7 @@ struct ext_func_tab extcmdlist[] = {
   {"move", "move even if something's in the way", 0, TRUE, 20, 'm', 0, 0, 'm'},
   {"name", "name a monster, item or type of object", ddocall, TRUE, 1,
    'C', M('n'), M('N'), 0},
-  {"north", "move, attack, or interact south", 0, FALSE, 21, 'k', '8', 0, 'k'},
+  {"north", "move, attack, or interact north", 0, FALSE, 21, 'k', '8', 0, 'k'},
   {"northfar", "move south as far as possible", 0, FALSE, 22, 'K', 0, 0, 'K'},
   {"northfarcareful", "move south until something interesting happens",
    0, FALSE, 23, C('k'), 0, 0, C('k')},
