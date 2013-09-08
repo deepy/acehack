@@ -576,6 +576,8 @@ E boolean FDECL(maybe_finished_meal, (BOOLEAN_P));
 
 /* ### end.c ### */
 
+E void NDECL(mk_dgl_extrainfo);
+E char *FDECL(dump_format_str, (char *));
 E void FDECL(done1, (int));
 E int NDECL(done2);
 #ifdef USE_TRAMPOLI

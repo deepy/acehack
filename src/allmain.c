@@ -44,6 +44,7 @@ moveloop()
 
     initrack();
 
+static long prev_dgl_extrainfo = 0;
 
     /* Note:  these initializers don't do anything except guarantee that
 	    we're linked properly.
@@ -234,6 +235,12 @@ moveloop()
 		    if (u.ublesscnt)  u.ublesscnt--;
 		    if(flags.time && !flags.run)
 			flags.botl = 1;
+
+		    if ((prev_dgl_extrainfo == 0) || (prev_dgl_extrainfo < (moves + 250))) {
+			prev_dgl_extrainfo = moves;
+			mk_dgl_extrainfo();
+		    }
+
 
 		    /* One possible result of prayer is healing.  Whether or
 		     * not you get healed depends on your current hit points.
