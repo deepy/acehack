@@ -1412,7 +1412,7 @@ boolean at_stairs, falling, portal, mp_save;
 	 *	 -2    8.33   4.17   0.0	 -2    6.25   8.33   0.0
 	 *	 -3    8.33   4.17   0.0	 -3    6.25   0.0    0.0
 	 */
-	if (Inhell && up && u.uhave.amulet && !newdungeon && !portal &&
+	if (0 && Inhell && up && u.uhave.amulet && !newdungeon && !portal &&
 				(dunlev(&u.uz) < dunlevs_in_dungeon(&u.uz)-3)) {
 		if (!rn2(4)) {
 		    int odds = 3 + (int)u.ualign.type,		/* 2..4 */
