@@ -168,6 +168,8 @@ static struct Bool_Opt
 	{"rawio", (boolean *)0, FALSE, SET_IN_FILE},
 #endif
 	{"rest_on_space", &flags.rest_on_space, FALSE, SET_IN_FILE},
+        {"room_colors", &iflags.roomcolors, FALSE, SET_IN_GAME},
+
 	{"safe_pet", &flags.safe_dog, TRUE, SET_IN_FILE},
 #ifdef WIZARD
 	{"sanity_check", &iflags.sanity_check, FALSE, SET_IN_GAME},
