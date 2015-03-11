@@ -198,6 +198,7 @@ struct instance_flags {
 #endif
         boolean targethighlight;/* highlight directions when targeting */
         boolean floorcolor;     /* color floor as well as everything else */
+        boolean roomcolors;     /* color each room differently (cosmetic) */
 #ifdef MFLOPPY
 	boolean checkspace;	/* check disk space before writing files */
 				/* (in iflags to allow restore after moving

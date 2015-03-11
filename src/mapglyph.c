@@ -62,8 +62,8 @@ int explcolors[] = {
 #endif
 
 STATIC_DCL int
-dungeon_specific_color(glyph, disturbed, defcolor, x, y)
-int glyph, defcolor, x, y;
+dungeon_specific_color(glyph, disturbed, defcolor, x, y, rno)
+int glyph, defcolor, x, y, rno;
 boolean disturbed;
 {
   /* The only glyphs that we color per-dungeon are walls, and
@@ -101,6 +101,33 @@ boolean disturbed;
     COLORSET(BRIGHT_BLUE,BLUE,BRIGHT_CYAN,CYAN,BRIGHT_MAGENTA);
   else if (In_hell(&u.uz)) /* Gehennom */
     COLORSET(ORANGE,RED,BRIGHT_MAGENTA,MAGENTA,ORANGE);
+  else if (iflags.roomcolors && glyphtype == 3) {
+      /* We want a number from 1 to about 75, chosen in a
+       * deterministic and stable manner based on things
+       * that do not change as the game progresses, such
+       * as dungeon depth and room number.  Hmm... */
+      int clr = ((int)((long)u.ubirthday / 479L) *
+                 (rno + 1) * (u.uz.dlevel + 1) * (u.uz.dnum + 1)) % 75;
+      switch(clr) {
+      case  1: case 15: return CLR_RED;
+      case  2: case 16: return CLR_GREEN;
+      case  3: case 17: return CLR_BROWN;
+      case  4: case 18: return CLR_BLUE;
+      case  5: case 19: return CLR_MAGENTA;
+      case  6: case 20: return CLR_CYAN;
+      case  7: return CLR_GRAY;
+      case  8: return CLR_ORANGE;
+      case  9: return CLR_BRIGHT_GREEN;
+      case 10: return CLR_YELLOW;
+      case 11: return CLR_BRIGHT_BLUE;
+      case 12: return CLR_BRIGHT_MAGENTA;
+      case 13: return CLR_BRIGHT_CYAN;
+      case 14: return CLR_WHITE;
+      case 21: /* Rainbow Room */
+          return 1 + (((2 * x) + (3 * y) + clr) % CLR_MAX);
+      default: return NO_COLOR;
+      }
+  }
   else /* Vlad's or Dungeons */
     COLORSET(NONE,BLUE,BROWN,CYAN,NONE);
 #undef COLOR_NONE
@@ -210,7 +237,8 @@ unsigned *ospecial;
               }
             }
             else color = dungeon_specific_color(
-              glyph, levl[x][y].stepped_on, color, x, y);
+              glyph, levl[x][y].stepped_on, color, x, y,
+              levl[x][y].roomno);
         }
 #endif
     } else if ((offset = (glyph - GLYPH_OBJ_OFF)) >= 0) {	/* object */
